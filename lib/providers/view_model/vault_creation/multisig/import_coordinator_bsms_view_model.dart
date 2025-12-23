@@ -1,5 +1,7 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -52,5 +54,23 @@ class ImportCoordinatorBsmsViewModel {
         memo: entry.value.label,
       );
     }).toList();
+  }
+
+  void validateBsmsNetwork(String bsms) {
+    final bool isAppMainnet = NetworkType.currentNetworkType == NetworkType.mainnet;
+    final String rawData = bsms.toLowerCase();
+
+    final bool isDataTestnet = rawData.contains('tpub') || rawData.contains('vpub') || rawData.contains('upub');
+    final bool isDataMainnet = rawData.contains('xpub') || rawData.contains('zpub') || rawData.contains('ypub');
+
+    if (isDataTestnet || isDataMainnet) {
+      if (isAppMainnet && isDataTestnet && !isDataMainnet) {
+        throw NetworkMismatchException(message: t.alert.bsms_network_mismatch.description_when_mainnet);
+      }
+
+      if (!isAppMainnet && isDataMainnet && !isDataTestnet) {
+        throw NetworkMismatchException(message: t.alert.bsms_network_mismatch.description_when_testnet);
+      }
+    }
   }
 }

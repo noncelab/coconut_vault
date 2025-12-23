@@ -110,25 +110,7 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
         return;
       }
 
-      final bool isAppMainnet = NetworkType.currentNetworkType == NetworkType.mainnet;
-
-      final String resultString = result.toString().toLowerCase();
-
-      final bool isDataTestnet =
-          resultString.contains('tpub') || resultString.contains('vpub') || resultString.contains('upub');
-
-      final bool isDataMainnet =
-          resultString.contains('xpub') || resultString.contains('zpub') || resultString.contains('ypub');
-
-      if (isDataTestnet || isDataMainnet) {
-        if (isAppMainnet && isDataTestnet && !isDataMainnet) {
-          throw NetworkMismatchException();
-        }
-
-        if (!isAppMainnet && isDataMainnet && !isDataTestnet) {
-          throw NetworkMismatchException();
-        }
-      }
+      _viewModel.validateBsmsNetwork(result.toString());
 
       NormalizedMultisigConfig normalizedMultisigConfig = MultisigNormalizer.fromCoordinatorResult(result);
       Logger.log(

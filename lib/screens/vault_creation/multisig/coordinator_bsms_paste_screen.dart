@@ -99,22 +99,7 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
       throw Exception("Incomplete data");
     }
 
-    final bool isAppMainnet = NetworkType.currentNetworkType == NetworkType.mainnet;
-
-    final String rawData = bsms.toLowerCase();
-
-    final bool isDataTestnet = rawData.contains('tpub') || rawData.contains('vpub') || rawData.contains('upub');
-    final bool isDataMainnet = rawData.contains('xpub') || rawData.contains('zpub') || rawData.contains('ypub');
-
-    if (isDataTestnet || isDataMainnet) {
-      if (isAppMainnet && isDataTestnet && !isDataMainnet) {
-        throw NetworkMismatchException(message: t.alert.bsms_network_mismatch.description_when_mainnet);
-      }
-
-      if (!isAppMainnet && isDataMainnet && !isDataTestnet) {
-        throw NetworkMismatchException(message: t.alert.bsms_network_mismatch.description_when_testnet);
-      }
-    }
+    _viewModel.validateBsmsNetwork(bsms);
 
     NormalizedMultisigConfig normalizedMultisigConfig = MultisigNormalizer.fromCoordinatorResult(_dataHandler.result);
     Logger.log(
