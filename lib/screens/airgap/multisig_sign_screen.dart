@@ -302,16 +302,28 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           onMultisigSignCompleted: (psbtBase64) async {
             final signingPublicKey = _viewModel.signingPublicKey;
             int? signerIndex = index;
-            final signedPsbt = Psbt.parse(psbtBase64);
-            bool canSign = false;
+            String errorMessage = '';
 
-            // PSBT inputs의 derivationPathList에서 masterFingerprint와 publicKey를 추출하여 signedInputsMap 생성
-            if (signedPsbt.inputs.isNotEmpty) {
-              final input = signedPsbt.inputs[0];
-              if (input.partialSig != null && input.partialSig!.isNotEmpty) {
-                for (var sig in input.partialSig!) {
-                  final pubKey = sig.publicKey;
-                  canSign = signingPublicKey == pubKey;
+            bool canSign = false;
+            if (psbtBase64.startsWith('02000000')) {
+              // 최종 서명 완료 후 Raw Transaction을 전달받은 경우 서명 가능
+              canSign = _viewModel.canUpdatePsbt(psbtBase64);
+              if (!canSign) {
+                errorMessage = t.errors.invalid_sign_error;
+              }
+            } else {
+              final signedPsbt = Psbt.parse(psbtBase64);
+              // PSBT inputs의 derivationPathList에서 masterFingerprint와 publicKey를 추출하여 signedInputsMap 생성
+              if (signedPsbt.inputs.isNotEmpty) {
+                final input = signedPsbt.inputs[0];
+                if (input.partialSig != null && input.partialSig!.isNotEmpty) {
+                  for (var sig in input.partialSig!) {
+                    final pubKey = sig.publicKey;
+                    canSign = signingPublicKey == pubKey;
+                  }
+                  if (!canSign) {
+                    errorMessage = t.multisig_sign_screen.dialog.sign_error.description;
+                  }
                 }
               }
             }
@@ -378,15 +390,13 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               return;
             }
             _viewModel.updatePsbt(psbtBase64);
+            _viewModel.syncImportedPartialSigs(psbtBase64);
 
             if (_viewModel.isSignatureComplete) {
               // 서명이 완료된 상태라면 서명 완료 플로우로 진행
               await _checkAndShowCreatingQrCode(shouldPop: true);
               return;
             }
-
-            _viewModel.syncImportedPartialSigs(psbtBase64);
-
             Navigator.pop(context);
 
             // 바텀시트가 닫힌 후 팝업 표시

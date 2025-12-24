@@ -131,13 +131,15 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         await _viewModel.setMatchingVault(psbtBase64);
       } else {
         // id를 이용해 특정 지갑에 대해 psbt 파싱
-        await _viewModel.preparePsbtForVault(
-          widget.id!,
-          psbtBase64,
-          hasDerivationPath:
-              widget.hardwareWalletType != HardwareWalletType.krux &&
-              widget.hardwareWalletType != HardwareWalletType.seedSigner,
-        );
+        if (!psbtBase64.startsWith('02000000')) {
+          await _viewModel.preparePsbtForVault(
+            widget.id!,
+            psbtBase64,
+            hasDerivationPath:
+                widget.hardwareWalletType != HardwareWalletType.krux &&
+                widget.hardwareWalletType != HardwareWalletType.seedSigner,
+          );
+        }
       }
     } catch (e) {
       vibrateExtraLightDouble();
@@ -158,15 +160,14 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     }
 
     vibrateLight();
-    if (widget.onMultisigSignCompleted == null) {
-      // 멀티시그 서명 스캐너가 아닌 상황
-      _viewModel.saveUnsignedPsbt(psbtBase64);
-    }
 
     if (widget.hardwareWalletType != null) {
       widget.onMultisigSignCompleted!(psbtBase64);
       return;
     }
+
+    // 멀티시그 서명 스캐너가 아닌 상황
+    _viewModel.saveUnsignedPsbt(psbtBase64);
 
     if (mounted) {
       // INFO: 다중 서명 단계에서 카메라 모듈을 계속 사용해야 하므로 Replacement로 대체
