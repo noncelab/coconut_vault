@@ -300,11 +300,37 @@ class WalletProvider extends ChangeNotifier {
 
   MultisigVaultListItem? findSameMultisigWallet(NormalizedMultisigConfig config) {
     final vaultIndex = _vaultList.indexWhere((element) {
-      if (element is SingleSigVaultListItem) return false;
-      final wallet = element as MultisigVaultListItem;
-      return wallet.requiredSignatureCount == config.requiredCount &&
-          wallet.signers.length == config.totalSigners &&
-          setEquals(wallet.signerFingerprints, config.signerFingerprints);
+      if (element is! MultisigVaultListItem) return false;
+
+      final wallet = element;
+
+      if (wallet.requiredSignatureCount != config.requiredCount || wallet.signers.length != config.totalSigners) {
+        return false;
+      }
+
+      try {
+        final Set<String> existingWalletXpubs =
+            wallet.signers.map((signer) {
+              // signerBsms가 null이면 빈 문자열을 넣어 파싱 오류를 유발하고 catch로 이동
+              final bsmsToCheck = signer.signerBsms ?? "";
+
+              final keyStore = KeyStore.fromSignerBsms(bsmsToCheck);
+              return keyStore.extendedPublicKey.toString();
+            }).toSet();
+
+        final Set<String> newConfigXpubs =
+            config.signerBsms.map((bsmsEntry) {
+              final bsmsString = bsmsEntry.toString();
+
+              final keyStore = KeyStore.fromSignerBsms(bsmsString);
+              return keyStore.extendedPublicKey.toString();
+            }).toSet();
+
+        // 두 Xpub 집합(Set) 비교 (순서 무관, 내용 동일 여부)
+        return setEquals(existingWalletXpubs, newConfigXpubs);
+      } catch (e) {
+        return false;
+      }
     });
 
     return vaultIndex != -1 ? _vaultList[vaultIndex] as MultisigVaultListItem : null;
