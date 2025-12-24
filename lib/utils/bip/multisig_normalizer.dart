@@ -111,6 +111,8 @@ class MultisigNormalizer {
       final fingerprint = _normalizeFingerprint(fpRaw);
       final normalizedPath = _normalizeHardenedPath(pathRaw);
 
+      _validateDerivationPath(normalizedPath);
+
       final label = namesMap[fingerprint];
 
       final bsms = _buildSignerBsms(
@@ -144,9 +146,12 @@ class MultisigNormalizer {
       (l) => l.startsWith('Derivation:'),
       orElse: () => throw const FormatException('Derivation not found'),
     );
-    final derivationPath = derivationLine.split(':')[1].trim().replaceAll('m/', ''); // 예: 48'/1'/0'/2'
 
-    // signer lines: FINGERPRINT: XPUB
+    String derivationPath = derivationLine.split(':')[1].trim().replaceAll('m/', '');
+
+    derivationPath = _normalizeHardenedPath(derivationPath);
+    _validateDerivationPath(derivationPath);
+
     final signerLines = lines.where((l) => l.contains(':') && l.contains('pub')).toList();
 
     final signerBsms = <String>[];
@@ -158,7 +163,7 @@ class MultisigNormalizer {
 
       final bsms = _buildSignerBsms(
         fingerprint: _normalizeFingerprint(parts[0]),
-        derivationPath: _normalizeHardenedPath(derivationPath),
+        derivationPath: derivationPath,
         extendedKey: xpub,
       );
 
@@ -203,6 +208,8 @@ class MultisigNormalizer {
       final fingerprint = _normalizeFingerprint(fpRaw);
       final normalizedPath = _normalizeHardenedPath(pathRaw);
 
+      _validateDerivationPath(normalizedPath);
+
       final bsms = _buildSignerBsms(fingerprint: fingerprint, derivationPath: normalizedPath, extendedKey: extendedKey);
 
       signerBsms.add(bsms);
@@ -241,6 +248,8 @@ class MultisigNormalizer {
 
       final fingerprint = _normalizeFingerprint(fpRaw);
       final normalizedPath = _normalizeHardenedPath(pathRaw);
+
+      _validateDerivationPath(normalizedPath);
 
       final bsms = _buildSignerBsms(fingerprint: fingerprint, derivationPath: normalizedPath, extendedKey: xpub);
       signerBsms.add(bsms);
@@ -300,6 +309,22 @@ class MultisigNormalizer {
     return normalized.join('/');
   }
 
+  static void _validateDerivationPath(String normalizedPath) {
+    final parts = normalizedPath.split('/');
+
+    if (parts.length < 4) {
+      throw const FormatException('Invalid derivation path length. Must follow BIP48 structure.');
+    }
+
+    if (parts[0] != "48'") {
+      throw const FormatException('Invalid Purpose. Must start with 48\' for Multisig (BIP48).');
+    }
+
+    if (parts.last != "2'") {
+      throw const FormatException('Unsupported Script Type. Must end with /2\' for Native SegWit (P2WSH).');
+    }
+  }
+
   static String _buildSignerBsms({
     required String fingerprint,
     required String derivationPath,
@@ -351,7 +376,7 @@ class MultisigNormalizer {
     }
 
     if (targetEntry == null) {
-      throw const FormatException('Required derivation path not found in UR result');
+      throw const FormatException('Required Native SegWit (P2WSH) derivation path not found in UR result');
     }
 
     final origin = _convertKeysToString(targetEntry['6']);
@@ -370,7 +395,7 @@ class MultisigNormalizer {
     final pubKey = Uint8List.fromList(targetEntry['3'].bytes);
     final chainCode = Uint8List.fromList(targetEntry['4'].bytes);
     HDWallet wallet = HDWallet.fromPublicKey(pubKey, chainCode);
-    wallet.depth = 3; //
+    wallet.depth = 3;
     int version =
         NetworkType.currentNetworkType == NetworkType.mainnet
             ? AddressType.p2wsh.versionForMainnet
@@ -413,7 +438,6 @@ class MultisigNormalizer {
       segments.add(hardened.value ? "$value'" : '$value');
     }
 
-    // 여기서는 "48'/1'/0'/2'" 형태로만 반환 (m/ 붙이는건 상위 로직에서)
     return segments.join('/');
   }
 
@@ -446,10 +470,13 @@ class MultisigNormalizer {
     if (match == null) {
       throw const FormatException('Descriptor does not contain a valid [mfp/path] block');
     }
-    final bracketContent = match.group(0)!; // [a0f6ba00/48'/1'/0'/2']
+    final bracketContent = match.group(0)!;
     final cleanedBracketContent = bracketContent.substring(1, bracketContent.length - 1);
     final fingerprint = _normalizeFingerprint(cleanedBracketContent.split('/')[0]);
-    final derivationPath = _normalizeHardenedPath(cleanedBracketContent.split('/').sublist(1).join('/'));
+    final derivationPathRaw = cleanedBracketContent.split('/').sublist(1).join('/');
+
+    final derivationPath = _normalizeHardenedPath(derivationPathRaw);
+    _validateDerivationPath(derivationPath);
 
     return _buildSignerBsms(fingerprint: fingerprint, derivationPath: derivationPath, extendedKey: xpub);
   }
@@ -461,18 +488,19 @@ class MultisigNormalizer {
     }
     final bracketContent = matches.first.group(1)!;
     final fingerprint = bracketContent.split('/')[0];
-    final derivationPath = bracketContent.split('/').sublist(1).join('/');
+    final derivationPathRaw = bracketContent.split('/').sublist(1).join('/');
     final xpub = matches.first.group(2)!;
+
+    final derivationPath = _normalizeHardenedPath(derivationPathRaw);
+    _validateDerivationPath(derivationPath);
 
     return _buildSignerBsms(
       fingerprint: _normalizeFingerprint(fingerprint),
-      derivationPath: _normalizeHardenedPath(derivationPath),
+      derivationPath: derivationPath,
       extendedKey: xpub,
     );
   }
 
-  /// derivation path 표기 차이를 흡수하기 위한 정규화 함수
-  /// 예) m/48h/1h/0h/2h/0/1, m/48'/1'/0'/2'/0/1, m/48H/1H/... 등을 동일하게 취급
   static String normalizeDerivationPath(String path) {
     var p = path.trim();
     if (p.isEmpty) return p;

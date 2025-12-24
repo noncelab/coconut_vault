@@ -163,6 +163,11 @@ class WalletProvider extends ChangeNotifier {
         throw FormatException('Signer purpose index is not allowed : $path');
       }
 
+      // Only P2WSH(Native SegWit) support
+      if (allowedMultisigAddressTypes[allowedAddressTypeIndex] != AddressType.p2wsh) {
+        throw FormatException('Only Native SegWit (P2WSH) wallet is supported : $path');
+      }
+
       // coinType check
       final String coinType = splitedPath[1];
       final isValidCoinType = NetworkType.currentNetworkType.isTestnet ? coinType == "1'" : coinType == "0'";
