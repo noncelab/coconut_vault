@@ -79,7 +79,7 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
 
     String message;
 
-    if (e is NetworkMismatchException || e is FormatException || e is ArgumentError) {
+    if (e is NetworkMismatchException) {
       message = (e as dynamic).message;
     } else {
       message = t.bsms_paste_screen.error_message;
