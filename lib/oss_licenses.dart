@@ -15,6 +15,7 @@ const allDependencies = <Package>[
   _asn1lib,
   _async,
   _back_button_interceptor,
+  _base32,
   _bech32,
   _bech32m_i,
   _boolean_selector,
@@ -194,6 +195,7 @@ const allDependencies = <Package>[
 
 /// Direct `dependencies`.
 const dependencies = <Package>[
+  _base32,
   _cbor,
   _coconut_design_system,
   _coconut_lib,
@@ -565,6 +567,25 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   isMarkdown: false,
   isSdk: false,
   dependencies: [PackageRef('collection'), PackageRef('flutter')],
+);
+
+/// base32 2.2.0
+const _base32 = Package(
+  name: 'base32',
+  description: 'Base32 Encoder and Decoder for Dart, primarily used for One Time Password secrets.',
+  homepage: 'https://github.com/Daegalus/dart-base32',
+  authors: [],
+  version: '2.2.0',
+  license: '''Copyright (c) 2012 Yulian Kuncheff
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.''',
+  isMarkdown: false,
+  isSdk: false,
+  dependencies: [],
 );
 
 /// bech32 0.2.2

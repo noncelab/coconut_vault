@@ -111,7 +111,6 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
           onTapRight: () {
             _scanDataHandler.reset();
             _isProcessing = false;
-            controller?.start();
             Navigator.pop(context);
           },
         );
@@ -120,7 +119,6 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
   }
 
   Future<void> _onCompletedScanning(dynamic psbt) async {
-    await stopCamera();
     if (_isProcessing) return;
     _isProcessing = true;
 
@@ -133,13 +131,15 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         await _viewModel.setMatchingVault(psbtBase64);
       } else {
         // id를 이용해 특정 지갑에 대해 psbt 파싱
-        await _viewModel.preparePsbtForVault(
-          widget.id!,
-          psbtBase64,
-          hasDerivationPath:
-              widget.hardwareWalletType != HardwareWalletType.krux &&
-              widget.hardwareWalletType != HardwareWalletType.seedSigner,
-        );
+        if (!psbtBase64.startsWith('02000000')) {
+          await _viewModel.preparePsbtForVault(
+            widget.id!,
+            psbtBase64,
+            hasDerivationPath:
+                widget.hardwareWalletType != HardwareWalletType.krux &&
+                widget.hardwareWalletType != HardwareWalletType.seedSigner,
+          );
+        }
       }
     } catch (e) {
       vibrateExtraLightDouble();
@@ -160,27 +160,29 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     }
 
     vibrateLight();
-    if (widget.onMultisigSignCompleted == null) {
-      // 멀티시그 서명 스캐너가 아닌 상황
-      _viewModel.saveUnsignedPsbt(psbtBase64);
-    }
 
     if (widget.hardwareWalletType != null) {
       widget.onMultisigSignCompleted!(psbtBase64);
       return;
     }
 
+    // 멀티시그 서명 스캐너가 아닌 상황
+    _viewModel.saveUnsignedPsbt(psbtBase64);
+
     if (mounted) {
+      // INFO: 다중 서명 단계에서 카메라 모듈을 계속 사용해야 하므로 Replacement로 대체
+      Navigator.pushReplacementNamed(context, AppRoutes.psbtConfirmation);
+
       /// Go-router 제거 이후로 ios에서는 정상 작동하지만 안드로이드에서는 pushNamed로 화면 이동 시 카메라 컨트롤러 남아있는 이슈
-      if (Platform.isAndroid) {
-        Navigator.pushReplacementNamed(context, AppRoutes.psbtConfirmation);
-      } else if (Platform.isIOS) {
-        Navigator.pushNamed(context, AppRoutes.psbtConfirmation).then((o) {
-          // 뒤로가기로 다시 돌아왔을 때
-          _isProcessing = false;
-          controller?.start();
-        });
-      }
+      // if (Platform.isAndroid) {
+      //   Navigator.pushReplacementNamed(context, AppRoutes.psbtConfirmation);
+      // } else if (Platform.isIOS) {
+      //   Navigator.pushNamed(context, AppRoutes.psbtConfirmation).then((o) {
+      //     // 뒤로가기로 다시 돌아왔을 때
+      //     _scanDataHandler.reset();
+      //     _isProcessing = false;
+      //   });
+      // }
     }
   }
 
@@ -196,12 +198,6 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     }
 
     _showErrorDialog(errorMessage);
-  }
-
-  Future<void> stopCamera() async {
-    if (controller != null) {
-      await controller?.start();
-    }
   }
 
   List<TextSpan> _getGuideTextSpan() {

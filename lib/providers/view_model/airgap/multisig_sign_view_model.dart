@@ -8,6 +8,7 @@ import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
+import 'package:coconut_vault/utils/print_util.dart';
 import 'package:flutter/foundation.dart';
 
 class MultisigSignViewModel extends ChangeNotifier {
@@ -373,11 +374,17 @@ class MultisigSignViewModel extends ChangeNotifier {
 
   /// 스캔된 PSBT의 partial signature를 기반으로 서명 상태를 동기화합니다.
   void syncImportedPartialSigs(String psbtBase64) {
-    final scannedPsbtPartialSigsMap =
-        Psbt.parse(psbtBase64).inputs[0].partialSig?.map((e) => e.publicKey).toList() ?? [];
+    if (psbtBase64.startsWith('02000000')) {
+      // Raw Transaction인 경우 서명 여부 확인을 canUpdatePsbt()에서 이미 진행 완료
+      _signerApproved.fillRange(0, _signerApproved.length, true);
+      notifyListeners();
+      return;
+    }
+
+    final scannedPsbtPartialSigs = Psbt.parse(psbtBase64).inputs[0].partialSig?.map((e) => e.publicKey).toList() ?? [];
     _signerApproved.fillRange(0, _signerApproved.length, false);
 
-    if (scannedPsbtPartialSigsMap.isEmpty) {
+    if (scannedPsbtPartialSigs.isEmpty) {
       // partialSig가 비어있는 경우 = 서명이 하나도 안된 경우
       debugPrint('scannedPsbtPartialSigsMap is empty');
       notifyListeners();
@@ -389,7 +396,7 @@ class MultisigSignViewModel extends ChangeNotifier {
       final pubKey = unsignedPubkeyMap![mfp];
       final index = signers.indexOf(signer);
 
-      if (scannedPsbtPartialSigsMap.contains(pubKey)) {
+      if (scannedPsbtPartialSigs.contains(pubKey)) {
         _signerApproved[index] = true;
       }
     }
@@ -401,7 +408,50 @@ class MultisigSignViewModel extends ChangeNotifier {
   bool canUpdatePsbt(String scannedPsbt) {
     try {
       final currentUnsignedTransactionPsbt = Psbt.parse(_psbtForSigning).unsignedTransaction!.serialize();
-      final scannedUnsignedTransactionPsbt = Psbt.parse(scannedPsbt).unsignedTransaction!.serialize();
+      final scannedUnsignedTransactionPsbt =
+          scannedPsbt.startsWith('02000000') ? scannedPsbt : Psbt.parse(scannedPsbt).unsignedTransaction!.serialize();
+
+      if (scannedPsbt.startsWith('02000000')) {
+        // scannedPsbt가 *Raw Transaction인 경우
+        // * 콜드카드에서는 마지막 최종 서명 후엔 Raw Transaction을 전달합니다.
+        final parsedCurrentUnsignedTransaction = Transaction.parse(currentUnsignedTransactionPsbt);
+        final parsedScannedUnsignedTransaction = Transaction.parse(scannedUnsignedTransactionPsbt);
+        if (parsedCurrentUnsignedTransaction.transactionHash != parsedScannedUnsignedTransaction.transactionHash) {
+          return false;
+        }
+        if (parsedCurrentUnsignedTransaction.outputs.length != parsedScannedUnsignedTransaction.outputs.length) {
+          return false;
+        }
+        if (parsedCurrentUnsignedTransaction.inputs.length != parsedScannedUnsignedTransaction.inputs.length) {
+          return false;
+        }
+        for (int i = 0; i < parsedCurrentUnsignedTransaction.outputs.length; i++) {
+          if (parsedCurrentUnsignedTransaction.outputs[i].serialize() !=
+              parsedScannedUnsignedTransaction.outputs[i].serialize()) {
+            return false;
+          }
+        }
+        for (int i = 0; i < parsedCurrentUnsignedTransaction.inputs.length; i++) {
+          if (parsedCurrentUnsignedTransaction.inputs[i].serialize() !=
+              parsedScannedUnsignedTransaction.inputs[i].serialize()) {
+            return false;
+          }
+
+          if (parsedScannedUnsignedTransaction.inputs[i].witnessList.length - 2 !=
+              _vaultListItem.requiredSignatureCount) {
+            // 서명 개수 체크
+
+            // n = requiredSignatureCount 일 때,
+            // witnessList[0] = dummy
+            // witnessList[..] = signature
+            // witnessList[..] = signature
+            // witnessList[n + 1] = witness script
+
+            return false;
+          }
+        }
+        return true;
+      }
 
       if (currentUnsignedTransactionPsbt != scannedUnsignedTransactionPsbt) {
         return false;
