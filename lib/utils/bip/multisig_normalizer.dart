@@ -7,6 +7,16 @@ import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 /// CoordinatorBsmsQrDataHandler.result -> NormalizedMultisigConfig
 class MultisigNormalizer {
   static NormalizedMultisigConfig fromCoordinatorResult(dynamic result) {
+    // parsing error check
+    final config = _internalParse(result);
+
+    // duplicate signer error check
+    _validateUniqueSigners(config.signerBsms.map((e) => e.getSignerBsms()).toList());
+
+    return config;
+  }
+
+  static NormalizedMultisigConfig _internalParse(dynamic result) {
     if (result == null) {
       throw const FormatException('Empty coordinator result');
     }
@@ -47,6 +57,31 @@ class MultisigNormalizer {
       return _normalizeCoconutText(result.toString().trim());
     }
     return _normalizeJson(result as Map<String, dynamic>);
+  }
+
+  static void _validateUniqueSigners(List<String> signerBsms) {
+    final Set<String> distinctKeys = {};
+
+    for (final bsmsString in signerBsms) {
+      final match = RegExp(r']([A-Za-z0-9]+)').firstMatch(bsmsString);
+
+      if (match != null) {
+        final rawKey = match.group(1)!;
+
+        try {
+          final keyObj = ExtendedPublicKey.parse(rawKey);
+
+          final normalizedXpub = keyObj.serialize(toXpub: true);
+
+          if (distinctKeys.contains(normalizedXpub)) {
+            throw FormatException('Duplicate signer detected', normalizedXpub);
+          }
+          distinctKeys.add(normalizedXpub);
+        } catch (e) {
+          if (e is FormatException) rethrow;
+        }
+      }
+    }
   }
 
   static NormalizedMultisigConfig _normalizeCoconutText(String text) {
