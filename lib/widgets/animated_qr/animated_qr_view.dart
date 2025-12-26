@@ -62,13 +62,9 @@ class _AnimatedQrViewState extends State<AnimatedQrView> {
 
     _timer = Timer.periodic(Duration(milliseconds: widget.milliSeconds), (timer) {
       final next = widget.qrViewDataHandler.nextPart();
-      final int estimatedBits = next.runes.fold<int>(0, (prev, c) => prev + c.bitLength);
-
-      if (estimatedBits <= _maxBits) {
-        setState(() {
-          _qrData = next;
-        });
-      }
+      setState(() {
+        _qrData = next;
+      });
     });
   }
 
