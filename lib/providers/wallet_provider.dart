@@ -17,6 +17,7 @@ import 'package:coconut_vault/model/exception/not_related_multisig_wallet_except
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
+import 'package:coconut_vault/utils/coconut/extended_pubkey_utils.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:flutter/foundation.dart';
@@ -118,8 +119,10 @@ class WalletProvider extends ChangeNotifier {
 
     validateSigners(signers);
 
+    final sanitizedSigners = _getSanitizedSigners(signers);
+
     final vault = await _walletRepository.addMultisigWallet(
-      MultisigWallet(null, _getUnduplicatedName(name), icon, color, signers, requiredSignatureCount),
+      MultisigWallet(null, _getUnduplicatedName(name), icon, color, sanitizedSigners, requiredSignatureCount),
       shouldAttachInnerVaultMetadata: isImported,
     );
     _setVaultList(_walletRepository.vaultList);
@@ -147,6 +150,76 @@ class WalletProvider extends ChangeNotifier {
         }
       }
     }
+  }
+
+  List<MultisigSigner> _getSanitizedSigners(List<MultisigSigner> signers) {
+    if (_vaultList.isEmpty) return signers;
+
+    return signers.map((signer) {
+      if (signer.signerBsms == null || signer.signerBsms!.isEmpty) return signer;
+
+      try {
+        final parsedInputBsms = SignerBsms.parse(signer.signerBsms!);
+        final inputKey = parsedInputBsms.extendedKey;
+        final inputMfp = parsedInputBsms.fingerprint;
+
+        final matchedVaultIndex = _vaultList.indexWhere((v) {
+          if (v is! SingleSigVaultListItem) return false;
+
+          final String rawBsmsString = v.getSignerBsmsByAddressType(AddressType.p2wsh, withLabel: false);
+          try {
+            final targetBsmsObj = SignerBsms.parse(rawBsmsString);
+            final targetKey = targetBsmsObj.extendedKey;
+            return isEquivalentExtendedPubKey(inputKey, targetKey);
+          } catch (e) {
+            return false;
+          }
+        });
+
+        // replace MFP
+        if (matchedVaultIndex != -1) {
+          final matchedVault = _vaultList[matchedVaultIndex] as SingleSigVaultListItem;
+          final String ssvBsmsString = matchedVault.getSignerBsmsByAddressType(AddressType.p2wsh, withLabel: false);
+          final ssvBsms = SignerBsms.parse(ssvBsmsString);
+          final String correctMfp = ssvBsms.fingerprint;
+
+          if (correctMfp.toUpperCase() != inputMfp.toUpperCase()) {
+            Logger.log('🔄 [WalletProvider] MFP mismatch detected. Recreating Signer: $inputMfp -> $correctMfp');
+
+            // New KeyStore (right MFP)
+            final oldStore = signer.keyStore;
+            final newStore = KeyStore(
+              correctMfp,
+              oldStore.hdWallet,
+              oldStore.extendedPublicKey,
+              oldStore.hasSeed ? oldStore.seed : null,
+            );
+
+            final newBsmsString = signer.signerBsms!.replaceFirstMapped(
+              RegExp(r'\[([0-9a-fA-F]{8})'),
+              (match) => '[$correctMfp',
+            );
+
+            // New MultisigSigner
+            return MultisigSigner(
+              id: signer.id,
+              keyStore: newStore,
+              signerBsms: newBsmsString,
+              name: signer.name,
+              innerVaultId: signer.innerVaultId,
+              colorIndex: signer.colorIndex,
+              iconIndex: signer.iconIndex,
+              signerSource: signer.signerSource,
+              memo: signer.memo,
+            );
+          }
+        }
+      } catch (e) {
+        Logger.error('Error sanitizing signer in Provider: $e');
+      }
+
+      return signer;
+    }).toList();
   }
 
   /// hardened가 '일 때와 h일 때 모두 허용
