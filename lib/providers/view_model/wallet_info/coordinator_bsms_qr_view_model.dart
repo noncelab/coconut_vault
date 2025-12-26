@@ -14,13 +14,14 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
   late String qrData;
   late Map<String, String> walletQrDataMap;
   late Map<String, String> walletTextDataMap;
-
+  late String walletName;
   CoordinatorBsmsQrViewModel(WalletProvider walletProvider, int id) {
     _init(walletProvider, id);
   }
 
   void _init(WalletProvider walletProvider, int id) {
     final vaultListItem = walletProvider.getVaultById(id) as MultisigVaultListItem;
+    walletName = vaultListItem.name;
 
     String outputDescriptor = _generateDescriptor(vaultListItem);
 

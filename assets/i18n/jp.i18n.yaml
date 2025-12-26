@@ -772,7 +772,7 @@ multi_sig_setting_screen:
     backup_wallet_data_description: "損失やデバイス変更に備えて、ウォレット復元に必要なBSMSデータをバックアップします。"
     guide:
       text1: "紛失や機種変更に備えたウォレット復元用のBSMSバックアップデータです。"
-      text2: "Coconut Walletにbbウォレットを追加した後、ウォレット詳細画面の「ウォレットバックアップデータ表示」で同じ情報を確認できます。"
+      text2: "Coconut Walletに$nameウォレットを追加した後、ウォレット詳細画面の「ウォレットバックアップデータ表示」で同じ情報を確認できます。"
   tooltip: 
     one: "$total個のキー中$n個の署名が必要なマルチシグウォレット。"
     other: "$total個のキー中$n個の署名が必要なマルチシグウォレット。"

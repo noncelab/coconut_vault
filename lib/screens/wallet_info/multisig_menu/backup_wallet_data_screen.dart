@@ -44,7 +44,7 @@ class BackupWalletDataScreen extends StatelessWidget {
         children: [
           tooltipDescription(t.multi_sig_setting_screen.export_menu.guide.text1),
           const SizedBox(height: 4),
-          tooltipDescription(t.multi_sig_setting_screen.export_menu.guide.text2),
+          tooltipDescription(t.multi_sig_setting_screen.export_menu.guide.text2(name: viewModel.walletName)),
         ],
       ),
     );
