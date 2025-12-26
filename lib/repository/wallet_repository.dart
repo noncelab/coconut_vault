@@ -24,6 +24,7 @@ import 'package:coconut_vault/repository/secure_zone_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_payload_codec.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
+import 'package:coconut_vault/utils/coconut/extended_pubkey_utils.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/print_util.dart';
@@ -369,17 +370,26 @@ class WalletRepository {
     assert(_vaultList != null);
     assert(multisigSigner.signerBsms != null && multisigSigner.signerBsms!.isNotEmpty);
 
-    final parsedSignerBsms = SignerBsms.parse(multisigSigner.signerBsms!);
-    final expectedMfp = parsedSignerBsms.fingerprint.toUpperCase();
-    final vaultIndex = _vaultList!.indexWhere((element) {
-      if (element is MultisigVaultListItem) return false;
+    final parsedInputBsms = SignerBsms.parse(multisigSigner.signerBsms!);
+    final inputKey = parsedInputBsms.extendedKey;
 
-      final mfp = (element.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
-      return expectedMfp == mfp.toUpperCase();
+    final vaultIndex = _vaultList!.indexWhere((element) {
+      if (element is! SingleSigVaultListItem) return false;
+
+      final String rawBsmsString = element.getSignerBsmsByAddressType(AddressType.p2wsh, withLabel: false);
+
+      try {
+        final targetBsmsObj = SignerBsms.parse(rawBsmsString);
+        final targetKey = targetBsmsObj.extendedKey;
+
+        return isEquivalentExtendedPubKey(inputKey, targetKey);
+      } catch (e) {
+        return false;
+      }
     });
+
     if (vaultIndex == -1) return;
 
-    // set metadata
     final vault = _vaultList![vaultIndex];
     multisigSigner.innerVaultId = vault.id;
     multisigSigner.name = vault.name;
