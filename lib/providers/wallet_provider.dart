@@ -183,32 +183,46 @@ class WalletProvider extends ChangeNotifier {
           final ssvBsms = SignerBsms.parse(ssvBsmsString);
           final String correctMfp = ssvBsms.fingerprint;
 
-          if (correctMfp.toUpperCase() != inputMfp.toUpperCase()) {
-            Logger.log('🔄 [WalletProvider] MFP mismatch detected. Recreating Signer: $inputMfp -> $correctMfp');
+          bool isMfpMismatch = correctMfp.toUpperCase() != inputMfp.toUpperCase();
+
+          if (isMfpMismatch || signer.innerVaultId == null) {
+            if (isMfpMismatch) {
+              Logger.log('🔄 [WalletProvider] MFP mismatch detected. Recreating Signer: $inputMfp -> $correctMfp');
+            }
 
             // New KeyStore (right MFP)
-            final oldStore = signer.keyStore;
-            final newStore = KeyStore(
-              correctMfp,
-              oldStore.hdWallet,
-              oldStore.extendedPublicKey,
-              oldStore.hasSeed ? oldStore.seed : null,
-            );
+            final KeyStore keyStoreToUse;
+            if (isMfpMismatch) {
+              final oldStore = signer.keyStore;
+              keyStoreToUse = KeyStore(
+                correctMfp,
+                oldStore.hdWallet,
+                oldStore.extendedPublicKey,
+                oldStore.hasSeed ? oldStore.seed : null,
+              );
+            } else {
+              keyStoreToUse = signer.keyStore;
+            }
 
-            final newBsmsString = signer.signerBsms!.replaceFirstMapped(
-              RegExp(r'\[([0-9a-fA-F]{8})'),
-              (match) => '[$correctMfp',
-            );
+            // replace BSMS
+            final String bsmsToUse;
+            if (isMfpMismatch) {
+              bsmsToUse = signer.signerBsms!.replaceFirstMapped(
+                RegExp(r'\[([0-9a-fA-F]{8})'),
+                (match) => '[$correctMfp',
+              );
+            } else {
+              bsmsToUse = signer.signerBsms!;
+            }
 
-            // New MultisigSigner
             return MultisigSigner(
               id: signer.id,
-              keyStore: newStore,
-              signerBsms: newBsmsString,
-              name: signer.name,
-              innerVaultId: signer.innerVaultId,
-              colorIndex: signer.colorIndex,
-              iconIndex: signer.iconIndex,
+              keyStore: keyStoreToUse,
+              signerBsms: bsmsToUse,
+              innerVaultId: matchedVault.id,
+              name: matchedVault.name,
+              colorIndex: matchedVault.colorIndex,
+              iconIndex: matchedVault.iconIndex,
               signerSource: signer.signerSource,
               memo: signer.memo,
             );
