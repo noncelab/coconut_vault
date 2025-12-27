@@ -9,6 +9,7 @@ import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class SignedTransactionQrScreen extends StatefulWidget {
   const SignedTransactionQrScreen({super.key});
@@ -19,11 +20,16 @@ class SignedTransactionQrScreen extends StatefulWidget {
 
 class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
   late SignProvider _signProvider;
+  late bool isRawTransaction;
 
   @override
   void initState() {
     super.initState();
     _signProvider = Provider.of<SignProvider>(context, listen: false);
+    final signedPsbtBase64 = _signProvider.signedPsbtBase64;
+    final rawSignedTx = _signProvider.signedRawTxHexString;
+    assert((signedPsbtBase64 == null && rawSignedTx != null) || (signedPsbtBase64 != null && rawSignedTx == null));
+    isRawTransaction = rawSignedTx != null;
   }
 
   @override
@@ -54,15 +60,21 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: CoconutBoxDecoration.shadowBoxDecoration,
-                    child: AnimatedQrView(
-                      qrViewDataHandler: BcUrQrViewHandler(
-                        _signProvider.signedPsbtBase64!,
-                        UrType.cryptoPsbt,
-                        maxFragmentLen: 40,
-                      ),
-                      qrScanDensity: QrScanDensity.normal,
-                      qrSize: MediaQuery.of(context).size.width * 0.8,
-                    ),
+                    child:
+                        !isRawTransaction
+                            ? AnimatedQrView(
+                              qrViewDataHandler: BcUrQrViewHandler(
+                                _signProvider.signedPsbtBase64!,
+                                UrType.cryptoPsbt,
+                                maxFragmentLen: 40,
+                              ),
+                              qrScanDensity: QrScanDensity.normal,
+                              qrSize: MediaQuery.of(context).size.width * 0.8,
+                            )
+                            : QrImageView(
+                              data: _signProvider.signedRawTxHexString!,
+                              size: MediaQuery.of(context).size.width * 0.8,
+                            ),
                   ),
                   CoconutLayout.spacing_2500h,
                 ],

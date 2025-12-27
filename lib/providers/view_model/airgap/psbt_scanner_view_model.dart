@@ -34,7 +34,7 @@ class PsbtScannerViewModel {
       final decodedCbor = cbor.decode(cborBytes) as CborBytes;
       return base64Encode(decodedCbor.bytes);
     } else if (psbt is String) {
-      // BBQR (base64 문자열)
+      // BBQR (base64 문자열) or RawSignedTransaction
       return psbt;
     } else {
       throw FormatException('Unsupported PSBT format: ${psbt.runtimeType}');

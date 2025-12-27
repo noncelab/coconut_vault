@@ -643,14 +643,20 @@ multisig_sign_screen:
     preparation:
       title: '$name 準備'
       description: '$nameで署名するには、事前に設定が必要です。設定画面に移動しますか？'
-    sign_error:
-      title: "署名失敗"
-      description: "署名に失敗しました。署名に使用したMFPを確認してください。"
     signature_update:
       title: "署名更新"
       description: "署名が更新されました。"
+    signature_failed:
+      title: "署名失敗"
+    signature_update_failed:
+      title: "署名更新失敗"
   creating_qr_code: "QRコードを生成します"
   select_signer_hardware_wallet: "署名者ハードウェアウォレットを選択"
+  exception:
+    not_segwit: "サポートされていないトランザクション形式です。（noSegwit）"
+    invalid_sign_error: "署名情報が正しくありません。もう一度お試しください。"
+    needs_more_signature: "署名が完了していないトランザクションです。"
+    no_signature: "署名情報がありません。"
 
 confirm_importing_screen:
   guide1: "他のボルトから"
@@ -739,6 +745,8 @@ bsms_scanner_screen:
     guide2_6: "そのまま読み込み"
     guide2_7: "XPUB エクスポート"
     guide2_8: "XPUB - QR"
+    guide2_7_regtest: "VPUB エクスポート"
+    guide2_8_regtest: "VPUB - QR"
 
 bsms_paste_screen:
   import_bsms: "BSMS文字列を入力してください。"

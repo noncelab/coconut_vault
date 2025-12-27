@@ -312,11 +312,22 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
               buildTextSpan('${t.bsms_scanner_screen.krux.guide2_5} '),
               buildTextSpan(t.bsms_scanner_screen.krux.guide2_6, isBold: true),
               buildTextSpan('\n'),
-              buildStep('4. ', t.bsms_scanner_screen.krux.guide2_7, t.bsms_scanner_screen.select),
+              buildStep(
+                '4. ',
+                NetworkType.currentNetworkType.isTestnet
+                    ? t.bsms_scanner_screen.krux.guide2_7_regtest
+                    : t.bsms_scanner_screen.krux.guide2_7,
+                t.bsms_scanner_screen.select,
+              ),
               buildTextSpan('\n'),
               buildTextSpan('5. '),
               isReversedOrder ? buildTextSpan('${t.bsms_scanner_screen.select} ') : buildTextSpan(''),
-              buildTextSpan(t.bsms_scanner_screen.krux.guide2_8, isBold: true),
+              buildTextSpan(
+                NetworkType.currentNetworkType.isTestnet
+                    ? t.bsms_scanner_screen.krux.guide2_8_regtest
+                    : t.bsms_scanner_screen.krux.guide2_8,
+                isBold: true,
+              ),
               !isReversedOrder ? buildTextSpan(t.bsms_scanner_screen.select) : buildTextSpan(''),
             ],
           ),

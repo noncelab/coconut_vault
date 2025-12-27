@@ -23,7 +23,9 @@ import 'package:coconut_vault/screens/common/select_external_wallet_bottom_sheet
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_check_screen.dart';
 import 'package:coconut_vault/screens/airgap/multisig_psbt_qr_code_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
+import 'package:coconut_vault/utils/coconut/transaction_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -101,7 +103,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     return false;
   }
 
-  Future<void> _sign(int index) async {
+  Future<void> _signByInnerWallet(int index) async {
     if (!_viewModel.isSigningOnlyMode) {
       // 안전 저장 모드
       await _addSignatureToPsbtInStorageMode(index);
@@ -147,7 +149,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       });
 
       await _viewModel.sign(index, seed);
-      await _checkAndShowCreatingQrCode(shouldPop: false);
+      await _checkCompletedAndGoNext(shouldPop: false);
     } catch (error) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: error));
@@ -166,7 +168,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       });
 
       await _viewModel.signPsbtInSigningOnlyMode(index);
-      await _checkAndShowCreatingQrCode(shouldPop: false);
+      await _checkCompletedAndGoNext(shouldPop: false);
     } on UserCanceledAuthException catch (_) {
       return;
     } on SeedInvalidatedException catch (e) {
@@ -193,31 +195,38 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     }
   }
 
-  Future<bool> _checkAndShowCreatingQrCode({bool shouldPop = false}) async {
+  Future<bool> _checkCompletedAndGoNext({bool shouldPop = false}) async {
     await Future.delayed(const Duration(milliseconds: 100));
-    if (mounted && _viewModel.isSignatureComplete) {
-      _viewModel.saveSignedPsbt();
+    if (!_viewModel.isSignatureCompleted) return false;
 
-      if (shouldPop) {
-        Navigator.pop(context);
-      }
-      setState(() {
-        _cupertinoLoadingMessage = t.multisig_sign_screen.creating_qr_code;
-        _isCupertinoLoadingShown = true;
-      });
-      await Future.delayed(const Duration(seconds: 2));
+    if (shouldPop) {
       if (mounted) {
-        setState(() {
-          _isCupertinoLoadingShown = false;
-        });
-        Navigator.pushReplacementNamed(context, AppRoutes.signedTransaction);
-        return true;
+        Navigator.pop(context);
+      } else {
+        return false;
       }
+    }
+
+    setState(() {
+      _cupertinoLoadingMessage = t.multisig_sign_screen.creating_qr_code;
+      _isCupertinoLoadingShown = true;
+    });
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    setState(() {
+      _isCupertinoLoadingShown = false;
+    });
+    _viewModel.saveSignedResult();
+
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, AppRoutes.signedTransaction);
+      return true;
     }
     return false;
   }
 
-  void _showDialogToMultisigInfoQrCode(int index, HardwareWalletType hwwType, String multisigInfoQrData) {
+  void _showDialogForImportMultisig(int signerIndex, HardwareWalletType hwwType, String multisigInfoQrData) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -233,65 +242,63 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           onTapRight: () {
             Navigator.pop(context);
             // 하드월렛 추가 정보 QR 뷰 보여주기
-            _showMultisigInfoQrCodeBottomSheet(index, hwwType, multisigInfoQrData);
+            _showMultisigBsmsQrCodeBottomSheet(signerIndex, hwwType, multisigInfoQrData);
           },
           onTapLeft: () {
             Navigator.pop(context);
             // PSBT QR 뷰 보여주기
-            _showPsbtQrCodeBottomSheet(hwwType, index: index);
+            _showPsbtQrCodeBottomSheet(hwwType, signerIndex: signerIndex);
           },
         );
       },
     );
   }
 
-  void _showMultisigInfoQrCodeBottomSheet(int index, HardwareWalletType hwwType, String multisigInfoQrData) {
+  void _showMultisigBsmsQrCodeBottomSheet(int signerIndex, HardwareWalletType hwwType, String multisigInfoQrData) {
     MyBottomSheet.showBottomSheet_95(
       context: context,
       child: MultisigQrCodeViewScreen(
         multisigName: _viewModel.walletName,
-        keyIndex: '${index + 1}',
+        keyIndex: '${signerIndex + 1}',
         signedRawTx: _viewModel.psbtForSigning,
         hardwareWalletType: hwwType,
         qrData: multisigInfoQrData,
         onNextPressed: () async {
           await Future.delayed(const Duration(milliseconds: 300));
           if (!mounted) return;
-          _showPsbtQrCodeBottomSheet(hwwType, index: index);
+          _showPsbtQrCodeBottomSheet(hwwType, signerIndex: signerIndex);
         },
       ),
     );
   }
 
-  void _showPsbtQrCodeBottomSheet(HardwareWalletType hwwType, {int? index, VoidCallback? onNextPressed}) {
-    final masterFingerprint = index != null ? _viewModel.signers[index].keyStore.masterFingerprint : null;
+  void _showPsbtQrCodeBottomSheet(HardwareWalletType hwwType, {int? signerIndex}) {
+    final masterFingerprint = signerIndex != null ? _viewModel.signers[signerIndex].keyStore.masterFingerprint : null;
     MyBottomSheet.showBottomSheet_95(
       context: context,
       child: PsbtQrCodeViewScreen(
         multisigName: _viewModel.walletName,
-        index: index,
+        index: signerIndex,
         signedRawTx: _viewModel.psbtForSigning,
         hardwareWalletType: hwwType,
         masterFingerprint: masterFingerprint,
         onNextPressed:
-            onNextPressed ??
-            () async {
-              Navigator.pop(context); // 현재 다이얼로그 닫기
+            signerIndex == null
+                ? null
+                : () async {
+                  Navigator.pop(context); // 현재 다이얼로그 닫기
 
-              await Future.delayed(const Duration(milliseconds: 300));
-              if (!mounted) return;
-              _showPsbtScannerBottomSheet(hwwType, index: index);
-            },
+                  await Future.delayed(const Duration(milliseconds: 300));
+                  if (!mounted) return;
+                  _showPsbtScannerBottomSheet(hwwType, signerIndex: signerIndex);
+                },
       ),
     );
   }
 
-  void _showPsbtScannerBottomSheet(HardwareWalletType hwwType, {int? index}) {
-    if (index == null) {
-      // 하단 버튼의 'QR 스캔하기'를 통해 들어왔을 때
-      _showImportPsbtScannerBottomSheet(hwwType);
-      return;
-    }
+  /// signerIndex == null : 화면 하단 'QR 스캔하기' 버튼을 누른 경우
+  /// signerIndex != null : SignerList 중 하나를 눌러 서명하기 진행하는 경우
+  void _showPsbtScannerBottomSheet(HardwareWalletType hwwType, {int? signerIndex}) {
     MyBottomSheet.showBottomSheet_95(
       context: context,
       child: ClipRRect(
@@ -299,65 +306,57 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         child: PsbtScannerScreen(
           id: _viewModel.vaultId,
           hardwareWalletType: hwwType,
-          onMultisigSignCompleted: (psbtBase64) async {
-            final signingPublicKey = _viewModel.signingPublicKey;
-            int? signerIndex = index;
-            String errorMessage = '';
+          onMultisigPsbtScanned: (String scannedData) async {
+            try {
+              bool isRawTxHexString = isRawTransactionHexString(scannedData);
+              if (isRawTxHexString) {
+                _viewModel.validateRawSignedTransaction(scannedData);
+                _viewModel.saveSignedRawTxHex(scannedData);
+              } else {
+                _viewModel.onScannedPsbt(scannedData, isOverwrite: signerIndex == null);
+              }
 
-            bool canSign = false;
-            if (psbtBase64.startsWith('02000000')) {
-              // 최종 서명 완료 후 Raw Transaction을 전달받은 경우 서명 가능
-              canSign = _viewModel.canUpdatePsbt(psbtBase64);
-              if (!canSign) {
-                errorMessage = t.errors.invalid_sign_error;
+              bool navigated = false;
+              // TODO: 테스트
+              navigated = await _checkCompletedAndGoNext(shouldPop: signerIndex != null);
+
+              // 서명이 모두 완료되어 _checkAndShowCreatingQrCode 안에서 화면 전환이 일어난 경우
+              // (Navigator.pushReplacementNamed 호출)에는 추가 pop을 하지 않는다.
+              if (navigated) {
+                return;
               }
-            } else {
-              final signedPsbt = Psbt.parse(psbtBase64);
-              // PSBT inputs의 derivationPathList에서 masterFingerprint와 publicKey를 추출하여 signedInputsMap 생성
-              if (signedPsbt.inputs.isNotEmpty) {
-                final input = signedPsbt.inputs[0];
-                if (input.partialSig != null && input.partialSig!.isNotEmpty) {
-                  for (var sig in input.partialSig!) {
-                    final pubKey = sig.publicKey;
-                    canSign = signingPublicKey == pubKey;
-                  }
-                  if (!canSign) {
-                    errorMessage = t.multisig_sign_screen.dialog.sign_error.description;
-                  }
-                }
+
+              if (!mounted) return;
+              Navigator.pop(context);
+
+              // 바텀시트가 닫힌 후 서명 정보 업데이트 완료 안내
+              if (signerIndex == null && mounted) {
+                await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return CoconutPopup(
+                      title: t.multisig_sign_screen.dialog.signature_update.title,
+                      description: t.multisig_sign_screen.dialog.signature_update.description,
+                      onTapRight: () {
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                );
               }
-            }
-            if (!canSign) {
-              await showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return CoconutPopup(
-                    title: t.multisig_sign_screen.dialog.sign_error.title,
-                    description: t.multisig_sign_screen.dialog.sign_error.description,
-                    onTapRight: () {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                    },
-                  );
-                },
+            } on FormatException catch (e) {
+              await showInfoPopup(
+                context,
+                signerIndex != null
+                    ? t.multisig_sign_screen.dialog.signature_failed.title
+                    : t.multisig_sign_screen.dialog.signature_update_failed.title,
+                e.message,
               );
+              if (mounted) {
+                Navigator.of(context).pop(); // close this bottom sheet
+              }
               return;
             }
-
-            _viewModel.addSignSignature(psbtBase64);
-
-            _viewModel.updateSignState(signerIndex);
-
-            final navigated = await _checkAndShowCreatingQrCode(shouldPop: true);
-
-            // 서명이 모두 완료되어 _checkAndShowCreatingQrCode 안에서 화면 전환이 일어난 경우
-            // (Navigator.pushReplacementNamed 호출)에는 추가 pop을 하지 않는다.
-            if (navigated) {
-              return;
-            }
-
-            if (!mounted) return;
-            Navigator.pop(context);
           },
         ),
       ),
@@ -373,8 +372,10 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           id: _viewModel.vaultId,
           hardwareWalletType: hwwType,
           isFromBottomButton: true,
-          onMultisigSignCompleted: (psbtBase64) async {
-            if (!_viewModel.canUpdatePsbt(psbtBase64)) {
+          onMultisigPsbtScanned: (psbtBase64) async {
+            // TODO: raw Transaction 정보일 때... 처리 필요
+
+            if (!_viewModel.hasSameTransactionBody(psbtBase64)) {
               await showDialog(
                 context: context,
                 builder:
@@ -389,14 +390,12 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               );
               return;
             }
-            _viewModel.updatePsbt(psbtBase64);
-            _viewModel.syncImportedPartialSigs(psbtBase64);
+            //_viewModel.updatePsbt(psbtBase64);
+            //_viewModel.syncImportedPartialSigs(psbtBase64);
 
-            if (_viewModel.isSignatureComplete) {
-              // 서명이 완료된 상태라면 서명 완료 플로우로 진행
-              await _checkAndShowCreatingQrCode(shouldPop: true);
-              return;
-            }
+            final goNext = await _checkCompletedAndGoNext(shouldPop: true);
+            if (goNext) return;
+
             Navigator.pop(context);
 
             // 바텀시트가 닫힌 후 팝업 표시
@@ -563,7 +562,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                             _buildSendInfo(),
                             CoconutLayout.spacing_1300h,
                             Text(
-                              viewModel.isSignatureComplete
+                              viewModel.isSignatureCompleted
                                   ? t.sign_completed
                                   : t.sign_required_amount(n: viewModel.remainingSignatures),
                               style: CoconutTypography.body1_16_Bold,
@@ -732,38 +731,17 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   }
 
                   if (isInnerWallet) {
-                    _sign(index);
+                    _signByInnerWallet(index);
                     return;
                   }
 
                   hwwType ??= await _showHardwareSelectionBottomSheet(index: index);
+                  if (hwwType == null) return;
 
-                  Uint8List? publicKey;
-
-                  try {
-                    // ExtendedPublicKey에서 HDWallet을 생성하여 derivation 수행
-                    final extXpub = signer.keyStore.extendedPublicKey;
-                    // derivationPath에서 index 값을 추출
-                    final addressIndex = int.parse(
-                      _viewModel.unsignedInputsMap?[signer.keyStore.masterFingerprint]?.split('/').last ?? '0',
-                    );
-
-                    HDWallet wallet = HDWallet.fromPublicKey(extXpub.publicKey, extXpub.chainCode);
-                    wallet = wallet.derive(0).derive(addressIndex);
-                    publicKey = wallet.publicKey;
-                  } catch (e) {
-                    // derive가 실패하면 원본 extended public key의 publicKey 사용
-                    publicKey = signer.keyStore.extendedPublicKey.publicKey;
-                  }
-                  final publicKeyHex = Codec.encodeHex(publicKey);
-                  _viewModel.saveSigningPublicKey(publicKeyHex);
-
-                  if (hwwType != null) {
-                    setState(() {
-                      _cupertinoLoadingMessage = t.multisig_sign_screen.loading_overlay;
-                      _isCupertinoLoadingShown = true;
-                    });
-                  }
+                  setState(() {
+                    _cupertinoLoadingMessage = t.multisig_sign_screen.loading_overlay;
+                    _isCupertinoLoadingShown = true;
+                  });
 
                   await Future.delayed(const Duration(seconds: 2));
                   if (mounted) {
@@ -779,12 +757,12 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                       if (multisigInfoQrData == null) {
                         return;
                       }
-                      _showDialogToMultisigInfoQrCode(index, hwwType!, multisigInfoQrData);
+                      _showDialogForImportMultisig(index, hwwType!, multisigInfoQrData);
                       break;
                     case HardwareWalletType.seedSigner:
                     case HardwareWalletType.jade:
                     case HardwareWalletType.coldCard:
-                      _showPsbtQrCodeBottomSheet(hwwType!, index: index);
+                      _showPsbtQrCodeBottomSheet(hwwType!, signerIndex: index);
                       break;
                     default:
                       return;
@@ -862,7 +840,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
 
   Widget _buildBottomButtons() {
     return Selector<MultisigSignViewModel, bool>(
-      selector: (_, viewModel) => viewModel.isSignatureComplete,
+      selector: (_, viewModel) => viewModel.isSignatureCompleted,
       builder: (context, isSignatureComplete, child) {
         return FixedBottomTweenButton(
           leftButtonClicked: () async {

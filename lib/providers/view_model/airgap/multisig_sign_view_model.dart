@@ -2,12 +2,16 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/isolates/sign_isolates.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
+import 'package:coconut_vault/utils/coconut/transaction_util.dart';
+import 'package:coconut_vault/utils/hex_util.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/print_util.dart';
 import 'package:flutter/foundation.dart';
 
@@ -19,8 +23,10 @@ class MultisigSignViewModel extends ChangeNotifier {
   late final List<bool> _signerApproved;
   late final List<bool> _hasPassphraseList;
   late String _psbtForSigning;
+  String? _signedRawTxHex;
   bool _signStateInitialized = false;
   final bool _isSigningOnlyMode;
+  Map<String, String>? _input0PubkeyBySigner;
 
   MultisigSignViewModel(this._walletProvider, this._signProvider, this._isSigningOnlyMode) {
     _vaultListItem = _signProvider.vaultListItem! as MultisigVaultListItem;
@@ -55,19 +61,17 @@ class MultisigSignViewModel extends ChangeNotifier {
   int get sendingAmount => _signProvider.sendingAmount!;
   int get remainingSignatures =>
       _vaultListItem.requiredSignatureCount - _signerApproved.where((bool isApproved) => isApproved).length;
-  bool get isSignatureComplete => remainingSignatures <= 0;
+  bool get isSignatureCompleted => remainingSignatures <= 0 || _signedRawTxHex != null;
   List<MultisigSigner> get signers => _vaultListItem.signers;
   String get psbtForSigning => _psbtForSigning;
   int getInnerVaultId(int index) => _vaultListItem.signers[index].innerVaultId!;
   bool getHasPassphrase(int index) => _hasPassphraseList[index];
   bool get isSigningOnlyMode => _isSigningOnlyMode;
   String get unsignedPsbtBase64 => _signProvider.unsignedPsbtBase64!;
-  Map<String, String>? get unsignedInputsMap => _signProvider.unsignedInputsMap;
-  Map<String, String>? get unsignedPubkeyMap => _signProvider.unsignedPubkeyMap;
-  Map<String, String>? get signedInputsMap => _signProvider.signedInputsMap;
-  String get signingPublicKey => _signProvider.signingPublicKey!;
+
   void initPsbtSignState() {
     assert(!_signStateInitialized); // 오직 한번만 호출
+    assert(_signProvider.isMultisig == true);
     _signStateInitialized = true;
 
     final psbt = _signProvider.psbt!;
@@ -77,21 +81,19 @@ class MultisigSignViewModel extends ChangeNotifier {
       }
     }
 
-    // multisig sign인 경우, 서명 시 각 지갑에 대한 서명이 맞는지 확인하기 위해 inputsMap을 저장합니다.
     if (_signProvider.isMultisig == true) {
-      // {mfp, derivationPath}
-      Map<String, String> inputsMap = {};
-      Map<String, String> pubkeyMap = {};
+      Map<String, String> input0PubkeyMap = {};
       final unsignedPsbt = Psbt.parse(unsignedPsbtBase64);
+      final keystoreList = (_vaultListItem.coconutVault as MultisignatureVault).keyStoreList;
+      final input0DerivationPaths = unsignedPsbt.inputs[0].bip32Derivation!;
 
-      for (int i = 0; i < unsignedPsbt.extendedPublicKeyList.length; i++) {
-        inputsMap[unsignedPsbt.extendedPublicKeyList[i].masterFingerprint] =
-            unsignedPsbt.inputs[0].derivationPathList[i].path.toString();
-        pubkeyMap[unsignedPsbt.extendedPublicKeyList[i].masterFingerprint] =
-            unsignedPsbt.inputs[0].bip32Derivation![i].publicKey.toString();
+      for (int i = 0; i < keystoreList.length; i++) {
+        input0PubkeyMap[keystoreList[i].masterFingerprint] =
+            input0DerivationPaths.firstWhere((element) {
+              return element.masterFingerprint.toUpperCase() == keystoreList[i].masterFingerprint.toUpperCase();
+            }).publicKey;
       }
-      saveUnsignedInputsMap(inputsMap);
-      saveUnsignedPubkeyMap(pubkeyMap);
+      _input0PubkeyBySigner = input0PubkeyMap;
     }
   }
 
@@ -102,27 +104,12 @@ class MultisigSignViewModel extends ChangeNotifier {
     }
   }
 
-  /// 스캔된 PSBT에서 실제로 서명한 signer index를 찾습니다.
-  /// 외부 하드웨어 지갑에서 서명한 경우, psbt.isSigned()를 사용하여 어떤 signer가 서명했는지 확인합니다.
-  int? findSignerIndexByMfp(String psbtBase64) {
-    try {
-      final psbt = Psbt.parse(psbtBase64);
-
-      // signers 리스트를 순회하며 실제로 서명한 signer를 찾습니다.
-      for (int i = 0; i < _vaultListItem.signers.length; i++) {
-        if (psbt.isSigned(_vaultListItem.signers[i].keyStore)) {
-          // TODO: 순서상으로는 정확하지 않을 수도 있음. 개선/검증 필요해보임
-          return i;
-        }
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
+  void saveSignedResultIfCompleted() {
+    if (isSignatureCompleted) {}
   }
 
-  String getPsbtBase64() {
-    return _signProvider.signedPsbtBase64 ?? _signProvider.unsignedPsbtBase64!;
+  void saveSignedRawTxHex(String hexString) {
+    _signedRawTxHex = hexString;
   }
 
   Future<Uint8List> getSecret(int index) async {
@@ -150,69 +137,53 @@ class MultisigSignViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> updateSignerSource(int signerIndex, HardwareWalletType source) async {
-    if (_vaultListItem.signers[signerIndex].signerSource != source) {
-      await _walletProvider.updateExternalSignerSource(_vaultListItem.id, signerIndex, source);
-      notifyListeners();
-    }
-  }
-
   /// [Krux, Keystone]외부 하드웨어 지갑에서 서명한 PSBT를 현재 PSBT에 추가합니다.
-  void addSignSignature(String signedPsbtBase64) {
-    try {
-      final currentPsbt = Psbt.parse(_psbtForSigning);
-      final scannedPsbt = Psbt.parse(signedPsbtBase64);
+  // void addSignSignature(String signedPsbtBase64) {
+  //   try {
+  //     final currentPsbt = Psbt.parse(_psbtForSigning);
+  //     final scannedPsbt = Psbt.parse(signedPsbtBase64);
 
-      // 각 input에 대해 스캔한 PSBT의 서명을 현재 PSBT에 추가
-      for (int i = 0; i < currentPsbt.inputs.length && i < scannedPsbt.inputs.length; i++) {
-        final scannedInput = scannedPsbt.inputs[i];
-        final currentInput = currentPsbt.inputs[i];
+  //     // 각 input에 대해 스캔한 PSBT의 서명을 현재 PSBT에 추가
+  //     for (int i = 0; i < currentPsbt.inputs.length && i < scannedPsbt.inputs.length; i++) {
+  //       final scannedInput = scannedPsbt.inputs[i];
+  //       final currentInput = currentPsbt.inputs[i];
 
-        // 스캔한 input의 모든 partialSig를 현재 input에 추가
-        if (scannedInput.partialSig != null && scannedInput.partialSig!.isNotEmpty) {
-          for (var sig in scannedInput.partialSig!) {
-            // 이미 존재하는 서명인지 확인 (중복 방지)
-            bool alreadyExists =
-                currentInput.partialSig?.any((existingSig) => existingSig.publicKey == sig.publicKey) ?? false;
+  //       // 스캔한 input의 모든 partialSig를 현재 input에 추가
+  //       if (scannedInput.partialSig != null && scannedInput.partialSig!.isNotEmpty) {
+  //         for (var sig in scannedInput.partialSig!) {
+  //           // 이미 존재하는 서명인지 확인 (중복 방지)
+  //           bool alreadyExists =
+  //               currentInput.partialSig?.any((existingSig) => existingSig.publicKey == sig.publicKey) ?? false;
 
-            if (!alreadyExists) {
-              currentInput.addPartialSig(sig.signature, sig.publicKey);
-            }
-          }
-        }
-      }
+  //           if (!alreadyExists) {
+  //             currentInput.addPartialSig(sig.signature, sig.publicKey);
+  //           }
+  //         }
+  //       }
+  //     }
 
-      // 서명을 추가한 후 PSBT를 base64로 변환하여 저장
-      _psbtForSigning = currentPsbt.serialize();
-    } catch (e) {
-      debugPrint('addSignSignature error: $e');
-      // 파싱 실패 시, 스캔한 PSBT를 그대로 사용
-      _psbtForSigning = signedPsbtBase64;
+  //     // 서명을 추가한 후 PSBT를 base64로 변환하여 저장
+  //     _psbtForSigning = currentPsbt.serialize();
+  //   } catch (e) {
+  //     debugPrint('addSignSignature error: $e');
+  //     // 파싱 실패 시, 스캔한 PSBT를 그대로 사용
+  //     // TODO: 제거 !! 원복 !! ??????
+  //     _psbtForSigning = signedPsbtBase64;
+  //   }
+  // }
+
+  void saveSignedResult() {
+    if (_signedRawTxHex != null) {
+      _signProvider.saveSignedRawTxHexString(_signedRawTxHex!);
+      return;
     }
-  }
 
-  void saveSignedPsbt() {
     _signProvider.saveSignedPsbt(_psbtForSigning);
-  }
-
-  void saveUnsignedInputsMap(Map<String, String> inputsMap) {
-    _signProvider.saveUnsignedInputsMap(inputsMap);
-  }
-
-  void saveUnsignedPubkeyMap(Map<String, String> pubkeyMap) {
-    _signProvider.saveUnsignedPubkeyMap(pubkeyMap);
-  }
-
-  void saveSignedInputsMap(Map<String, String> signedInputsMap) {
-    _signProvider.saveSignedInputsMap(signedInputsMap);
-  }
-
-  void saveSigningPublicKey(String publicKey) {
-    _signProvider.saveSigningPublicKey(publicKey);
   }
 
   void reset() {
     _signProvider.resetSignedPsbt();
+    _signProvider.resetSignedRawTxHexString();
   }
 
   void resetAll() {
@@ -221,10 +192,7 @@ class MultisigSignViewModel extends ChangeNotifier {
     _signProvider.resetRecipientAmounts();
     _signProvider.resetSendingAmount();
     _signProvider.resetSignedPsbt();
-    _signProvider.resetUnsignedInputsMap();
-    _signProvider.resetUnsignedPubkeyMap();
-    _signProvider.resetSignedInputsMap();
-    _signProvider.resetSigningPublicKey();
+    _signProvider.resetSignedRawTxHexString();
   }
 
   HardwareWalletType? getSignerHwwType(int index) {
@@ -372,105 +340,201 @@ class MultisigSignViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// TODO: 코드 리뷰..!!!
   /// 스캔된 PSBT의 partial signature를 기반으로 서명 상태를 동기화합니다.
-  void syncImportedPartialSigs(String psbtBase64) {
-    if (psbtBase64.startsWith('02000000')) {
-      // Raw Transaction인 경우 서명 여부 확인을 canUpdatePsbt()에서 이미 진행 완료
-      _signerApproved.fillRange(0, _signerApproved.length, true);
-      notifyListeners();
-      return;
+  // void syncImportedPartialSigs(String psbtBase64) {
+  //   if (psbtBase64.startsWith('02000000')) {
+  //     // Raw Transaction인 경우 서명 여부 확인을 canUpdatePsbt()에서 이미 진행 완료
+  //     // TODO: 이거 하면 안됨......
+  //     _signerApproved.fillRange(0, _signerApproved.length, true);
+  //     notifyListeners();
+  //     return;
+  //   }
+
+  //   final scannedPsbtPartialSigs = Psbt.parse(psbtBase64).inputs[0].partialSig?.map((e) => e.publicKey).toList() ?? [];
+  //   _signerApproved.fillRange(0, _signerApproved.length, false);
+
+  //   if (scannedPsbtPartialSigs.isEmpty) {
+  //     // partialSig가 비어있는 경우 = 서명이 하나도 안된 경우
+  //     debugPrint('scannedPsbtPartialSigsMap is empty');
+  //     notifyListeners();
+  //     return;
+  //   }
+
+  //   for (var signer in signers) {
+  //     final mfp = signer.keyStore.masterFingerprint;
+  //     final pubKey = unsignedPubkeyMap![mfp];
+  //     final index = signers.indexOf(signer);
+
+  //     if (scannedPsbtPartialSigs.contains(pubKey)) {
+  //       _signerApproved[index] = true;
+  //     }
+  //   }
+
+  //   notifyListeners();
+  // }
+
+  /// Raw tx hex string이 스캔된 경우는 반드시 서명이 완료된 상태
+  void validateRawSignedTransaction(String rawSignedTransaction) {
+    final exceptionMessages = t.multisig_sign_screen.exception;
+    try {
+      if (!rawSignedTransaction.substring(8).startsWith(rawTxSegwitField)) {
+        throw FormatException(exceptionMessages.not_segwit);
+      }
+
+      final currentTx = Psbt.parse(_psbtForSigning).unsignedTransaction!;
+      final scannedTx = Transaction.parse(rawSignedTransaction);
+
+      if (!_isTransactionBodySame(currentTx, scannedTx)) {
+        throw FormatException(exceptionMessages.invalid_sign_error);
+      }
+
+      // 서명 완료 여부 확인
+      for (int i = 0; i < currentTx.inputs.length; i++) {
+        // 서명 개수 체크
+        // n = requiredSignatureCount 일 때,
+        // witnessList[0] = dummy
+        // witnessList[..] = signature
+        // witnessList[..] = signature
+        // witnessList[n + 1] = witness script
+        if (scannedTx.inputs[i].witnessList.length - 2 != _vaultListItem.requiredSignatureCount) {
+          throw FormatException(exceptionMessages.needs_more_signature);
+        }
+      }
+    } on FormatException {
+      rethrow;
+    } catch (e) {
+      Logger.error('validateRawSignedTransaction error: $e');
+      throw FormatException(exceptionMessages.invalid_sign_error);
     }
+  }
 
-    final scannedPsbtPartialSigs = Psbt.parse(psbtBase64).inputs[0].partialSig?.map((e) => e.publicKey).toList() ?? [];
-    _signerApproved.fillRange(0, _signerApproved.length, false);
-
-    if (scannedPsbtPartialSigs.isEmpty) {
-      // partialSig가 비어있는 경우 = 서명이 하나도 안된 경우
-      debugPrint('scannedPsbtPartialSigsMap is empty');
-      notifyListeners();
-      return;
+  bool _isTransactionBodySame(Transaction tx1, Transaction tx2) {
+    if (tx1.transactionHash != tx2.transactionHash) {
+      return false;
     }
-
-    for (var signer in signers) {
-      final mfp = signer.keyStore.masterFingerprint;
-      final pubKey = unsignedPubkeyMap![mfp];
-      final index = signers.indexOf(signer);
-
-      if (scannedPsbtPartialSigs.contains(pubKey)) {
-        _signerApproved[index] = true;
+    if (tx1.outputs.length != tx2.outputs.length || tx1.inputs.length != tx2.inputs.length) {
+      return false;
+    }
+    for (int i = 0; i < tx1.outputs.length; i++) {
+      if (tx1.outputs[i].serialize() != tx2.outputs[i].serialize()) {
+        return false;
+      }
+    }
+    for (int i = 0; i < tx1.inputs.length; i++) {
+      if (tx1.inputs[i].serialize() != tx2.inputs[i].serialize()) {
+        return false;
       }
     }
 
+    return true;
+  }
+
+  void onScannedPsbt(String scannedData, {bool isOverwrite = false}) {
+    final exceptionMessages = t.multisig_sign_screen.exception;
+    try {
+      // 1. validate
+      final currentPsbt = Psbt.parse(_psbtForSigning);
+      final currentTx = currentPsbt.unsignedTransaction!;
+      final scannedPsbt = Psbt.parse(scannedData);
+      final scannedTx = scannedPsbt.unsignedTransaction!;
+
+      if (!_isTransactionBodySame(currentTx, scannedTx)) {
+        throw FormatException(exceptionMessages.invalid_sign_error);
+      }
+
+      if (scannedPsbt.inputs.isEmpty) {
+        throw FormatException(exceptionMessages.invalid_sign_error);
+      }
+
+      // 모든 input에 서명 정보가 1개라도 있고, 서명 개수가 동일한지 확인
+      int? signatureCount;
+      for (int i = 0; i < scannedPsbt.inputs.length; i++) {
+        if (scannedPsbt.inputs[i].partialSig == null || scannedPsbt.inputs[i].partialSig!.isEmpty) {
+          throw FormatException(exceptionMessages.no_signature);
+        }
+
+        if (signatureCount == null) {
+          signatureCount = scannedPsbt.inputs[i].partialSig!.length;
+        } else {
+          if (scannedPsbt.inputs[i].partialSig!.length != signatureCount) {
+            throw FormatException(exceptionMessages.invalid_sign_error);
+          }
+        }
+      }
+
+      // 2. 서명된 정보 업데이트
+      int? finalSignatureCount;
+      for (int i = 0; i < currentPsbt.inputs.length; i++) {
+        final currentInput = currentPsbt.inputs[i];
+        final scannedInput = scannedPsbt.inputs[i];
+
+        if (isOverwrite) {
+          final Set<String> signaturePubKeySet = scannedInput.partialSig!.map((sig) => sig.publicKey).toSet();
+          currentInput.partialSig?.removeWhere((existingSig) => !signaturePubKeySet.contains(existingSig.publicKey));
+        }
+
+        for (var sig in scannedInput.partialSig!) {
+          // 이미 존재하는 서명인지 확인 (중복 방지)
+          bool alreadyExists =
+              currentInput.partialSig?.any((existingSig) => existingSig.publicKey == sig.publicKey) ?? false;
+
+          if (alreadyExists) continue;
+
+          if (!currentPsbt.validateSignature(i, sig.signature, sig.publicKey)) {
+            throw FormatException(exceptionMessages.invalid_sign_error);
+          }
+
+          currentInput.addPartialSig(sig.signature, sig.publicKey);
+        }
+
+        // input 별 서명 개수 동일한지 확인
+        if (finalSignatureCount == null) {
+          finalSignatureCount = currentInput.partialSig!.length;
+        } else {
+          if (currentInput.partialSig!.length != finalSignatureCount) {
+            throw FormatException(exceptionMessages.invalid_sign_error);
+          }
+        }
+      }
+
+      _updateSignerApproved(currentPsbt);
+      _psbtForSigning = currentPsbt.serialize();
+    } on FormatException catch (_) {
+      rethrow;
+    } catch (e) {
+      Logger.error('validateRawSignedTransaction error: $e');
+      throw FormatException(exceptionMessages.invalid_sign_error);
+    }
+  }
+
+  void _updateSignerApproved(Psbt currentPsbt) {
+    if (currentPsbt.inputs[0].partialSig == null || currentPsbt.inputs[0].partialSig!.isEmpty) {
+      _signerApproved.fillRange(0, _signerApproved.length, false);
+      notifyListeners();
+      return;
+    }
+    final newSignerApproved = List<bool>.filled(_vaultListItem.signers.length, false);
+    for (int i = 0; i < currentPsbt.inputs[0].partialSig!.length; i++) {
+      // 서명자 인덱스를 찾아서 _signerApproved 업데이트
+      final publicKey = currentPsbt.inputs[0].partialSig![i].publicKey;
+      final signerIndex = _input0PubkeyBySigner!.values.toList().indexOf(publicKey);
+
+      assert(signerIndex != -1);
+
+      newSignerApproved[signerIndex] = true;
+    }
+    _signerApproved.setAll(0, newSignerApproved);
     notifyListeners();
   }
 
   /// 스캔된 PSBT로 현재 SigningPsbt를 교체 할 수 있는지 체크하는 함수(UnsignedTransaction 비교)
-  bool canUpdatePsbt(String scannedPsbt) {
+  /// rawSignedTransaction hex string일 수도 있음
+  bool hasSameTransactionBody(String scannedData) {
     try {
-      final currentUnsignedTransactionPsbt = Psbt.parse(_psbtForSigning).unsignedTransaction!.serialize();
-      final scannedUnsignedTransactionPsbt =
-          scannedPsbt.startsWith('02000000') ? scannedPsbt : Psbt.parse(scannedPsbt).unsignedTransaction!.serialize();
-
-      if (scannedPsbt.startsWith('02000000')) {
-        // scannedPsbt가 *Raw Transaction인 경우
-        // * 콜드카드에서는 마지막 최종 서명 후엔 Raw Transaction을 전달합니다.
-        final parsedCurrentUnsignedTransaction = Transaction.parse(currentUnsignedTransactionPsbt);
-        final parsedScannedUnsignedTransaction = Transaction.parse(scannedUnsignedTransactionPsbt);
-        if (parsedCurrentUnsignedTransaction.transactionHash != parsedScannedUnsignedTransaction.transactionHash) {
-          return false;
-        }
-        if (parsedCurrentUnsignedTransaction.outputs.length != parsedScannedUnsignedTransaction.outputs.length) {
-          return false;
-        }
-        if (parsedCurrentUnsignedTransaction.inputs.length != parsedScannedUnsignedTransaction.inputs.length) {
-          return false;
-        }
-        for (int i = 0; i < parsedCurrentUnsignedTransaction.outputs.length; i++) {
-          if (parsedCurrentUnsignedTransaction.outputs[i].serialize() !=
-              parsedScannedUnsignedTransaction.outputs[i].serialize()) {
-            return false;
-          }
-        }
-        for (int i = 0; i < parsedCurrentUnsignedTransaction.inputs.length; i++) {
-          if (parsedCurrentUnsignedTransaction.inputs[i].serialize() !=
-              parsedScannedUnsignedTransaction.inputs[i].serialize()) {
-            return false;
-          }
-
-          if (parsedScannedUnsignedTransaction.inputs[i].witnessList.length - 2 !=
-              _vaultListItem.requiredSignatureCount) {
-            // 서명 개수 체크
-
-            // n = requiredSignatureCount 일 때,
-            // witnessList[0] = dummy
-            // witnessList[..] = signature
-            // witnessList[..] = signature
-            // witnessList[n + 1] = witness script
-
-            return false;
-          }
-        }
-        return true;
-      }
-
-      if (currentUnsignedTransactionPsbt != scannedUnsignedTransactionPsbt) {
-        return false;
-      }
-
-      final currentUnsignedTransactionKeyMap = Psbt.parse(_psbtForSigning).toKeyMap();
-      final scannedUnsignedTransactionKeyMap = Psbt.parse(scannedPsbt).toKeyMap();
-      final currentGlobalPart = currentUnsignedTransactionKeyMap['global'] as Map<String, dynamic>;
-      final scannedGlobalPart = scannedUnsignedTransactionKeyMap['global'] as Map<String, dynamic>;
-
-      if (currentGlobalPart.isEmpty || scannedGlobalPart.isEmpty) {
-        return false;
-      }
-
-      if (currentGlobalPart['00'] != scannedGlobalPart['00']) {
-        return false;
-      }
-
-      return true;
+      final currentTx = Psbt.parse(_psbtForSigning).unsignedTransaction!;
+      final scannedTx = Psbt.parse(scannedData).unsignedTransaction!;
+      return _isTransactionBodySame(currentTx, scannedTx);
     } catch (e) {
       debugPrint('canUpdatePsbt error: $e');
       return false;

@@ -377,6 +377,7 @@ class WalletRepository {
       final mfp = (element.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
       return expectedMfp == mfp.toUpperCase();
     });
+
     if (vaultIndex == -1) return;
 
     // set metadata

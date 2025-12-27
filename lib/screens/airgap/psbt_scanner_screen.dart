@@ -11,6 +11,7 @@ import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/utils/coconut/transaction_util.dart';
 import 'package:coconut_vault/widgets/animated_qr/coconut_qr_scanner.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bb_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_scan_data_handler.dart';
@@ -28,13 +29,13 @@ class PsbtScannerScreen extends StatefulWidget {
   final int? id;
   final HardwareWalletType? hardwareWalletType;
   final bool isFromBottomButton;
-  final void Function(String psbtBase64)? onMultisigSignCompleted;
+  final void Function(String psbtBase64)? onMultisigPsbtScanned;
   const PsbtScannerScreen({
     super.key,
     this.id,
     this.hardwareWalletType,
     this.isFromBottomButton = false,
-    this.onMultisigSignCompleted,
+    this.onMultisigPsbtScanned,
   });
 
   @override
@@ -87,7 +88,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       _scanDataHandler = BbQrScanDataHandler();
     } else {
       // 다른 하드웨어 지갑은 BcUr 핸들러 사용
-      _scanDataHandler = BcUrQrScanDataHandler();
+      _scanDataHandler = BcUrQrScanDataHandler(expectedUrType: [UrType.cryptoPsbt, UrType.psbt]);
     }
   }
 
@@ -118,20 +119,21 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     );
   }
 
-  Future<void> _onCompletedScanning(dynamic psbt) async {
+  Future<void> _onCompletedScanning(dynamic scannedData) async {
     if (_isProcessing) return;
     _isProcessing = true;
 
+    bool isRawTxHexString = scannedData is String ? isRawTransactionHexString(scannedData) : false;
     String? psbtBase64;
     try {
-      psbtBase64 = _viewModel.normalizePsbtToBase64(psbt);
+      psbtBase64 = _viewModel.normalizePsbtToBase64(scannedData);
 
       if (widget.id == null) {
         // 스캔된 MFP를 이용해 유효한 볼트를 찾고, SignProvider에 저장
         await _viewModel.setMatchingVault(psbtBase64);
       } else {
         // id를 이용해 특정 지갑에 대해 psbt 파싱
-        if (!psbtBase64.startsWith('02000000')) {
+        if (!isRawTxHexString) {
           await _viewModel.preparePsbtForVault(
             widget.id!,
             psbtBase64,
@@ -162,7 +164,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     vibrateLight();
 
     if (widget.hardwareWalletType != null) {
-      widget.onMultisigSignCompleted!(psbtBase64);
+      widget.onMultisigPsbtScanned!(isRawTxHexString ? scannedData : psbtBase64);
       return;
     }
 
@@ -218,7 +220,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
           ] else ...[
             TextSpan(
               text:
-                  widget.onMultisigSignCompleted != null
+                  widget.onMultisigPsbtScanned != null
                       ? t.psbt_scanner_screen.guide
                       : t.psbt_scanner_screen.guide_single_sig_same_name,
               style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),

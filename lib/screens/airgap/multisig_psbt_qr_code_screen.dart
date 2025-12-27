@@ -23,7 +23,7 @@ class PsbtQrCodeViewScreen extends StatefulWidget {
   final String multisigName;
   final String signedRawTx;
   final HardwareWalletType hardwareWalletType;
-  final VoidCallback onNextPressed;
+  final VoidCallback? onNextPressed;
   final String? masterFingerprint;
 
   const PsbtQrCodeViewScreen({
@@ -32,7 +32,7 @@ class PsbtQrCodeViewScreen extends StatefulWidget {
     required this.index,
     required this.signedRawTx,
     required this.hardwareWalletType,
-    required this.onNextPressed,
+    this.onNextPressed,
     this.masterFingerprint,
   });
 
@@ -168,10 +168,10 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
                   ),
                 ),
               ),
-              if (_keyIndex.isNotEmpty && widget.masterFingerprint != null) ...[
+              if (widget.onNextPressed != null) ...[
                 FixedBottomButton(
                   onButtonClicked: () {
-                    widget.onNextPressed();
+                    widget.onNextPressed!();
                   },
                   subWidget: CoconutUnderlinedButton(
                     text: _isBbqrType ? t.signer_qr_bottom_sheet.view_ur : t.signer_qr_bottom_sheet.view_bbqr,

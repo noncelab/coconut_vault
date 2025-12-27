@@ -17,11 +17,8 @@ class SignProvider {
   Map<String, double>? _recipientAmounts;
 
   // for multisig sign
-  Map<String, String>? _unsignedInputsMap;
-  Map<String, String>? _unsignedPubkeyMap;
-  Map<String, String>? _signedInputsMap;
-  String? _signingPublicKey;
   String? _signedPsbtBase64;
+  String? _signedRawTxHexString;
 
   int? get walletId => _vaultListItem?.id;
   String? get unsignedPsbtBase64 => _unsignedPsbtBase64;
@@ -34,14 +31,10 @@ class SignProvider {
   Map<String, double>? get recipientAmounts =>
       _recipientAmounts == null ? null : UnmodifiableMapView(_recipientAmounts!);
 
-  Map<String, String>? get unsignedInputsMap => _unsignedInputsMap;
-  Map<String, String>? get unsignedPubkeyMap => _unsignedPubkeyMap;
-  Map<String, String>? get signedInputsMap => _signedInputsMap;
-  String? get signingPublicKey => _signingPublicKey;
-
   int? get sendingAmount => _sendingAmount;
 
   String? get signedPsbtBase64 => _signedPsbtBase64;
+  String? get signedRawTxHexString => _signedRawTxHexString;
 
   // 1. psbt_scanner
   void setVaultListItem(VaultListItemBase vaultListItemBase) {
@@ -99,50 +92,20 @@ class SignProvider {
     _signedPsbtBase64 = psbtBase64;
   }
 
+  // only multisig_sign
+  void saveSignedRawTxHexString(String hexString) {
+    _signedRawTxHexString = hexString;
+  }
+
   // 3-1. single_sig_sign
   // 3-2. multisig_sign
   void resetSignedPsbt() {
     _signedPsbtBase64 = null;
   }
 
-  // 3-2. multisig_sign
-  void saveUnsignedInputsMap(Map<String, String> inputsMap) {
-    _unsignedInputsMap = inputsMap;
-  }
-
-  // 3-2. multisig_sign
-  void resetUnsignedInputsMap() {
-    _unsignedInputsMap = null;
-  }
-
-  // 3-2. multisig_sign
-  void saveUnsignedPubkeyMap(Map<String, String> pubkeyMap) {
-    _unsignedPubkeyMap = pubkeyMap;
-  }
-
-  // 3-2. multisig_sign
-  void resetUnsignedPubkeyMap() {
-    _unsignedPubkeyMap = null;
-  }
-
-  // 3-2. multisig_sign
-  void saveSignedInputsMap(Map<String, String> signedInputsMap) {
-    _signedInputsMap = signedInputsMap;
-  }
-
-  // 3-2. multisig_sign
-  void resetSignedInputsMap() {
-    _signedInputsMap = null;
-  }
-
-  // 3-2. multisig_sign
-  void saveSigningPublicKey(String publicKey) {
-    _signingPublicKey = publicKey;
-  }
-
-  // 3-2. multisig_sign
-  void resetSigningPublicKey() {
-    _signingPublicKey = null;
+  // only multisig_sign
+  void resetSignedRawTxHexString() {
+    _signedRawTxHexString = null;
   }
 
   void resetAll() {
@@ -150,9 +113,6 @@ class SignProvider {
         _vaultListItem =
             _psbt =
                 _recipientAddress =
-                    _recipientAmounts =
-                        _sendingAmount =
-                            _signedPsbtBase64 =
-                                _unsignedInputsMap = _unsignedPubkeyMap = _signedInputsMap = _signingPublicKey = null;
+                    _recipientAmounts = _sendingAmount = _signedPsbtBase64 = _signedRawTxHexString = null;
   }
 }
