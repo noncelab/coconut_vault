@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
@@ -356,62 +354,6 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                 Navigator.of(context).pop(); // close this bottom sheet
               }
               return;
-            }
-          },
-        ),
-      ),
-    );
-  }
-
-  void _showImportPsbtScannerBottomSheet(HardwareWalletType hwwType) {
-    MyBottomSheet.showBottomSheet_95(
-      context: context,
-      child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        child: PsbtScannerScreen(
-          id: _viewModel.vaultId,
-          hardwareWalletType: hwwType,
-          isFromBottomButton: true,
-          onMultisigPsbtScanned: (psbtBase64) async {
-            // TODO: raw Transaction 정보일 때... 처리 필요
-
-            if (!_viewModel.hasSameTransactionBody(psbtBase64)) {
-              await showDialog(
-                context: context,
-                builder:
-                    (context) => CoconutPopup(
-                      title: t.errors.scan_error_title,
-                      description: t.errors.cannot_sign_error,
-                      onTapRight: () {
-                        Navigator.pop(context);
-                        Navigator.pop(context);
-                      },
-                    ),
-              );
-              return;
-            }
-            //_viewModel.updatePsbt(psbtBase64);
-            //_viewModel.syncImportedPartialSigs(psbtBase64);
-
-            final goNext = await _checkCompletedAndGoNext(shouldPop: true);
-            if (goNext) return;
-
-            Navigator.pop(context);
-
-            // 바텀시트가 닫힌 후 팝업 표시
-            if (mounted) {
-              await showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return CoconutPopup(
-                    title: t.multisig_sign_screen.dialog.signature_update.title,
-                    description: t.multisig_sign_screen.dialog.signature_update.description,
-                    onTapRight: () {
-                      Navigator.pop(context);
-                    },
-                  );
-                },
-              );
             }
           },
         ),

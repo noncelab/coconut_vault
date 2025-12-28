@@ -134,6 +134,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       } else {
         // id를 이용해 특정 지갑에 대해 psbt 파싱
         if (!isRawTxHexString) {
+          // 현재는 widget.hardwareWalletType != null인 경우가 다중서명지갑 서명 시 밖에 없음
           await _viewModel.preparePsbtForVault(
             widget.id!,
             psbtBase64,
