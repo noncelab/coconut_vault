@@ -119,7 +119,7 @@ class WalletProvider extends ChangeNotifier {
 
     validateSigners(signers);
 
-    final sanitizedSigners = _getSanitizedSigners(signers);
+    final sanitizedSigners = _getMfpSanitizedSigners(signers);
 
     final vault = await _walletRepository.addMultisigWallet(
       MultisigWallet(null, _getUnduplicatedName(name), icon, color, sanitizedSigners, requiredSignatureCount),
@@ -152,16 +152,16 @@ class WalletProvider extends ChangeNotifier {
     }
   }
 
-  List<MultisigSigner> _getSanitizedSigners(List<MultisigSigner> signers) {
+  /// "내부 지갑"과 xpub이 일치하는 경우에만 잘못된 MFP 수정 가능ㄴ
+  List<MultisigSigner> _getMfpSanitizedSigners(List<MultisigSigner> signers) {
     if (_vaultList.isEmpty) return signers;
 
     return signers.map((signer) {
       if (signer.signerBsms == null || signer.signerBsms!.isEmpty) return signer;
 
       try {
-        final parsedInputBsms = SignerBsms.parse(signer.signerBsms!);
-        final inputKey = parsedInputBsms.extendedKey;
-        final inputMfp = parsedInputBsms.fingerprint;
+        final inputKey = signer.keyStore.extendedPublicKey.toString();
+        final inputMfp = signer.keyStore.masterFingerprint;
 
         final matchedVaultIndex = _vaultList.indexWhere((v) {
           if (v is! SingleSigVaultListItem) return false;
@@ -178,55 +178,31 @@ class WalletProvider extends ChangeNotifier {
 
         // replace MFP
         if (matchedVaultIndex != -1) {
-          final matchedVault = _vaultList[matchedVaultIndex] as SingleSigVaultListItem;
-          final String ssvBsmsString = matchedVault.getSignerBsmsByAddressType(AddressType.p2wsh, withLabel: false);
-          final ssvBsms = SignerBsms.parse(ssvBsmsString);
-          final String correctMfp = ssvBsms.fingerprint;
-
+          final matchedVault = _vaultList[matchedVaultIndex];
+          final correctMfp = (matchedVault.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
           bool isMfpMismatch = correctMfp.toUpperCase() != inputMfp.toUpperCase();
 
-          if (isMfpMismatch || signer.innerVaultId == null) {
-            if (isMfpMismatch) {
-              Logger.log('🔄 [WalletProvider] MFP mismatch detected. Recreating Signer: $inputMfp -> $correctMfp');
-            }
-
-            // New KeyStore (right MFP)
-            final KeyStore keyStoreToUse;
-            if (isMfpMismatch) {
-              final oldStore = signer.keyStore;
-              keyStoreToUse = KeyStore(
-                correctMfp,
-                oldStore.hdWallet,
-                oldStore.extendedPublicKey,
-                oldStore.hasSeed ? oldStore.seed : null,
-              );
-            } else {
-              keyStoreToUse = signer.keyStore;
-            }
-
-            // replace BSMS
-            final String bsmsToUse;
-            if (isMfpMismatch) {
-              bsmsToUse = signer.signerBsms!.replaceFirstMapped(
-                RegExp(r'\[([0-9a-fA-F]{8})'),
-                (match) => '[$correctMfp',
-              );
-            } else {
-              bsmsToUse = signer.signerBsms!;
-            }
-
-            return MultisigSigner(
-              id: signer.id,
-              keyStore: keyStoreToUse,
-              signerBsms: bsmsToUse,
-              innerVaultId: matchedVault.id,
-              name: matchedVault.name,
-              colorIndex: matchedVault.colorIndex,
-              iconIndex: matchedVault.iconIndex,
-              signerSource: signer.signerSource,
-              memo: signer.memo,
-            );
+          if (!isMfpMismatch) {
+            return signer;
           }
+
+          final sanitizedBsms = signer.signerBsms!.replaceFirstMapped(
+            RegExp(r'\[([0-9a-fA-F]{8})'),
+            (match) => '[$correctMfp',
+          );
+
+          final sanitizedKeystore = KeyStore.fromSignerBsms(sanitizedBsms);
+          return MultisigSigner(
+            id: signer.id,
+            keyStore: sanitizedKeystore,
+            signerBsms: sanitizedBsms,
+            innerVaultId: signer.innerVaultId,
+            name: signer.name,
+            colorIndex: signer.colorIndex,
+            iconIndex: signer.iconIndex,
+            signerSource: signer.signerSource,
+            memo: signer.memo,
+          );
         }
       } catch (e) {
         Logger.error('Error sanitizing signer in Provider: $e');
