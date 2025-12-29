@@ -525,6 +525,25 @@ class WalletRepository {
           final multisig = getVaultById(entry.key) as MultisigVaultListItem;
           multisig.signers[entry.value].unlinkInternalWallet();
           assert(multisig.signers[entry.value].signerBsms != null);
+
+          if (!_isSigningOnlyMode) {
+            final signersPrivacyInfo =
+                multisig.signers
+                    .map(
+                      (signer) =>
+                          SignerPrivacyInfo(signerBsms: signer.signerBsms!, keyStoreToJson: signer.keyStore.toJson()),
+                    )
+                    .toList();
+
+            await _savePrivacyInfo(
+              multisig.id,
+              WalletType.multiSignature,
+              MultisigWalletPrivacyInfo(
+                coordinatorBsms: multisig.coordinatorBsms,
+                signersPrivacyInfo: signersPrivacyInfo,
+              ),
+            );
+          }
         }
       }
     }
