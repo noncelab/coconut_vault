@@ -1,8 +1,10 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/multisig/import_coordinator_bsms_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
@@ -44,7 +46,6 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
   @override
   bool get showBottomButton => true;
 
-  @override
   double get topMaskHeight => 0.0;
 
   @override
@@ -109,6 +110,8 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
         return;
       }
 
+      _viewModel.validateBsmsNetwork(result.toString());
+
       NormalizedMultisigConfig normalizedMultisigConfig = MultisigNormalizer.fromCoordinatorResult(result);
       Logger.log(
         '\t normalizedMultisigConfig: \n name: ${normalizedMultisigConfig.name}\n requiredCount: ${normalizedMultisigConfig.requiredCount}\n signerBsms: [\n${normalizedMultisigConfig.signerBsms.join(',\n')}\n]',
@@ -155,7 +158,22 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
       }
     } catch (e) {
       Logger.error('🛑: $e');
-      _handleScanFailure("${t.alert.wallet_creation_failed.title}\n${e.toString()}");
+      String failureMessage;
+
+      if (e is NetworkMismatchException) {
+        if (NetworkType.currentNetworkType == NetworkType.mainnet) {
+          failureMessage =
+              "${t.alert.bsms_network_mismatch.title}\n\n${t.alert.bsms_network_mismatch.description_when_mainnet}";
+        } else {
+          failureMessage =
+              "${t.alert.bsms_network_mismatch.title}\n\n${t.alert.bsms_network_mismatch.description_when_testnet}";
+        }
+      } else {
+        failureMessage =
+            "${t.coordinator_bsms_config_scanner_screen.error_title}\n\n${t.coordinator_bsms_config_scanner_screen.error_message}";
+      }
+
+      _handleScanFailure(failureMessage);
     }
   }
 

@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/multisig/import_coordinator_bsms_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
@@ -11,7 +13,6 @@ import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/popup_util.dart';
-import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/coordinator_bsms_qr_data_handler.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,7 +28,6 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
   final FocusNode _bsmsFocusNode = FocusNode();
   final TextEditingController _bsmsController = TextEditingController();
 
-  final CoordinatorBsmsQrDataHandler _dataHandler = CoordinatorBsmsQrDataHandler();
   late final ImportCoordinatorBsmsViewModel _viewModel;
 
   bool _bsmsObscured = false;
@@ -65,7 +65,6 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
       });
       if (_errorMessage != null) {
         setState(() {
-          // 변경되면 검증 로직을 타야 함
           _errorMessage = null;
         });
       }
@@ -74,26 +73,41 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
     }
   }
 
-  // INFO: e.toString를 화면에 보여줘야 하는 경우를 대비
   void _onFailedNormalization(Object? e) {
+    Logger.error('🛑 Parsing Error Type: ${e.runtimeType}');
+    Logger.error('🛑 Parsing Error Message: $e');
+
+    String message;
+
+    if (e is NetworkMismatchException) {
+      message = (e as dynamic).message;
+    } else {
+      message = t.bsms_paste_screen.error_message;
+    }
+
     setState(() {
       _normalizedMultisigConfig = null;
-      _errorMessage = t.bsms_paste_screen.error_message;
+      _errorMessage = message;
     });
   }
 
   NormalizedMultisigConfig _normalizeCoordinatorBsms(String bsms) {
-    _dataHandler.reset();
-    _dataHandler.joinData(bsms.trim());
-    if (!_dataHandler.isCompleted()) {
-      throw Exception("Incomplete data");
-    }
+    final text = bsms.trim();
 
-    NormalizedMultisigConfig normalizedMultisigConfig = MultisigNormalizer.fromCoordinatorResult(_dataHandler.result);
-    Logger.log(
-      '\t normalizedMultisigConfig: \n name: ${normalizedMultisigConfig.name}\n requiredCount: ${normalizedMultisigConfig.requiredCount}\n signerBsms: [\n${normalizedMultisigConfig.signerBsms.join(',\n')}\n]',
-    );
-    return normalizedMultisigConfig;
+    try {
+      _viewModel.validateBsmsNetwork(text);
+
+      final config = MultisigNormalizer.fromCoordinatorResult(text);
+
+      Logger.log(
+        '\t normalizedMultisigConfig: \n name: ${config.name}\n requiredCount: ${config.requiredCount}\n signerBsms: [\n${config.signerBsms.join(',\n')}\n]',
+      );
+
+      return config;
+    } catch (e) {
+      Logger.error('Text parsing failed: $e');
+      rethrow;
+    }
   }
 
   Future<void> _onCompletePressed() async {
@@ -101,6 +115,9 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
       setState(() {
         _isProcessing = true;
       });
+
+      if (_normalizedMultisigConfig == null) return;
+
       final sameWalletName = _viewModel.findSameWalletName(_normalizedMultisigConfig!);
       if (sameWalletName != null) {
         if (!mounted) return;
@@ -108,15 +125,19 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
         return;
       }
 
-      final result = _dataHandler.result;
-      bool isCoconutMultisigConfig = _viewModel.isCoconutMultisigConfig(result);
+      final rawText = _bsmsController.text.trim();
+      bool isCoconutMultisigConfig = _viewModel.isCoconutMultisigConfig(rawText);
+
       List<MultisigSigner> signers = _viewModel.getMultisigSignersFromMultisigConfig(_normalizedMultisigConfig!);
+
       if (isCoconutMultisigConfig) {
-        final colorIndex = result[VaultListItemBase.fieldColorIndex] as int;
-        final iconIndex = result[VaultListItemBase.fieldIconIndex] as int;
+        final Map<String, dynamic> jsonResult = jsonDecode(rawText);
+        final colorIndex = jsonResult[VaultListItemBase.fieldColorIndex] as int;
+        final iconIndex = jsonResult[VaultListItemBase.fieldIconIndex] as int;
+
         final vault = await _viewModel.addMultisigVault(_normalizedMultisigConfig!, colorIndex, iconIndex, signers);
+
         if (!mounted) return;
-        //Logger.log('---> Homeroute = ${HomeScreenStatus().screenStatus}');
         Navigator.pushNamedAndRemoveUntil(
           context,
           '/',
@@ -138,7 +159,6 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
       }
     } catch (e) {
       Logger.error('🛑: $e');
-      _dataHandler.reset();
       await showInfoPopup(context, t.alert.wallet_creation_failed.title, e.toString());
     } finally {
       setState(() {
@@ -158,17 +178,17 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
           child: Stack(
             children: [
               Align(
-                alignment: Alignment.topCenter, // Stack 영역 내에서 상단 중앙 정렬
+                alignment: Alignment.topCenter,
                 child: Column(
-                  mainAxisSize: MainAxisSize.min, // 필요한 만큼만 높이를 차지
-                  crossAxisAlignment: CrossAxisAlignment.center, // 내부 텍스트를 중앙 정렬
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       t.bsms_paste_screen.import_bsms,
                       textAlign: TextAlign.center,
                       style: CoconutTypography.body2_14_Bold,
                     ),
-                    const SizedBox(height: 8.0), // 두 텍스트 사이에 간격을 추가
+                    const SizedBox(height: 8.0),
                     _buildBSMSTextField(),
                   ],
                 ),
