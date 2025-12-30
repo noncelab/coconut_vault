@@ -659,7 +659,7 @@ multisig_sign_screen:
     needs_more_signature: "This transaction does not have enough signatures yet."
     no_signature: "No signature."
 
-confirm_importing_screen:
+import_confirmation_screen:
   guide1: "Please verify that $hwwType "
   guide2: "imported info from $hwwType "
   guide3: "matches."

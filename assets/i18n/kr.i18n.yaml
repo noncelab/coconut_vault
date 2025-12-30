@@ -660,7 +660,7 @@ multisig_sign_screen:
     needs_more_signature: "서명이 완료되지 않은 트랜잭션이에요."
     no_signature: "서명 정보가 없어요."
 
-confirm_importing_screen:
+import_confirmation_screen:
   guide1: "$hwwType에서 가져온 "
   guide2: "정보가 일치하는지 $hwwType"
   guide3: "확인해 주세요."

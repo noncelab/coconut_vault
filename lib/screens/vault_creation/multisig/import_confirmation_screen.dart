@@ -197,27 +197,27 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen> wit
   List<TextSpan> _getTooltipRichText() {
     final hwwTypeName =
         widget.hwwType == HardwareWalletType.coconutVault
-            ? t.confirm_importing_screen.other_vault
+            ? t.import_confirmation_screen.other_vault
             : widget.hwwType.displayName;
     final isEnglish = Provider.of<VisibilityProvider>(context, listen: false).isEnglish;
     debugPrint('--> isEnglish: $isEnglish');
     return [
       if (isEnglish) ...[
         TextSpan(
-          text: t.confirm_importing_screen.guide1(hwwType: ''),
+          text: t.import_confirmation_screen.guide1(hwwType: ''),
           style: CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black),
         ),
         TextSpan(
-          text: t.confirm_importing_screen.guide2(hwwType: hwwTypeName),
+          text: t.import_confirmation_screen.guide2(hwwType: hwwTypeName),
           style: CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black),
         ),
       ] else ...[
         TextSpan(
-          text: t.confirm_importing_screen.guide1(hwwType: hwwTypeName),
+          text: t.import_confirmation_screen.guide1(hwwType: hwwTypeName),
           style: CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black),
         ),
         TextSpan(
-          text: t.confirm_importing_screen.guide2(hwwType: ''),
+          text: t.import_confirmation_screen.guide2(hwwType: ''),
           style: CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black),
         ),
       ],

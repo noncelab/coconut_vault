@@ -659,7 +659,7 @@ multisig_sign_screen:
     needs_more_signature: "署名が完了していないトランザクションです。"
     no_signature: "署名情報がありません。"
 
-confirm_importing_screen:
+import_confirmation_screen:
   guide1: "$hwwTypeから"
   guide2: "インポートした情報が$hwwType"
   guide3: "一致するか確認してください。"
