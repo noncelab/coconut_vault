@@ -96,11 +96,8 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
         _qrScanDensity = QrScanDensity.fast;
         break;
       case HardwareWalletType.seedSigner:
-      case HardwareWalletType.jade:
-        // 제이드는 카메라 성능 최악
-        _qrScanDensity = QrScanDensity.slow;
-        break;
       case HardwareWalletType.krux:
+      case HardwareWalletType.jade:
         _qrScanDensity = QrScanDensity.slow;
         break;
       default:
