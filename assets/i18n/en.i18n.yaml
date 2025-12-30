@@ -746,8 +746,8 @@ bsms_scanner_screen:
     guide2_4: "Policy Type > Multisig"
     guide2_5: "Check P2WSH at top then"
     guide2_6: "Load as is"
-    guide2_7: "Export XPUB"
-    guide2_8: "XPUB - QR"
+    guide2_7: "Export ZPUB"
+    guide2_8: "ZPUB - QR"
     guide2_7_regtest: "Export VPUB"
     guide2_8_regtest: "VPUB - QR"
   

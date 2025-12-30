@@ -747,8 +747,8 @@ bsms_scanner_screen:
     guide2_4: "정책 유형 > Multisig"
     guide2_5: "상단 P2WSH 확인 후"
     guide2_6: "이대로 불러오기"
-    guide2_7: "XPUB 내보내기"
-    guide2_8: "XPUB - QR"
+    guide2_7: "ZPUB 내보내기"
+    guide2_8: "ZPUB - QR"
     guide2_7_regtest: "VPUB 내보내기"
     guide2_8_regtest: "VPUB - QR"
 

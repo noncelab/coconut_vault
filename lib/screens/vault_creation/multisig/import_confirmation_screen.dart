@@ -76,7 +76,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen> wit
       borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(title: t.confirm_importing_screen.scan_info, context: context, isBottom: true),
+        appBar: CoconutAppBar.build(title: t.import_confirmation_screen.scan_info, context: context, isBottom: true),
         body: SafeArea(
           child: GestureDetector(
             onTap: _closeKeyboard,
@@ -110,7 +110,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen> wit
                                 child: SizedBox(
                                   width: MediaQuery.of(context).size.width * 0.74,
                                   child: Text(
-                                    t.confirm_importing_screen.scan_info,
+                                    t.import_confirmation_screen.scan_info,
                                     style: CoconutTypography.body1_16.merge(
                                       const TextStyle(
                                         fontWeight: FontWeight.bold,
@@ -142,7 +142,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen> wit
                             children: [
                               CoconutLayout.spacing_600h,
                               Text(
-                                t.confirm_importing_screen.memo,
+                                t.import_confirmation_screen.memo,
                                 style: CoconutTypography.body1_16.merge(
                                   const TextStyle(fontWeight: FontWeight.bold, height: 20.8 / 16, letterSpacing: -0.01),
                                 ),
@@ -156,7 +156,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen> wit
                                       backgroundColor: CoconutColors.white,
                                       borderRadius: 16,
                                       isLengthVisible: true,
-                                      placeholderText: t.confirm_importing_screen.placeholder,
+                                      placeholderText: t.import_confirmation_screen.placeholder,
                                       maxLength: kMaxTextLength,
                                       errorText: null,
                                       descriptionText: null,
@@ -222,7 +222,7 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen> wit
         ),
       ],
       TextSpan(
-        text: t.confirm_importing_screen.guide3,
+        text: t.import_confirmation_screen.guide3,
         style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
       ),
     ];
