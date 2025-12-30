@@ -263,7 +263,7 @@ class MultisigSignViewModel extends ChangeNotifier {
   }
 
   Map<String, String> _extractFingerprintZpubMap(String descriptor) {
-    final regex = RegExp(r'\[([0-9A-Fa-f]{8})/[^\]]+\]([A-Za-z]pub[1-9A-HJ-NP-Za-km-z]+)');
+    final regex = RegExp(r'\[([0-9A-Fa-f]{8})/[^\]]+\]([ZVxt]pub[1-9A-HJ-NP-Za-km-z]+)');
 
     final result = <String, String>{};
 
@@ -312,28 +312,28 @@ class MultisigSignViewModel extends ChangeNotifier {
     final name = _vaultListItem.name;
 
     // keystone일 때는 zpub 형식으로 변환
-    final signerBsmsList =
-        _vaultListItem.signers.map((signer) {
-          final parsedBsms = SignerBsms.parse(signer.signerBsms!);
-          // extendedKey를 zpub 형식으로 변환
-          final extendedPublicKey = ExtendedPublicKey.parse(parsedBsms.extendedKey);
-          final zpub = extendedPublicKey.serialize(toXpub: true);
+    // final signerBsmsList =
+    //     _vaultListItem.signers.map((signer) {
+    //       final parsedBsms = SignerBsms.parse(signer.signerBsms!);
+    //       // extendedKey를 zpub 형식으로 변환
+    //       final extendedPublicKey = ExtendedPublicKey.parse(parsedBsms.extendedKey);
+    //       final zpub = extendedPublicKey.serialize(toXpub: true);
 
-          // zpub으로 변환된 extendedKey를 사용하여 새로운 SignerBsms 생성
-          final convertedBsms = SignerBsms(
-            fingerprint: parsedBsms.fingerprint,
-            derivationPath: parsedBsms.derivationPath,
-            extendedKey: zpub,
-            label: parsedBsms.label,
-          );
+    //       // zpub으로 변환된 extendedKey를 사용하여 새로운 SignerBsms 생성
+    //       final convertedBsms = SignerBsms(
+    //         fingerprint: parsedBsms.fingerprint,
+    //         derivationPath: parsedBsms.derivationPath,
+    //         extendedKey: zpub,
+    //         label: parsedBsms.label,
+    //       );
 
-          return convertedBsms.getSignerBsms(includesLabel: false);
-        }).toList();
+    //       return convertedBsms.getSignerBsms(includesLabel: false);
+    //     }).toList();
 
     final config = NormalizedMultisigConfig(
       name: name,
       requiredCount: _vaultListItem.requiredSignatureCount,
-      signerBsms: signerBsmsList,
+      signerBsms: _vaultListItem.signers.map((signer) => signer.signerBsms!).toList(),
     );
 
     return config.getMultisigConfigString();
