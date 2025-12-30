@@ -22,14 +22,11 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
   void _init(WalletProvider walletProvider, int id) {
     final vaultListItem = walletProvider.getVaultById(id) as MultisigVaultListItem;
     walletName = vaultListItem.name;
-
+    final coordinatorBsms = vaultListItem.coordinatorBsms;
     String outputDescriptor = _generateDescriptor(vaultListItem);
-
-    String bsmsText = _generateBsmsTextFormat(vaultListItem, outputDescriptor);
     String coldcardText = _generateColdcardTextFormat(vaultListItem);
     String keystoneText = _generateKeystoneTextFormat(vaultListItem);
 
-    String bsmsUr = _encodeToUrBytes(bsmsText);
     String coldcardQr = _encodeColdcardQr(coldcardText);
     String keystoneUr = _encodeToUrBytes(keystoneText);
 
@@ -46,12 +43,12 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
         colorIndex: walletSyncString['colorIndex'],
         iconIndex: walletSyncString['iconIndex'],
         namesMap: namesMap,
-        coordinatorBsms: bsmsText,
+        coordinatorBsms: coordinatorBsms,
       ),
     );
 
     walletQrDataMap = {
-      'BSMS': bsmsUr,
+      'BSMS': coordinatorBsms,
       'BlueWallet Vault Multisig': _generateBlueWalletFormat(vaultListItem),
       'Coldcard Multisig': coldcardQr,
       'Keystone Multisig': keystoneUr,
@@ -60,7 +57,7 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
     };
 
     walletTextDataMap = {
-      'BSMS': bsmsText,
+      'BSMS': coordinatorBsms,
       'BlueWallet Vault Multisig': walletQrDataMap['BlueWallet Vault Multisig']!,
       'Coldcard Multisig': coldcardText,
       'Keystone Multisig': keystoneText,
@@ -95,13 +92,6 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
     } catch (e) {
       return "Error encoding Coldcard QR: $e";
     }
-  }
-
-  String _generateBsmsTextFormat(MultisigVaultListItem vault, String descriptor) {
-    StringBuffer buffer = StringBuffer();
-    buffer.writeln("BSMS 1.0");
-    buffer.writeln(descriptor);
-    return buffer.toString();
   }
 
   String _generateKeystoneTextFormat(MultisigVaultListItem vault) {
