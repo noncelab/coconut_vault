@@ -364,7 +364,7 @@ signer_qr_bottom_sheet:
     keystone_text7: ""
     keystone_text8: "$name"
     keystone_text9: ""
-    keystone_text0_en: "On the home screen, Click the"
+    keystone_text0_en: "On the home screen, Click the "
     keystone_text1_en: "wallet icon "
     keystone_text2_en: "in the top left"
     keystone_text3_en: "Add Multisig Wallet"
