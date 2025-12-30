@@ -32,11 +32,18 @@ class SignIsolates {
     bool isMultisig = dataList[0] is MultisignatureVault;
     String psbtBase64 = dataList[1] as String;
     WalletIsolates.setNetworkType();
-
-    bool canSign =
-        isMultisig
-            ? (dataList[0] as MultisignatureVault).hasPublicKeyInPsbt(psbtBase64)
-            : (dataList[0] as SingleSignatureVault).hasPublicKeyInPsbt(psbtBase64);
+    bool canSign = false;
+    if (isMultisig) {
+      bool allKeyStoreCanSign = true;
+      for (KeyStore keyStore in (dataList[0] as MultisignatureVault).keyStoreList) {
+        if (!keyStore.hasPublicKeyInPsbt(psbtBase64)) {
+          allKeyStoreCanSign = false;
+        }
+      }
+      canSign = allKeyStoreCanSign;
+    } else {
+      canSign = (dataList[0] as SingleSignatureVault).hasPublicKeyInPsbt(psbtBase64);
+    }
 
     if (!isMultisig || !canSign) return canSign;
 
