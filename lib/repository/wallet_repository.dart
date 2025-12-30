@@ -117,14 +117,6 @@ class WalletRepository {
     }
 
     _vaultList = vaultList;
-
-    if (_vaultList != null) {
-      for (final vault in _vaultList!) {
-        if (vault is SingleSigVaultListItem) {
-          _linkNewSinglesigVaultToMultisigVaults(vault);
-        }
-      }
-    }
   }
 
   Future<Map<String, dynamic>> _enrichVaultJsonWithPrivacy(Map<String, dynamic> json) async {
