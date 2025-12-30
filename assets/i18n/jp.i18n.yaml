@@ -659,7 +659,7 @@ multisig_sign_screen:
     needs_more_signature: "署名が完了していないトランザクションです。"
     no_signature: "署名情報がありません。"
 
-confirm_importing_screen:
+import_confirmation_screen:
   guide1: "他のボルトから"
   guide2: "インポートした情報が"
   guide3: "一致するか確認してください。"
@@ -744,8 +744,8 @@ bsms_scanner_screen:
     guide2_4: "Policy Type > Multisig"
     guide2_5: "上段のP2WSHを確認後"
     guide2_6: "そのまま読み込み"
-    guide2_7: "XPUB エクスポート"
-    guide2_8: "XPUB - QR"
+    guide2_7: "ZPUB エクスポート"
+    guide2_8: "ZPUB - QR"
     guide2_7_regtest: "VPUB エクスポート"
     guide2_8_regtest: "VPUB - QR"
 

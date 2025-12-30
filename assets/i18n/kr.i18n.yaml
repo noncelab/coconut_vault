@@ -660,7 +660,7 @@ multisig_sign_screen:
     needs_more_signature: "서명이 완료되지 않은 트랜잭션이에요."
     no_signature: "서명 정보가 없어요."
 
-confirm_importing_screen:
+import_confirmation_screen:
   guide1: "다른 볼트에서 가져온 "
   guide2: "정보가 일치하는지 "
   guide3: "확인해 주세요."
@@ -746,8 +746,8 @@ bsms_scanner_screen:
     guide2_4: "정책 유형 > Multisig"
     guide2_5: "상단 P2WSH 확인 후"
     guide2_6: "이대로 불러오기"
-    guide2_7: "XPUB 내보내기"
-    guide2_8: "XPUB - QR"
+    guide2_7: "ZPUB 내보내기"
+    guide2_8: "ZPUB - QR"
     guide2_7_regtest: "VPUB 내보내기"
     guide2_8_regtest: "VPUB - QR"
 
