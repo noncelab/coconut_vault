@@ -661,12 +661,13 @@ multisig_sign_screen:
     no_signature: "서명 정보가 없어요."
 
 confirm_importing_screen:
-  guide1: "다른 볼트에서 가져온 "
-  guide2: "정보가 일치하는지 "
+  guide1: "$hwwType에서 가져온 "
+  guide2: "정보가 일치하는지 $hwwType"
   guide3: "확인해 주세요."
   scan_info: "스캔한 정보"
   memo: "메모"
   placeholder: "키에 대한 간단한 메모를 추가하세요"
+  other_vault: "다른 볼트"
 multisig_wallet_creation: "다중 서명 지갑 만들기"
 multisig_quorum_selection_screen:
   total_key_count: "전체 키의 수"

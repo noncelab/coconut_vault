@@ -660,12 +660,13 @@ multisig_sign_screen:
     no_signature: "署名情報がありません。"
 
 confirm_importing_screen:
-  guide1: "他のボルトから"
-  guide2: "インポートした情報が"
+  guide1: "$hwwTypeから"
+  guide2: "インポートした情報が$hwwType"
   guide3: "一致するか確認してください。"
   scan_info: "スキャン情報"
   memo: "メモ"
   placeholder: "キーの簡単なメモを追加"
+  other_vault: "他のボルト"
 multisig_wallet_creation: "マルチシグウォレット作成"
 multisig_quorum_selection_screen:
   total_key_count: "総キー数"

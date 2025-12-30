@@ -548,7 +548,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
     final Map<String, String>? bsmsAndMemo = await MyBottomSheet.showBottomSheet_90(
       context: context,
-      child: ImportConfirmationScreen(importingBsms: externalImported.toString()),
+      child: ImportConfirmationScreen(importingBsms: externalImported.toString(), hwwType: selectedWalletType!),
     );
 
     if (bsmsAndMemo != null) {

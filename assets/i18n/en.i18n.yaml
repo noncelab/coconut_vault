@@ -660,12 +660,13 @@ multisig_sign_screen:
     no_signature: "No signature."
 
 confirm_importing_screen:
-  guide1: "Please verify that "
-  guide2: "imported info from other vault "
+  guide1: "Please verify that $hwwType "
+  guide2: "imported info from $hwwType "
   guide3: "matches."
   scan_info: "Scanned Info"
   memo: "Memo"
   placeholder: "Add simple memo for key"
+  other_vault: "other Vault"
 multisig_wallet_creation: "Create Multisig Wallet"
 multisig_quorum_selection_screen:
   total_key_count: "Total Keys"

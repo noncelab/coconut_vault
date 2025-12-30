@@ -1,14 +1,22 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/multisig/card/signer_bsms_info_card.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ImportConfirmationScreen extends StatefulWidget {
-  const ImportConfirmationScreen({super.key, required this.importingBsms});
+  const ImportConfirmationScreen({
+    super.key,
+    required this.importingBsms,
+    this.hwwType = HardwareWalletType.coconutVault,
+  });
   final String importingBsms;
+  final HardwareWalletType hwwType;
 
   @override
   State<ImportConfirmationScreen> createState() => _ImportConfirmationScreenState();
@@ -187,15 +195,32 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen> wit
   }
 
   List<TextSpan> _getTooltipRichText() {
+    final hwwTypeName =
+        widget.hwwType == HardwareWalletType.coconutVault
+            ? t.confirm_importing_screen.other_vault
+            : widget.hwwType.displayName;
+    final isEnglish = Provider.of<VisibilityProvider>(context, listen: false).isEnglish;
+    debugPrint('--> isEnglish: $isEnglish');
     return [
-      TextSpan(
-        text: t.confirm_importing_screen.guide1,
-        style: CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black),
-      ),
-      TextSpan(
-        text: t.confirm_importing_screen.guide2,
-        style: CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black),
-      ),
+      if (isEnglish) ...[
+        TextSpan(
+          text: t.confirm_importing_screen.guide1(hwwType: ''),
+          style: CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black),
+        ),
+        TextSpan(
+          text: t.confirm_importing_screen.guide2(hwwType: hwwTypeName),
+          style: CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black),
+        ),
+      ] else ...[
+        TextSpan(
+          text: t.confirm_importing_screen.guide1(hwwType: hwwTypeName),
+          style: CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black),
+        ),
+        TextSpan(
+          text: t.confirm_importing_screen.guide2(hwwType: ''),
+          style: CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black),
+        ),
+      ],
       TextSpan(
         text: t.confirm_importing_screen.guide3,
         style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
