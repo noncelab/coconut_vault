@@ -4,6 +4,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/airgap/multisig_psbt_qr_code_screen.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
+import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -155,7 +156,7 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
           TextSpan(
             text: t.signer_qr_bottom_sheet.add_to_hww.keystone_text9_en(name: widget.multisigName),
             style: textStyle,
-          ), //TODO: 이름 삽입
+          ),
           const TextSpan(text: '\n'),
           TextSpan(text: '6. ', style: textStyle),
           TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),

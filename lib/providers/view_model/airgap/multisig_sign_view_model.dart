@@ -9,6 +9,7 @@ import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
+import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:coconut_vault/utils/coconut/transaction_util.dart';
 import 'package:coconut_vault/utils/hex_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -262,14 +263,22 @@ class MultisigSignViewModel extends ChangeNotifier {
   }
 
   Map<String, String> _extractFingerprintZpubMap(String descriptor) {
-    final regex = RegExp(r'\[([0-9A-Fa-f]{8})/[^\]]+\]((?:Z|V)pub[A-Za-z0-9]+)');
+    final regex = RegExp(r'\[([0-9A-Fa-f]{8})/[^\]]+\]([A-Za-z]pub[1-9A-HJ-NP-Za-km-z]+)');
 
     final result = <String, String>{};
 
     for (final match in regex.allMatches(descriptor)) {
       final fp = match.group(1)!.toUpperCase(); // fingerprint
-      final xpub = match.group(2)!; // Zpub or Vpub...
-      result[fp] = xpub;
+      final key = match.group(2)!; // Zpub/Vpub/xpub/tpub ...
+
+      // Zpub/Vpub 인 경우만 xpub/tpub 로 변환, 나머지는 그대로 사용
+      if (key.startsWith('Zpub') || key.startsWith('Vpub')) {
+        final extendedPublicKey = ExtendedPublicKey.parse(key);
+        final normalizedXpub = extendedPublicKey.serialize(toXpub: true);
+        result[fp] = normalizedXpub;
+      } else {
+        result[fp] = key;
+      }
     }
 
     return result;
@@ -301,10 +310,30 @@ class MultisigSignViewModel extends ChangeNotifier {
 
   String _getKeystoneMultisigInfoQrData() {
     final name = _vaultListItem.name;
+
+    // keystone일 때는 zpub 형식으로 변환
+    final signerBsmsList =
+        _vaultListItem.signers.map((signer) {
+          final parsedBsms = SignerBsms.parse(signer.signerBsms!);
+          // extendedKey를 zpub 형식으로 변환
+          final extendedPublicKey = ExtendedPublicKey.parse(parsedBsms.extendedKey);
+          final zpub = extendedPublicKey.serialize(toXpub: true);
+
+          // zpub으로 변환된 extendedKey를 사용하여 새로운 SignerBsms 생성
+          final convertedBsms = SignerBsms(
+            fingerprint: parsedBsms.fingerprint,
+            derivationPath: parsedBsms.derivationPath,
+            extendedKey: zpub,
+            label: parsedBsms.label,
+          );
+
+          return convertedBsms.getSignerBsms(includesLabel: false);
+        }).toList();
+
     final config = NormalizedMultisigConfig(
       name: name,
       requiredCount: _vaultListItem.requiredSignatureCount,
-      signerBsms: _vaultListItem.signers.map((signer) => signer.signerBsms!).toList(),
+      signerBsms: signerBsmsList,
     );
 
     return config.getMultisigConfigString();
