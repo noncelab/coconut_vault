@@ -24,9 +24,11 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
     walletName = vaultListItem.name;
     final coordinatorBsms = vaultListItem.coordinatorBsms;
     String outputDescriptor = _generateDescriptor(vaultListItem);
+    String bsmsText = vaultListItem.coordinatorBsms;
     String coldcardText = _generateColdcardTextFormat(vaultListItem);
     String keystoneText = _generateKeystoneTextFormat(vaultListItem);
 
+    String bsmsUr = _encodeToUrBytes(bsmsText);
     String coldcardQr = _encodeColdcardQr(coldcardText);
     String keystoneUr = _encodeToUrBytes(keystoneText);
 
@@ -48,7 +50,7 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
     );
 
     walletQrDataMap = {
-      'BSMS': coordinatorBsms,
+      'BSMS': bsmsUr,
       'BlueWallet Vault Multisig': _generateBlueWalletFormat(vaultListItem),
       'Coldcard Multisig': coldcardQr,
       'Keystone Multisig': keystoneUr,
@@ -57,7 +59,7 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
     };
 
     walletTextDataMap = {
-      'BSMS': coordinatorBsms,
+      'BSMS': bsmsText,
       'BlueWallet Vault Multisig': walletQrDataMap['BlueWallet Vault Multisig']!,
       'Coldcard Multisig': coldcardText,
       'Keystone Multisig': keystoneText,
