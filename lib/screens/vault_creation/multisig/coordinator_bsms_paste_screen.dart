@@ -95,8 +95,10 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
     final text = bsms.trim();
 
     try {
+      //NetworkMismatchException
       _viewModel.validateBsmsNetwork(text);
 
+      //FormatException
       final config = MultisigNormalizer.fromCoordinatorResult(text);
 
       Logger.log(

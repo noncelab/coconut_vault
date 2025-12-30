@@ -17,6 +17,7 @@ import 'package:coconut_vault/model/exception/not_related_multisig_wallet_except
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
+import 'package:coconut_vault/utils/coconut/extended_pubkey_utils.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:flutter/foundation.dart';
@@ -118,8 +119,10 @@ class WalletProvider extends ChangeNotifier {
 
     validateSigners(signers);
 
+    final sanitizedSigners = _getMfpSanitizedSigners(signers);
+
     final vault = await _walletRepository.addMultisigWallet(
-      MultisigWallet(null, _getUnduplicatedName(name), icon, color, signers, requiredSignatureCount),
+      MultisigWallet(null, _getUnduplicatedName(name), icon, color, sanitizedSigners, requiredSignatureCount),
       shouldAttachInnerVaultMetadata: isImported,
     );
     _setVaultList(_walletRepository.vaultList);
@@ -149,6 +152,66 @@ class WalletProvider extends ChangeNotifier {
     }
   }
 
+  /// "내부 지갑"과 xpub이 일치하는 경우에만 잘못된 MFP 수정 가능ㄴ
+  List<MultisigSigner> _getMfpSanitizedSigners(List<MultisigSigner> signers) {
+    if (_vaultList.isEmpty) return signers;
+
+    return signers.map((signer) {
+      if (signer.signerBsms == null || signer.signerBsms!.isEmpty) return signer;
+
+      try {
+        final inputKey = signer.keyStore.extendedPublicKey.toString();
+        final inputMfp = signer.keyStore.masterFingerprint;
+
+        final matchedVaultIndex = _vaultList.indexWhere((v) {
+          if (v is! SingleSigVaultListItem) return false;
+
+          final String rawBsmsString = v.getSignerBsmsByAddressType(AddressType.p2wsh, withLabel: false);
+          try {
+            final targetBsmsObj = SignerBsms.parse(rawBsmsString);
+            final targetKey = targetBsmsObj.extendedKey;
+            return isEquivalentExtendedPubKey(inputKey, targetKey);
+          } catch (e) {
+            return false;
+          }
+        });
+
+        // replace MFP
+        if (matchedVaultIndex != -1) {
+          final matchedVault = _vaultList[matchedVaultIndex];
+          final correctMfp = (matchedVault.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
+          bool isMfpMismatch = correctMfp.toUpperCase() != inputMfp.toUpperCase();
+
+          if (!isMfpMismatch) {
+            return signer;
+          }
+
+          final sanitizedBsms = signer.signerBsms!.replaceFirstMapped(
+            RegExp(r'\[([0-9a-fA-F]{8})'),
+            (match) => '[$correctMfp',
+          );
+
+          final sanitizedKeystore = KeyStore.fromSignerBsms(sanitizedBsms);
+          return MultisigSigner(
+            id: signer.id,
+            keyStore: sanitizedKeystore,
+            signerBsms: sanitizedBsms,
+            innerVaultId: signer.innerVaultId,
+            name: signer.name,
+            colorIndex: signer.colorIndex,
+            iconIndex: signer.iconIndex,
+            signerSource: signer.signerSource,
+            memo: signer.memo,
+          );
+        }
+      } catch (e) {
+        Logger.error('Error sanitizing signer in Provider: $e');
+      }
+
+      return signer;
+    }).toList();
+  }
+
   /// hardened가 '일 때와 h일 때 모두 허용
   void validateSignerDerivationPath(String path) {
     try {
@@ -161,6 +224,11 @@ class WalletProvider extends ChangeNotifier {
       });
       if (allowedAddressTypeIndex < 0) {
         throw FormatException('Signer purpose index is not allowed : $path');
+      }
+
+      // Only P2WSH(Native SegWit) support
+      if (allowedMultisigAddressTypes[allowedAddressTypeIndex] != AddressType.p2wsh) {
+        throw FormatException('Only Native SegWit (P2WSH) wallet is supported : $path');
       }
 
       // coinType check
@@ -300,11 +368,35 @@ class WalletProvider extends ChangeNotifier {
 
   MultisigVaultListItem? findSameMultisigWallet(NormalizedMultisigConfig config) {
     final vaultIndex = _vaultList.indexWhere((element) {
-      if (element is SingleSigVaultListItem) return false;
-      final wallet = element as MultisigVaultListItem;
-      return wallet.requiredSignatureCount == config.requiredCount &&
-          wallet.signers.length == config.totalSigners &&
-          setEquals(wallet.signerFingerprints, config.signerFingerprints);
+      if (element is! MultisigVaultListItem) return false;
+
+      final wallet = element;
+
+      if (wallet.requiredSignatureCount != config.requiredCount || wallet.signers.length != config.totalSigners) {
+        return false;
+      }
+
+      try {
+        final Set<String> existingWalletXpubs =
+            wallet.signers.map((signer) {
+              final bsmsToCheck = signer.signerBsms ?? "";
+              final keyStore = KeyStore.fromSignerBsms(bsmsToCheck);
+
+              return keyStore.extendedPublicKey.serialize(toXpub: true);
+            }).toSet();
+
+        final Set<String> newConfigXpubs =
+            config.signerBsms.map((bsmsEntry) {
+              final bsmsString = bsmsEntry.toString();
+              final keyStore = KeyStore.fromSignerBsms(bsmsString);
+
+              return keyStore.extendedPublicKey.serialize(toXpub: true);
+            }).toSet();
+
+        return setEquals(existingWalletXpubs, newConfigXpubs);
+      } catch (e) {
+        return false;
+      }
     });
 
     return vaultIndex != -1 ? _vaultList[vaultIndex] as MultisigVaultListItem : null;
