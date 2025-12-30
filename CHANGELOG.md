@@ -1,3 +1,18 @@
+## mainnet 2.0.0, regtest 4.0.0 - 2025-12-?
+### Fixed
+* PrivateInfo 보관/조회 아키텍처 개편
+### Added
+* 다중 서명 지갑 Signer 구성 시 타사 HWW[키스톤, 시드사이너, Coldcard, Krux, Jade]에서 불러오기 가능
+* 다중 서명 지갑 - 비트코인 전송 시 타사 HWW로 서명 가능
+
+## mainnet 1.1.0, regtest 3.1.0 - 2025-11-15
+### Fixed
+* 앱 사용 가능 조건 확인 로직 개선
+
+## mainnet 1.0.0, regtest 3.0.1 - 2025-10-25
+### Added
+* 키 보관/조회 아키텍처 개편
+
 ## regtest 3.0.0 - 2025-10-20
 ### Added
 * 언어 - 일본어 추가

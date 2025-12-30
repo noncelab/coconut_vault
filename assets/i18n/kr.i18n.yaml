@@ -21,7 +21,11 @@ settings: "설정"
 confirm: "확인"
 complete: "완료"
 cancel: "취소"
+close: "닫기"
 abort: "종료"
+abort_sign: "서명 종료"
+scan_qr: "QR 스캔하기"
+export_qr: "QR 내보내기"
 next: "다음"
 save: "저장"
 select: "선택"
@@ -49,11 +53,11 @@ verify_security: "보안 검사 중..."
 
 sign_completion: "서명 완료"
 sign: "서명하기"
+add_sign: "서명 추가"
 signed_tx: "서명 트랜잭션"
 sign_completed: "서명을 완료했어요"
 stop_sign: "서명 종료하기"
 
-select_completed: "선택 완료"
 checklist: "보안 체크리스트"
 mnemonic_wordlist: "니모닉 문구 단어집"
 tool: "도구"
@@ -87,8 +91,6 @@ sign_required: "버튼을 눌러 서명해 주세요"
 sign_required_amount: 
   one: "$n개의 서명이 필요해요"
   other: "$n개의 서명이 필요해요"
-move_to_qr_screen: "QR 코드 화면으로 이동"
-move_to_qr_screen_description: "키가 있는 볼트에서 서명하기 위해 QR을 생성합니다."
 
 wallet_delete_failed: "삭제할 지갑 없음"
 wallet_delete_failed_description: "현재 저장된 지갑이 없어 삭제할 필요가 없어요"
@@ -278,18 +280,124 @@ psbt_confirmation_screen:
   warning: "⚠️ 해당 지갑으로 만든 psbt가 아닐 수 있습니다. 또는 잔액이 없는 트랜잭션일 수 있습니다."
 psbt_scanner_screen:
   guide: "월렛에서 만든 보내기 정보 또는 외부 볼트에서 다중 서명 중인 정보를 스캔해 주세요."
+  guide_import_psbt_0: "외부 볼트에서 "
+  guide_import_psbt_1: "로 만들어진 QR 코드를 스캔해 주세요."
   guide_single_sig_same_name: "월렛에서 만든 보내기 정보를 스캔해 주세요. 반드시 지갑 이름이 같아야 해요."
+  tooltip:
+    scan_QR_code: "$name 화면의 QR 코드를 스캔해 주세요."
+    click_button: "버튼 클릭"
+    press_button: "버튼 누르기"
+    confirm_sign_info: "서명 정보 확인"
+    seed_signer_text1: "Approve PSBT "
+    jade_text1: "체크 ✓ "
+    coldcard_text1: "서명 정보 확인 후 "
+    coldcard_text2: "ENTER "
+    coldcard_text3: "QR "
+    coldcard_text4: "PSBT Signed 화면에서 "
+    coldcard_text5: "QR "
+    keystone_text1: "버튼을 오른쪽으로 밀기"
+    keystone_text2: "비밀번호 입력"
+    krux_text1: "화면을 터치하여 서명 정보 확인"
+    krux_text2: "Sign to QR code "
+    krux_text3: "선택"
+    press_the_en: ""
+    click_en: ""
+    button_en: ""
+    auto_text: "다중 서명 중인 트랜잭션의 QR 코드를 스캔해 주세요."
 signed_transaction_qr_screen:
-  guide_multisig: "다중 서명을 완료했어요. 보내기 정보를 생성한 월렛으로 아래 QR 코드를 스캔해 주세요."
+  guide_multisig: "다중 서명을 완료했어요. 트랜잭션 정보를 생성한 월렛으로 아래 QR 코드를 스캔해 주세요."
   guide_single_sig: "월렛의 '$name 지갑'에서 만든 보내기 정보에 서명을 완료했어요. 월렛으로 아래 QR 코드를 스캔해 주세요."
 single_sig_sign_screen:
   text: "이미 서명된 트랜잭션입니다"
 signer_qr_bottom_sheet:
-  title: "서명 트랜잭션 내보내기"
-  text1: "번 키가 보관된 볼트에서,"
-  text2: "서명하기"
-  text3: "아래 QR 코드를 스캔해 주세요."
-  select: " 선택"
+  title: "$name로 내보내기"
+  at_hww: "$hwwType에서 "
+  scan_the_qr: "아래 QR 코드를 스캔해 주세요."
+  vault_text1: "번 키가 보관된 볼트에서"
+  vault_text2: "서명하기 "
+  vault_text3: "아래 QR 코드를 스캔해 주세요."
+  vault_text4: "키가 보관된 볼트에서"
+  vault_text5: "또는 다중서명 화면에서 하단의 "
+  vault_text6: "버튼을 눌러 스캔해 주세요."
+  seedsigner_text0: "$mfp 시드가 로드된 상태에서\n"
+  seedsigner_text1: "Scan PSBT "
+  seedsigner_text2: "시드사이너에서 스캔이 완료되면 아래 "
+  seedsigner_text3: "다음 "
+  seedsigner_text4: "버튼을 눌러주세요."
+  seedsigner_text5: "시드가 로드된 상태에서\n"
+  jade_text0: "$mfp 지갑이 활성화된 상태에서\n"
+  jade_text1: "Scan QR "
+  jade_text2: "제이드에서 스캔이 완료되면 아래 "
+  jade_text3: "다음 "
+  jade_text4: "버튼을 눌러주세요."
+  jade_text5: "지갑이 활성화된 상태에서\n"
+  coldcard_text0: "홈 화면에서\n"
+  coldcard_text1: "Ready to Sign "
+  coldcard_text2: "콜드카드에서 스캔이 완료되면 아래 "
+  coldcard_text3: "다음 "
+  coldcard_text4: "버튼을 눌러주세요."
+  keystone_text0: "홈 화면에서\n"
+  keystone_text1: "Scan "
+  keystone_text2: "키스톤에서 스캔이 완료되면 아래 "
+  keystone_text3: "다음 "
+  keystone_text4: "버튼을 눌러주세요."
+  krux_text0: "홈 화면에서\n"
+  krux_text1: "Sign "
+  krux_text2: "PSBT "
+  krux_text3: "Load from Camera "
+  krux_text4: "크럭스에서 스캔이 완료되면 아래 "
+  krux_text5: "다음 "
+  krux_text6: "버튼을 눌러주세요."
+  select: "선택"
+  low_density_qr: "단순한 QR"
+  high_density_qr: "복잡한 QR"
+  view_bbqr: "BBQR 보기"
+  view_ur: "UR 보기"
+  add_to_hww: 
+    title: "$name에 지갑 추가하기"
+    keystone_text0: "홈 화면 왼쪽 상단의 "
+    keystone_text1: "지갑 아이콘 "
+    keystone_text2: "클릭"
+    keystone_text3: "Add Multisig Wallet "
+    keystone_text4: "Via Camera "
+    keystone_text5: "아래 QR 코드 스캔 후 지갑 추가 완료"
+    keystone_text6: "Wallet Profile "
+    keystone_text7: "화면에서 추가된 "
+    keystone_text8: "$name "
+    keystone_text9: "Set as Current Wallet "
+    keystone_text0_en: ""
+    keystone_text1_en: ""
+    keystone_text2_en: ""
+    keystone_text3_en: ""
+    keystone_text4_en: ""
+    keystone_text5_en: ""
+    keystone_text6_en: ""
+    keystone_text7_en: ""
+    keystone_text8_en: "$noInput"
+    keystone_text9_en: "$name"
+    keystone_text10_en: ""
+    krux_text0: "MFP 시드를 다중 서명 / Native Segwit으로 불러온 상태에서\n"
+    krux_text1: "Wallet "
+    krux_text2: "Wallet Descriptor - 예 "
+    krux_text3: "크럭스에서 정보 스캔 완료 후, "
+    krux_text4: "예 "
+    krux_text5: "< 뒤로 "
+    krux_text0_en: ""
+    krux_text1_en: ""
+    krux_text2_en: ""
+    krux_text3_en: ""
+    krux_text4_en: ""
+    krux_text5_en: ""
+    vault_text0: "다른 기기의 코코넛 볼트에서\n"
+    vault_text1: "홈 화면 상단의 지갑 추가 버튼 "
+    vault_text2: "다중 서명 지갑 "
+    vault_text3: "지갑 백업 데이터가 있어요 "
+    vault_text4: "아래 QR 코드 스캔 후 지갑 추가 완료"
+    vault_text0_en: ""
+    vault_text1_en: ""
+    vault_text2_en: ""
+    vault_text3_en: ""
+    vault_text4_en: ""
 unit_bottom_sheet:
   basic_unit: "기본 단위"
   header_text: "1 BTC = 100,000,000 sats"
@@ -495,6 +603,8 @@ seed_qr_import_screen:
   title: "시드 QR 코드 스캔"
   error_title: "스캔 오류"
   error_message: "시드 QR 코드 스캔 중 오류가 발생했어요. 다시 시도해 주세요."
+  format_error_title: "형식 오류"
+  format_error_message: "시드 QR 코드 형식이 올바르지 않아요. 다시 시도해 주세요."
   guide: "시드 QR 코드를 스캔해 주세요. (21x21 또는 25x25)"
 seed_qr_confirmation_screen:
   title: "니모닉 문구 확인"
@@ -508,12 +618,47 @@ vault_name_icon_setup_screen:
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
   create_multisig_wallet_by_quorum: "$requiredSignatureCount/$totalSignatureCount 지갑을 생성합니다"
-  order_keys: "동일한 순서를 유지하도록 키 순서를 정렬할게요"
   data_verifying: "데이터 검증 중이에요"
   use_internal_key: "이 볼트의 키 사용하기"
   select_key_option: "키 종류 선택"
   use_internal_key_option: "키 선택"
   import_from_other_vault: "다른 볼트에서 가져오기"
+  import_from_hww: "하드월렛에서 가져오기"
+  hardware_wallet_type_selection: "하드월렛 선택"
+
+hardware_wallet_type:
+  vault: "코코넛 볼트"
+  keystone3pro: "키스톤 3 프로"
+  keystone: "키스톤"
+  seedsigner: "시드사이너"
+  jade: "제이드"
+  coldcard: "콜드카드"
+  krux: "크럭스"
+
+multisig_creation_options_screen:
+  quorum: "새로운 지갑을 만들게요"
+  bsms: "지갑 백업 데이터가 있어요"
+
+multisig_sign_screen:
+  loading_overlay: "서명 정보를 생성합니다"
+  dialog:
+    preparation:
+      title: '$name 준비하기'
+      description: '$name(으)로 서명을 하기 위해 사전 설정이 필요합니다. 사전 설정 화면으로 가시겠어요?'
+    signature_update:
+      title: "서명 업데이트"
+      description: "서명이 업데이트되었어요."
+    signature_failed:
+      title: "서명 실패"
+    signature_update_failed:
+      title: "서명 업데이트 실패"
+  creating_qr_code: "QR 코드를 생성합니다"
+  select_signer_hardware_wallet: "서명기기 선택"
+  exception:
+    not_segwit: "지원하지 않는 트랜잭션 형식이에요. (noSegwit)"
+    invalid_sign_error: "잘못된 서명 정보에요. 다시 시도해 주세요."
+    needs_more_signature: "서명이 완료되지 않은 트랜잭션이에요."
+    no_signature: "서명 정보가 없어요."
 
 confirm_importing_screen:
   guide1: "다른 볼트에서 가져온 "
@@ -522,28 +667,94 @@ confirm_importing_screen:
   scan_info: "스캔한 정보"
   memo: "메모"
   placeholder: "키에 대한 간단한 메모를 추가하세요"
-select_multisig_quorum_screen:
+multisig_wallet_creation: "다중 서명 지갑 만들기"
+multisig_quorum_selection_screen:
   total_key_count: "전체 키의 수"
   required_signature_count: "필요한 서명 수"
-  one_or_two_of_n: "하나의 키를 분실하거나 키 보관자 중 한 명이 부재중이더라도 비트코인을 보낼 수 있어요."
-  n_of_n: "비트코인을 보내려면 모든 키가 필요해요. 키를 하나라도 잃으면 자금에 접근할 수 없으니 주의하세요."
-  one_of_n: "하나의 키만 있어도 비트코인을 이동시킬 수 있어요. 상대적으로 보안성이 낮기 때문에 권장하지 않아요."
+  quorum_category:
+    loss_tolerant: "분실 대비형"
+    balanced: "균형형"
+    high_security: "고보안형"
+  quorum_message:
+    loss_tolerant: "하나의 키만 있어도 송금이 가능해요.\n분실에 강하지만, 하나만 유출돼도 전체 자금이 위험해지는 방식이에요."
+    balanced: "분실과 탈취 모두에 강한 추천 구성\n$m개 키만 있어도 송금할 수 있어요."
+    high_security: "$m개 키가 있어야만 송금이 가능해요.\n탈취에 안전하지만 관리 난이도가 높아요."
+    highest_security: "모든 키가 있어야만 송금이 가능해요.\n탈취에 가장 안전하지만 관리 난이도가 높아요."
 signer_scanner_bottom_sheet:
   title: "서명 업데이트"
   guide: "다른 볼트에서 서명을 추가했나요? 정보를 업데이트 하기 위해 추가된 서명 트랜잭션의 QR 코드를 스캔해 주세요."
-signer_scanner_screen:
+
+bsms_scanner_base:
+  paste: "붙여넣기로 가져오기"
+
+coordinator_bsms_config_scanner_screen:
+  guide1: "코코넛 볼트는 안전한 다중 서명 관리 표준인 BSMS(BIP-129)를 허용합니다."
+  guide2: "BSMS QR 코드를 스캔해 주세요."
+  error_title: "잘못된 형식"
+  error_message: "BSMS 데이터가 유효하지 않습니다.\n올바른 QR을 다시 스캔해 주세요."
+
+bsms_scanner_screen:
   import_bsms: "키 정보 가져오기"
   import_multisig_wallet: "다중 서명 지갑 가져오기"
+  select: "선택"
+  press_button: "버튼 누르기"
   guide1_1: "다른 볼트에서 만든 다중 서명 지갑을 가져올 수 있어요."
   guide1_2: "외부 볼트의 홈 화면에서,"
-  guide1_3: "다중 서명 지갑 "
-  guide1_4: "다른 볼트로 내보내기 "
+  guide1_3: "다중 서명 지갑"
+  guide1_4: "다른 볼트로 내보내기"
   guide1_5: "화면에 나타나는 QR 코드를 스캔해 주세요."
-  guide2_1: "사용하려는 키가 있는 볼트의 홈 화면에서 "
-  guide2_2: "지갑 "
-  guide2_3: "다중 서명 키로 사용하기 "
-  guide2_4: "화면에 보이는 QR 코드를 스캔해 주세요."
-  select: "선택"
+  coconut_vault:
+    guide2_1: "사용하려는 키가 있는 볼트의 홈 화면에서"
+    guide2_2: "지갑"
+    guide2_3: "다중 서명 키로 사용하기"
+    guide2_4: "화면에 보이는 QR 코드를 스캔해 주세요."
+  keystone3pro:
+    guide2_1: "키스톤 3 프로와 호환됩니다."
+    guide2_2: "홈 화면에서"
+    guide2_3: "왼쪽 상단 지갑 아이콘"
+    guide2_4: "Show/Export xPub"
+    guide2_5: "Multisig Wallet"
+    guide2_6: "Native Segwit 옵션"
+    guide2_7: "의 QR 스캔"
+  seedsigner:
+    guide2_1: "시드 추가 후,"
+    guide2_2: "Export Xpub"
+    guide2_3: "Multisig - Native Segwit"
+    guide2_4: "BlueWallet"
+    guide2_5: "안내 메세지 확인 후"
+    guide2_6: "I Understand > Export Xpub"
+  jade:
+    guide2_1: "Active"
+    guide2_2: "상태에서"
+    guide2_3: "Options"
+    guide2_4: "Wallet"
+    guide2_5: "Export Xpub"
+    guide2_6: "Wallet: Singlesig"
+    guide2_7: "Multisig"
+    guide2_8: "로 변경 후 뒤로가기"
+  cold_card:
+    guide2_1: "Settings"
+    guide2_2: "Multisig Wallets"
+    guide2_3: "Export XPUB"
+    guide2_4: "Enter"
+    guide2_5: "0 입력 후 Enter"
+    guide2_6: "QR"
+  krux:
+    guide2_1: "wonderMV 기준 가이드입니다."
+    guide2_2: "니모닉 추가 후,"
+    guide2_3: "사용자 정의 "
+    guide2_4: "정책 유형 > Multisig"
+    guide2_5: "상단 P2WSH 확인 후"
+    guide2_6: "이대로 불러오기"
+    guide2_7: "XPUB 내보내기"
+    guide2_8: "XPUB - QR"
+    guide2_7_regtest: "VPUB 내보내기"
+    guide2_8_regtest: "VPUB - QR"
+
+bsms_paste_screen:
+  import_bsms: "BSMS 문자열을 입력해주세요"
+  back_scan: "QR 스캔으로 돌아가기"
+  error_message: "올바른 BSMS 문자열을 입력해 주세요."
 
 # lib/screens/vault_detail
 address_list_screen:
@@ -552,42 +763,58 @@ address_list_screen:
 export_detail_screen:
   title: "내보내기 상세 정보"
   info_copied: "상세 정보가 복사됐어요"
-multi_sig_bsms_screen:
-  bottom_sheet:
-    title: "지갑 상세 정보"
-    info_copied: "지갑 상세 정보가 복사됐어요"
-  title: "다른 볼트로 내보내기"
+coordinator_bsms_qr_screen:
   guide:
-    text1: "동일한 키를 가진 다른 볼트에서도 이 QR 코드를 스캔하여 지갑을 추가할 수 있습니다."
+    text1: "다른 볼트에서 이 지갑을 사용할 수 있도록 공유합니다."
     text2: "이 지갑은 안전한 다중 서명 관리를 위해 표준(BIP-129, BSMS)을 따릅니다."
     text3: "서명에 필요한 모든 키가 이 볼트에 안전하게 보관되어 있습니다."
     text4: "이 다중 서명 지갑에 필요한 **$gen** 키는 현재 다른 볼트에 보관되어 있습니다."
-    text5: "**$gen** 키가 있는 볼트에서 **다중 서명 지갑 가져오기**를 선택한 후, 아래 QR 코드를 스캔하세요."
-  first_key: "$first번"
-  first_and_last_keys: "$first번과 $last번"
-  first_or_last_key: "$first번 또는 $last번"
-  view_detail: "상세 정보 보기"
 multi_sig_memo_bottom_sheet:
   imported_wallet_memo: "외부 지갑 메모"
   placeholder: "메모를 작성해주세요."
 multi_sig_setting_screen:
   edit_memo: "메모 수정"
   add_memo: "메모 추가"
-  view_bsms: "다른 볼트로 내보내기"
+  export_menu: 
+    export_wallet: "지갑 내보내기"
+    share_bsms: "다른 볼트와 공유하기"
+    share_bsms_description: "다른 볼트에서 이 지갑을 사용할 수 있도록 공유합니다."
+    export_watch_only_wallet: "보기 전용 앱으로 내보내기"
+    export_watch_only_wallet_description: "잔액/주소 조회만 가능한 앱으로 내보냅니다"
+    backup_wallet_data: "지갑 데이터 백업하기"
+    backup_wallet_data_description: "분실이나 기기 변경에 대비하여, 지갑 복구에 필요한 BSMS 백업 데이터를 내보냅니다"
+    guide:
+      text1: "분실이나 기기 변경에 대비한 지갑 복구용 BSMS 백업 데이터입니다."
+      text2: "코코넛 월렛에 $name 지갑을 추가한 뒤, 지갑 상세 화면의 '지갑 백업 데이터 보기'에서 동일한 정보를 확인할 수 있습니다."
   tooltip: 
     one: "$total개의 키 중 $n개로 서명해야 하는\n다중 서명 지갑이에요."
     other: "$total개의 키 중 $n개로 서명해야 하는\n다중 서명 지갑이에요."
+  add_key: "키 추가"
+  add_key_option: "키 추가 옵션"
+  input_mnemonic_word: "니모닉 문구 입력하기"
+  scan_seed_qr: "시드 QR 스캔하기"
+  add_icon:
+    title: "아이콘 입력"
+    coconut_vault: "코코넛 볼트"
+    keystone3pro: "키스톤 3 프로"
+    seed_signer: "시드사이너"
+    jade: "제이드"
+    cold_card: "콜드카드"
+    krux: "크럭스"
+  popup:
+    title: "$name 선택 완료"
+    description: "다중 서명 시 $name 설정에 따라 안내할게요."
+    button: "알겠습니다"
 select_export_type_screen:
   title: "보기 전용 앱으로 내보내기"
 signer_bsms_screen:
   guide1_1: "다른 볼트에서 다중 서명 지갑을 생성 중이시군요!"
   guide1_2: "다른 볼트의 가져오기 화면에서 아래 QR 코드를 스캔해 주세요."
-  export_info: "내보낼 정보"
 sync_to_wallet_screen:
   title: "$name 내보내기"
   guide:
     multisig: "Multisig"
-    coconut: "홈 화면에서 지갑 추가 아이콘 선택"
+    coconut: "홈 화면에서 지갑 추가 아이콘 "
     sparrow_singlesig:
       guide0_1: "메뉴에서"
       guide1_1: "Import Wallet"
@@ -607,16 +834,18 @@ sync_to_wallet_screen:
       guide1_1: "홈 화면에서 우측 상단 + 클릭"
       guide2_1: "Import Wallet"
       guide3_1: "Scan or import a file"
-    common: "아래 QR 코드를 스캔해 주세요"
+    common: "아래 QR 코드를 스캔해 주세요."
 
 vault_menu_screen:
+  export_wallet: "지갑 내보내기"
+  view_xpub: "확장 공개키 보기"
   title:  
     view_info: "$name 정보"
     view_address: "주소 보기"
     export_xpub: "지갑 정보 내보내기"
     single_sig_sign: "서명하기"
     multisig_sign: "다중 서명하기"
-    use_as_multisig_signer: "다중 서명 키로 사용하기"
+    use_as_multisig_signer: "다중 서명키로 사용하기"
     import_bsms: "다중 서명 지갑 가져오기"
   description:
     view_single_sig_info: "저장된 니모닉 문구 등을 확인할 수 있어요"
@@ -625,7 +854,7 @@ vault_menu_screen:
     view_address: "$name의 주소를 확인해요"
     export_xpub: "보기 전용 지갑을 월렛에 추가해요"
     sign: "월렛에서 만든 정보를 스캔하고 서명해요"
-    use_as_multisig_signer: "다른 볼트에 내 키를 다중 서명 키로 등록해요"
+    use_as_multisig_signer: "다른 볼트에서 이 키를 사용해 다중 서명 지갑을 구성합니다"
 vault_settings:
   used_in_multisig: "다중 서명 지갑에서 사용 중입니다"
   of: "의 "
@@ -746,6 +975,11 @@ alert:
   auth_canceled_when_encrypt:
     title: "기기 인증 취소됨"
     description: "기기 인증을 해야 지갑 정보를 보안 영역에 저장할 수 있어요."
+  bsms_network_mismatch:
+    title: "유효하지 않은 BSMS"
+    description_when_mainnet: "테스트넷용 BSMS입니다."
+    description_when_testnet: "메인넷용 BSMS입니다."
+    
 
 toast:
   clipboard_copied: "클립보드에 복사되었어요"
@@ -764,6 +998,7 @@ toast:
 errors:
   invalid_qr: "잘못된 QR 코드예요.\n다시 확인해 주세요."
   invalid_single_sig_qr_error: "잘못된 QR이에요. 다시 시도해 주세요."
+  invalid_network_type_error: "확장 공개키의 네트워크 타입이 일치하지 않아요"
   invalid_multisig_qr_error: "잘못된 QR이에요.\n가져올 다중 서명 지갑의 정보 화면에서 \"지갑 설정 정보 보기\"에 나오는 QR 코드를 스캔해 주세요."
   unsupport_bsms_version_error: "지원하지 않는 BSMS 버전이에요. BSMS 1.0만 지원됩니다."
   unsupport_derivation_path_error: "커스텀 파생 경로는 지원되지 않아요"
@@ -778,6 +1013,7 @@ errors:
   retry_after: "$time 후 재시도 할 수 있어요"
   invalid_word_error: "단어를 확인해 주세요 $filter"
   invalid_mnemonic_phrase: "잘못된 니모닉 문구예요"
+  different_wallet: "동일한 지갑이 아니에요"
   data_loading_error: "데이터를 불러오는 중 오류가 발생했습니다"
   data_not_found_error: "데이터가 없습니다"
   cannot_sign_error: "서명할 수 없는 트랜잭션이에요"
@@ -799,6 +1035,7 @@ exceptions:
   seed_invalidated: 
     title: "지갑 사용 불가"
     description: "저장된 지갑을 더 이상 사용할 수 없습니다. 지갑을 삭제한 뒤, 백업한 니모닉으로 다시 복원해 주세요."
+  needs_multisig_setup: "$name 지갑으로 서명하려면 다중 서명 지갑을 먼저 추가해 주세요."
 
 tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."

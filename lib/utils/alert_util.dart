@@ -1,4 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/cupertino.dart';
 
 TextStyle optionStyle = CoconutTypography.body2_14_Bold.merge(
@@ -37,7 +38,7 @@ Future<void> showAlertDialog({
                 Navigator.pop(context);
                 _isDialogVisible = false;
               },
-              child: Text('확인', style: optionStyle),
+              child: Text(t.confirm, style: optionStyle),
             ),
           ],
         ),

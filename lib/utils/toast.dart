@@ -7,10 +7,10 @@ class MyToast {
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25.0),
-        color: CoconutColors.gray200,
+        color: CoconutColors.gray400,
         boxShadow: [
           BoxShadow(
-            color: CoconutColors.gray200.withValues(alpha: 0.5),
+            color: CoconutColors.gray400.withValues(alpha: 0.7),
             spreadRadius: 2,
             blurRadius: 15,
             offset: const Offset(-2, 2),

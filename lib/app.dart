@@ -23,6 +23,12 @@ import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/home/vault_list_screen.dart';
 import 'package:coconut_vault/screens/precheck/device_password_checker_screen.dart';
 import 'package:coconut_vault/screens/precheck/jail_break_detection_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/coordinator_bsms_paste_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/coordinator_bsms_config_scanner_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/multisig_creation_options_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/multisig_menu/backup_wallet_data_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/single_sig_menu/extended_pub_key_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/export_options_screen.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -41,26 +47,26 @@ import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
 import 'package:coconut_vault/screens/home/tutorial_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/signer_assignment_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/multisig_quorum_selection_screen.dart';
-import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/signer_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_type_selection_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_creation_options_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/address_list_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/info/mnemonic_view_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/info/multisig_bsms_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/info/multisig_setup_info_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/info/passphrase_verification_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/multisig_signer_bsms_export_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/sync_to_wallet/sync_to_wallet_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/info/single_sig_setup_info_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/address_list_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/single_sig_menu/mnemonic_view_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/multisig_menu/coordinator_bsms_qr_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/multisig_wallet_info_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_verification_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/single_sig_menu/signer_bsms_qr_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/sync_to_wallet_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/single_sig_wallet_info_screen.dart';
 import 'package:coconut_vault/widgets/overlays/signing_mode_edge_panel.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/common/splash_screen.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 
@@ -118,6 +124,9 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   // 현재 라우트 추적
   late _CustomNavigatorObserver _navigatorObserver;
   final ValueNotifier<bool> _routeNotifierHasShow = ValueNotifier<bool>(false);
+
+  // only used debug mode
+  bool _wasHotReloaded = false;
 
   @override
   void initState() {
@@ -210,6 +219,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
       // 서명 전용 모드: 재사용
       _walletProvider ??= WalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider);
     } else {
+      if (kDebugMode && _wasHotReloaded && _walletProvider != null) {
+        _wasHotReloaded = false;
+        return _walletProvider!;
+      }
+
       // 안전 저장 모드: 매번 새로 생성
       _walletProvider = WalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider);
     }
@@ -434,12 +448,25 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                       routes: {
                         AppRoutes.vaultList: (context) => const VaultListScreen(),
                         AppRoutes.vaultTypeSelection: (context) => const VaultTypeSelectionScreen(),
-                        AppRoutes.multisigQuorumSelection: (context) => const MultisigQuorumSelectionScreen(),
                         AppRoutes.signerAssignment: (context) => const SignerAssignmentScreen(),
                         AppRoutes.vaultCreationOptions: (context) => const VaultCreationOptions(),
                         AppRoutes.mnemonicVerify: (context) => const MnemonicVerifyScreen(),
-                        AppRoutes.mnemonicImport: (context) => const MnemonicImportScreen(),
-                        AppRoutes.seedQrImport: (context) => const SeedQrImportScreen(),
+                        AppRoutes.mnemonicImport:
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => MnemonicImportScreen(
+                                externalSigner: args['externalSigner'],
+                                multisigVaultIdOfExternalSigner: args['multisigVaultIdOfExternalSigner'],
+                              ),
+                            ),
+                        AppRoutes.seedQrImport:
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => SeedQrImportScreen(
+                                externalSigner: args['externalSigner'],
+                                multisigVaultIdOfExternalSigner: args['multisigVaultIdOfExternalSigner'],
+                              ),
+                            ),
                         AppRoutes.mnemonicConfirmation:
                             (context) => buildScreenWithArguments(
                               context,
@@ -448,11 +475,20 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         AppRoutes.mnemonicView:
                             (context) =>
                                 buildScreenWithArguments(context, (args) => MnemonicViewScreen(walletId: args['id'])),
-                        AppRoutes.vaultNameSetup: (context) => const VaultNameAndIconSetupScreen(),
+                        AppRoutes.vaultNameSetup:
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => VaultNameAndIconSetupScreen(
+                                name: args['name'],
+                                iconIndex: args['iconIndex'],
+                                colorIndex: args['colorIndex'],
+                                isImported: args['isImported'],
+                              ),
+                            ),
                         AppRoutes.singleSigSetupInfo: (context) {
                           return buildScreenWithArguments(
                             context,
-                            (args) => SingleSigSetupInfoScreen(
+                            (args) => SingleSigWalletInfoScreen(
                               id: args['id'],
                               entryPoint: args['entryPoint'],
                               // 서명 전용 모드일 때는 항상 false
@@ -464,11 +500,14 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         AppRoutes.multisigSetupInfo:
                             (context) => buildScreenWithArguments(
                               context,
-                              (args) => MultisigSetupInfoScreen(id: args['id'], entryPoint: args['entryPoint']),
+                              (args) => MultisigWalletInfoScreen(id: args['id'], entryPoint: args['entryPoint']),
                             ),
                         AppRoutes.multisigBsmsView:
                             (context) =>
-                                buildScreenWithArguments(context, (args) => MultisigBsmsScreen(id: args['id'])),
+                                buildScreenWithArguments(context, (args) => CoordinatorBsmsQrScreen(id: args['id'])),
+                        AppRoutes.viewXpub:
+                            (context) =>
+                                buildScreenWithArguments(context, (args) => ExtendedPubKeyScreen(id: args['id'])),
                         AppRoutes.mnemonicWordList: (context) => const MnemonicWordListScreen(),
                         AppRoutes.addressList:
                             (context) => buildScreenWithArguments(
@@ -476,13 +515,19 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               (args) =>
                                   AddressListScreen(id: args['id'], isSpecificVault: args['isSpecificVault'] ?? false),
                             ),
+                        AppRoutes.multisigCreationOptions: (context) => const MultisigCreationOptionsScreen(),
+                        AppRoutes.multisigQuorumSelection: (context) => const MultisigQuorumSelectionScreen(),
+                        AppRoutes.coordinatorBsmsConfigScanner: (context) => const CoordinatorBsmsConfigScannerScreen(),
+                        AppRoutes.bsmsPaste: (context) => const CoordinatorBsmsPasteScreen(),
                         AppRoutes.signerBsmsScanner:
+                            (context) =>
+                                buildScreenWithArguments(context, (args) => SignerBsmsScannerScreen(id: args['id'])),
+                        AppRoutes.psbtScanner:
                             (context) => buildScreenWithArguments(
                               context,
-                              (args) => MultisigBsmsScannerScreen(id: args['id'], screenType: args['screenType']),
+                              (args) =>
+                                  PsbtScannerScreen(id: args['id'], hardwareWalletType: args['hardwareWalletType']),
                             ),
-                        AppRoutes.psbtScanner:
-                            (context) => buildScreenWithArguments(context, (args) => PsbtScannerScreen(id: args['id'])),
                         AppRoutes.psbtConfirmation: (context) => const PsbtConfirmationScreen(),
                         AppRoutes.signedTransaction: (context) => const SignedTransactionQrScreen(),
                         AppRoutes.syncToWallet:
@@ -491,10 +536,16 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               (args) => SyncToWalletScreen(id: args['id'], syncOption: args['syncOption']),
                             ),
                         AppRoutes.multisigSignerBsmsExport:
+                            (context) =>
+                                buildScreenWithArguments(context, (args) => SignerBsmsQrScreen(id: args['id'])),
+                        AppRoutes.vaultExportOptions:
                             (context) => buildScreenWithArguments(
                               context,
-                              (args) => MultisigSignerBsmsExportScreen(id: args['id']),
+                              (args) => VaultExportOptionsScreen(id: args['id'], walletType: args['walletType']),
                             ),
+                        AppRoutes.backupWalletData:
+                            (context) =>
+                                buildScreenWithArguments(context, (args) => BackupWalletDataScreen(id: args['id'])),
                         AppRoutes.multisigSign: (context) => const MultisigSignScreen(),
                         AppRoutes.singleSigSign: (context) => const SingleSigSignScreen(),
                         AppRoutes.securitySelfCheck: (context) {
@@ -580,6 +631,13 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
       debugPrint('볼트 초기화 실패: $e');
       // 볼트 초기화 실패 시에도 계속 진행
     }
+  }
+
+  @override
+  void reassemble() {
+    super.reassemble();
+    // debug 모드에서 hot reload 시에만 호출됨
+    _wasHotReloaded = true;
   }
 }
 

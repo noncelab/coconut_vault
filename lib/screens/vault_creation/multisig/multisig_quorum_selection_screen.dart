@@ -1,13 +1,14 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/multisig.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/mutlisig_quorum_selection_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/widgets/animation/key_safe_animation_widget.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/highlighted_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class GradientProgressBar extends StatelessWidget {
@@ -46,8 +47,8 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
   late MultisigQuorumSelectionViewModel _viewModel;
 
   bool _mounted = true;
-  int _totalKeyCount = 3;
-  int _requiredSignatureCount = 2;
+  late int _totalKeyCount = _viewModel.totalCount;
+  late int _requiredSignatureCount = _viewModel.requiredCount;
 
   @override
   Widget build(BuildContext context) {
@@ -57,17 +58,17 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
         builder: (context, viewModel, child) {
           return Scaffold(
             backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.build(title: t.multisig_wallet, context: context),
+            appBar: CoconutAppBar.build(title: t.multisig_wallet_creation, context: context),
             body: SafeArea(
               child: Stack(
                 children: [
                   SingleChildScrollView(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32),
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24),
                       child: Column(
                         children: [
                           _buildQuorumInfo(viewModel),
-                          CoconutLayout.spacing_600h,
+                          CoconutLayout.spacing_900h,
                           _buildTotalKeyCount(viewModel),
                           CoconutLayout.spacing_400h,
                           _buildRequiredSignatureCount(viewModel),
@@ -99,12 +100,9 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
   @override
   void initState() {
     super.initState();
-    _viewModel = MultisigQuorumSelectionViewModel(
-      Provider.of<WalletProvider>(context, listen: false),
-      Provider.of<WalletCreationProvider>(context, listen: false),
-    );
+    _viewModel = MultisigQuorumSelectionViewModel(Provider.of<WalletCreationProvider>(context, listen: false));
 
-    Future.delayed(const Duration(milliseconds: 2000), () {
+    Future.delayed(const Duration(milliseconds: 500), () {
       if (_mounted) {
         _viewModel.setNextButtonEnabled(true);
       }
@@ -120,49 +118,66 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
   Widget _buildQuorumInfo(MultisigQuorumSelectionViewModel viewModel) {
     final requiredCount = viewModel.requiredCount;
     final totalCount = viewModel.totalCount;
-    final quorumMessage = viewModel.buildQuorumMessage();
-
-    final buttonClickedCount = viewModel.buttonClickedCount;
+    final quorumCategory = viewModel.quorumCategory;
+    final quorumCategoryText = viewModel.quorumCategoryText;
+    final quorumMessage = viewModel.quorumMessage;
 
     return Container(
-      height: 274,
-      margin: const EdgeInsets.symmetric(horizontal: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+      height: 200,
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(borderRadius: CoconutBorder.defaultRadius, color: CoconutColors.gray150),
       alignment: Alignment.center,
       child: MediaQuery(
         data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Center(child: HighLightedText('$requiredCount/$totalCount', color: CoconutColors.gray800, fontSize: 24)),
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                quorumMessage,
-                style: CoconutTypography.body2_14_Number.merge(const TextStyle(letterSpacing: -0.01)),
-                textAlign: TextAlign.center,
-              ),
+            HighLightedText('$requiredCount/$totalCount', color: CoconutColors.gray800, fontSize: 24),
+            CoconutLayout.spacing_300h,
+            _buildQuorumCategoryTitle(quorumCategory, quorumCategoryText),
+            CoconutLayout.spacing_300h,
+            Text(
+              quorumMessage,
+              style: CoconutTypography.body2_14.merge(const TextStyle(letterSpacing: -0.01)),
+              textAlign: TextAlign.center,
             ),
-            const Spacer(),
-            KeySafeAnimationWidget(
-              requiredCount: requiredCount,
-              totalCount: totalCount,
-              buttonClickedCount: buttonClickedCount,
-            ),
-            CoconutLayout.spacing_400h,
           ],
         ),
       ),
     );
   }
 
+  Widget _buildQuorumCategoryTitle(MultisigCategory quorumCategory, String quorumCategoryText) {
+    var iconPath = '';
+    switch (quorumCategory) {
+      case MultisigCategory.lossTolerant:
+        iconPath = 'assets/svg/multisig-category/loss-tolerant.svg';
+      case MultisigCategory.balanced:
+        iconPath = 'assets/svg/multisig-category/balanced.svg';
+      case MultisigCategory.highSecurity:
+      case MultisigCategory.highestSecurity:
+        iconPath = 'assets/svg/multisig-category/high-security.svg';
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SvgPicture.asset(iconPath, width: 16, height: 16),
+        CoconutLayout.spacing_200w,
+        Text(
+          quorumCategoryText,
+          style: CoconutTypography.heading4_18_Bold.merge(const TextStyle(letterSpacing: -0.01)),
+        ),
+      ],
+    );
+  }
+
   Widget _buildTotalKeyCount(MultisigQuorumSelectionViewModel viewModel) {
     return _buildKeyStepperWidget(
       key: const Key('total_key_count'),
-      text: t.select_multisig_quorum_screen.total_key_count,
-      maxCount: 3,
-      minCount: 2,
+      text: t.multisig_quorum_selection_screen.total_key_count,
+      maxCount: kMultisigMaxTotalCount,
+      minCount: _requiredSignatureCount == 1 ? 2 : _requiredSignatureCount,
       initialCount: _totalKeyCount,
       onCount: (count) {
         viewModel.onClick(QuorumType.totalCount, count);
@@ -181,7 +196,7 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
   Widget _buildRequiredSignatureCount(MultisigQuorumSelectionViewModel viewModel) {
     return _buildKeyStepperWidget(
       key: ValueKey('required_signature_count_$_requiredSignatureCount'),
-      text: t.select_multisig_quorum_screen.required_signature_count,
+      text: t.multisig_quorum_selection_screen.required_signature_count,
       maxCount: _totalKeyCount,
       minCount: 1,
       initialCount: _requiredSignatureCount,

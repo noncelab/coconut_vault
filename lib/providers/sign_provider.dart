@@ -16,7 +16,9 @@ class SignProvider {
   // for batch tx
   Map<String, double>? _recipientAmounts;
 
+  // for multisig sign
   String? _signedPsbtBase64;
+  String? _signedRawTxHexString;
 
   int? get walletId => _vaultListItem?.id;
   String? get unsignedPsbtBase64 => _unsignedPsbtBase64;
@@ -32,6 +34,7 @@ class SignProvider {
   int? get sendingAmount => _sendingAmount;
 
   String? get signedPsbtBase64 => _signedPsbtBase64;
+  String? get signedRawTxHexString => _signedRawTxHexString;
 
   // 1. psbt_scanner
   void setVaultListItem(VaultListItemBase vaultListItemBase) {
@@ -89,14 +92,27 @@ class SignProvider {
     _signedPsbtBase64 = psbtBase64;
   }
 
+  // only multisig_sign
+  void saveSignedRawTxHexString(String hexString) {
+    _signedRawTxHexString = hexString;
+  }
+
   // 3-1. single_sig_sign
   // 3-2. multisig_sign
   void resetSignedPsbt() {
     _signedPsbtBase64 = null;
   }
 
+  // only multisig_sign
+  void resetSignedRawTxHexString() {
+    _signedRawTxHexString = null;
+  }
+
   void resetAll() {
     _unsignedPsbtBase64 =
-        _vaultListItem = _psbt = _recipientAddress = _recipientAmounts = _sendingAmount = _signedPsbtBase64 = null;
+        _vaultListItem =
+            _psbt =
+                _recipientAddress =
+                    _recipientAmounts = _sendingAmount = _signedPsbtBase64 = _signedRawTxHexString = null;
   }
 }

@@ -51,6 +51,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
     _appLifecycleStateProvider = Provider.of<AppLifecycleStateProvider>(context, listen: false);
     _appLifecycleStateProvider.startOperation(AppLifecycleOperations.cameraAuthRequest, ignoreNotify: true);
     _controller = MobileScannerController()..addListener(_onCameraStateChanged);
+    widget.setQrViewController(_controller!);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final rect = getQrViewRect();
       if (rect != null) {
@@ -71,6 +72,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   void dispose() {
     _progressNotifier.dispose();
     _controller?.removeListener(_onCameraStateChanged);
+    _controller?.dispose();
     if (_appLifecycleStateProvider.ignoredOperations.contains(AppLifecycleOperations.cameraAuthRequest)) {
       _appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
     }
@@ -143,7 +145,11 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
 
       if (handler.isCompleted()) {
         _resetLoadingBarState();
-        final result = handler.result!;
+        final result = handler.result;
+        if (result == null) {
+          widget.onFailed(CoconutQrScanner.qrInvalidErrorMessage);
+          return;
+        }
         widget.onComplete(result);
       }
     } catch (e) {
