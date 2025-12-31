@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
@@ -44,7 +45,9 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
     _bsmsController.addListener(_onInputChanged);
 
     _viewModel = ImportCoordinatorBsmsViewModel(Provider.of<WalletProvider>(context, listen: false));
-    _bsmsFocusNode.addListener(_onFocusChanged);
+    if (Platform.isIOS) {
+      _bsmsFocusNode.addListener(_onFocusChanged);
+    }
   }
 
   @override
