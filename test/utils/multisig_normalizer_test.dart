@@ -1,9 +1,38 @@
 // test/utils/multisig_normalizer_test.dart
 
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:cbor/cbor.dart';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
+import 'package:coconut_vault/utils/ur_bytes_converter.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ur/ur.dart';
+import 'package:ur/ur_decoder.dart';
+
+Map<String, dynamic> _convertKeysToString(Map<dynamic, dynamic> map) {
+  return map.map((key, value) {
+    String newKey = key.toString();
+    dynamic newValue;
+    if (value is Map) {
+      newValue = _convertKeysToString(value);
+    } else if (value is List) {
+      newValue =
+          value.map((item) {
+            if (item is Map) {
+              return _convertKeysToString(item);
+            } else {
+              return item;
+            }
+          }).toList();
+    } else {
+      newValue = value;
+    }
+    return MapEntry(newKey, newValue);
+  });
+}
 
 void main() {
   group('MultisigNormalizer.fromCoordinatorResult', () {
@@ -184,6 +213,187 @@ father
 
       expect(result, expected.toString());
       print('--> result: \n$result');
+    });
+  });
+
+  group('MultisigNormalizer.signerBsmsFromUrResult', () {
+    test('ur-decoder test', () {
+      NetworkType.setNetworkType(NetworkType.mainnet);
+      final urParts = [
+        // 'UR:CRYPTO-ACCOUNT/OEADCYOTPRWMJOAOLYTAADMETAADDLOLAOWKAXHDCLAOGUBYCFTLBNBNLGFLHFBEZECHNSECAAONCXHYPFAMFNCSVDJYSBRSECGEGUDEHEYKAAHDCXFTCYJEFLWSOXWMIHRPIMYACLLPURCYSSIOSEIOSOSPRFUYJZVDKKBEDWLYCKIHDKAHTAADEHOEADAEAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYOTPRWMJOAXAAAYCYGHIELYGEVEATAHFR',
+        'UR:CRYPTO-ACCOUNT/OEADCYJKSKTNBKAOLYTAADMETAADDLOLAOWKAXHDCLAOCYFRYKZOYLEMTIWFINMUZCFGUOGABWASFRWMGUDPIHGWVTURTALUTDKPLPUONEDTAAHDCXRKNBSTSGCMBKLTBAZERHFZPYMHTIWKDEGWWDCWHYBTCLCHIOKBLFFHSRKBDPHGIAAHTAADEHOEADAEAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYJKSKTNBKAXAAAYCYCEWZMSCMCHOLYNKG',
+      ];
+
+      final decoder = URDecoder();
+      for (final part in urParts) {
+        decoder.receivePart(part);
+      }
+      final mapResult = UrBytesConverter.convertToMap(decoder.result);
+      print('--> decoder.result: ${decoder.result}');
+      // print(jsonEncode(decoder.result));
+
+      final convertedMap = _convertKeysToString(mapResult as Map<dynamic, dynamic>);
+      print(jsonEncode(_convertKeysToString(mapResult)));
+
+      // final bsms = MultisigNormalizer.signerBsmsFromUrResult(mapResult);
+      // print('--> bsms: $bsms');
+    });
+    test('regtest: 키스톤 UR 결과를 정상적으로 BSMS 형식으로 변환한다', () {
+      // given
+      NetworkType.setNetworkType(NetworkType.regtest);
+
+      // 실제 키스톤 UR 예시 (regtest용)
+      final urParts = [
+        'UR:CRYPTO-ACCOUNT/OEADCYOTPRWMJOAOLYTAADMETAADDLOLAOWKAXHDCLAOGUBYCFTLBNBNLGFLHFBEZECHNSECAAONCXHYPFAMFNCSVDJYSBRSECGEGUDEHEYKAAHDCXFTCYJEFLWSOXWMIHRPIMYACLLPURCYSSIOSEIOSOSPRFUYJZVDKKBEDWLYCKIHDKAHTAADEHOEADAEAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYOTPRWMJOAXAAAYCYGHIELYGEVEATAHFR',
+      ];
+
+      final decoder = URDecoder();
+      for (final part in urParts) {
+        decoder.receivePart(part);
+      }
+
+      expect(decoder.isComplete(), true, reason: 'UR 디코딩이 완료되어야 함');
+      expect(decoder.isSuccess(), true, reason: 'UR 디코딩이 성공해야 함');
+
+      final mapResult = UrBytesConverter.convertToMap(decoder.result);
+      expect(mapResult, isNotNull, reason: 'UR 결과가 Map으로 변환되어야 함');
+
+      // when
+      final bsms = MultisigNormalizer.signerBsmsFromUrResult(mapResult!);
+
+      // then
+      expect(bsms, isNotEmpty, reason: 'BSMS 문자열이 생성되어야 함');
+      expect(bsms, startsWith('BSMS 1.0'), reason: 'BSMS 형식으로 시작해야 함');
+      expect(bsms, contains('00'), reason: 'BSMS 버전 정보가 포함되어야 함');
+
+      // fingerprint와 derivation path가 포함되어야 함
+      expect(bsms, contains('48'), reason: 'derivation path에 48이 포함되어야 함');
+      expect(bsms, contains('1'), reason: 'regtest이므로 coin type 1이 포함되어야 함');
+      expect(bsms, contains('2'), reason: 'script type 2가 포함되어야 함');
+
+      print('--> signerBsms: \n$bsms');
+    });
+
+    test('mainnet: 키스톤 UR 결과를 정상적으로 BSMS 형식으로 변환한다', () {
+      // given
+      NetworkType.setNetworkType(NetworkType.mainnet);
+
+      // 실제 키스톤 UR 예시 (mainnet용 - coin type 0)
+      // 실제 UR 데이터가 필요하지만, 일단 구조만 테스트
+      // 실제로는 mainnet용 UR을 사용해야 함
+
+      // Mock UR 결과 구조 생성
+      final mockUrResult = <dynamic, dynamic>{
+        2: [
+          // accounts list
+          <dynamic, dynamic>{
+            3: CborBytes(Uint8List.fromList([0x02] + List.filled(32, 0))), // pubkey (33 bytes)
+            4: CborBytes(Uint8List.fromList(List.filled(32, 0))), // chaincode (32 bytes)
+            6: <dynamic, dynamic>{
+              // origin
+              1: [48, true, 0, true, 0, true, 2, true], // path: m/48'/0'/0'/2'
+              2: 0x73C5DA0A, // master fingerprint (decimal)
+            },
+          },
+        ],
+      };
+
+      // when
+      final bsms = MultisigNormalizer.signerBsmsFromUrResult(mockUrResult);
+
+      // then
+      expect(bsms, isNotEmpty, reason: 'BSMS 문자열이 생성되어야 함');
+      expect(bsms, startsWith('BSMS 1.0'), reason: 'BSMS 형식으로 시작해야 함');
+      expect(bsms, contains('73C5DA0A'), reason: 'master fingerprint가 포함되어야 함');
+      expect(bsms, contains("48'/0'/0'/2'"), reason: 'derivation path가 포함되어야 함');
+
+      print('--> signerBsms: \n$bsms');
+    });
+
+    test('필요한 필드가 없을 때 FormatException을 던진다', () {
+      // given
+      final invalidMap = <dynamic, dynamic>{
+        // '2' 키가 없음
+      };
+
+      // when & then
+      expect(() => MultisigNormalizer.signerBsmsFromUrResult(invalidMap), throwsA(isA<FormatException>()));
+    });
+
+    test('accounts 리스트가 비어있을 때 FormatException을 던진다', () {
+      // given
+      final invalidMap = <dynamic, dynamic>{
+        2: <dynamic>[], // 빈 리스트
+      };
+
+      // when & then
+      expect(() => MultisigNormalizer.signerBsmsFromUrResult(invalidMap), throwsA(isA<FormatException>()));
+    });
+
+    test('P2WSH derivation path가 없을 때 FormatException을 던진다', () {
+      // given
+      NetworkType.setNetworkType(NetworkType.mainnet);
+
+      final invalidMap = <dynamic, dynamic>{
+        2: [
+          // accounts list
+          <dynamic, dynamic>{
+            3: CborBytes(Uint8List.fromList([0x02] + List.filled(32, 0))),
+            4: CborBytes(Uint8List.fromList(List.filled(32, 0))),
+            6: <dynamic, dynamic>{
+              1: [44, true, 0, true, 0, true], // 다른 derivation path (P2PKH)
+              2: 0x73C5DA0A,
+            },
+          },
+        ],
+      };
+
+      // when & then
+      expect(() => MultisigNormalizer.signerBsmsFromUrResult(invalidMap), throwsA(isA<FormatException>()));
+    });
+
+    test('네트워크 불일치 시 NetworkMismatchException을 던진다', () {
+      // given
+      NetworkType.setNetworkType(NetworkType.mainnet);
+
+      final invalidMap = <dynamic, dynamic>{
+        2: [
+          // accounts list
+          <dynamic, dynamic>{
+            3: CborBytes(Uint8List.fromList([0x02] + List.filled(32, 0))),
+            4: CborBytes(Uint8List.fromList(List.filled(32, 0))),
+            6: <dynamic, dynamic>{
+              1: [48, true, 1, true, 0, true, 2, true], // testnet coin type (1)
+              2: 0x73C5DA0A,
+            },
+          },
+        ],
+      };
+
+      // when & then
+      expect(() => MultisigNormalizer.signerBsmsFromUrResult(invalidMap), throwsA(isA<NetworkMismatchException>()));
+    });
+
+    test('master fingerprint가 없을 때 FormatException을 던진다', () {
+      // given
+      NetworkType.setNetworkType(NetworkType.mainnet);
+
+      final invalidMap = <dynamic, dynamic>{
+        2: [
+          // accounts list
+          <dynamic, dynamic>{
+            3: CborBytes(Uint8List.fromList([0x02] + List.filled(32, 0))),
+            4: CborBytes(Uint8List.fromList(List.filled(32, 0))),
+            6: <dynamic, dynamic>{
+              1: [48, true, 0, true, 0, true, 2, true],
+              // '2' 키 (master fingerprint)가 없음
+            },
+          },
+        ],
+      };
+
+      // when & then
+      expect(() => MultisigNormalizer.signerBsmsFromUrResult(invalidMap), throwsA(isA<FormatException>()));
     });
   });
 }

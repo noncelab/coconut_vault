@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
+import 'package:coconut_vault/utils/conversion_util.dart';
+import 'package:coconut_vault/utils/print_util.dart';
 
 /// CoordinatorBsmsQrDataHandler.result -> NormalizedMultisigConfig
 class MultisigNormalizer {
@@ -386,9 +388,11 @@ class MultisigNormalizer {
   /// keystone, jade 결과를 signer BSMS 형식으로 변환
   static String signerBsmsFromUrResult(Map<dynamic, dynamic> map) {
     Map<String, dynamic> jsonCompatibleMap = _convertKeysToString(map);
-
+    printLongString('--> jsonCompatibleMap: $jsonCompatibleMap');
     final accounts = jsonCompatibleMap['2'];
+    printLongString('--> accounts: $accounts');
     if (accounts == null || accounts is! List) {
+      printLongString('--> accounts: $accounts');
       throw const FormatException('UR result does not contain key "2" (accounts list)');
     }
 
@@ -419,28 +423,42 @@ class MultisigNormalizer {
     }
 
     final origin = _convertKeysToString(targetEntry['6']);
+    printLongString('--> origin: $origin');
     final rawPathList = origin['1'];
     if (rawPathList == null || rawPathList is! List) {
+      printLongString('--> rawPathList: $rawPathList');
       throw const FormatException('Origin path ["6"]["1"] is missing or invalid');
     }
-    final derivationPath = _derivationPathFromComponents(rawPathList);
+    // final derivationPath = _derivationPathFromComponents(rawPathList);
 
     final mfpDec = origin['2'].value;
     if (mfpDec == null || mfpDec is! int) {
+      printLongString('--> mfpDec: $mfpDec');
       throw const FormatException('Master fingerprint ["6"]["2"] is missing or invalid');
     }
-
-    final mfp = Codec.decodeHex(Converter.decToHex(mfpDec));
-    final pubKey = Uint8List.fromList(targetEntry['3'].bytes);
+    final parentFingerprintValue = targetEntry['8'].value;
+    Uint8List parentFingerprint;
+    // 정수인 경우 hex 문자열로 변환 후 decode
+    final hexString = Converter.decToHex(parentFingerprintValue);
+    parentFingerprint = Codec.decodeHex(hexString);
+    final pubKeyBytes = Uint8List.fromList(targetEntry['3'].bytes);
+    final pubKey = ConversionUtil.bytesToHex(pubKeyBytes);
     final chainCode = Uint8List.fromList(targetEntry['4'].bytes);
-    HDWallet wallet = HDWallet.fromPublicKey(pubKey, chainCode);
-    wallet.depth = 3;
+    HDWallet wallet = HDWallet.fromPublicKey(pubKeyBytes, chainCode);
+    wallet.depth = 4;
     int version =
         NetworkType.currentNetworkType == NetworkType.mainnet
             ? AddressType.p2wsh.versionForMainnet
             : AddressType.p2wsh.versionForTestnet;
-    final extendedPublicKey = ExtendedPublicKey.fromHdWallet(wallet, version, mfp);
+    String derivationPath = WalletUtility.getDerivationPath(AddressType.p2wsh, 0).replaceAll('m/', '');
 
+    final chainCodeHex = ConversionUtil.bytesToHex(chainCode);
+    HDWallet wallet2 = HDWallet.fromPublicKeyWithDerivationPath(
+      Codec.decodeHex(pubKey),
+      Codec.decodeHex(chainCodeHex),
+      derivationPath,
+    );
+    final extendedPublicKey = ExtendedPublicKey.fromHdWallet(wallet2, version, parentFingerprint);
     return _buildSignerBsms(
       fingerprint: mfpDec.toRadixString(16).padLeft(8, '0').toUpperCase(),
       derivationPath: derivationPath,
@@ -457,28 +475,28 @@ class MultisigNormalizer {
     return true;
   }
 
-  static String _derivationPathFromComponents(List<dynamic> components) {
-    if (components.length.isOdd) {
-      throw FormatException('Unexpected derivation path format: $components');
-    }
+  // static String _derivationPathFromComponents(List<dynamic> components) {
+  //   if (components.length.isOdd) {
+  //     throw FormatException('Unexpected derivation path format: $components');
+  //   }
 
-    final segments = <String>[];
+  //   final segments = <String>[];
 
-    for (var i = 0; i < components.length; i += 2) {
-      final value = components[i];
-      final hardened = components[i + 1];
+  //   for (var i = 0; i < components.length; i += 2) {
+  //     final value = components[i];
+  //     final hardened = components[i + 1];
 
-      if (value.value is! int ||
-          hardened.value is bool && hardened.value == false ||
-          hardened.value is int && hardened.value != 21) {
-        throw FormatException('Invalid derivation path component at [$i,$i+1]: $components');
-      }
+  //     if (value.value is! int ||
+  //         hardened.value is bool && hardened.value == false ||
+  //         hardened.value is int && hardened.value != 21) {
+  //       throw FormatException('Invalid derivation path component at [$i,$i+1]: $components');
+  //     }
 
-      segments.add(hardened.value ? "$value'" : '$value');
-    }
+  //     segments.add(hardened.value ? "$value'" : '$value');
+  //   }
 
-    return segments.join('/');
-  }
+  //   return segments.join('/');
+  // }
 
   static Map<String, dynamic> _convertKeysToString(Map<dynamic, dynamic> map) {
     return map.map((key, value) {
