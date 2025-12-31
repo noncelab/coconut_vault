@@ -450,7 +450,7 @@ class MultisigNormalizer {
         NetworkType.currentNetworkType == NetworkType.mainnet
             ? AddressType.p2wsh.versionForMainnet
             : AddressType.p2wsh.versionForTestnet;
-    String derivationPath = WalletUtility.getDerivationPath(AddressType.p2wsh, 0).replaceAll('m/', '');
+    String derivationPath = WalletUtility.getDerivationPath(AddressType.p2wsh, 0);
 
     final chainCodeHex = ConversionUtil.bytesToHex(chainCode);
     HDWallet wallet2 = HDWallet.fromPublicKeyWithDerivationPath(
@@ -459,9 +459,10 @@ class MultisigNormalizer {
       derivationPath,
     );
     final extendedPublicKey = ExtendedPublicKey.fromHdWallet(wallet2, version, parentFingerprint);
+
     return _buildSignerBsms(
       fingerprint: mfpDec.toRadixString(16).padLeft(8, '0').toUpperCase(),
-      derivationPath: derivationPath,
+      derivationPath: derivationPath.replaceAll('m/', ''),
       extendedKey: extendedPublicKey.serialize(),
     );
   }
