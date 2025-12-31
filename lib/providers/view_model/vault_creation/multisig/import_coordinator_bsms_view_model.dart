@@ -57,20 +57,35 @@ class ImportCoordinatorBsmsViewModel {
   }
 
   void validateBsmsNetwork(String bsms) {
+    /// Validates the network integrity of the BSMS data.
+    /// 1. Internal Consistency: Detects mismatches between the Key network and Derivation Path network.
+    /// 2. App Compliance: Ensures the data aligns with the current application network (Mainnet/Testnet).
+
     final bool isAppMainnet = NetworkType.currentNetworkType == NetworkType.mainnet;
     final String rawData = bsms.toLowerCase();
 
-    final bool isDataTestnet = rawData.contains('tpub') || rawData.contains('vpub') || rawData.contains('upub');
-    final bool isDataMainnet = rawData.contains('xpub') || rawData.contains('zpub') || rawData.contains('ypub');
+    final bool isKeyTestnet = rawData.contains('tpub') || rawData.contains('vpub') || rawData.contains('upub');
+    final bool isKeyMainnet = rawData.contains('xpub') || rawData.contains('zpub') || rawData.contains('ypub');
 
-    if (isDataTestnet || isDataMainnet) {
-      if (isAppMainnet && isDataTestnet && !isDataMainnet) {
-        throw NetworkMismatchException(message: t.alert.bsms_network_mismatch.description_when_mainnet);
-      }
+    final bool isPathTestnet = RegExp(r"/(44|45|48|49|84|86)'?/1'?/").hasMatch(rawData);
+    final bool isPathMainnet = RegExp(r"/(44|45|48|49|84|86)'?/0'?/").hasMatch(rawData);
 
-      if (!isAppMainnet && isDataMainnet && !isDataTestnet) {
-        throw NetworkMismatchException(message: t.alert.bsms_network_mismatch.description_when_testnet);
-      }
+    if (isKeyMainnet && isPathTestnet) {
+      throw const FormatException('Mainnet key with Testnet derivation path');
+    }
+    if (isKeyTestnet && isPathMainnet) {
+      throw const FormatException('Testnet key with Mainnet derivation path');
+    }
+
+    final bool isDataTestnet = isKeyTestnet || isPathTestnet;
+    final bool isDataMainnet = isKeyMainnet || isPathMainnet;
+
+    if (isAppMainnet && isDataTestnet) {
+      throw NetworkMismatchException(message: t.alert.bsms_network_mismatch.description_when_mainnet);
+    }
+
+    if (!isAppMainnet && isDataMainnet) {
+      throw NetworkMismatchException(message: t.alert.bsms_network_mismatch.description_when_testnet);
     }
   }
 }
