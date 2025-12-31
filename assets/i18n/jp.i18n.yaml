@@ -752,7 +752,7 @@ bsms_scanner_screen:
 
 bsms_paste_screen:
   import_bsms: "BSMS文字列を入力してください。"
-  back_scan: "QRスキャンに戻る。"
+  back_scan: "QRスキャンに戻る"
   error_message: "正しいBSMS文字列を入力してください。"
 
 # lib/screens/vault_detail
