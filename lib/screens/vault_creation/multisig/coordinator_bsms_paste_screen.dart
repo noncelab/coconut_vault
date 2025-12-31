@@ -174,57 +174,43 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
     return Scaffold(
       backgroundColor: CoconutColors.white,
       appBar: CoconutAppBar.build(title: t.bsms_scanner_screen.import_multisig_wallet, context: context),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Stack(
-            children: [
-              Align(
-                alignment: Alignment.topCenter,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      t.bsms_paste_screen.import_bsms,
-                      textAlign: TextAlign.center,
-                      style: CoconutTypography.body2_14_Bold,
-                    ),
-                    const SizedBox(height: 8.0),
-                    _buildBSMSTextField(),
-                  ],
-                ),
-              ),
-              Positioned(
-                bottom:
-                    FixedBottomButton.fixedBottomButtonDefaultBottomPadding +
-                    FixedBottomButton.fixedBottomButtonDefaultHeight +
-                    12,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.pushReplacementNamed(context, AppRoutes.coordinatorBsmsConfigScanner);
-                    },
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        t.bsms_paste_screen.back_scan,
-                        style: const TextStyle(decoration: TextDecoration.underline),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        t.bsms_paste_screen.import_bsms,
+                        textAlign: TextAlign.center,
+                        style: CoconutTypography.body1_16_Bold,
                       ),
-                    ),
+                      const SizedBox(height: 8.0),
+                      _buildBSMSTextField(),
+                    ],
                   ),
                 ),
               ),
-              FixedBottomButton(
-                onButtonClicked: _onCompletePressed,
-                text: t.complete,
-                showGradient: false,
-                isActive: _normalizedMultisigConfig != null && !_isProcessing,
+            ),
+            FixedBottomButton(
+              onButtonClicked: _onCompletePressed,
+              text: t.complete,
+              showGradient: false,
+              isActive: _normalizedMultisigConfig != null && !_isProcessing,
+              subWidget: CoconutUnderlinedButton(
+                text: t.bsms_paste_screen.back_scan,
+                onTap: () {
+                  Navigator.pushReplacementNamed(context, AppRoutes.coordinatorBsmsConfigScanner);
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

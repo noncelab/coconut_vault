@@ -109,7 +109,6 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final psbt = Psbt.parse(widget.signedRawTx);
     return ClipRRect(
       borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
