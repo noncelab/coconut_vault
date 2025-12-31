@@ -7,7 +7,7 @@ enum HardwareWalletType { coconutVault, keystone, seedSigner, jade, coldCard, kr
 extension HardwareWalletTypeExtension on HardwareWalletType {
   static final Map<HardwareWalletType, String> _names = {
     HardwareWalletType.coconutVault: t.hardware_wallet_type.vault,
-    HardwareWalletType.keystone: t.hardware_wallet_type.keystone,
+    HardwareWalletType.keystone: t.hardware_wallet_type.keystone3pro,
     HardwareWalletType.seedSigner: t.hardware_wallet_type.seedsigner,
     HardwareWalletType.jade: t.hardware_wallet_type.jade,
     HardwareWalletType.coldCard: t.hardware_wallet_type.coldcard,
