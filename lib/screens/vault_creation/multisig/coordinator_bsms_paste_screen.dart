@@ -6,6 +6,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/multisig/import_coordinator_bsms_view_model.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -25,6 +26,7 @@ class CoordinatorBsmsPasteScreen extends StatefulWidget {
 }
 
 class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen> {
+  final AppLifecycleStateProvider _lifecycleProvider = AppLifecycleStateProvider();
   final FocusNode _bsmsFocusNode = FocusNode();
   final TextEditingController _bsmsController = TextEditingController();
 
@@ -42,13 +44,23 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
     _bsmsController.addListener(_onInputChanged);
 
     _viewModel = ImportCoordinatorBsmsViewModel(Provider.of<WalletProvider>(context, listen: false));
+    _bsmsFocusNode.addListener(_onFocusChanged);
   }
 
   @override
   void dispose() {
+    _lifecycleProvider.endOperation(AppLifecycleOperations.pastAuthRequest);
     _bsmsFocusNode.dispose();
     _bsmsController.dispose();
     super.dispose();
+  }
+
+  void _onFocusChanged() {
+    if (_bsmsFocusNode.hasFocus) {
+      _lifecycleProvider.startOperation(AppLifecycleOperations.pastAuthRequest);
+    } else {
+      _lifecycleProvider.endOperation(AppLifecycleOperations.pastAuthRequest);
+    }
   }
 
   void _onInputChanged() {
@@ -171,46 +183,51 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CoconutColors.white,
-      appBar: CoconutAppBar.build(title: t.bsms_scanner_screen.import_multisig_wallet, context: context),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24),
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        t.bsms_paste_screen.import_bsms,
-                        textAlign: TextAlign.center,
-                        style: CoconutTypography.body1_16_Bold,
-                      ),
-                      const SizedBox(height: 8.0),
-                      _buildBSMSTextField(),
-                    ],
+    return GestureDetector(
+      onTap: () {
+        _bsmsFocusNode.unfocus();
+      },
+      child: Scaffold(
+        backgroundColor: CoconutColors.white,
+        appBar: CoconutAppBar.build(title: t.bsms_scanner_screen.import_multisig_wallet, context: context),
+        body: SafeArea(
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24),
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          t.bsms_paste_screen.import_bsms,
+                          textAlign: TextAlign.center,
+                          style: CoconutTypography.body1_16_Bold,
+                        ),
+                        const SizedBox(height: 8.0),
+                        _buildBSMSTextField(),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-            FixedBottomButton(
-              onButtonClicked: _onCompletePressed,
-              text: t.complete,
-              showGradient: false,
-              isActive: _normalizedMultisigConfig != null && !_isProcessing,
-              subWidget: CoconutUnderlinedButton(
-                text: t.bsms_paste_screen.back_scan,
-                onTap: () {
-                  Navigator.pushReplacementNamed(context, AppRoutes.coordinatorBsmsConfigScanner);
-                },
+              FixedBottomButton(
+                onButtonClicked: _onCompletePressed,
+                text: t.complete,
+                showGradient: false,
+                isActive: _normalizedMultisigConfig != null && !_isProcessing,
+                subWidget: CoconutUnderlinedButton(
+                  text: t.bsms_paste_screen.back_scan,
+                  onTap: () {
+                    Navigator.pushReplacementNamed(context, AppRoutes.coordinatorBsmsConfigScanner);
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
