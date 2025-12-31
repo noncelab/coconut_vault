@@ -706,9 +706,9 @@ bsms_scanner_screen:
   guide1_5: "화면에 나타나는 QR 코드를 스캔해 주세요."
   coconut_vault:
     guide2_1: "사용하려는 키가 있는 볼트의 홈 화면에서"
-    guide2_2: "지갑"
+    guide2_2: "지갑 "
     guide2_3: "다중 서명 키로 사용하기"
-    guide2_4: "화면에 보이는 QR 코드를 스캔해 주세요."
+    guide2_4: " 화면에 보이는 QR 코드를 스캔해 주세요."
   keystone3pro:
     guide2_1: "키스톤 3 프로와 호환됩니다."
     guide2_2: "홈 화면에서"
