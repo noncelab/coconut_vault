@@ -161,19 +161,11 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
   String _generateDescriptor(MultisigVaultListItem vault) {
     String derivationPath = vault.signers.first.getSignerDerivationPath().replaceAll('m/', '').replaceAll("'", "h");
 
-    List<_SignerSortWrapper> sortedSigners =
-        vault.signers.map((signer) {
-          String fingerprint = signer.keyStore.masterFingerprint.toLowerCase();
-          String xpub = signer.keyStore.extendedPublicKey.serialize(toXpub: true);
+    List<String> publicKeyList =
+        vault.signers.map((signer) => signer.keyStore.extendedPublicKey.serialize(toXpub: true)).toList();
 
-          String keyString = "[$fingerprint/$derivationPath]$xpub/<0;1>/*";
-          return _SignerSortWrapper(xpub, fingerprint, keyString);
-        }).toList();
-
-    sortedSigners.sort((a, b) => a.fullKeyString.compareTo(b.fullKeyString));
-
-    List<String> publicKeyList = sortedSigners.map((e) => e.xpub).toList();
-    List<String> fingerprintList = sortedSigners.map((e) => e.fingerprint).toList();
+    List<String> fingerprintList =
+        vault.signers.map((signer) => signer.keyStore.masterFingerprint.toLowerCase()).toList();
 
     Descriptor descriptor = Descriptor.forMultisignature(
       AddressType.p2wsh,
@@ -191,12 +183,4 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
     const encoder = JsonEncoder.withIndent('  ');
     return encoder.convert(data);
   }
-}
-
-class _SignerSortWrapper {
-  final String xpub;
-  final String fingerprint;
-  final String fullKeyString;
-
-  _SignerSortWrapper(this.xpub, this.fingerprint, this.fullKeyString);
 }

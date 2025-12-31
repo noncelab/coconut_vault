@@ -355,6 +355,10 @@ class MultisigNormalizer {
       throw const FormatException('Invalid Purpose. Must start with 48\' for Multisig (BIP48).');
     }
 
+    if (parts[1] != "0'" && parts[1] != "1'") {
+      throw const FormatException("Invalid Coin Type. Must be 0' (Mainnet) or 1' (Testnet).");
+    }
+
     if (parts.last != "2'") {
       throw const FormatException('Unsupported Script Type. Must end with /2\' for Native SegWit (P2WSH).');
     }
