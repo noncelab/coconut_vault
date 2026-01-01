@@ -13,16 +13,18 @@ class ImportConfirmationScreen extends StatefulWidget {
   const ImportConfirmationScreen({
     super.key,
     required this.importingBsms,
+    this.memo,
     this.hwwType = HardwareWalletType.coconutVault,
   });
   final String importingBsms;
   final HardwareWalletType hwwType;
+  final String? memo;
 
   @override
   State<ImportConfirmationScreen> createState() => _ImportConfirmationScreenState();
 }
 
-class _ImportConfirmationScreenState extends State<ImportConfirmationScreen> with WidgetsBindingObserver {
+class _ImportConfirmationScreenState extends State<ImportConfirmationScreen> {
   static const int kMaxTextLength = 15;
   late TextEditingController _controller;
   late FocusNode _focusNode;
@@ -39,9 +41,11 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen> wit
     _controller = TextEditingController();
     _focusNode = FocusNode();
     _scrollController = ScrollController();
-
     _focusNode.addListener(_onFocusChange);
-    WidgetsBinding.instance.addObserver(this);
+    if (widget.memo != null) {
+      _controller.text = widget.memo!;
+      memo = widget.memo!;
+    }
   }
 
   void _onFocusChange() {
@@ -66,7 +70,6 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen> wit
     _focusNode.dispose();
     _scrollController.dispose();
     _focusNode.removeListener(_onFocusChange);
-    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 

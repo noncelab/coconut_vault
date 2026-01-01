@@ -481,7 +481,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       if (!mounted) return;
       final Map<String, String>? bsmsAndMemo = await MyBottomSheet.showBottomSheet_90(
         context: context,
-        child: ImportConfirmationScreen(importingBsms: externalImported.toString()),
+        child: ImportConfirmationScreen(importingBsms: externalImported.toString(), memo: externalImported.label),
       );
       if (bsmsAndMemo != null) {
         assert(bsmsAndMemo['bsms']!.isNotEmpty);
@@ -548,7 +548,11 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
     final Map<String, String>? bsmsAndMemo = await MyBottomSheet.showBottomSheet_90(
       context: context,
-      child: ImportConfirmationScreen(importingBsms: externalImported.toString(), hwwType: selectedWalletType!),
+      child: ImportConfirmationScreen(
+        importingBsms: externalImported.toString(),
+        hwwType: selectedWalletType!,
+        memo: externalImported.label,
+      ),
     );
 
     if (bsmsAndMemo != null) {
