@@ -35,8 +35,8 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
     Map<String, dynamic> walletSyncString = jsonDecode(vaultListItem.getWalletSyncString());
     Map<String, String> namesMap = {};
     for (var signer in vaultListItem.signers) {
-      if (signer.name == null) continue;
-      namesMap[signer.keyStore.masterFingerprint] = signer.name!;
+      // coconut_vault 1.1.0의 다중 서명 지갑 상세화면 > '다른 볼트로 내보내기' > signer.name == null인 경우에 오류가 발생해서 임의로 '-'를 넣어 반환함
+      namesMap[signer.keyStore.masterFingerprint] = signer.name ?? '-';
     }
 
     qrData = jsonEncode(
