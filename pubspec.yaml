@@ -86,9 +86,8 @@ dependencies:
       ref: main
   flutter_keyboard_visibility: ^6.0.0
   base32: ^2.2.0
+  archive: ^4.0.7
 
-  collection: any
-  archive: any
 dev_dependencies:
   flutter_oss_licenses: ^3.0.2
   

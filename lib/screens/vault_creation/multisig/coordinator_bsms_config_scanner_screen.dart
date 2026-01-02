@@ -16,6 +16,7 @@ import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/coordinator_bsms_qr_data_handler.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
@@ -27,24 +28,50 @@ class CoordinatorBsmsConfigScannerScreen extends StatefulWidget {
   State<CoordinatorBsmsConfigScannerScreen> createState() => _CoordinatorBsmsConfigScannerScreenState();
 }
 
-class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<CoordinatorBsmsConfigScannerScreen> {
+class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<CoordinatorBsmsConfigScannerScreen>
+    with WidgetsBindingObserver {
   final CoordinatorBsmsQrDataHandler _dataHandler;
   late final ImportCoordinatorBsmsViewModel _viewModel;
   bool _isFirstScanData = true;
+  bool _clipboardContentAvailable = false;
 
   _CoordinatorBsmsConfigScannerScreenState() : _dataHandler = CoordinatorBsmsQrDataHandler();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _checkClipboard();
     _viewModel = ImportCoordinatorBsmsViewModel(Provider.of<WalletProvider>(context, listen: false));
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkClipboard();
+    }
+  }
+
+  Future<void> _checkClipboard() async {
+    final isContentAvailable = await Clipboard.hasStrings();
+    if (mounted && _clipboardContentAvailable != isContentAvailable) {
+      setState(() {
+        _clipboardContentAvailable = isContentAvailable;
+      });
+    }
   }
 
   @override
   bool get showBackButton => true;
 
   @override
-  bool get showBottomButton => true;
+  bool get showBottomButton => _clipboardContentAvailable;
 
   double get topMaskHeight => 0.0;
 

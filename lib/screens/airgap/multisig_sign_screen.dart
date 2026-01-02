@@ -147,7 +147,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       });
 
       await _viewModel.sign(index, seed);
-      await _checkCompletedAndGoNext(shouldPop: false);
+      await _checkCompletedAndGoNext();
     } catch (error) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: error));
@@ -166,7 +166,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       });
 
       await _viewModel.signPsbtInSigningOnlyMode(index);
-      await _checkCompletedAndGoNext(shouldPop: false);
+      await _checkCompletedAndGoNext();
     } on UserCanceledAuthException catch (_) {
       return;
     } on SeedInvalidatedException catch (e) {
@@ -193,11 +193,11 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     }
   }
 
-  Future<bool> _checkCompletedAndGoNext({bool shouldPop = false}) async {
+  Future<bool> _checkCompletedAndGoNext({bool shouldPopBeforeNavigate = false}) async {
     await Future.delayed(const Duration(milliseconds: 100));
     if (!_viewModel.isSignatureCompleted) return false;
 
-    if (shouldPop) {
+    if (shouldPopBeforeNavigate) {
       if (mounted) {
         Navigator.pop(context);
       } else {
@@ -317,8 +317,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               }
 
               bool navigated = false;
-              // TODO: 테스트
-              navigated = await _checkCompletedAndGoNext(shouldPop: signerIndex != null);
+              navigated = await _checkCompletedAndGoNext(shouldPopBeforeNavigate: true);
 
               // 서명이 모두 완료되어 _checkAndShowCreatingQrCode 안에서 화면 전환이 일어난 경우
               // (Navigator.pushReplacementNamed 호출)에는 추가 pop을 하지 않는다.
