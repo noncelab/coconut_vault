@@ -386,7 +386,7 @@ class MultisigNormalizer {
   }
 
   /// keystone, jade 결과를 signer BSMS 형식으로 변환
-  static String signerBsmsFromUrResult(Map<dynamic, dynamic> map) {
+  static String signerBsmsFromUrResult(Map<dynamic, dynamic> map, {bool? descriptorToXpub}) {
     Map<String, dynamic> jsonCompatibleMap = _convertKeysToString(map);
     printLongString('--> jsonCompatibleMap: $jsonCompatibleMap');
     final accounts = jsonCompatibleMap['2'];
@@ -453,17 +453,18 @@ class MultisigNormalizer {
     String derivationPath = WalletUtility.getDerivationPath(AddressType.p2wsh, 0);
 
     final chainCodeHex = ConversionUtil.bytesToHex(chainCode);
-    HDWallet wallet2 = HDWallet.fromPublicKeyWithDerivationPath(
+    final extendedPublicKey = ExtendedPublicKey.fromPublicKey(
       Codec.decodeHex(pubKey),
       Codec.decodeHex(chainCodeHex),
+      version,
+      parentFingerprint,
       derivationPath,
     );
-    final extendedPublicKey = ExtendedPublicKey.fromHdWallet(wallet2, version, parentFingerprint);
 
     return _buildSignerBsms(
       fingerprint: mfpDec.toRadixString(16).padLeft(8, '0').toUpperCase(),
       derivationPath: derivationPath.replaceAll('m/', ''),
-      extendedKey: extendedPublicKey.serialize(),
+      extendedKey: descriptorToXpub == true ? extendedPublicKey.serialize(toXpub: true) : extendedPublicKey.serialize(),
     );
   }
 
