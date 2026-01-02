@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:base32/base32.dart';
 import 'package:archive/archive.dart';
-import 'package:base32/base32.dart';
 import 'package:coconut_vault/utils/logger.dart';
 
 class BbQrEncoder {
@@ -17,20 +16,23 @@ class BbQrEncoder {
   });
 
   List<String> encodeBase64(String base64String) {
-    final originalBytes = base64.decode(base64String);
-    final chunks = _chunkBytes(originalBytes, maxChunkSize);
+    final originalBytes = Uint8List.fromList(base64.decode(base64String));
+
+    // raw deflate (RFC1951)
+    final compressed = Uint8List.fromList(Deflate(originalBytes).getBytes());
+
+    final chunks = _chunkBytes(compressed, maxChunkSize);
     final total = chunks.length;
 
     final encodedChunks = <String>[];
     for (int i = 0; i < total; i++) {
-      // Base32 패딩 제거
       final base32Data = base32.encode(Uint8List.fromList(chunks[i])).replaceAll(RegExp(r'=+$'), '');
+
       final totalStr = total.toRadixString(36).padLeft(2, '0').toUpperCase();
       final indexStr = i.toRadixString(36).padLeft(2, '0').toUpperCase();
-      final header = 'B\$U$dataType$totalStr$indexStr'; // 'U' = uncompressed
-      final fullPart = '$header$base32Data';
 
-      encodedChunks.add(fullPart);
+      final header = 'B\$Z$dataType$totalStr$indexStr'; // Z = (raw deflate) + base32
+      encodedChunks.add('$header$base32Data');
     }
     return encodedChunks;
   }
