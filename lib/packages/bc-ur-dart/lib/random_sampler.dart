@@ -33,13 +33,13 @@ class RandomSampler {
     }
 
     // Work through index lists
-    List<double> probs = List<double>.filled(n, 0);
+    List<double> resultProbs = List<double>.filled(n, 0);
     List<double> aliases = List<double>.filled(n, 0);
 
     while (S.isNotEmpty && L.isNotEmpty) {
       int a = S.removeLast(); // Schwarz's l
       int g = L.removeLast(); // Schwarz's g
-      probs[a] = P[a];
+      resultProbs[a] = P[a];
       aliases[a] = g.toDouble();
       P[g] += P[a] - 1;
       if (P[g] < 1) {
@@ -50,15 +50,15 @@ class RandomSampler {
     }
 
     while (L.isNotEmpty) {
-      probs[L.removeLast()] = 1;
+      resultProbs[L.removeLast()] = 1;
     }
 
     while (S.isNotEmpty) {
       // can only happen through numeric instability
-      probs[S.removeLast()] = 1;
+      resultProbs[S.removeLast()] = 1;
     }
 
-    return RandomSampler._(probs, aliases);
+    return RandomSampler._(resultProbs, aliases);
   }
 
   int next(Function rndDouble) {
