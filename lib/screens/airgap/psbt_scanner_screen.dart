@@ -1,4 +1,3 @@
-
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
