@@ -62,7 +62,7 @@ class _AddressListScreenState extends State<AddressListScreen> {
                 children: [
                   Text(
                     t.address_list_screen.title(
-                      name: viewModel.name.length > 6 ? '${viewModel.name.substring(0, 6)}...' : viewModel.name,
+                      name: viewModel.name.length > 9 ? '${viewModel.name.substring(0, 8)}...' : viewModel.name,
                     ),
                     style: CoconutTypography.heading4_18,
                   ),

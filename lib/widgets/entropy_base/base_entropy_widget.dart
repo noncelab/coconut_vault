@@ -4,6 +4,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
@@ -410,6 +411,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
       context: context,
       builder:
           (BuildContext context) => CoconutPopup(
+            languageCode: context.read<VisibilityProvider>().language,
             title: t.delete_all,
             description: t.alert.erase_all_entered_so_far,
             backgroundColor: CoconutColors.white,

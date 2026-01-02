@@ -8,6 +8,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/wallet_info/wallet_info_view_model.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/common/select_external_wallet_bottom_sheet.dart';
@@ -180,6 +181,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
       context: context,
       builder: (BuildContext dialogContext) {
         return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.alert.delete_vault.title,
           description: t.alert.delete_vault.description,
@@ -536,16 +538,29 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                         text: TextSpan(
                           style: CoconutTypography.body2_14.setColor(const Color(0xFF4E83FF)),
                           children: [
-                            TextSpan(
-                              text: TextUtils.ellipsisIfLonger(multisig.name),
-                              style: CoconutTypography.body2_14_Bold.setColor(const Color(0xFF4E83FF)),
-                            ),
-                            TextSpan(text: t.vault_settings.of),
-                            TextSpan(
-                              text: t.vault_settings.nth(index: idx + 1),
-                              style: CoconutTypography.body2_14_Bold.setColor(const Color(0xFF4E83FF)),
-                            ),
-                            TextSpan(text: t.vault_settings.key),
+                            if (context.read<VisibilityProvider>().language == 'en') ...[
+                              TextSpan(
+                                text: TextUtils.ellipsisIfLonger(multisig.name),
+                                style: CoconutTypography.body2_14_Bold.setColor(const Color(0xFF4E83FF)),
+                              ),
+                              TextSpan(text: t.vault_settings.of),
+                              TextSpan(text: t.vault_settings.key),
+                              TextSpan(
+                                text: '#${t.vault_settings.nth(index: idx + 1)}',
+                                style: CoconutTypography.body2_14_Bold.setColor(const Color(0xFF4E83FF)),
+                              ),
+                            ] else ...[
+                              TextSpan(
+                                text: TextUtils.ellipsisIfLonger(multisig.name),
+                                style: CoconutTypography.body2_14_Bold.setColor(const Color(0xFF4E83FF)),
+                              ),
+                              TextSpan(text: t.vault_settings.of),
+                              TextSpan(
+                                text: t.vault_settings.nth(index: idx + 1),
+                                style: CoconutTypography.body2_14_Bold.setColor(const Color(0xFF4E83FF)),
+                              ),
+                              TextSpan(text: t.vault_settings.key),
+                            ],
                           ],
                         ),
                       ),

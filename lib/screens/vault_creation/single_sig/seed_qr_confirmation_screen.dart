@@ -6,6 +6,7 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -208,6 +209,7 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
         context: context,
         builder:
             (context) => CoconutPopup(
+              languageCode: context.read<VisibilityProvider>().language,
               title: t.errors.creation_error,
               description: e.toString(),
               onTapRight: () {

@@ -163,6 +163,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     context: context,
                                     builder: (BuildContext context) {
                                       return CoconutPopup(
+                                        languageCode: context.read<VisibilityProvider>().language,
                                         insetPadding: EdgeInsets.symmetric(
                                           horizontal: MediaQuery.of(context).size.width * 0.15,
                                         ),
@@ -354,6 +355,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       context: context,
                       builder: (BuildContext context) {
                         return CoconutPopup(
+                          languageCode: context.read<VisibilityProvider>().language,
                           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
                           title: t.settings_screen.dialog.use_passphrase_title,
                           description: t.settings_screen.dialog.use_passphrase_description,

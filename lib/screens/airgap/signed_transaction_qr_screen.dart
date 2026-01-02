@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/airgap/multisig_psbt_qr_code_screen.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
@@ -97,6 +98,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
       context: context,
       builder: (BuildContext context) {
         return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
           titlePadding: const EdgeInsets.only(top: 24, bottom: 12, left: 16, right: 16),
           title: t.alert.finish_signing.title,
           description: t.alert.finish_signing.description,

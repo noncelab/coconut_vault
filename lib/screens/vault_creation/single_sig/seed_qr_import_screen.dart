@@ -7,6 +7,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_confirmation_screen.dart';
 import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
@@ -139,6 +140,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
               context: context,
               builder: (context) {
                 return CoconutPopup(
+                  languageCode: context.read<VisibilityProvider>().language,
                   title: t.seed_qr_import_screen.error_title,
                   description: '${t.seed_qr_import_screen.error_message}: $e',
                   onTapRight: () {
@@ -155,10 +157,18 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
 
       if (words == null || (words != null && words!.length != 12 && words!.length != 24)) {
         if (!mounted) return;
-        await showInfoPopup(
-          context,
-          t.seed_qr_import_screen.format_error_title,
-          t.seed_qr_import_screen.format_error_message,
+        await showDialog(
+          context: context,
+          builder:
+              (context) => CoconutPopup(
+                languageCode: context.read<VisibilityProvider>().language,
+                title: t.seed_qr_import_screen.format_error_title,
+                description: t.seed_qr_import_screen.format_error_message,
+                rightButtonText: t.close,
+                onTapRight: () {
+                  Navigator.pop(context);
+                },
+              ),
         );
         _isProcessing = false;
         return;

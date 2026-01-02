@@ -540,6 +540,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       context: context,
       builder:
           (BuildContext context) => CoconutPopup(
+            languageCode: context.read<VisibilityProvider>().language,
             insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
             title: t.alert.stop_importing_mnemonic.title,
             description: t.alert.stop_importing_mnemonic.description,
@@ -618,6 +619,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         context: context,
         builder:
             (context) => CoconutPopup(
+              languageCode: context.read<VisibilityProvider>().language,
               title: t.errors.creation_error,
               description: e.toString(),
               onTapRight: () {
@@ -703,6 +705,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       context: context,
       builder:
           (BuildContext dialogContext) => CoconutPopup(
+            languageCode: context.read<VisibilityProvider>().language,
             insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(dialogContext).size.width * 0.15),
             title: t.alert.erase_all_entered_mnemonic.title,
             centerDescription: true,

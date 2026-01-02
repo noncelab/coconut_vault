@@ -162,6 +162,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
         context: context,
         builder:
             (context) => CoconutPopup(
+              languageCode: context.read<VisibilityProvider>().language,
               title: t.exceptions.seed_invalidated.title,
               description: e.message,
               onTapRight: () {
@@ -185,6 +186,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
       context: context,
       builder: (BuildContext context) {
         return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.alert.exit_sign.title,
           description: t.alert.exit_sign.description,

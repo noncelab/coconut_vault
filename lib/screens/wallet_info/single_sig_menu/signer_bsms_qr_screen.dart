@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/multisig_signer_bsms_export_view_model.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/qr_with_copy_text.dart';
@@ -105,6 +106,7 @@ class _SignerBsmsQrScreenState extends State<SignerBsmsQrScreen> {
           context: context,
           builder: (context) {
             return CoconutPopup(
+              languageCode: context.read<VisibilityProvider>().language,
               title: t.multisig_signer_bsms_export_screen.fail_bsms,
               description: _viewModel.errorMessage,
               leftButtonText: t.cancel,

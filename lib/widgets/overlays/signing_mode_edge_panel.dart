@@ -4,6 +4,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -377,6 +378,7 @@ class _SigningModeEdgePanelState extends State<SigningModeEdgePanel> with Single
         context: navContext,
         builder:
             (dialogContext) => CoconutPopup(
+              languageCode: context.read<VisibilityProvider>().language,
               insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(navContext).size.width * 0.15),
               title: t.wallet_delete_failed,
               description: t.wallet_delete_failed_description,
@@ -396,6 +398,7 @@ class _SigningModeEdgePanelState extends State<SigningModeEdgePanel> with Single
       context: navContext,
       builder:
           (dialogContext) => CoconutPopup(
+            languageCode: context.read<VisibilityProvider>().language,
             insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(navContext).size.width * 0.15),
             title: t.delete_vault,
             description: t.delete_vault_description,

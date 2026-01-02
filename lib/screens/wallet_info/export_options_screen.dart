@@ -73,45 +73,47 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
           appBar: CoconutAppBar.build(title: t.multi_sig_setting_screen.export_menu.export_wallet, context: context),
           body: SafeArea(
             minimum: const EdgeInsets.only(top: 10, right: 16, left: 16),
-            child: Column(
-              children: [
-                if (widget.walletType == WalletType.multiSignature) ...[
-                  // 다른 볼트와 공유하기 (멀티시그)
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  if (widget.walletType == WalletType.multiSignature) ...[
+                    // 다른 볼트와 공유하기 (멀티시그)
+                    _buildOption(
+                      t.multi_sig_setting_screen.export_menu.share_bsms,
+                      t.multi_sig_setting_screen.export_menu.share_bsms_description,
+                      onTapShareWithOtherVault,
+                      true,
+                    ),
+                  ],
+                  if (widget.walletType == WalletType.singleSignature) ...[
+                    // 다중 서명키로 사용하기 (싱글시그)
+                    _buildOption(
+                      t.vault_menu_screen.title.use_as_multisig_signer,
+                      t.vault_menu_screen.description.use_as_multisig_signer,
+                      onTapUseAsMultisigSigner,
+                      true,
+                    ),
+                  ],
+                  CoconutLayout.spacing_300h,
+                  // 보기 전용 앱으로 내보내기 (공용)
                   _buildOption(
-                    t.multi_sig_setting_screen.export_menu.share_bsms,
-                    t.multi_sig_setting_screen.export_menu.share_bsms_description,
-                    onTapShareWithOtherVault,
+                    t.multi_sig_setting_screen.export_menu.export_watch_only_wallet,
+                    t.multi_sig_setting_screen.export_menu.export_watch_only_wallet_description,
+                    onTapExportWatchOnlyWallet,
                     true,
                   ),
+                  CoconutLayout.spacing_300h,
+                  if (widget.walletType == WalletType.multiSignature) ...[
+                    // 지갑 데이터 백업하기 (멀티시그)
+                    _buildOption(
+                      t.multi_sig_setting_screen.export_menu.backup_wallet_data,
+                      t.multi_sig_setting_screen.export_menu.backup_wallet_data_description,
+                      onTapBackupWalletData,
+                      true,
+                    ),
+                  ],
                 ],
-                if (widget.walletType == WalletType.singleSignature) ...[
-                  // 다중 서명키로 사용하기 (싱글시그)
-                  _buildOption(
-                    t.vault_menu_screen.title.use_as_multisig_signer,
-                    t.vault_menu_screen.description.use_as_multisig_signer,
-                    onTapUseAsMultisigSigner,
-                    true,
-                  ),
-                ],
-                CoconutLayout.spacing_300h,
-                // 보기 전용 앱으로 내보내기 (공용)
-                _buildOption(
-                  t.multi_sig_setting_screen.export_menu.export_watch_only_wallet,
-                  t.multi_sig_setting_screen.export_menu.export_watch_only_wallet_description,
-                  onTapExportWatchOnlyWallet,
-                  true,
-                ),
-                CoconutLayout.spacing_300h,
-                if (widget.walletType == WalletType.multiSignature) ...[
-                  // 지갑 데이터 백업하기 (멀티시그)
-                  _buildOption(
-                    t.multi_sig_setting_screen.export_menu.backup_wallet_data,
-                    t.multi_sig_setting_screen.export_menu.backup_wallet_data_description,
-                    onTapBackupWalletData,
-                    true,
-                  ),
-                ],
-              ],
+              ),
             ),
           ),
         );
@@ -147,7 +149,6 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
                     Flexible(
                       child: Text(
                         overflow: TextOverflow.visible,
-                        maxLines: 2,
                         description,
                         style: CoconutTypography.body2_14.copyWith(
                           color: isSelectable ? CoconutColors.gray700 : CoconutColors.gray400,

@@ -425,6 +425,7 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
       context: context,
       builder: (BuildContext context) {
         return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.vault_mode_selection_screen.mode_change_failed_title,
           description: "$description\n error: $errorMessage",
@@ -445,6 +446,7 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
       context: context,
       builder: (BuildContext context) {
         return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.vault_mode_selection_screen.mode_change_complete,
           description:

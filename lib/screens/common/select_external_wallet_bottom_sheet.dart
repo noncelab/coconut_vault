@@ -1,9 +1,11 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 
 class SelectExternalWalletBottomSheet extends StatefulWidget {
   final List<ExternalWalletButton> externalWalletButtonList;
@@ -87,6 +89,7 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
                   barrierDismissible: false,
                   builder: (BuildContext context) {
                     return CoconutPopup(
+                      languageCode: context.read<VisibilityProvider>().language,
                       insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
                       title: t.multi_sig_setting_screen.popup.title(name: hwwName),
                       description: t.multi_sig_setting_screen.popup.description(name: hwwName),

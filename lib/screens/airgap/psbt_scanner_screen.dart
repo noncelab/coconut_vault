@@ -1,4 +1,3 @@
-
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
@@ -101,6 +100,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       context: context,
       builder: (BuildContext context) {
         return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.errors.scan_error_title,
           description: message,

@@ -5,6 +5,7 @@ import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
@@ -45,6 +46,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
         context: context,
         builder:
             (context) => CoconutPopup(
+              languageCode: context.read<VisibilityProvider>().language,
               title: t.alert.auth_canceled_when_decrypt.title,
               description: t.alert.auth_canceled_when_decrypt.description_view_mnemonic,
               onTapRight: () {
@@ -63,6 +65,7 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
         context: context,
         builder:
             (context) => CoconutPopup(
+              languageCode: context.read<VisibilityProvider>().language,
               title: t.mnemonic_view_screen.alert.failed_get_secret.title,
               description: message,
               onTapRight: () {

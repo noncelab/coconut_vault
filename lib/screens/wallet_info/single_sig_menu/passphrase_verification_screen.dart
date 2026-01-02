@@ -7,6 +7,7 @@ import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -187,6 +188,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
           context: context,
           builder:
               (context) => CoconutPopup(
+                languageCode: context.read<VisibilityProvider>().language,
                 title: t.alert.auth_canceled_when_decrypt.title,
                 description: t.alert.auth_canceled_when_decrypt.description_passphrase_verify,
                 onTapRight: () {
@@ -203,6 +205,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
           context: context,
           builder:
               (context) => CoconutPopup(
+                languageCode: context.read<VisibilityProvider>().language,
                 title: t.passphrase_check_screen.alert.failed.title,
                 description: e.toString(),
                 onTapRight: () {

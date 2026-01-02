@@ -100,41 +100,42 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
             barrierColor: Colors.transparent,
             transitionDuration: Duration.zero,
             pageBuilder: (context, _, __) {
-              return Stack(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    behavior: HitTestBehavior.translucent,
-                    child: const SizedBox.expand(),
-                  ),
-                  Positioned(
-                    top: offset.dy + size.height,
-                    right: screenWidth - (offset.dx + size.width),
-                    child: CoconutPulldownMenu(
-                      entries:
-                          _optionTitles.map((key) {
-                            final isSelected = key == _selectedKey;
-
-                            final displayTitle = isSelected ? _optionMap[key]! : key;
-
-                            return CoconutPulldownMenuItem(title: displayTitle);
-                          }).toList(),
-
-                      selectedIndex: _selectedIndex,
-
-                      onSelected: (index, title) {
-                        setState(() {
-                          _selectedKey = _optionTitles[index];
-                        });
-                        Navigator.pop(context);
-                      },
-
-                      backgroundColor: CoconutColors.white,
-                      borderRadius: 8,
-                      shadowColor: CoconutColors.black.withOpacity(0.1),
+              return MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                child: Stack(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      behavior: HitTestBehavior.translucent,
+                      child: const SizedBox.expand(),
                     ),
-                  ),
-                ],
+                    Positioned(
+                      top: offset.dy + size.height,
+                      right: screenWidth - (offset.dx + size.width),
+                      child: CoconutPulldownMenu(
+                        entries:
+                            _optionTitles.map((key) {
+                              return CoconutPulldownMenuItem(title: key);
+                            }).toList(),
+
+                        selectedIndex: _selectedIndex,
+
+                        onSelected: (index, title) {
+                          setState(() {
+                            _selectedKey = _optionTitles[index];
+                          });
+                          Navigator.pop(context);
+                        },
+
+                        backgroundColor: CoconutColors.white,
+                        borderRadius: 8,
+                        shadowColor: CoconutColors.black.withOpacity(0.1),
+                        isSelectedItemBold: true,
+                        buttonPadding: const EdgeInsets.only(right: 16, left: 16),
+                      ),
+                    ),
+                  ],
+                ),
               );
             },
           ),
@@ -170,20 +171,24 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
               if (widget.showPulldownMenu)
                 Align(
                   alignment: Alignment.centerRight,
-                  child: Container(
-                    key: _pulldownKey,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    margin: const EdgeInsets.only(bottom: 8),
-                    decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(8)),
-                    child: CoconutPulldown(
-                      title: _displayTitle,
-                      isOpen: _isPulldownOpen,
-                      onChanged: (isOpen) {
-                        setState(() {
-                          _isPulldownOpen = true;
-                        });
-                        _showDropdownMenu();
-                      },
+                  child: MediaQuery(
+                    data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                    child: Container(
+                      key: _pulldownKey,
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(8)),
+                      child: CoconutPulldown(
+                        title: _displayTitle,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        isOpen: _isPulldownOpen,
+                        fontSize: CoconutTypography.body2_14.fontSize,
+                        onChanged: (isOpen) {
+                          setState(() {
+                            _isPulldownOpen = true;
+                          });
+                          _showDropdownMenu();
+                        },
+                      ),
                     ),
                   ),
                 ),
