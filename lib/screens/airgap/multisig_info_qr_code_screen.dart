@@ -2,9 +2,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/screens/airgap/multisig_psbt_qr_code_screen.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
-import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -20,6 +18,7 @@ class MultisigQrCodeViewScreen extends StatefulWidget {
   final HardwareWalletType hardwareWalletType;
   final String qrData;
   final VoidCallback onNextPressed;
+  final String? mfp;
 
   const MultisigQrCodeViewScreen({
     super.key,
@@ -29,6 +28,7 @@ class MultisigQrCodeViewScreen extends StatefulWidget {
     required this.hardwareWalletType,
     required this.qrData,
     required this.onNextPressed,
+    this.mfp,
   });
 
   @override
@@ -194,7 +194,7 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
     } else if (widget.hardwareWalletType == HardwareWalletType.krux) {
       if (_isEnglish) {
         return [
-          TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.krux_text0_en, style: textStyle),
+          TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.krux_text0_en(mfp: widget.mfp ?? ''), style: textStyle),
           TextSpan(text: '1. ', style: textStyle),
           TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
           TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.krux_text1_en, style: textStyleBold),
@@ -204,13 +204,15 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
           TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.krux_text2_en, style: textStyle),
           const TextSpan(text: '\n'),
           TextSpan(text: '3. ', style: textStyle),
-          TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.krux_text3_en, style: textStyleBold),
-          TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.krux_text4_en, style: textStyleBold),
-          TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
+          TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.krux_text3_en, style: textStyle),
           const TextSpan(text: '\n'),
           TextSpan(text: '4. ', style: textStyle),
-          TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.krux_text5_en, style: textStyle),
           TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
+          TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.krux_text4_en, style: textStyleBold),
+          const TextSpan(text: '\n'),
+          TextSpan(text: '5. ', style: textStyle),
+          TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
+          TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.krux_text5_en, style: textStyle),
         ];
       }
 

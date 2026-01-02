@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';

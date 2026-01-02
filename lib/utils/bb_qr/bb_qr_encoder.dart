@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:base32/base32.dart';
 import 'package:archive/archive.dart';
-import 'package:base32/base32.dart';
 import 'package:coconut_vault/utils/logger.dart';
 
 class BbQrEncoder {

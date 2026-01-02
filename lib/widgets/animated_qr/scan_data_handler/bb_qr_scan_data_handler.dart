@@ -5,7 +5,6 @@ import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/print_util.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_fragmented_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/scan_data_handler_exceptions.dart';
-import 'package:flutter/material.dart';
 
 class BbQrScanDataHandler implements IFragmentedQrScanDataHandler {
   BbQrDecoder _bbqrDecoder;

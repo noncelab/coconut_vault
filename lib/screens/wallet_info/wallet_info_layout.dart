@@ -276,12 +276,12 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
       kKruxIconPath,
     ];
     final externalWalletButtonList = [
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.coconut_vault, iconSource: iconSourceList[0]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.keystone3pro, iconSource: iconSourceList[1]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.seed_signer, iconSource: iconSourceList[2]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.jade, iconSource: iconSourceList[3]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.cold_card, iconSource: iconSourceList[4]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.krux, iconSource: iconSourceList[5]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.coconut_vault, iconSource: iconSourceList[0]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.keystone3pro, iconSource: iconSourceList[1]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.seed_signer, iconSource: iconSourceList[2]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.jade, iconSource: iconSourceList[3]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.cold_card, iconSource: iconSourceList[4]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.krux, iconSource: iconSourceList[5]),
     ];
     final selectedIndex = iconSource != null ? iconSourceList.indexOf(iconSource) : null;
     HardwareWalletType? result;
@@ -293,7 +293,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
       initialChildSize: 0.45,
       childBuilder:
           (context) => SelectExternalWalletBottomSheet(
-            title: t.multi_sig_setting_screen.add_icon.title,
+            title: t.multi_sig_setting_screen.add_signer.title,
             externalWalletButtonList: externalWalletButtonList,
             selectedIndex: selectedIndex,
             onSelected: (selectedIndex) {

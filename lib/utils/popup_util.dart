@@ -1,7 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 Future<void> showInfoPopup(BuildContext context, String title, String description) async {
   if (!context.mounted) return;

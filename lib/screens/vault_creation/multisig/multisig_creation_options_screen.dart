@@ -20,14 +20,14 @@ class MultisigCreationOptionsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Option> options = [
       Option(
-        name: t.multisig_creation_options_screen.quorum,
+        name: t.multisig_creation_options_screen.new_multisig,
         path: AppRoutes.multisigQuorumSelection,
         onNextPressed: () {
           Navigator.pushReplacementNamed(context, AppRoutes.multisigQuorumSelection);
         },
       ),
       Option(
-        name: t.multisig_creation_options_screen.bsms,
+        name: t.multisig_creation_options_screen.import_bsms,
         path: AppRoutes.coordinatorBsmsConfigScanner,
         onNextPressed: () {
           Navigator.pushReplacementNamed(context, AppRoutes.coordinatorBsmsConfigScanner);

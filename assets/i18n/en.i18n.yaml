@@ -381,10 +381,10 @@ signer_qr_bottom_sheet:
     krux_text3: ""
     krux_text4: ""
     krux_text5: ""
-    krux_text0_en: "With MFP seed imported as multisig / Native Segwit\n"
+    krux_text0_en: "With $mfp seed imported as multisig / Native Segwit\n"
     krux_text1_en: "Wallet"
     krux_text2_en: "Wallet Descriptor - Yes "
-    krux_text3_en: "After scanning information in Krux, "
+    krux_text3_en: "Read the QR code below in Krux"
     krux_text4_en: "Yes"
     krux_text5_en: "< Back"
     vault_text0: ""
@@ -635,8 +635,8 @@ hardware_wallet_type:
   krux: "Krux"
 
 multisig_creation_options_screen:
-  quorum: "Create a new wallet"
-  bsms: "Have wallet backup data"
+  new_multisig: "I want to create a new multisig wallet"
+  import_bsms: "I already have wallet backup data (BSMS)"
 
 multisig_sign_screen:
   loading_overlay: "Generating signing info"
@@ -792,11 +792,11 @@ multi_sig_setting_screen:
   add_key_option: "Add Key Option"
   input_mnemonic_word: "Input Mnemonic Word"
   scan_seed_qr: "Scan Seed QR"
-  add_icon:
-    title: "Select Icon"
+  add_signer:
+    title: "Select Signer"
     coconut_vault: "Coconut Vault"
     keystone3pro: "Keystone 3 Pro"
-    seed_signer: "Seed Signer"
+    seed_signer: "SeedSigner"
     jade: "Jade"
     cold_card: "ColdCard"
     krux: "Krux"

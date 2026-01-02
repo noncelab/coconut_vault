@@ -33,7 +33,7 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
 
   late final ImportCoordinatorBsmsViewModel _viewModel;
 
-  bool _bsmsObscured = false;
+  final bool _bsmsObscured = false;
   bool _isProcessing = false;
   NormalizedMultisigConfig? _normalizedMultisigConfig;
 

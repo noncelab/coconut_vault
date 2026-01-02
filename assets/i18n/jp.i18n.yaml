@@ -380,7 +380,7 @@ signer_qr_bottom_sheet:
     krux_text3: "Kruxで情報のスキャンが完了したら、"
     krux_text4: "「はい」 "
     krux_text5: "< 戻る "
-    krux_text0_en: ""
+    krux_text0_en: "$mfp"
     krux_text1_en: ""
     krux_text2_en: ""
     krux_text3_en: ""
@@ -635,8 +635,8 @@ hardware_wallet_type:
   krux: "Krux"
 
 multisig_creation_options_screen:
-  quorum: "新しいウォレットを作成"
-  bsms: "ウォレットのバックアップデータあり"
+  new_multisig: "新しいウォレットを作成"
+  import_bsms: "ウォレットのバックアップデータあり"
 
 multisig_sign_screen:
   loading_overlay: "署名情報を生成します"
@@ -790,11 +790,11 @@ multi_sig_setting_screen:
   add_key_option: "キー追加オプション"
   input_mnemonic_word: "ニーモニックフレーズ入力"
   scan_seed_qr: "シードQRスキャン"
-  add_icon:
-    title: "アイコン選択"
+  add_signer:
+    title: "署名者選択"
     coconut_vault: "Coconut Vault"
     keystone3pro: "Keystone 3 Pro"
-    seed_signer: "Seed Signer"
+    seed_signer: "SeedSigner"
     jade: "Jade"
     cold_card: "ColdCard"
     krux: "Krux"

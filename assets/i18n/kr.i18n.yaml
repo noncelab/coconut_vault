@@ -382,7 +382,7 @@ signer_qr_bottom_sheet:
     krux_text3: "크럭스에서 정보 스캔 완료 후, "
     krux_text4: "예 "
     krux_text5: "< 뒤로 "
-    krux_text0_en: ""
+    krux_text0_en: "$mfp"
     krux_text1_en: ""
     krux_text2_en: ""
     krux_text3_en: ""
@@ -636,8 +636,8 @@ hardware_wallet_type:
   krux: "크럭스"
 
 multisig_creation_options_screen:
-  quorum: "새로운 지갑을 만들게요"
-  bsms: "지갑 백업 데이터가 있어요"
+  new_multisig: "새로운 지갑을 만들게요"
+  import_bsms: "지갑 백업 데이터가 있어요"
 
 multisig_sign_screen:
   loading_overlay: "서명 정보를 생성합니다"
@@ -742,7 +742,7 @@ bsms_scanner_screen:
     guide2_6: "QR"
   krux:
     guide2_1: "wonderMV 기준 가이드입니다."
-    guide2_2: "니모닉 추가 후,"
+    guide2_2: "니모닉 추가 후, "
     guide2_3: "사용자 정의 "
     guide2_4: "정책 유형 > Multisig"
     guide2_5: "상단 P2WSH 확인 후"
@@ -794,8 +794,8 @@ multi_sig_setting_screen:
   add_key_option: "키 추가 옵션"
   input_mnemonic_word: "니모닉 문구 입력하기"
   scan_seed_qr: "시드 QR 스캔하기"
-  add_icon:
-    title: "아이콘 입력"
+  add_signer:
+    title: "서명기 선택"
     coconut_vault: "코코넛 볼트"
     keystone3pro: "키스톤 3 프로"
     seed_signer: "시드사이너"

@@ -14,7 +14,6 @@ import 'package:coconut_vault/repository/model/multisig_wallet_privacy_info.dart
 import 'package:coconut_vault/repository/model/single_sig_wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/model/wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/print_util.dart';
 import 'package:flutter/foundation.dart';
 

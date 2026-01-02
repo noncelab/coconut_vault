@@ -253,6 +253,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   void _showMultisigBsmsQrCodeBottomSheet(int signerIndex, HardwareWalletType hwwType, String multisigInfoQrData) {
+    final mfp = _viewModel.signers[signerIndex].keyStore.masterFingerprint;
     MyBottomSheet.showBottomSheet_95(
       context: context,
       child: MultisigQrCodeViewScreen(
@@ -261,6 +262,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         signedRawTx: _viewModel.psbtForSigning,
         hardwareWalletType: hwwType,
         qrData: multisigInfoQrData,
+        mfp: mfp,
         onNextPressed: () async {
           await Future.delayed(const Duration(milliseconds: 300));
           if (!mounted) return;
@@ -376,12 +378,12 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     ];
 
     final externalWalletButtonList = [
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.coconut_vault, iconSource: iconSourceList[0]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.keystone3pro, iconSource: iconSourceList[1]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.seed_signer, iconSource: iconSourceList[2]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.jade, iconSource: iconSourceList[3]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.cold_card, iconSource: iconSourceList[4]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_icon.krux, iconSource: iconSourceList[5]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.coconut_vault, iconSource: iconSourceList[0]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.keystone3pro, iconSource: iconSourceList[1]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.seed_signer, iconSource: iconSourceList[2]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.jade, iconSource: iconSourceList[3]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.cold_card, iconSource: iconSourceList[4]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.krux, iconSource: iconSourceList[5]),
     ];
     await MyBottomSheet.showDraggableBottomSheet<HardwareWalletType?>(
       context: context,
@@ -394,7 +396,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             title:
                 index == null
                     ? t.multisig_sign_screen.select_signer_hardware_wallet
-                    : t.multi_sig_setting_screen.add_icon.title,
+                    : t.multi_sig_setting_screen.add_signer.title,
             externalWalletButtonList: externalWalletButtonList,
             showConfirmDialog: !isFromBottomButton,
             selectedIndex: null,

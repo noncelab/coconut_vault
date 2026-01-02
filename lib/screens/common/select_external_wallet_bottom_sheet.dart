@@ -41,7 +41,7 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
       backgroundColor: CoconutColors.white,
       appBar: CoconutAppBar.build(
         customTitle: Text(
-          widget.title ?? t.multi_sig_setting_screen.add_icon.title,
+          widget.title ?? t.multi_sig_setting_screen.add_signer.title,
           style: CoconutTypography.body1_16_Bold,
         ),
         context: context,

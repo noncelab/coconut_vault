@@ -9,7 +9,6 @@ import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 import 'package:coconut_vault/utils/ur_bytes_converter.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ur/ur.dart';
 import 'package:ur/ur_decoder.dart';
 
 Map<String, dynamic> _convertKeysToString(Map<dynamic, dynamic> map) {
