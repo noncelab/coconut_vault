@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/copy_text_container.dart';
+import 'package:coconut_vault/widgets/qr_image_sized_box.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -193,17 +194,13 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
                   ),
                 ),
               Container(
+                width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     CoconutLayout.spacing_300h,
-                    Center(
-                      child: Container(
-                        width: qrWidth,
-                        decoration: CoconutBoxDecoration.shadowBoxDecoration,
-                        child: QrImageView(data: displayQrData),
-                      ),
-                    ),
+                    AdaptiveQrImage(qrData: displayQrData),
                     CoconutLayout.spacing_500h,
                     _buildCopyButton(displayTextData, qrWidth),
                     CoconutLayout.spacing_1500h,

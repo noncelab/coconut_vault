@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math' as Math;
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
@@ -8,13 +7,12 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/utils/bb_qr/bb_qr_encoder.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
-import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:coconut_vault/widgets/qr_image_sized_box.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 enum QrScanDensity { slow, normal, fast }
 
@@ -125,73 +123,58 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
           isBottom: true,
         ),
         body: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final qrSize = _getQrSize(constraints);
-              return Stack(
-                children: [
-                  SingleChildScrollView(
-                    child: Container(
-                      width: double.infinity,
-                      color: CoconutColors.white,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          CustomTooltip.buildInfoTooltip(
-                            context,
-                            richText: RichText(
-                              text: TextSpan(style: CoconutTypography.body2_14, children: _getTooltipRichText()),
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                child: Container(
+                  width: double.infinity,
+                  color: CoconutColors.white,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      CustomTooltip.buildInfoTooltip(
+                        context,
+                        richText: RichText(
+                          text: TextSpan(style: CoconutTypography.body2_14, children: _getTooltipRichText()),
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                      _isBbqrType && _bbqrParts.isNotEmpty
+                          ? AdaptiveQrImage(qrData: _bbqrParts[_currentBbqrIndex])
+                          : AdaptiveQrImage(
+                            qrDensity: _qrScanDensity,
+                            qrViewDataHandler: BcUrQrViewHandler(
+                              widget.signedRawTx,
+                              UrType.cryptoPsbt,
+                              maxFragmentLen: _getMaxFragmentLen(_qrScanDensity),
                             ),
                           ),
-                          const SizedBox(height: 40),
-                          Container(
-                            width: qrSize,
-                            height: qrSize,
-                            padding: const EdgeInsets.all(10),
-                            margin: const EdgeInsets.symmetric(horizontal: 16),
-                            decoration: CoconutBoxDecoration.shadowBoxDecoration,
-                            child:
-                                _isBbqrType && _bbqrParts.isNotEmpty
-                                    ? QrImageView(data: _bbqrParts[_currentBbqrIndex], version: QrVersions.auto)
-                                    : AnimatedQrView(
-                                      key: ValueKey(_qrScanDensity),
-                                      qrViewDataHandler: BcUrQrViewHandler(
-                                        widget.signedRawTx,
-                                        UrType.cryptoPsbt,
-                                        maxFragmentLen: _getMaxFragmentLen(_qrScanDensity),
-                                      ),
-                                      qrScanDensity: _qrScanDensity,
-                                      qrSize: qrSize,
-                                    ),
-                          ),
-                          if (!_isBbqrType) ...[CoconutLayout.spacing_800h, _buildDensitySliderWidget(context)],
-                          Container(height: 150),
-                        ],
-                      ),
-                    ),
+                      if (!_isBbqrType) ...[CoconutLayout.spacing_800h, _buildDensitySliderWidget(context)],
+                      Container(height: 150),
+                    ],
                   ),
-                  if (widget.onNextPressed != null) ...[
-                    FixedBottomButton(
-                      onButtonClicked: () {
-                        widget.onNextPressed!();
-                      },
-                      subWidget: CoconutUnderlinedButton(
-                        text: _isBbqrType ? t.signer_qr_bottom_sheet.view_ur : t.signer_qr_bottom_sheet.view_bbqr,
-                        onTap: () {
-                          if (_bbqrParts.isEmpty) {
-                            _bbqrParts = BbQrEncoder().encodeBase64(widget.signedRawTx);
-                          }
-                          setState(() {
-                            _isBbqrType = !_isBbqrType;
-                          });
-                        },
-                      ),
-                      text: t.next,
-                    ),
-                  ],
-                ],
-              );
-            },
+                ),
+              ),
+              if (widget.onNextPressed != null) ...[
+                FixedBottomButton(
+                  onButtonClicked: () {
+                    widget.onNextPressed!();
+                  },
+                  subWidget: CoconutUnderlinedButton(
+                    text: _isBbqrType ? t.signer_qr_bottom_sheet.view_ur : t.signer_qr_bottom_sheet.view_bbqr,
+                    onTap: () {
+                      if (_bbqrParts.isEmpty) {
+                        _bbqrParts = BbQrEncoder().encodeBase64(widget.signedRawTx);
+                      }
+                      setState(() {
+                        _isBbqrType = !_isBbqrType;
+                      });
+                    },
+                  ),
+                  text: t.next,
+                ),
+              ],
+            ],
           ),
         ),
       ),
@@ -544,11 +527,6 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
           ],
         ];
     }
-  }
-
-  double _getQrSize(BoxConstraints constraints) {
-    final shortestScreenWidth = Math.min(constraints.maxWidth, constraints.maxHeight);
-    return shortestScreenWidth.clamp(220, 360);
   }
 
   int _getSnappedValue(double value) {

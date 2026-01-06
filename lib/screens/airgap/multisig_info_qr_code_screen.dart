@@ -9,6 +9,7 @@ import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:coconut_vault/widgets/qr_image_sized_box.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -82,12 +83,8 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
                         ),
                       ),
                       const SizedBox(height: 40),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: CoconutBoxDecoration.shadowBoxDecoration,
-                        child: _buildQrView(),
-                      ),
+
+                      _buildQrView(),
                     ],
                   ),
                 ),
@@ -120,27 +117,12 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
 
     // 단일 프래그먼트인 경우 QrImageView 직접 사용 (애니메이션 불필요)
     if (handler.isSinglePart || widget.hardwareWalletType == HardwareWalletType.coconutVault) {
-      return LayoutBuilder(
-        builder: (context, constraints) {
-          final qrSize = _getQrSize(constraints);
-          return QrImageView(data: qrData, size: qrSize);
-        },
-      );
+      return AdaptiveQrImage(qrData: qrData);
     }
 
     // 다중 프래그먼트인 경우에만 AnimatedQrView 사용
     // return AnimatedQrView(qrViewDataHandler: handler, qrScanDensity: QrScanDensity.normal, qrSize: qrSize);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final qrSize = _getQrSize(constraints);
-        return AnimatedQrView(qrViewDataHandler: handler, qrSize: qrSize);
-      },
-    );
-  }
-
-  double _getQrSize(BoxConstraints constraints) {
-    final shortestScreenWidth = Math.min(constraints.maxWidth, constraints.maxHeight);
-    return shortestScreenWidth.clamp(220, 360);
+    return AdaptiveQrImage(qrViewDataHandler: handler);
   }
 
   List<TextSpan> _getTooltipRichText() {
