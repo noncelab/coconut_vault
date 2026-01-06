@@ -620,7 +620,6 @@ assign_signers_screen:
   data_verifying: "データ検証中..."
   use_internal_key: "このボルトのキーを使用"
   select_key_option: "キータイプを選択"
-  use_internal_key_option: "キー選択"
   import_from_other_vault: "他のボルトからインポート"
   import_from_hww: "ハードウェアウォレットからインポート"
   hardware_wallet_type_selection: "ハードウェアウォレットの選択"

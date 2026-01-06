@@ -621,7 +621,6 @@ assign_signers_screen:
   data_verifying: "데이터 검증 중이에요"
   use_internal_key: "이 볼트의 키 사용하기"
   select_key_option: "키 종류 선택"
-  use_internal_key_option: "키 선택"
   import_from_other_vault: "다른 볼트에서 가져오기"
   import_from_hww: "하드월렛에서 가져오기"
   hardware_wallet_type_selection: "하드월렛 선택"
@@ -803,7 +802,7 @@ multi_sig_setting_screen:
     cold_card: "콜드카드"
     krux: "크럭스"
   popup:
-    title: "$name 선택 완료"
+    title: "$name 선택"
     description: "다중 서명 시 $name 설정에 따라 안내할게요."
     button: "알겠습니다"
 select_export_type_screen:

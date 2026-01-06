@@ -86,7 +86,7 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
 
                 showDialog(
                   context: context,
-                  barrierDismissible: false,
+                  barrierDismissible: true,
                   builder: (BuildContext context) {
                     return CoconutPopup(
                       languageCode: context.read<VisibilityProvider>().language,
@@ -96,11 +96,12 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
                       rightButtonText: t.multi_sig_setting_screen.popup.button,
                       onTapRight: () {
                         Navigator.pop(context);
-                        Navigator.pop(context);
                       },
                     );
                   },
-                );
+                ).whenComplete(() {
+                  Navigator.pop(context);
+                });
               },
             ),
           ],

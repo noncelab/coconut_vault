@@ -620,7 +620,6 @@ assign_signers_screen:
   data_verifying: "Verifying data..."
   use_internal_key: "Use key in this vault"
   select_key_option: "Select key type"
-  use_internal_key_option: "Select key"
   import_from_other_vault: "Import from other vault"
   import_from_hww: "Import from hardware wallet"
   hardware_wallet_type_selection: "Hardware Wallet Selection"
