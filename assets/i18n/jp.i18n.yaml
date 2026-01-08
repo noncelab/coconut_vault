@@ -642,7 +642,8 @@ multisig_sign_screen:
   dialog:
     preparation:
       title: '$name 準備'
-      description: '$nameで署名するには、事前に設定が必要です。設定画面に移動しますか？'
+      description_for_vault: '別のVaultで署名するには、鍵が保管されているVaultにBSMS（マルチシグウォレット）情報を追加する必要があります。BSMSのQRコードを表示しますか？'
+      description: '$hwwTypeで署名するには、鍵が保管されている$hwwTypeにBSMS（マルチシグウォレット）情報を追加する必要があります。BSMSのQRコードを表示しますか？'
     signature_update:
       title: "署名更新"
       description: "署名が更新されました。"
@@ -738,16 +739,14 @@ bsms_scanner_screen:
     guide2_5: "0を入力してEnter"
     guide2_6: "QR"
   krux:
-    guide2_1: "wonderMV基準のガイドです。"
-    guide2_2: "ニーモニック追加後、"
-    guide2_3: "ユーザー定義 (Custom)"
-    guide2_4: "Policy Type > Multisig"
-    guide2_5: "上段のP2WSHを確認後"
-    guide2_6: "そのまま読み込み"
-    guide2_7: "ZPUB エクスポート"
-    guide2_8: "ZPUB - QR"
-    guide2_7_regtest: "VPUB エクスポート"
-    guide2_8_regtest: "VPUB - QR"
+    guide2_1: "ニーモニック追加後、"
+    guide2_2: "ユーザー定義 (Custom)"
+    guide2_3: "証券の種類 > Multisig"
+    guide2_4: "< 戻る"
+    guide2_5: "ウォレットをロード"
+    guide2_6: "拡張公開キー"
+    guide2_7: "ZPUB - QRコード"
+    guide2_7_regtest: "VPUB - QRコード"
 
 bsms_paste_screen:
   import_bsms: "BSMS文字列を入力してください。"

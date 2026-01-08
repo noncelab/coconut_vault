@@ -317,8 +317,8 @@ signer_qr_bottom_sheet:
   vault_text2: "서명하기 "
   vault_text3: "아래 QR 코드를 스캔해 주세요."
   vault_text4: "키가 보관된 볼트에서"
-  vault_text5: "또는 다중서명 화면에서 하단의 "
-  vault_text6: "버튼을 눌러 스캔해 주세요."
+  vault_text5: " 또는 다중서명 화면에서 하단의 "
+  vault_text6: " 버튼을 눌러 스캔해 주세요."
   seedsigner_text0: "$mfp 시드가 로드된 상태에서\n"
   seedsigner_text1: "Scan PSBT "
   seedsigner_text2: "시드사이너에서 스캔이 완료되면 아래 "
@@ -643,7 +643,8 @@ multisig_sign_screen:
   dialog:
     preparation:
       title: '$name 준비하기'
-      description: '$name(으)로 서명을 하기 위해 사전 설정이 필요합니다. 사전 설정 화면으로 가시겠어요?'
+      description_for_vault: '다른 볼트로 서명하려면 키가 보관된 볼트에 BSMS(다중 서명 지갑) 정보를 추가해야 합니다. BSMS QR을 보여드릴까요?'
+      description: '$hwwType로 서명하려면 키가 보관된 $hwwType에 BSMS(다중 서명 지갑) 정보를 추가해야 합니다. BSMS QR을 보여드릴까요?'
     signature_update:
       title: "서명 업데이트"
       description: "서명이 업데이트되었어요."
@@ -740,16 +741,14 @@ bsms_scanner_screen:
     guide2_5: "0 입력 후 Enter"
     guide2_6: "QR"
   krux:
-    guide2_1: "wonderMV 기준 가이드입니다."
-    guide2_2: "니모닉 추가 후, "
-    guide2_3: "사용자 정의 "
-    guide2_4: "정책 유형 > Multisig"
-    guide2_5: "상단 P2WSH 확인 후"
-    guide2_6: "이대로 불러오기"
-    guide2_7: "ZPUB 내보내기"
-    guide2_8: "ZPUB - QR"
-    guide2_7_regtest: "VPUB 내보내기"
-    guide2_8_regtest: "VPUB - QR"
+    guide2_1: "니모닉 추가 후"
+    guide2_2: "사용자 정의"
+    guide2_3: "정책 유형 > Multisig"
+    guide2_4: "< 뒤로"
+    guide2_5: "이대로 불러오기"
+    guide2_6: "XPUB 내보내기"
+    guide2_7: "ZPUB - QR"
+    guide2_7_regtest: "VPUB - QR"
 
 bsms_paste_screen:
   import_bsms: "BSMS 문자열을 입력해주세요"

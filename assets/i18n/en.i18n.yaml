@@ -642,7 +642,8 @@ multisig_sign_screen:
   dialog:
     preparation:
       title: 'Prepare $name'
-      description: 'To sign with $name, you need to set up in advance. Would you like to go to the setup screen?'
+      description_for_vault: 'To sign with another Vault, you must add the BSMS (multisig wallet) information to the Vault that stores the key. Show the BSMS QR code?'
+      description: 'To sign with $hwwType, you must add the BSMS (multisig wallet) information to the $hwwType that stores the key. Show the BSMS QR code?'
     signature_update:
       title: "Signature Update"
       description: "Signature has been updated."
@@ -739,16 +740,14 @@ bsms_scanner_screen:
     guide2_5: "0 then Enter"
     guide2_6: "QR"
   krux:
-    guide2_1: "Guide based on wonderMV."
-    guide2_2: "After adding Mnemonic,"
-    guide2_3: "Custom"
-    guide2_4: "Policy Type > Multisig"
-    guide2_5: "Check P2WSH at top then"
-    guide2_6: "Load as is"
-    guide2_7: "Export ZPUB"
-    guide2_8: "ZPUB - QR"
-    guide2_7_regtest: "Export VPUB"
-    guide2_8_regtest: "VPUB - QR"
+    guide2_1: "After adding Mnemonic"
+    guide2_2: "Custom"
+    guide2_3: "Policy Type > Multisig"
+    guide2_4: "< Back"
+    guide2_5: "Load Wallet"
+    guide2_6: "Expended Public Key"
+    guide2_7: "ZPUB - QR Code"
+    guide2_7_regtest: "VPUB - QR Code"
   
 
 bsms_paste_screen:

@@ -234,7 +234,10 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           languageCode: context.read<VisibilityProvider>().language,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.multisig_sign_screen.dialog.preparation.title(name: hwwType.displayName),
-          description: t.multisig_sign_screen.dialog.preparation.description(name: hwwType.displayName),
+          description:
+              hwwType == HardwareWalletType.coconutVault
+                  ? t.multisig_sign_screen.dialog.preparation.description_for_vault
+                  : t.multisig_sign_screen.dialog.preparation.description(hwwType: hwwType.displayName),
           backgroundColor: CoconutColors.white,
           leftButtonText: t.skip,
           rightButtonText: t.confirm,

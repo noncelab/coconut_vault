@@ -300,40 +300,19 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
             text: '${t.bsms_scanner_screen.krux.guide2_1}\n',
             style: CoconutTypography.body2_14.setColor(CoconutColors.black),
             children: <TextSpan>[
-              buildTextSpan('1. '),
-              if (isReversedOrder) ...[
-                buildTextSpan('${t.bsms_scanner_screen.krux.guide2_2} '),
-                buildTextSpan('${t.bsms_scanner_screen.select} '),
-                buildTextSpan(t.bsms_scanner_screen.krux.guide2_3, isBold: true),
-              ] else ...[
-                buildTextSpan(t.bsms_scanner_screen.krux.guide2_2),
-                buildTextSpan(t.bsms_scanner_screen.krux.guide2_3, isBold: true),
-                buildTextSpan(t.bsms_scanner_screen.select),
-              ],
+              buildStep('1. ', t.bsms_scanner_screen.krux.guide2_2, t.bsms_scanner_screen.select),
               buildTextSpan('\n'),
-              buildStep('2. ', t.bsms_scanner_screen.krux.guide2_4, t.bsms_scanner_screen.select),
+              buildStep('2. ', t.bsms_scanner_screen.krux.guide2_3, t.bsms_scanner_screen.select),
               buildTextSpan('\n'),
-              buildTextSpan('3. '),
-              buildTextSpan('${t.bsms_scanner_screen.krux.guide2_5} '),
-              buildTextSpan(t.bsms_scanner_screen.krux.guide2_6, isBold: true),
+              buildStep('3. ', t.bsms_scanner_screen.krux.guide2_4, t.bsms_scanner_screen.select),
+              buildTextSpan('\n'),
+              buildStep('4. ', t.bsms_scanner_screen.krux.guide2_5, t.bsms_scanner_screen.select),
               buildTextSpan('\n'),
               buildStep(
-                '4. ',
-                NetworkType.currentNetworkType.isTestnet
-                    ? t.bsms_scanner_screen.krux.guide2_7_regtest
-                    : t.bsms_scanner_screen.krux.guide2_7,
+                '5. ',
+                '${t.bsms_scanner_screen.krux.guide2_6} → ${NetworkType.currentNetworkType.isTestnet ? t.bsms_scanner_screen.krux.guide2_7_regtest : t.bsms_scanner_screen.krux.guide2_7}',
                 t.bsms_scanner_screen.select,
               ),
-              buildTextSpan('\n'),
-              buildTextSpan('5. '),
-              isReversedOrder ? buildTextSpan('${t.bsms_scanner_screen.select} ') : buildTextSpan(''),
-              buildTextSpan(
-                NetworkType.currentNetworkType.isTestnet
-                    ? t.bsms_scanner_screen.krux.guide2_8_regtest
-                    : t.bsms_scanner_screen.krux.guide2_8,
-                isBold: true,
-              ),
-              !isReversedOrder ? buildTextSpan(t.bsms_scanner_screen.select) : buildTextSpan(''),
             ],
           ),
         ];
