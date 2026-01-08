@@ -15,7 +15,12 @@ class CoordinatorBsmsQrScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => CoordinatorBsmsQrViewModel(Provider.of<WalletProvider>(context, listen: false), id),
+      create:
+          (context) => CoordinatorBsmsQrViewModel(
+            Provider.of<WalletProvider>(context, listen: false),
+            id,
+            mode: CoordinatorViewMode.bsmsOnly,
+          ),
       child: Consumer<CoordinatorBsmsQrViewModel>(
         builder: (context, viewModel, child) {
           return Container(
