@@ -709,7 +709,7 @@ bsms_scanner_screen:
     guide2_4: "Scan the QR code shown on the screen."
   keystone3pro:
     guide2_1: "Compatible with Keystone 3 Pro."
-    guide2_2: "From the Home screen"
+    guide2_2: "On the Keystone Home screen"
     guide2_3: "Top-left Wallet Icon"
     guide2_4: "Show/Export xPub"
     guide2_5: "Multisig Wallet"
@@ -829,7 +829,7 @@ sync_to_wallet_screen:
       guide4_1_singlesig: "Continue - Scan Qr"
       guide4_1_multisig: "Recover using QR code"
     bluewallet:
-      guide1_1: "Click the + button in the upper right corner on the home screen"
+      guide1_1: "Click the + button in the upper right corner on the BlueWallet home screen"
       guide2_1: "Import Wallet"
       guide3_1: "Scan or import a file"
     common: "Scan the QR code below."

@@ -708,7 +708,7 @@ bsms_scanner_screen:
     guide2_4: "画面に表示されるQRコードをスキャンしてください。"
   keystone3pro:
     guide2_1: "Keystone 3 Proと互換性があります。"
-    guide2_2: "ホーム画面で"
+    guide2_2: "Keystoneのホーム画面で"
     guide2_3: "左上のウォレットアイコン"
     guide2_4: "Show/Export xPub"
     guide2_5: "Multisig Wallet"
@@ -827,7 +827,7 @@ sync_to_wallet_screen:
       guide4_1_singlesig: "続行 - QRコードスキャン"
       guide4_1_multisig: "QRコードを使用して復元"
     bluewallet:
-      guide1_1: "右上の+ボタンをクリック"
+      guide1_1: "BlueWalletの右上の+ボタンをクリック"
       guide2_1: "Import Wallet"
       guide3_1: "QRコードまたはファイルをスキャン"
     common: "下記のQRコードをスキャンしてください。"

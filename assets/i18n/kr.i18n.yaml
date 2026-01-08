@@ -710,7 +710,7 @@ bsms_scanner_screen:
     guide2_4: " 화면에 보이는 QR 코드를 스캔해 주세요."
   keystone3pro:
     guide2_1: "키스톤 3 프로와 호환됩니다."
-    guide2_2: "홈 화면에서"
+    guide2_2: "키스톤 홈 화면에서"
     guide2_3: "왼쪽 상단 지갑 아이콘"
     guide2_4: "Show/Export xPub"
     guide2_5: "Multisig Wallet"
@@ -831,7 +831,7 @@ sync_to_wallet_screen:
       guide4_1_singlesig: "Continue - Scan Qr"
       guide4_1_multisig: "Recover using QR code"
     bluewallet:
-      guide1_1: "홈 화면에서 우측 상단 + 클릭"
+      guide1_1: "블루월렛 홈 화면에서 우측 상단 + 클릭"
       guide2_1: "Import Wallet"
       guide3_1: "Scan or import a file"
     common: "아래 QR 코드를 스캔해 주세요."
