@@ -123,6 +123,7 @@ const allDependencies = <Package>[
   _plugin_platform_interface,
   _pointycastle,
   _pool,
+  _posix,
   _process,
   _provider,
   _pub_semver,
@@ -195,6 +196,7 @@ const allDependencies = <Package>[
 
 /// Direct `dependencies`.
 const dependencies = <Package>[
+  _archive,
   _base32,
   _cbor,
   _coconut_design_system,
@@ -386,14 +388,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   ],
 );
 
-/// archive 3.6.1
+/// archive 4.0.7
 const _archive = Package(
   name: 'archive',
   description:
       'Provides encoders and decoders for various archive and compression formats such as zip, tar, bzip2, gzip, and zlib.',
   repository: 'https://github.com/brendan-duncan/archive',
   authors: [],
-  version: '3.6.1',
+  version: '4.0.7',
   license: '''The MIT License
 
 Copyright (c) 2013-2021 Brendan Duncan.
@@ -418,7 +420,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.''',
   isMarkdown: false,
   isSdk: false,
-  dependencies: [PackageRef('crypto'), PackageRef('path')],
+  dependencies: [PackageRef('crypto'), PackageRef('path'), PackageRef('posix')],
 );
 
 /// args 2.5.0
@@ -1413,7 +1415,7 @@ const _clock = Package(
   dependencies: [],
 );
 
-/// coconut_design_system 0.9.7
+/// coconut_design_system 0.9.9
 const _coconut_design_system = Package(
   name: 'coconut_design_system',
   description:
@@ -1421,7 +1423,7 @@ const _coconut_design_system = Package(
   homepage: 'https://www.noncelab.com',
   repository: 'https://github.com/noncelab/coconut_design_system',
   authors: [],
-  version: '0.9.7',
+  version: '0.9.9',
   license: '''MIT License
 
 Copyright 2025 Nonce Lab
@@ -4918,14 +4920,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   dependencies: [],
 );
 
-/// lottie 3.1.2
+/// lottie 3.3.1
 const _lottie = Package(
   name: 'lottie',
   description:
       'Render After Effects animations natively on Flutter. This package is a pure Dart implementation of a Lottie player.',
   repository: 'https://github.com/xvrh/lottie-flutter',
   authors: [],
-  version: '3.1.2',
+  version: '3.3.1',
   license: '''MIT License
 
 Copyright (c) [year] [fullname]
@@ -6480,6 +6482,39 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   isMarkdown: false,
   isSdk: false,
   dependencies: [PackageRef('async'), PackageRef('stack_trace')],
+);
+
+/// posix 6.0.3
+const _posix = Package(
+  name: 'posix',
+  description: 'Exposes the POSIX api on OSx and Linux',
+  homepage: 'https://github.com/onepub-dev/dart_posix',
+  authors: [],
+  version: '6.0.3',
+  license: '''MIT License
+
+Copyright (c) 2020 Brett Sutton
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.''',
+  isMarkdown: false,
+  isSdk: false,
+  dependencies: [PackageRef('ffi'), PackageRef('meta'), PackageRef('path')],
 );
 
 /// process 5.0.3

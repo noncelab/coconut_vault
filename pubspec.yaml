@@ -18,10 +18,10 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # of the product and file versions while build-number is used as the build suffix.
 version: 2.0.0+1
 app_versions:
-  ios_regtest: 4.0.0+0
-  ios_mainnet: 2.0.0+1
-  aos_regtest: 4.0.0+49
-  aos_mainnet: 2.0.0+13
+  ios_regtest: 4.0.0+2
+  ios_mainnet: 2.0.0+2
+  aos_regtest: 4.0.0+50
+  aos_mainnet: 2.0.0+14
 
 environment:
   sdk: ">=3.7.0 <4.0.0"
@@ -69,10 +69,7 @@ dependencies:
   slang_flutter: ^4.6.0
   pointycastle: ^3.9.1
   tuple: ^2.0.2
-  coconut_lib:
-    git:
-      url: https://github.com/noncelab/coconut_lib.git
-      ref: develop
+  coconut_lib: 1.0.4
   cbor: ^6.3.5
   ur:
     path: lib/packages/bc-ur-dart
