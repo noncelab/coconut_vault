@@ -1,4 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_export_format_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -19,7 +20,10 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
   final List<SyncOption> _syncOptions = [
     SyncOption(
       title: t.coconut,
-      iconPath: "assets/svg/watch-only-icons/coconut.svg",
+      iconPath:
+          NetworkType.currentNetworkType.isTestnet
+              ? "assets/png/wallet_logo_regtest.png"
+              : "assets/svg/watch-only-icons/coconut.svg",
       format: WalletExportFormatEnum.coconut,
     ),
     SyncOption(
@@ -87,7 +91,16 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
           child: Column(
             children: [
-              SvgPicture.asset(option.iconPath),
+              if (option.iconPath.endsWith(".svg"))
+                SvgPicture.asset(option.iconPath)
+              else
+                Container(
+                  width: 35,
+                  height: 35,
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: CoconutColors.gray800, borderRadius: BorderRadius.circular(12)),
+                  child: Image.asset(option.iconPath),
+                ),
               CoconutLayout.spacing_200h,
               MediaQuery(
                 data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
