@@ -19,7 +19,7 @@ class CoordinatorBsmsQrScreen extends StatelessWidget {
           (context) => CoordinatorBsmsQrViewModel(
             Provider.of<WalletProvider>(context, listen: false),
             id,
-            mode: CoordinatorViewMode.bsmsOnly,
+            mode: CoordinatorViewMode.coconutVaultOnly,
           ),
       child: Consumer<CoordinatorBsmsQrViewModel>(
         builder: (context, viewModel, child) {

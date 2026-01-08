@@ -10,7 +10,7 @@ import 'package:coconut_vault/packages/bc-ur-dart/lib/cbor_lite.dart';
 import 'package:ur/ur.dart';
 import 'package:ur/ur_encoder.dart';
 
-enum CoordinatorViewMode { bsmsOnly, backupAll }
+enum CoordinatorViewMode { coconutVaultOnly, backupAll }
 
 class CoordinatorBsmsQrViewModel extends ChangeNotifier {
   late String qrData;
