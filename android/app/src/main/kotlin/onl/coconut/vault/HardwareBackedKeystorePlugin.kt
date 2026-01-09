@@ -1,35 +1,35 @@
 package onl.coconut.vault
 
+import android.app.Activity
+import android.app.KeyguardManager
 import android.content.Context
+import android.content.Intent
 import android.os.Build
-import androidx.annotation.NonNull
-import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.plugin.common.MethodCall
-import io.flutter.plugin.common.MethodChannel
-
 import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
 import android.security.keystore.StrongBoxUnavailableException
+import android.security.keystore.UserNotAuthenticatedException
+import android.util.Log
+import androidx.annotation.NonNull
+import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
+import io.flutter.plugin.common.MethodCall
+import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.PluginRegistry
+import java.security.InvalidKeyException
 import java.security.KeyStore
+import java.security.UnrecoverableKeyException
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.spec.GCMParameterSpec
-import kotlin.random.Random
-import android.security.keystore.UserNotAuthenticatedException
-import android.security.keystore.KeyPermanentlyInvalidatedException
-import java.security.UnrecoverableKeyException
-import java.security.InvalidKeyException
 
-import android.util.Log
-
-import android.app.Activity
-import android.app.KeyguardManager
-import android.content.Intent
-import io.flutter.embedding.engine.plugins.activity.ActivityAware
-import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
-import io.flutter.plugin.common.PluginRegistry
-
-class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware, PluginRegistry.ActivityResultListener {
+class HardwareBackedKeystorePlugin :
+  FlutterPlugin,
+  MethodChannel.MethodCallHandler,
+  ActivityAware,
+  PluginRegistry.ActivityResultListener {
   private lateinit var channel: MethodChannel
   private var lastUsedStrongBox = false
   private var activity: Activity? = null
@@ -65,7 +65,11 @@ class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandl
 
   override fun onDetachedFromActivity() {
     // Activity가 사라졌는데 아직 답을 못 보냈다면 에러로 종료
-    pendingResult?.error("activity_detached", "Activity detached before authentication completed", null)
+    pendingResult?.error(
+      "activity_detached",
+      "Activity detached before authentication completed",
+      null,
+    )
     pendingResult = null
     activity = null
   }
@@ -80,7 +84,7 @@ class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandl
   override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
     if (requestCode == REQ_CONFIRM_DEVICE) {
       val res = pendingResult
-      pendingResult = null  // 먼저 비워서 중복 호출/재진입 방지
+      pendingResult = null // 먼저 비워서 중복 호출/재진입 방지
       res?.success(resultCode == Activity.RESULT_OK)
       return true
     }
@@ -97,10 +101,12 @@ class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandl
           result.error("in_progress", "Another confirmation is in progress", null)
           return
         }
-        val act = activity ?: run {
-          result.error("no_activity", "No foreground activity", null)
-          return
-        }
+        val act =
+          activity
+            ?: run {
+              result.error("no_activity", "No foreground activity", null)
+              return
+            }
 
         val title = call.argument<String>("title") ?: "Device authentication"
         val description = call.argument<String>("description") ?: "Authentication is required"
@@ -142,9 +148,9 @@ class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandl
           result.error("DEL_FAIL", e.message, null)
         }
       }
-       "deleteKeys" -> {
+      "deleteKeys" -> {
         val aliasList = call.argument<List<String>>("aliasList")!!
-        
+
         try {
           deleteAesKeys(aliasList)
           result.success(null)
@@ -165,11 +171,9 @@ class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandl
           aad?.let { cipher.updateAAD(it) }
           val ciphertext = cipher.doFinal(plaintext)
           val iv = cipher.iv
-          result.success(mapOf(
-            "ciphertext" to ciphertext,
-            "iv" to iv,
-            "usedStrongBox" to lastUsedStrongBox
-          ))
+          result.success(
+            mapOf("ciphertext" to ciphertext, "iv" to iv, "usedStrongBox" to lastUsedStrongBox)
+          )
         } catch (e: UserNotAuthenticatedException) {
           result.error("AUTH_NEEDED", "User authentication required", null)
         } catch (e: UnrecoverableKeyException) {
@@ -242,8 +246,8 @@ class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandl
   private fun readBytesArg(call: MethodCall, key: String): ByteArray {
     val any = call.argument<Any?>(key)
     return when (any) {
-      is ByteArray -> any                     // Dart Uint8List → byte[] 그대로 (복사 없음)
-      is List<*> -> {                         // Dart List<int> → ArrayList<Integer>
+      is ByteArray -> any // Dart Uint8List → byte[] 그대로 (복사 없음)
+      is List<*> -> { // Dart List<int> → ArrayList<Integer>
         val size = any.size
         val out = ByteArray(size)
         for (i in 0 until size) {
@@ -256,16 +260,20 @@ class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandl
       else -> throw IllegalArgumentException("Unsupported type for $key: ${any::class.java}")
     }
   }
-  
+
   /**
-   * If a key only supports biometric credentials, the key is invalidated by default whenever new biometric enrollments are added.
-   * You can configure the key to remain valid when new biometric enrollments are added by passing false into setInvalidatedByBiometricEnrollment()
-   * 
-   * Android Keystore 내부 키는 다음 조건 중 하나라도 바뀌면 KeyPermanentlyInvalidatedException 이 발생합니다 👇
-   * 잠금화면이 아예 없어지거나(None/Swipe) 기존 인증 방식(패턴 → PIN, PIN → 패턴, 또는 비밀번호 변경)이 바뀐 경우
+   * If a key only supports biometric credentials, the key is invalidated by default whenever new
+   * biometric enrollments are added. You can configure the key to remain valid when new biometric
+   * enrollments are added by passing false into setInvalidatedByBiometricEnrollment()
+   *
+   * Android Keystore 내부 키는 다음 조건 중 하나라도 바뀌면 KeyPermanentlyInvalidatedException 이 발생합니다 👇 잠금화면이 아예
+   * 없어지거나(None/Swipe) 기존 인증 방식(패턴 → PIN, PIN → 패턴, 또는 비밀번호 변경)이 바뀐 경우
    */
   private fun generateAesKey(alias: String, userAuthRequired: Boolean, perUseAuth: Boolean) {
-    Log.d(TAG, "generateAesKey() start alias=$alias, userAuthRequired=$userAuthRequired, perUseAuth=$perUseAuth, sdk=${Build.VERSION.SDK_INT}")
+    Log.d(
+      TAG,
+      "generateAesKey() start alias=$alias, userAuthRequired=$userAuthRequired, perUseAuth=$perUseAuth, sdk=${Build.VERSION.SDK_INT}",
+    )
 
     val ks = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
     // 이미 존재하면 삭제 후 재생성(필요 시 정책 변경 반영)
@@ -275,16 +283,17 @@ class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandl
       } catch (e: Exception) {
         Log.e(TAG, "deleteEntry($alias) failed", e)
       }
-      
     }
-   
-    val builder = KeyGenParameterSpec.Builder(
-      alias,
-      KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-    ).setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-     .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-     .setKeySize(256)
-     
+
+    val builder =
+      KeyGenParameterSpec.Builder(
+          alias,
+          KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT,
+        )
+        .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+        .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+        .setKeySize(256)
+
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) { // 24+
       // 생체등록 추가로 키 무효화 방지
       builder.setInvalidatedByBiometricEnrollment(false)
@@ -308,14 +317,15 @@ class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandl
 
     // 1) StrongBox가 있으면 먼저 StrongBox로 시도
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-      val hasStrongBox = try {
-        // 일부 기기는 이 feature flag가 가장 신뢰할 수 있음
-        val pm = appContext.packageManager
-        pm.hasSystemFeature("android.hardware.strongbox_keystore")
-      } catch (e: Exception) {
-        Log.w(TAG, "hasSystemFeature(STRONGBOX) check failed, will still try StrongBox", e)
-        true // 체크 실패 시 일단 시도해보고 예외로 판단
-      }
+      val hasStrongBox =
+        try {
+          // 일부 기기는 이 feature flag가 가장 신뢰할 수 있음
+          val pm = appContext.packageManager
+          pm.hasSystemFeature("android.hardware.strongbox_keystore")
+        } catch (e: Exception) {
+          Log.w(TAG, "hasSystemFeature(STRONGBOX) check failed, will still try StrongBox", e)
+          true // 체크 실패 시 일단 시도해보고 예외로 판단
+        }
 
       if (hasStrongBox) {
         try {
@@ -344,8 +354,7 @@ class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandl
       keyGenerator.init(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
           builder.setIsStrongBoxBacked(false).build()
-        else
-          builder.build()
+        else builder.build()
       )
       keyGenerator.generateKey()
       lastUsedStrongBox = false
@@ -354,9 +363,8 @@ class HardwareBackedKeystorePlugin: FlutterPlugin, MethodChannel.MethodCallHandl
       Log.e(TAG, "TEE key generation failed", e)
       throw e
     }
-   
   }
-  
+
   private fun deleteAesKey(alias: String) {
     val ks = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
     // 존재하지 않으면 no-op
