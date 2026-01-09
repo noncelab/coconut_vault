@@ -11,6 +11,7 @@ import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
@@ -148,6 +149,15 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
           context: context,
           isBackButton: showBackButton,
           isBottom: useBottomAppBar,
+          actionButtonList: [
+            IconButton(
+              icon: const Icon(CupertinoIcons.camera_rotate, size: 22),
+              color: CoconutColors.black,
+              onPressed: () {
+                controller?.switchCamera();
+              },
+            ),
+          ],
         ),
         body: SafeArea(top: false, child: _buildStack(context)),
       ),

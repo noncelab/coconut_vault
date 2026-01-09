@@ -9,9 +9,9 @@ import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_confirmation_screen.dart';
-import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:crypto/crypto.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
@@ -67,6 +67,15 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
         context: context,
         title: t.seed_qr_import_screen.title,
         backgroundColor: CoconutColors.white,
+        actionButtonList: [
+          IconButton(
+            icon: const Icon(CupertinoIcons.camera_rotate, size: 22),
+            color: CoconutColors.black,
+            onPressed: () {
+              controller?.flipCamera();
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [
