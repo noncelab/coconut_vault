@@ -26,7 +26,7 @@ Future<void> openSystemSecuritySettings(
   String buttonText = '',
 }) async {
   if (Platform.isAndroid) {
-    const channel = MethodChannel('system_settings');
+    const channel = MethodChannel('app-settings');
     await channel.invokeMethod('openSecuritySettings');
   } else if (Platform.isIOS) {
     // 다이얼로그 표시 후 iOS는 앱 설정 화면으로 이동

@@ -24,7 +24,7 @@ import android.util.Log
 
 class MainActivity: FlutterFragmentActivity() {
     private val CHANNEL = "onl.coconut.vault/os"
-    private val SYSTEM_SETTINGS_CHANNEL = "app-settings"
+    private val CHANNEL_OPEN_APP_SETTINGS = "app-settings"
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,7 +79,7 @@ class MainActivity: FlutterFragmentActivity() {
             }
         }
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SYSTEM_SETTINGS_CHANNEL).setMethodCallHandler { call, result ->
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_OPEN_APP_SETTINGS).setMethodCallHandler { call, result ->
             when (call.method) {
                 "openSecuritySettings" -> {
                     try {
