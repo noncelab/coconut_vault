@@ -10,32 +10,37 @@ import 'package:coconut_vault/packages/bc-ur-dart/lib/cbor_lite.dart';
 import 'package:ur/ur.dart';
 import 'package:ur/ur_encoder.dart';
 
+enum CoordinatorViewMode { shareWithOtherVault, all }
+
 class CoordinatorBsmsQrViewModel extends ChangeNotifier {
   late String qrData;
-  late Map<String, String> walletQrDataMap;
-  late Map<String, String> walletTextDataMap;
+  Map<String, String> walletQrDataMap = {};
+  Map<String, String> walletTextDataMap = {};
   late String walletName;
-  CoordinatorBsmsQrViewModel(WalletProvider walletProvider, int id) {
-    _init(walletProvider, id);
+
+  CoordinatorBsmsQrViewModel(WalletProvider walletProvider, int id, {required CoordinatorViewMode mode}) {
+    _init(walletProvider, id, mode);
   }
 
-  void _init(WalletProvider walletProvider, int id) {
+  void _init(WalletProvider walletProvider, int id, CoordinatorViewMode mode) {
     final vaultListItem = walletProvider.getVaultById(id) as MultisigVaultListItem;
     walletName = vaultListItem.name;
+
+    _generateBsmsJson(vaultListItem);
+
+    if (mode == CoordinatorViewMode.all) {
+      _generateAllFormats(vaultListItem);
+    }
+
+    notifyListeners();
+  }
+
+  void _generateBsmsJson(MultisigVaultListItem vaultListItem) {
     final coordinatorBsms = vaultListItem.coordinatorBsms;
-    String outputDescriptor = _generateDescriptor(vaultListItem);
-    String bsmsText = vaultListItem.coordinatorBsms;
-    String coldcardText = _generateColdcardTextFormat(vaultListItem);
-    String keystoneText = _generateKeystoneTextFormat(vaultListItem);
-
-    String bsmsUr = _encodeToUrBytes(bsmsText);
-    String coldcardQr = _encodeColdcardQr(coldcardText);
-    String keystoneUr = _encodeToUrBytes(keystoneText);
-
     Map<String, dynamic> walletSyncString = jsonDecode(vaultListItem.getWalletSyncString());
+
     Map<String, String> namesMap = {};
     for (var signer in vaultListItem.signers) {
-      // coconut_vault 1.1.0의 다중 서명 지갑 상세화면 > '다른 볼트로 내보내기' > signer.name == null인 경우에 오류가 발생해서 임의로 '-'를 넣어 반환함
       namesMap[signer.keyStore.masterFingerprint] = signer.name ?? '-';
     }
 
@@ -48,6 +53,17 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
         coordinatorBsms: coordinatorBsms,
       ),
     );
+  }
+
+  void _generateAllFormats(MultisigVaultListItem vaultListItem) {
+    String outputDescriptor = _generateDescriptor(vaultListItem);
+    String bsmsText = vaultListItem.coordinatorBsms;
+    String coldcardText = _generateColdcardTextFormat(vaultListItem);
+    String keystoneText = _generateKeystoneTextFormat(vaultListItem);
+
+    String bsmsUr = _encodeToUrBytes(bsmsText);
+    String coldcardQr = _encodeColdcardQr(coldcardText);
+    String keystoneUr = _encodeToUrBytes(keystoneText);
 
     walletQrDataMap = {
       'BSMS': bsmsUr,
@@ -66,8 +82,6 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
       'Output Descriptor': outputDescriptor,
       'Specter Desktop': walletQrDataMap['Specter Desktop']!,
     };
-
-    notifyListeners();
   }
 
   String _encodeToUrBytes(String text) {
