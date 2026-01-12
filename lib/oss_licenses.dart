@@ -1452,14 +1452,14 @@ Licensor: Nonce Lab''',
   dependencies: [PackageRef('flutter'), PackageRef('provider'), PackageRef('flutter_svg'), PackageRef('lottie')],
 );
 
-/// coconut_lib 1.0.3
+/// coconut_lib 1.0.4
 const _coconut_lib = Package(
   name: 'coconut_lib',
   description:
       'The coconut_lib is a development tool for mobile air gap Bitcoin wallets. It is written in Dart. Coconut Vault and Coconut Wallet were created using this library.',
   repository: 'https://github.com/noncelab/coconut_lib.git',
   authors: [],
-  version: '1.0.3',
+  version: '1.0.4',
   license: '''Copyright 2025 Nonce Lab
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -6711,7 +6711,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   dependencies: [PackageRef('meta')],
 );
 
-/// qr_code_scanner_plus 2.0.12
+/// qr_code_scanner_plus 2.0.14
 const _qr_code_scanner_plus = Package(
   name: 'qr_code_scanner_plus',
   description:
@@ -6719,7 +6719,7 @@ const _qr_code_scanner_plus = Package(
   homepage: 'https://vespr.xyz',
   repository: 'https://github.com/vespr-wallet/qr_code_scanner_plus',
   authors: [],
-  version: '2.0.12',
+  version: '2.0.14',
   license: '''Copyright 2018 Julius Canute
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
