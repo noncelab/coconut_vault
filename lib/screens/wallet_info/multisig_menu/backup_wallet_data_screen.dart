@@ -19,7 +19,7 @@ class BackupWalletDataScreen extends StatelessWidget {
           (context) => CoordinatorBsmsQrViewModel(
             Provider.of<WalletProvider>(context, listen: false),
             id,
-            mode: CoordinatorViewMode.backupAll,
+            mode: CoordinatorViewMode.all,
           ),
       child: Consumer<CoordinatorBsmsQrViewModel>(
         builder: (context, viewModel, child) {
