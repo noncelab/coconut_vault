@@ -114,13 +114,7 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
         backgroundColor: CoconutColors.white,
         appBar: CoconutAppBar.build(
           context: context,
-          title: t.signer_qr_bottom_sheet.title(
-            name:
-                widget.hardwareWalletType.displayName +
-                (_visibilityProvider.language == 'kr' && widget.hardwareWalletType == HardwareWalletType.keystone
-                    ? '으'
-                    : ''),
-          ),
+          title: t.signer_qr_bottom_sheet.title(name: widget.hardwareWalletType.displayName),
           isBottom: true,
         ),
         body: SafeArea(
