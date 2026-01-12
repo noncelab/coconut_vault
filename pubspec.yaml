@@ -117,6 +117,7 @@ flutter:
   assets:
     - assets/png/splash_logo_mainnet.png
     - assets/png/splash_logo_regtest.png
+    - assets/png/wallet_logo_regtest.png
     - assets/svg/wallet-icons/bank.svg
     - assets/svg/wallet-icons/building.svg
     - assets/svg/wallet-icons/car.svg
