@@ -5,9 +5,12 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
+import 'package:coconut_vault/utils/app_settings_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
@@ -36,6 +39,8 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   bool get useBottomAppBar => false;
   bool get showBackButton => true;
   bool get showBottomButton => false;
+
+  bool _isShowedCameraPermissionDialog = false;
 
   /// 툴팁 RichText
   List<TextSpan> buildTooltipRichText(BuildContext context, VisibilityProvider visibilityProvider);
@@ -174,6 +179,18 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
             if (!mounted) return;
             onBarcodeDetected(capture);
           },
+          errorBuilder: (context, error) {
+            if (error.errorCode == MobileScannerErrorCode.permissionDenied && !_isShowedCameraPermissionDialog) {
+              _isShowedCameraPermissionDialog = true;
+              WidgetsBinding.instance.addPostFrameCallback((_) async {
+                if (!mounted) return;
+                await _showCameraPermissionDialog();
+                if (!mounted) return;
+                Navigator.pop(context);
+              });
+            }
+            return Center(child: Text(error.errorCode.message));
+          },
         ),
         const ScannerOverlay(),
 
@@ -202,6 +219,19 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
             textColor: CoconutColors.black,
           ),
       ],
+    );
+  }
+
+  Future<void> _showCameraPermissionDialog() async {
+    await showConfirmDialog(
+      context,
+      context.read<PreferenceProvider>().language,
+      t.coconut_qr_scanner.camera_error.title,
+      t.coconut_qr_scanner.camera_error.need_camera_permission,
+      rightButtonText: t.go_to_settings,
+      onTapRight: () {
+        openAppSettings();
+      },
     );
   }
 
