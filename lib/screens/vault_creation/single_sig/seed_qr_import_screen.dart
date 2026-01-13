@@ -7,14 +7,17 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_confirmation_screen.dart';
+import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 /// mobile_scanner 이슈로
 /// 이 화면만 qr_code_scanner_plus 사용
@@ -32,14 +35,51 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
   QRViewController? controller;
   bool _isNavigating = false;
   bool _isProcessing = false;
-  Barcode? result;
+  bool _hasPermission = false;
+
   late AppLifecycleStateProvider _appLifecycleStateProvider;
 
   @override
   void initState() {
     super.initState();
     _appLifecycleStateProvider = Provider.of<AppLifecycleStateProvider>(context, listen: false);
+    _requestCameraPermission();
+  }
+
+  Future<void> _requestCameraPermission() async {
     _appLifecycleStateProvider.startOperation(AppLifecycleOperations.cameraAuthRequest, ignoreNotify: true);
+
+    var status = await Permission.camera.status;
+    if (!status.isGranted) {
+      status = await Permission.camera.request();
+    }
+
+    if (mounted) {
+      setState(() {
+        _hasPermission = status.isGranted;
+      });
+
+      if (!status.isGranted) {
+        _showCameraPermissionDialog();
+      }
+    }
+  }
+
+  Future<void> _showCameraPermissionDialog() async {
+    await showConfirmDialog(
+      context,
+      context.read<PreferenceProvider>().language,
+      t.coconut_qr_scanner.camera_error.title,
+      t.coconut_qr_scanner.camera_error.need_camera_permission,
+      rightButtonText: t.go_to_settings,
+      onTapRight: () {
+        openAppSettings();
+      },
+    );
+
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -79,7 +119,8 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
       ),
       body: Stack(
         children: [
-          _buildQrView(context),
+          if (_hasPermission) _buildQrView(context) else const Center(child: CircularProgressIndicator()),
+
           CustomTooltip.buildInfoTooltip(
             context,
             richText: RichText(
@@ -121,7 +162,6 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
         borderWidth: 10,
         cutOutSize: scanArea,
       ),
-      onPermissionSet: (ctrl, p) => _onPermissionSet(context, ctrl, p),
     );
   }
 
@@ -210,10 +250,6 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
         }
       }
     });
-  }
-
-  void _onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
-    _appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
   }
 
   List<String> _decodeStandardQR(String data) {
