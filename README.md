@@ -43,10 +43,10 @@
 
     ```bash
     # 스토어에 배포된 버전입니다.
-    Flutter 3.24.3 • channel stable • https://github.com/flutter/flutter.git
-    Framework • revision 2663184aa7 (7 weeks ago) • 2024-09-11 16:27:48 -0500
-    Engine • revision 36335019a8
-    Tools • Dart 3.5.3 • DevTools 2.37.3
+    Flutter 3.29.1 • channel stable • https://github.com/flutter/flutter.git
+    Framework • revision 09de023485 (11 months ago) • 2025-02-28 13:44:05 -0800
+    Engine • revision 871f65ac1b
+    Tools • Dart 3.7.0 • DevTools 2.42.2
 
 3. 자동 생성 파일 준비
 
