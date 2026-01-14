@@ -12,6 +12,10 @@ import android.security.keystore.StrongBoxUnavailableException
 import android.security.keystore.UserNotAuthenticatedException
 import android.util.Log
 import androidx.annotation.NonNull
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -97,35 +101,12 @@ class HardwareBackedKeystorePlugin :
       // API 28 미만에서는 TEE 접근 시 flutter local_auth로 인증 성공한 토큰을 전달받을 수 없으므로, 아래 함수를 사용해서 인증해야 함
       // Keystore 토큰을 얻기 위한 DeviceCredential 인증 요청 함수
       "authenticateForKeystore" -> {
-        if (pendingResult != null) {
-          result.error("in_progress", "Another confirmation is in progress", null)
-          return
-        }
-        val act =
-          activity
-            ?: run {
-              result.error("no_activity", "No foreground activity", null)
-              return
-            }
-
-        val title = call.argument<String>("title") ?: "Device authentication"
-        val description = call.argument<String>("description") ?: "Authentication is required"
-
-        val km = appContext.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        if (!km.isKeyguardSecure) {
-          result.error("not_secure", "No secure lock screen set (PIN/Pattern/Password)", null)
-          return
-        }
-
-        val intent = km.createConfirmDeviceCredentialIntent(title, description)
-        if (intent == null) {
-          result.error("intent_null", "Failed to create Keyguard intent", null)
-          return
-        }
-        // 여기서 저장해 두고, 나중에 onActivityResult에서 응답을 보냄
-        pendingResult = result
-        // 인증 화면 띄우기
-        act.startActivityForResult(intent, REQ_CONFIRM_DEVICE)
+        var title = call.argument<String>("title")
+        var description = call.argument<String>("description")
+        authenticateForKeystore(title, description, result)
+      }
+      "authenticateWithDeviceCredential" -> {
+        authenticateWithDeviceCredential(call, result)
       }
       "generateKey" -> {
         val alias = call.argument<String>("alias")!!
@@ -386,6 +367,124 @@ class HardwareBackedKeystorePlugin :
         // no-op: continue deleting others
       }
     }
+  }
+
+  private fun authenticateForKeystore(
+    title: String?,
+    description: String?,
+    result: MethodChannel.Result,
+  ) {
+    if (pendingResult != null) {
+      result.error("in_progress", "Another confirmation is in progress", null)
+      return
+    }
+    val act =
+      activity
+        ?: run {
+          result.error("no_activity", "No foreground activity", null)
+          return
+        }
+
+    val title = title ?: "Device authentication"
+    val description = description ?: "Authentication is required"
+
+    val km = appContext.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+    if (!km.isKeyguardSecure) {
+      result.error("not_secure", "No secure lock screen set (PIN/Pattern/Password)", null)
+      return
+    }
+
+    val intent = km.createConfirmDeviceCredentialIntent(title, description)
+    if (intent == null) {
+      result.error("intent_null", "Failed to create Keyguard intent", null)
+      return
+    }
+    // 여기서 저장해 두고, 나중에 onActivityResult에서 응답을 보냄
+    pendingResult = result
+    // 인증 화면 띄우기
+    act.startActivityForResult(intent, REQ_CONFIRM_DEVICE)
+  }
+
+  /// 삼성 보안 폴더 내에서 '생체 인증'으로 갱신되지 않는 경우 사용하려고 생성한 함수
+  private fun authenticateWithDeviceCredential(call: MethodCall, result: MethodChannel.Result) {
+    if (pendingResult != null) {
+      result.error("in_progress", "Another confirmation is in progress", null)
+      return
+    }
+
+    val title = call.argument<String>("title") ?: "Device authentication"
+    Log.d(TAG, "authenticateWithDeviceCredential sdk=${Build.VERSION.SDK_INT}")
+    // Android 13 (API level 33) ~ Android 15(API level 35)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      // 30(API R) 이상: BiometricPrompt + DEVICE_CREDENTIAL 로만 인증
+      val act = requireFragmentActivity(result) ?: return
+      val executor = ContextCompat.getMainExecutor(act)
+      pendingResult = result
+
+      val prompt =
+        BiometricPrompt(
+          act,
+          executor,
+          object : BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationSucceeded(
+              authResult: BiometricPrompt.AuthenticationResult
+            ) {
+              val res = pendingResult
+              pendingResult = null
+              res?.success(true)
+            }
+
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+              val res = pendingResult
+              pendingResult = null
+
+              // 사용자가 취소/뒤로가기 한 경우
+              if (
+                errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON ||
+                  errorCode == BiometricPrompt.ERROR_USER_CANCELED ||
+                  errorCode == BiometricPrompt.ERROR_CANCELED
+              ) {
+                res?.success(false)
+              } else {
+                res?.error("AUTH_ERROR", "$errorCode:$errString", null)
+              }
+            }
+
+            override fun onAuthenticationFailed() {
+              // 실패는 계속 UI에서 재시도됨 (결과 반환 X)
+            }
+          },
+        )
+      val descriptionAbove30 =
+        call.argument<String>("descriptionAbove30") ?: "Enter your PIN or Passcode"
+      val promptInfo =
+        BiometricPrompt.PromptInfo.Builder()
+          .setTitle(title)
+          .setSubtitle(descriptionAbove30)
+          .setAllowedAuthenticators(BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+          .build()
+
+      prompt.authenticate(promptInfo)
+    } else {
+      // 삼성에서 보안 폴더는 Android 13 (API level 33) 이상부터 지원하기 시작해서 여기에 도달하는 케이스가 없을 것으로 추정됨
+      // 하지만 모든 기기를 테스트해볼 수 없으므로 fallback으로 유지
+      val descriptionUnder30 = call.argument<String>("descriptionUnder30")
+      authenticateForKeystore(title = title, description = descriptionUnder30, result = result)
+    }
+  }
+
+  private fun requireFragmentActivity(result: MethodChannel.Result): FragmentActivity? {
+    val act = activity
+    if (act == null) {
+      result.error("no_activity", "No foreground activity", null)
+      return null
+    }
+    if (act !is FragmentActivity) {
+      // FlutterActivity는 보통 FragmentActivity라서 대부분 OK
+      result.error("not_fragment_activity", "Activity is not a FragmentActivity", null)
+      return null
+    }
+    return act
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {

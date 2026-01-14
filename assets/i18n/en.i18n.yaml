@@ -901,6 +901,8 @@ permission:
   secure_zone_authentication:
     title: "Secure Module Access"
     description: "Authentication is required to access the secure module."
+  android_security_folder_auth:
+    description: "‼️ If you are using Security Folder, please authenticate with PIN/Pattern/Password."
 
 alert:
   delete_vault:

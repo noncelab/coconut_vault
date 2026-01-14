@@ -904,6 +904,8 @@ permission:
   secure_zone_authentication:
     title: "보안 모듈 접근"
     description: "보안 모듈 접근을 위해 인증이 필요해요."
+  android_security_folder_auth:
+    description: "‼️ 보안 폴더를 사용중이시면 반드시 PIN/패턴/패스워드로 인증해 주세요."
 
 alert: 
   delete_vault: 

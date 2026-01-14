@@ -26,7 +26,6 @@ class AuthProvider extends ChangeNotifier {
   static String unlockAvailableAtKey = SharedPrefsKeys.kUnlockAvailableAt;
   static String turnKey = SharedPrefsKeys.kPinInputTurn;
   static String currentAttemptKey = SharedPrefsKeys.kPinInputCurrentAttemptCount;
-  static const _osChannel = MethodChannel(methodChannelOS);
 
   final SharedPrefsRepository _sharedPrefs = SharedPrefsRepository();
   final SecureStorageRepository _storageService = SecureStorageRepository();
