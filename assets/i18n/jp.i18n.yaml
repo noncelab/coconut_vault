@@ -899,6 +899,8 @@ permission:
   secure_zone_authentication:
     title: "セキュアモジュールへのアクセス"
     description: "セキュアモジュールにアクセスするには認証が必要です。"
+  android_security_folder_auth:
+    description: "‼️ Security Folderを使用している場合は、PIN/Pattern/Password認証でアクセスしてください。"
 
 alert:
   delete_vault: 

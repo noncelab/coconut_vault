@@ -53,6 +53,26 @@
    ```bash
       dart pub run build_runner clean && dart pub run build_runner build --delete-conflicting-outputs && dart pub run slang
    ```
+4. Kotlin 파일 포맷팅 방법 (VSCode or VScode ext IDE like cursor, windsurf)
+   - vscode extension: ktfmtter 설치
+   - 터미널에 ```/usr/libexec/java_home``` 명령어로 java path 얻기
+   - .vscode/settings.json에 아래 내용 추가 (.vscode/settings.sample.json파일 생성 후 로컬에서 관리 추천)
+   ```
+   "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-18", // 사용중인 java 버전 이름 입력
+            "path": [위에서 명령어로 얻은 java home path 입력],
+            "default": true
+        }
+    ],
+    "ktfmtter.ktfmtVersion": "0.47",
+    "ktfmtter.style": "google",
+    "[kotlin]": {
+        "editor.defaultFormatter": "shape-app.ktfmtter"
+    }
+   ```
+   - Kotling 파일에서 ```Shift+Option+F``` 단축키로 포맷팅 / 위 설정은 ‼️커밋 금지‼️
+
 
 ### 실행하기
 

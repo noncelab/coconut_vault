@@ -44,7 +44,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "onl.coconut.vault"
-    compileSdk 35
+    compileSdk 36
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -116,4 +116,5 @@ flutter {
 
 dependencies {
     implementation "androidx.core:core-splashscreen:1.0.0"
+    implementation "androidx.biometric:biometric:1.1.0"
 }
