@@ -10,6 +10,7 @@ import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:coconut_vault/widgets/qr_image_sized_box.dart';
 import 'package:coconut_vault/widgets/tooltip_description.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -69,21 +70,17 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                         ),
                       ),
                       const SizedBox(height: 40),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: CoconutBoxDecoration.shadowBoxDecoration,
-                        child: Selector<WalletToSyncViewModel, ({QrData qrData, UrType urType})>(
-                          selector: (context, vm) => (qrData: vm.qrData, urType: vm.urType),
-                          builder: (context, selectedValue, child) {
-                            if (selectedValue.qrData.type == QrType.single) {
-                              return QrImageView(data: selectedValue.qrData.data, size: qrSize);
-                            }
-                            return AnimatedQrView(
-                              qrViewDataHandler: BcUrQrViewHandler(selectedValue.qrData.data, selectedValue.urType),
-                              qrSize: qrSize,
-                            );
-                          },
-                        ),
+                      Selector<WalletToSyncViewModel, ({QrData qrData, UrType urType})>(
+                        selector: (context, vm) => (qrData: vm.qrData, urType: vm.urType),
+                        builder: (context, selectedValue, child) {
+                          return AdaptiveQrImage(
+                            qrData: selectedValue.qrData.type == QrType.single ? selectedValue.qrData.data : null,
+                            qrViewDataHandler:
+                                selectedValue.qrData.type != QrType.single
+                                    ? BcUrQrViewHandler(selectedValue.qrData.data, selectedValue.urType)
+                                    : null,
+                          );
+                        },
                       ),
                       const SizedBox(height: 32),
                       _buildCopyButton(qrDataString, qrSize),
