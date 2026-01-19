@@ -18,6 +18,7 @@ hour: "時間"
 minute: "分"
 second: "秒"
 settings: "設定"
+OK: "OK"
 confirm: "確認"
 complete: "完了"
 cancel: "キャンセル"
@@ -50,6 +51,7 @@ email_subject: "[ココナッツボルト] お問い合わせ"
 delete_vault: "ウォレットを削除"
 delete_vault_description: "ウォレットを削除すると、すべての情報が初期化されます。\n本当に削除しますか？"
 verify_security: "セキュリティチェック中..."
+go_to_settings: "設定を開く"
 
 sign_completion: "署名完了"
 sign: "署名"
@@ -403,6 +405,9 @@ unit_bottom_sheet:
 
 coconut_qr_scanner:
   reading_extra_data: "収集する追加データを読み取り中\nスキャンを続けてください"
+  camera_error:
+    title: "カメラを使用できません"
+    need_camera_permission: "設定でカメラの使用を許可してください。"
 
 # lib/screens/setting
 app_info_screen:

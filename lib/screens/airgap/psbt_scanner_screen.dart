@@ -16,6 +16,7 @@ import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_sca
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -361,6 +362,15 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
           title: widget.hardwareWalletType?.displayName ?? t.sign,
           context: context,
           backgroundColor: CoconutColors.white,
+          actionButtonList: [
+            IconButton(
+              icon: const Icon(CupertinoIcons.camera_rotate, size: 22),
+              color: CoconutColors.black,
+              onPressed: () {
+                controller?.switchCamera();
+              },
+            ),
+          ],
         ),
         body: Stack(
           children: [

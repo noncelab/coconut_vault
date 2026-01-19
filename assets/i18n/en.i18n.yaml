@@ -17,6 +17,7 @@ hour: "hour"
 minute: "min"
 second: "sec"
 settings: "Settings"
+OK: "OK"
 confirm: "Confirm"
 complete: "Complete"
 cancel: "Cancel"
@@ -50,6 +51,7 @@ email_subject: "[Coconut Vault] Inquiry"
 delete_vault: "Delete Wallets"
 delete_vault_description: "This will delete all saved wallet information.\nAre you sure you want to delete?"
 verify_security: "Verifying security..."
+go_to_settings: "Go to Settings"
 
 sign_completion: "Signed"
 sign: "Sign"
@@ -403,6 +405,9 @@ unit_bottom_sheet:
 
 coconut_qr_scanner:
   reading_extra_data: "Reading additional data to collect\nPlease keep scanning"
+  camera_error:
+    title: "Camera Access Unavailable"
+    need_camera_permission: "Please allow camera access in Settings."
 
 # lib/screens/setting
 app_info_screen:
