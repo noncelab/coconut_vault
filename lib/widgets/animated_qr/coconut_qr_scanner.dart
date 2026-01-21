@@ -19,6 +19,7 @@ class CoconutQrScanner extends StatefulWidget {
   final Function(MobileScannerController) setQrViewController;
   final Function(dynamic) onComplete;
   final Function(String) onFailed;
+  final Function(MobileScannerException)? onScannerInitError;
   final Color borderColor;
   final IQrScanDataHandler qrDataHandler;
 
@@ -29,6 +30,7 @@ class CoconutQrScanner extends StatefulWidget {
     required this.onFailed,
     required this.qrDataHandler,
     this.borderColor = CoconutColors.white,
+    this.onScannerInitError,
   });
 
   @override
@@ -185,6 +187,10 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
               controller: _controller!,
               onDetect: _onDetect,
               errorBuilder: (context, error) {
+                if (widget.onScannerInitError != null) {
+                  widget.onScannerInitError!(error);
+                }
+
                 if (error.errorCode == MobileScannerErrorCode.permissionDenied && !_isShowedCameraPermissionDialog) {
                   _isShowedCameraPermissionDialog = true;
                   WidgetsBinding.instance.addPostFrameCallback((_) async {
