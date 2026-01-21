@@ -60,7 +60,10 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
       });
 
       if (!status.isGranted) {
-        _showCameraPermissionDialog();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _showCameraPermissionDialog();
+        });
       }
     }
   }
