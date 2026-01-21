@@ -1,10 +1,13 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
+import 'package:coconut_vault/utils/app_settings_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_fragmented_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/scan_data_handler_exceptions.dart';
+import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -16,6 +19,7 @@ class CoconutQrScanner extends StatefulWidget {
   final Function(MobileScannerController) setQrViewController;
   final Function(dynamic) onComplete;
   final Function(String) onFailed;
+  final Function(MobileScannerException)? onScannerInitError;
   final Color borderColor;
   final IQrScanDataHandler qrDataHandler;
 
@@ -26,6 +30,7 @@ class CoconutQrScanner extends StatefulWidget {
     required this.onFailed,
     required this.qrDataHandler,
     this.borderColor = CoconutColors.white,
+    this.onScannerInitError,
   });
 
   @override
@@ -40,6 +45,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   double scannerLoadingVerticalPos = 0;
   bool _showLoadingBar = false;
   bool _isFirstScanData = true;
+  bool _isShowedCameraPermissionDialog = false;
 
   MobileScannerController? _controller;
 
@@ -177,11 +183,43 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
       builder: (BuildContext context, BoxConstraints constraints) {
         return Stack(
           children: [
-            MobileScanner(controller: _controller, onDetect: _onDetect),
+            MobileScanner(
+              controller: _controller!,
+              onDetect: _onDetect,
+              errorBuilder: (context, error) {
+                if (widget.onScannerInitError != null) {
+                  widget.onScannerInitError!(error);
+                }
+
+                if (error.errorCode == MobileScannerErrorCode.permissionDenied && !_isShowedCameraPermissionDialog) {
+                  _isShowedCameraPermissionDialog = true;
+                  WidgetsBinding.instance.addPostFrameCallback((_) async {
+                    if (!mounted) return;
+                    await _showCameraPermissionDialog();
+                    if (!mounted) return;
+                    Navigator.pop(context);
+                  });
+                }
+                return Center(child: Text(error.errorCode.message));
+              },
+            ),
             const ScannerOverlay(),
             _buildProgressOverlay(context),
           ],
         );
+      },
+    );
+  }
+
+  Future<void> _showCameraPermissionDialog() async {
+    await showConfirmDialog(
+      context,
+      context.read<PreferenceProvider>().language,
+      t.coconut_qr_scanner.camera_error.title,
+      t.coconut_qr_scanner.camera_error.need_camera_permission,
+      rightButtonText: t.go_to_settings,
+      onTapRight: () {
+        openAppSettings();
       },
     );
   }

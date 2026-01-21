@@ -16,6 +16,7 @@ import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_sca
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -63,14 +64,9 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     _initializeQrScanDataHandler();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      context.loaderOverlay.show();
-
-      Future.delayed(const Duration(milliseconds: 1000), () {
-        // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아 progress hide 합니다. 현재는 1초 후 hide
-        if (mounted) {
-          context.loaderOverlay.hide();
-        }
-      });
+      if (controller == null) {
+        context.loaderOverlay.show();
+      }
     });
   }
 
@@ -92,6 +88,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
   void _setQRViewController(MobileScannerController qrViewcontroller) {
     controller = qrViewcontroller;
+    if (mounted && context.loaderOverlay.visible) context.loaderOverlay.hide();
   }
 
   Future<void> _showErrorDialog(String message) async {
@@ -353,6 +350,10 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     }
   }
 
+  void _onScannerInitError(Exception exception) {
+    if (mounted) context.loaderOverlay.hide();
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomLoadingOverlay(
@@ -361,6 +362,15 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
           title: widget.hardwareWalletType?.displayName ?? t.sign,
           context: context,
           backgroundColor: CoconutColors.white,
+          actionButtonList: [
+            IconButton(
+              icon: const Icon(CupertinoIcons.camera_rotate, size: 22),
+              color: CoconutColors.black,
+              onPressed: () {
+                controller?.switchCamera();
+              },
+            ),
+          ],
         ),
         body: Stack(
           children: [
@@ -370,6 +380,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                 setQrViewController: _setQRViewController,
                 onComplete: _onCompletedScanning,
                 onFailed: onFailedScanning,
+                onScannerInitError: _onScannerInitError,
                 qrDataHandler: _scanDataHandler,
               ),
             ),
