@@ -175,9 +175,18 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
+        final Size layoutSize = constraints.biggest;
+        // ScannerOverlay와 동일한 크기의 정사각형 스캔 영역 계산
+        final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context);
+        final Rect scanWindow = Rect.fromCenter(
+          center: layoutSize.center(Offset.zero),
+          width: scanAreaSize,
+          height: scanAreaSize,
+        );
+
         return Stack(
           children: [
-            MobileScanner(controller: _controller, onDetect: _onDetect),
+            MobileScanner(controller: _controller, scanWindow: scanWindow, onDetect: _onDetect),
             const ScannerOverlay(),
             _buildProgressOverlay(context),
           ],
@@ -187,11 +196,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   }
 
   Widget _buildProgressOverlay(BuildContext context) {
-    final scanAreaSize =
-        (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
-            ? 320.0
-            : MediaQuery.of(context).size.width * 0.85;
-
+    final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context);
     final scanAreaTop = (MediaQuery.of(context).size.height - scanAreaSize) / 2;
     final scanAreaBottom = scanAreaTop + scanAreaSize;
 
