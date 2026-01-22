@@ -700,7 +700,35 @@ class WalletRepository {
     }
 
     for (final vault in _vaultList!) {
-      if (vault.vaultType == WalletType.multiSignature) continue;
+      if (vault.vaultType == WalletType.multiSignature) {
+        final multisigWallet = vault as MultisigVaultListItem;
+        final signersPrivacyInfo =
+            multisigWallet.signers
+                .map(
+                  (signer) =>
+                      SignerPrivacyInfo(signerBsms: signer.signerBsms!, keyStoreToJson: signer.keyStore.toJson()),
+                )
+                .toList();
+        await _savePrivacyInfo(
+          vault.id,
+          WalletType.multiSignature,
+          MultisigWalletPrivacyInfo(
+            coordinatorBsms: multisigWallet.coordinatorBsms,
+            signersPrivacyInfo: signersPrivacyInfo,
+          ),
+        );
+        continue;
+      }
+
+      final singleSigWallet = vault as SingleSigVaultListItem;
+      await _savePrivacyInfo(
+        vault.id,
+        WalletType.singleSignature,
+        SingleSigWalletPrivacyInfo.fromAddressTypeMap(
+          descriptor: singleSigWallet.descriptor,
+          signerBsmsByAddressType: singleSigWallet.signerBsmsByAddressType,
+        ),
+      );
       final Seed seed = await getSeedInSigningOnlyMode(vault.id);
       if (seed.passphrase.isEmpty) continue;
 
