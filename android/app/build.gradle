@@ -44,7 +44,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "onl.coconut.vault"
-    compileSdk 35
+    compileSdk 36
     ndkVersion flutter.ndkVersion
 
     compileOptions {
