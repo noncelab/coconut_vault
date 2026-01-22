@@ -7,10 +7,10 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/utils/bb_qr/bb_qr_encoder.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
+import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
-import 'package:coconut_vault/widgets/qr_image_sized_box.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

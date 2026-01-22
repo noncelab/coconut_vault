@@ -1,9 +1,8 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/widgets/button/copy_text_container.dart';
-import 'package:coconut_vault/widgets/qr_image_sized_box.dart';
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 class QrWithCopyTextScreen extends StatefulWidget {
   final String title;
