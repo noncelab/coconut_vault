@@ -372,25 +372,27 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
             ),
           ],
         ),
-        body: Stack(
-          children: [
-            Container(
-              color: CoconutColors.white,
-              child: CoconutQrScanner(
-                setQrViewController: _setQRViewController,
-                onComplete: _onCompletedScanning,
-                onFailed: onFailedScanning,
-                onScannerInitError: _onScannerInitError,
-                qrDataHandler: _scanDataHandler,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Container(
+                color: CoconutColors.white,
+                child: CoconutQrScanner(
+                  setQrViewController: _setQRViewController,
+                  onComplete: _onCompletedScanning,
+                  onFailed: onFailedScanning,
+                  onScannerInitError: _onScannerInitError,
+                  qrDataHandler: _scanDataHandler,
+                ),
               ),
-            ),
-            CustomTooltip.buildInfoTooltip(
-              context,
-              richText: RichText(text: TextSpan(style: CoconutTypography.body2_14, children: _getGuideTextSpan())),
-              isBackgroundWhite: false,
-              paddingTop: 20,
-            ),
-          ],
+              CustomTooltip.buildInfoTooltip(
+                context,
+                richText: RichText(text: TextSpan(style: CoconutTypography.body2_14, children: _getGuideTextSpan())),
+                isBackgroundWhite: false,
+                paddingTop: 20,
+              ),
+            ],
+          ),
         ),
       ),
     );

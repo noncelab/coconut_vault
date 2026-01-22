@@ -7,13 +7,12 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/utils/bb_qr/bb_qr_encoder.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
-import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
+import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 enum QrScanDensity { slow, normal, fast }
 
@@ -134,23 +133,16 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
                         ),
                       ),
                       const SizedBox(height: 40),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: CoconutBoxDecoration.shadowBoxDecoration,
-                        child:
-                            _isBbqrType && _bbqrParts.isNotEmpty
-                                ? QrImageView(data: _bbqrParts[_currentBbqrIndex], version: QrVersions.auto)
-                                : AnimatedQrView(
-                                  key: ValueKey(_qrScanDensity),
-                                  qrViewDataHandler: BcUrQrViewHandler(
-                                    widget.signedRawTx,
-                                    UrType.cryptoPsbt,
-                                    maxFragmentLen: _getMaxFragmentLen(_qrScanDensity),
-                                  ),
-                                  qrScanDensity: _qrScanDensity,
-                                  qrSize: MediaQuery.of(context).size.width * 0.8,
-                                ),
-                      ),
+                      _isBbqrType && _bbqrParts.isNotEmpty
+                          ? AdaptiveQrImage(qrData: _bbqrParts[_currentBbqrIndex])
+                          : AdaptiveQrImage(
+                            qrDensity: _qrScanDensity,
+                            qrViewDataHandler: BcUrQrViewHandler(
+                              widget.signedRawTx,
+                              UrType.cryptoPsbt,
+                              maxFragmentLen: _getMaxFragmentLen(_qrScanDensity),
+                            ),
+                          ),
                       if (!_isBbqrType) ...[CoconutLayout.spacing_800h, _buildDensitySliderWidget(context)],
                       Container(height: 150),
                     ],
@@ -573,62 +565,65 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
     }
   }
 
-  Padding _buildDensitySliderWidget(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 44),
-      child: Row(
-        children: [
-          Container(
-            constraints: const BoxConstraints(maxWidth: 100),
-            child: Text(
-              t.signer_qr_bottom_sheet.low_density_qr,
-              style: CoconutTypography.body3_12,
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                activeTrackColor: CoconutColors.gray400,
-                inactiveTrackColor: CoconutColors.gray400,
-                trackHeight: 8,
-                thumbColor: CoconutColors.gray800,
-                overlayColor: CoconutColors.gray700.withOpacity(0.2),
-                trackShape: const RoundedRectSliderTrackShape(),
-              ),
-              child: Slider(
-                value: _sliderValue,
-                min: 0,
-                max: 10.0,
-                divisions: 100,
-                onChanged: (double value) {
-                  setState(() {
-                    _sliderValue = value;
-                  });
-                },
-                onChangeEnd: (double value) {
-                  final snapped = _getSnappedValue(value);
-                  if (_lastSnappedValue != snapped) {
-                    vibrateExtraLight();
-                    _lastSnappedValue = snapped;
-                  }
-                  setState(() {
-                    _sliderValue = snapped.toDouble();
-                    _qrScanDensity = _mapValueToDensity(snapped);
-                  });
-                },
+  Widget _buildDensitySliderWidget(BuildContext context) {
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 44),
+        child: Row(
+          children: [
+            Container(
+              constraints: const BoxConstraints(maxWidth: 100),
+              child: Text(
+                t.signer_qr_bottom_sheet.low_density_qr,
+                style: CoconutTypography.body3_12,
+                textAlign: TextAlign.center,
               ),
             ),
-          ),
-          Container(
-            constraints: const BoxConstraints(maxWidth: 100),
-            child: Text(
-              t.signer_qr_bottom_sheet.high_density_qr,
-              style: CoconutTypography.body3_12,
-              textAlign: TextAlign.center,
+            Expanded(
+              child: SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: CoconutColors.gray400,
+                  inactiveTrackColor: CoconutColors.gray400,
+                  trackHeight: 8,
+                  thumbColor: CoconutColors.gray800,
+                  overlayColor: CoconutColors.gray700.withOpacity(0.2),
+                  trackShape: const RoundedRectSliderTrackShape(),
+                ),
+                child: Slider(
+                  value: _sliderValue,
+                  min: 0,
+                  max: 10.0,
+                  divisions: 100,
+                  onChanged: (double value) {
+                    setState(() {
+                      _sliderValue = value;
+                    });
+                  },
+                  onChangeEnd: (double value) {
+                    final snapped = _getSnappedValue(value);
+                    if (_lastSnappedValue != snapped) {
+                      vibrateExtraLight();
+                      _lastSnappedValue = snapped;
+                    }
+                    setState(() {
+                      _sliderValue = snapped.toDouble();
+                      _qrScanDensity = _mapValueToDensity(snapped);
+                    });
+                  },
+                ),
+              ),
             ),
-          ),
-        ],
+            Container(
+              constraints: const BoxConstraints(maxWidth: 100),
+              child: Text(
+                t.signer_qr_bottom_sheet.high_density_qr,
+                style: CoconutTypography.body3_12,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

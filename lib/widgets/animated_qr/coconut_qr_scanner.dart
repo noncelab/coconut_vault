@@ -47,7 +47,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   bool _isFirstScanData = true;
   bool _isShowedCameraPermissionDialog = false;
 
-  MobileScannerController? _controller;
+  late MobileScannerController _controller;
 
   late AppLifecycleStateProvider _appLifecycleStateProvider;
 
@@ -57,7 +57,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
     _appLifecycleStateProvider = Provider.of<AppLifecycleStateProvider>(context, listen: false);
     _appLifecycleStateProvider.startOperation(AppLifecycleOperations.cameraAuthRequest, ignoreNotify: true);
     _controller = MobileScannerController()..addListener(_onCameraStateChanged);
-    widget.setQrViewController(_controller!);
+    widget.setQrViewController(_controller);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final rect = getQrViewRect();
       if (rect != null) {
@@ -181,10 +181,20 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
+        final Size layoutSize = constraints.biggest;
+        // ScannerOverlay와 동일한 크기의 정사각형 스캔 영역 계산
+        final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context);
+        final Rect scanWindow = Rect.fromCenter(
+          center: layoutSize.center(Offset.zero),
+          width: scanAreaSize,
+          height: scanAreaSize,
+        );
+
         return Stack(
           children: [
             MobileScanner(
-              controller: _controller!,
+              controller: _controller,
+              scanWindow: scanWindow,
               onDetect: _onDetect,
               errorBuilder: (context, error) {
                 if (widget.onScannerInitError != null) {
@@ -225,11 +235,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   }
 
   Widget _buildProgressOverlay(BuildContext context) {
-    final scanAreaSize =
-        (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
-            ? 320.0
-            : MediaQuery.of(context).size.width * 0.85;
-
+    final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context);
     final scanAreaTop = (MediaQuery.of(context).size.height - scanAreaSize) / 2;
     final scanAreaBottom = scanAreaTop + scanAreaSize;
 

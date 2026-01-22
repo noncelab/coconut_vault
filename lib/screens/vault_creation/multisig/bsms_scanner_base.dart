@@ -164,61 +164,74 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
             ),
           ],
         ),
-        body: SafeArea(top: false, child: _buildStack(context)),
+        body: SafeArea(top: false, child: _buildChild(context)),
       ),
     );
   }
 
-  Stack _buildStack(BuildContext context) {
-    return Stack(
-      children: [
-        MobileScanner(
-          controller: controller,
-          onDetect: (capture) {
-            if (isProcessing) return;
-            if (!mounted) return;
-            onBarcodeDetected(capture);
-          },
-          errorBuilder: (context, error) {
-            if (error.errorCode == MobileScannerErrorCode.permissionDenied && !_isShowedCameraPermissionDialog) {
-              _isShowedCameraPermissionDialog = true;
-              WidgetsBinding.instance.addPostFrameCallback((_) async {
-                if (!mounted) return;
-                await _showCameraPermissionDialog();
-                if (!mounted) return;
-                Navigator.pop(context);
-              });
-            }
-            return Center(child: Text(error.errorCode.message));
-          },
-        ),
-        const ScannerOverlay(),
+  Widget _buildChild(BuildContext context) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final Size layoutSize = constraints.biggest;
+        // ScannerOverlay와 동일한 크기의 정사각형 스캔 영역 계산
+        final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context);
+        final Rect scanWindow = Rect.fromCenter(
+          center: layoutSize.center(Offset.zero),
+          width: scanAreaSize,
+          height: scanAreaSize,
+        );
 
-        _buildProgressOverlay(context),
-
-        CustomTooltip.buildInfoTooltip(
-          context,
-          richText: RichText(
-            text: TextSpan(
-              style: CoconutTypography.body2_14,
-              children: buildTooltipRichText(context, visibilityProvider),
+        return Stack(
+          children: [
+            MobileScanner(
+              controller: controller,
+              scanWindow: scanWindow,
+              onDetect: (capture) {
+                if (isProcessing) return;
+                if (!mounted) return;
+                onBarcodeDetected(capture);
+              },
+              errorBuilder: (context, error) {
+                if (error.errorCode == MobileScannerErrorCode.permissionDenied && !_isShowedCameraPermissionDialog) {
+                  _isShowedCameraPermissionDialog = true;
+                  WidgetsBinding.instance.addPostFrameCallback((_) async {
+                    if (!mounted) return;
+                    await _showCameraPermissionDialog();
+                    if (!mounted) return;
+                    Navigator.pop(context);
+                  });
+                }
+                return Center(child: Text(error.errorCode.message));
+              },
             ),
-          ),
-          isBackgroundWhite: false,
-          paddingTop: 20,
-        ),
-        _buildLoadingOverlay(context),
-        if (showBottomButton)
-          FixedBottomButton(
-            onButtonClicked: () {
-              Navigator.pushReplacementNamed(context, AppRoutes.bsmsPaste);
-            },
-            text: t.bsms_scanner_base.paste,
-            showGradient: false,
-            backgroundColor: CoconutColors.white,
-            textColor: CoconutColors.black,
-          ),
-      ],
+            const ScannerOverlay(),
+            _buildProgressOverlay(context),
+
+            CustomTooltip.buildInfoTooltip(
+              context,
+              richText: RichText(
+                text: TextSpan(
+                  style: CoconutTypography.body2_14,
+                  children: buildTooltipRichText(context, visibilityProvider),
+                ),
+              ),
+              isBackgroundWhite: false,
+              paddingTop: 20,
+            ),
+            _buildLoadingOverlay(context),
+            if (showBottomButton)
+              FixedBottomButton(
+                onButtonClicked: () {
+                  Navigator.pushReplacementNamed(context, AppRoutes.bsmsPaste);
+                },
+                text: t.bsms_scanner_base.paste,
+                showGradient: false,
+                backgroundColor: CoconutColors.white,
+                textColor: CoconutColors.black,
+              ),
+          ],
+        );
+      },
     );
   }
 
@@ -252,11 +265,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   }
 
   Widget _buildProgressOverlay(BuildContext context) {
-    final scanAreaSize =
-        (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
-            ? 320.0
-            : MediaQuery.of(context).size.width * 0.85;
-
+    final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context);
     final scanAreaTop = (MediaQuery.of(context).size.height - scanAreaSize) / 2;
     final scanAreaBottom = scanAreaTop + scanAreaSize;
 

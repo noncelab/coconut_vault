@@ -1,15 +1,16 @@
+import 'dart:math' as Math;
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
-import 'package:coconut_vault/widgets/animated_qr/animated_qr_view.dart';
+import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 
 class MultisigQrCodeViewScreen extends StatefulWidget {
   final String multisigName;
@@ -80,11 +81,8 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
                         ),
                       ),
                       const SizedBox(height: 40),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: CoconutBoxDecoration.shadowBoxDecoration,
-                        child: _buildQrView(),
-                      ),
+
+                      _buildQrView(),
                     ],
                   ),
                 ),
@@ -105,7 +103,6 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
   }
 
   Widget _buildQrView() {
-    final qrSize = MediaQuery.of(context).size.width * 0.8;
     final handler = BcUrQrViewHandler(widget.qrData, UrType.bytes, maxFragmentLen: 50);
 
     final qrData = widget.hardwareWalletType == HardwareWalletType.coconutVault ? widget.qrData : handler.nextPart();
@@ -118,12 +115,12 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
 
     // 단일 프래그먼트인 경우 QrImageView 직접 사용 (애니메이션 불필요)
     if (handler.isSinglePart || widget.hardwareWalletType == HardwareWalletType.coconutVault) {
-      return QrImageView(data: qrData, size: qrSize);
+      return AdaptiveQrImage(qrData: qrData);
     }
 
     // 다중 프래그먼트인 경우에만 AnimatedQrView 사용
     // return AnimatedQrView(qrViewDataHandler: handler, qrScanDensity: QrScanDensity.normal, qrSize: qrSize);
-    return AnimatedQrView(qrViewDataHandler: handler, qrSize: qrSize);
+    return AdaptiveQrImage(qrViewDataHandler: handler);
   }
 
   List<TextSpan> _getTooltipRichText() {
