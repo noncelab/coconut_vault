@@ -19,7 +19,7 @@ class SelectSyncOptionBottomSheet extends StatefulWidget {
 class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomSheet> {
   final List<SyncOption> _syncOptions = [
     SyncOption(
-      title: t.coconut,
+      title: t.watch_only_options.coconut_wallet,
       iconPath:
           NetworkType.currentNetworkType.isTestnet
               ? "assets/png/wallet_logo_regtest.png"
