@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/method_channel.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Future<bool> isDeviceSecured() async {
@@ -24,7 +26,7 @@ Future<void> openSystemSecuritySettings(
   String buttonText = '',
 }) async {
   if (Platform.isAndroid) {
-    const channel = MethodChannel('system_settings');
+    const channel = MethodChannel('app-settings');
     await channel.invokeMethod('openSecuritySettings');
   } else if (Platform.isIOS) {
     // 다이얼로그 표시 후 iOS는 앱 설정 화면으로 이동
@@ -33,6 +35,7 @@ Future<void> openSystemSecuritySettings(
         context: context,
         builder:
             (context) => CoconutPopup(
+              languageCode: context.read<VisibilityProvider>().language,
               title: title,
               description: description,
               rightButtonText: buttonText,

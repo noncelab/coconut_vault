@@ -25,3 +25,6 @@ pre-deploy:
 
 fastlane-mainnet:
 	cd android && caffeinate -dimsu fastlane release_android_mainnet && cd .. && cd ios && caffeinate -dimsu fastlane release_ios_mainnet skip_prep:true
+
+fastlane-regtest:
+	cd android && caffeinate -dimsu fastlane release_android_regtest && cd .. && cd ios && caffeinate -dimsu fastlane release_ios_regtest skip_prep:true

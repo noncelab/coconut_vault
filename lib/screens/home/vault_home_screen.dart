@@ -7,19 +7,18 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/view_model/home/vault_home_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/common/multisig_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_check_screen.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
@@ -73,7 +72,10 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       if (!mounted) return;
 
       /// Android 비밀번호 삭제 여부 확인
-      if (Platform.isAndroid && !_viewModel.isSigningOnlyMode && _viewModel.vaultCount > 0) {
+      if (Platform.isAndroid &&
+          !_viewModel.isSigningOnlyMode &&
+          _viewModel.vaultCount > 0 &&
+          _viewModel.hasSingleSigVault) {
         setState(() {
           _isAndroidSecureZoneChecking = true;
         });
@@ -98,17 +100,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
             _isAndroidSecureZoneChecking = false;
           });
           if (!mounted) return;
-          showDialog(
-            context: context,
-            builder:
-                (context) => CoconutPopup(
-                  title: t.vault_home_screen.secure_zone_check_failed,
-                  description: e.toString(),
-                  onTapRight: () {
-                    Navigator.pop(context);
-                  },
-                ),
-          );
+          showInfoPopup(context, t.vault_home_screen.secure_zone_check_failed, e.toString());
         }
       }
     });
@@ -490,40 +482,16 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                 Expanded(
                   child: _buildActionItemButton(
                     // 다중서명 지갑 가져오기 버튼
-                    isActive:
-                        walletCount > 0 &&
-                        context.watch<WalletProvider>().vaultList.any(
-                          (vault) => vault.vaultType == WalletType.singleSignature,
-                        ),
+                    isActive: _viewModel.isVaultsLoaded,
                     text: t.vault_home_screen.action_items.import_multisig_wallet,
                     iconAssetPath: 'assets/svg/two-keys.svg',
                     iconPadding: const EdgeInsets.only(right: 15, bottom: 9),
                     onPressed: () {
-                      MyBottomSheet.showDraggableBottomSheet(
-                        context: context,
-                        title: t.select_vault_bottom_sheet.select_wallet,
-                        subLabel: t.vault_menu_screen.description.import_bsms,
-                        childBuilder:
-                            (scrollController) => SelectVaultBottomSheet(
-                              vaultList:
-                                  context
-                                      .read<WalletProvider>()
-                                      .vaultList
-                                      .where((vault) => vault.vaultType == WalletType.singleSignature)
-                                      .toList(),
-                              subLabel: t.vault_menu_screen.description.import_bsms,
-                              onVaultSelected: (id) async {
-                                if (mounted) {
-                                  Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.signerBsmsScanner,
-                                    arguments: {'id': id, 'screenType': MultisigBsmsImportType.copy},
-                                  );
-                                }
-                              },
-                              scrollController: scrollController,
-                            ),
-                      );
+                      if (!_viewModel.isVaultsLoaded) {
+                        return;
+                      }
+
+                      Navigator.pushNamed(context, AppRoutes.coordinatorBsmsConfigScanner);
                     },
                   ),
                 ),
@@ -575,6 +543,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                             context: context,
                             builder: (BuildContext dialogContext) {
                               return CoconutPopup(
+                                languageCode: context.read<VisibilityProvider>().language,
                                 insetPadding: EdgeInsets.symmetric(
                                   horizontal: MediaQuery.of(context).size.width * 0.15,
                                 ),

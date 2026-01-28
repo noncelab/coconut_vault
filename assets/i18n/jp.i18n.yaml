@@ -18,10 +18,15 @@ hour: "時間"
 minute: "分"
 second: "秒"
 settings: "設定"
+OK: "OK"
 confirm: "確認"
 complete: "完了"
 cancel: "キャンセル"
+close: "閉じる"
 abort: "中止"
+abort_sign: "署名中止"
+scan_qr: "QR スキャン"
+export_qr: "QR エクスポート"
 next: "次へ"
 save: "保存"
 select: "選択"
@@ -46,14 +51,15 @@ email_subject: "[ココナッツボルト] お問い合わせ"
 delete_vault: "ウォレットを削除"
 delete_vault_description: "ウォレットを削除すると、すべての情報が初期化されます。\n本当に削除しますか？"
 verify_security: "セキュリティチェック中..."
+go_to_settings: "設定を開く"
 
 sign_completion: "署名完了"
 sign: "署名"
+add_sign: "署名追加"
 signed_tx: "署名済みトランザクション"
 sign_completed: "署名が完了しました"
 stop_sign: "署名停止"
 
-select_completed: "選択完了"
 checklist: "チェックリスト"
 mnemonic_wordlist: "ニーモニック単語リスト"
 tool: "ツール"
@@ -87,8 +93,6 @@ sign_required: "ボタンを押して署名してください"
 sign_required_amount:
   one: "$n個の署名が必要"
   other: "$n個の署名が必要"
-move_to_qr_screen: "QR画面に移動"
-move_to_qr_screen_description: "キー保持ボルトで署名するためのQRを生成"
 
 wallet_delete_failed: "削除するウォレットはありません"
 wallet_delete_failed_description: "現在、保存されているウォレットがないため、削除する必要はありません。"
@@ -278,24 +282,132 @@ psbt_confirmation_screen:
   warning: "⚠️ このウォレットで作成されたPSBTではない可能性があります。または残高のないトランザクションの可能性があります。"
 psbt_scanner_screen:
   guide: "ウォレットから作成した送金情報または外部ボルトからのマルチシグ情報をスキャンしてください。"
+  guide_import_psbt_0: "外部ボルトから "
+  guide_import_psbt_1: "で作成されたQRコードをスキャンしてください。"
   guide_single_sig_same_name: "ウォレットで作成した送金情報をスキャンしてください。ウォレット名は一致する必要があります。"
+  tooltip:
+    scan_QR_code: "$name 画面のQRコードをスキャンしてください。"
+    click_button: "ボタンをクリック"
+    press_button: "ボタンを押してください。"
+    confirm_sign_info: "署名情報確認"
+    seed_signer_text1: "Approve PSBT "
+    jade_text1: "チェック ✓ "
+    coldcard_text1: "署名情報確認後 "
+    coldcard_text2: "ENTER "
+    coldcard_text3: "QR "
+    coldcard_text4: "PSBT Signed画面にて "
+    coldcard_text5: "QR "
+    keystone_text1: "ボタンを右にスライドしてください。"
+    keystone_text2: "パスワードを入力してください。"
+    krux_text1: "画面をタッチして署名情報確認"
+    krux_text2: "Sign to QR code "
+    krux_text3: "選択"
+    press_the_en: ""
+    click_en: ""
+    button_en: ""
+    auto_text: "マルチシグニチャ トランザクションの QR コードをスキャンします。"
 signed_transaction_qr_screen:
   guide_multisig: "マルチシグ完了。下記のQRコードを送信情報を作成したウォレットでスキャンしてください。"
   guide_single_sig: "'$nameウォレット'で作成した送信情報の署名が完了しました。下記のQRコードをウォレットでスキャンしてください。"
 single_sig_sign_screen:
   text: "これは既に署名済みのトランザクションです"
 signer_qr_bottom_sheet:
-  title: "署名済みトランザクションエクスポート"
-  text1: "キーボルトで、マルチシグウォレットを選択 - "
-  text2: "マルチシグ"
-  text3: " 下記のQRコードをスキャンしてください。"
-  select: " 選択"
+  title: "$nameにトランザクションをエクスポート"
+  vault_text1: "番鍵が保管されているボルトから"
+  vault_text2: "マルチシグ"
+  vault_text3: " 下記のQRコードをスキャンしてください。"
+  vault_text4: "鍵が保管されているボルトから"
+  vault_text5: "またはマルチシグ画面で、以下の"
+  vault_text6: "ボタンを押してスキャンしてください。"
+  seedsigner_text0: "$mfpシードがロードされた状態で\n"
+  seedsigner_text1: "PSBTをスキャンしてください。"
+  seedsigner_text2: "シードサイナーでスキャンが完了したら、以下の"
+  seedsigner_text3: "次へ"
+  seedsigner_text4: "ボタンを押してください。"
+  seedsigner_text5: "ウォレットがロードされた状態で\n"
+  jade_text0: "$mfpウォレットがアクティブな状態で\n"
+  jade_text1: "QRをスキャンしてください。"
+  jade_text2: "ジェイドでスキャンが完了したら、以下の"
+  jade_text3: "次へ"
+  jade_text4: "ボタンを押してください。"
+  jade_text5: "ウォレットがアクティブな状態で\n"
+  coldcard_text0: "Coldcardのホーム画面で\n"
+  coldcard_text1: "Ready to Sign."
+  coldcard_text2: "Coldcardでスキャンが完了したら、以下の"
+  coldcard_text3: "次へ"
+  coldcard_text4: "ボタンを押してください。"
+  keystone_text0: "Keystoneのホーム画面で\n"
+  keystone_text1: "Scan"
+  keystone_text2: "Keystoneでスキャンが完了したら、以下の"
+  keystone_text3: "次へ"
+  keystone_text4: "ボタンを押してください。"
+  krux_text0: "Kruxのホーム画面で\n"
+  krux_text1: "Sign "
+  krux_text2: "PSBT "
+  krux_text3: "Load from Camera "
+  krux_text4: "Kruxでスキャンが完了したら、以下の"
+  krux_text5: "次へ"
+  krux_text6: "ボタンを押してください。"
+  select: "選択"
+  low_density_qr: "単純なQR"
+  high_density_qr: "複雑なQR"
+  view_bbqr: "BBQR 表示"
+  view_ur: "UR 表示"
+  add_to_hww: 
+    title: "$nameにウォレットを追加"
+    keystone_text0: "ホーム画面で\n"
+    keystone_text1: "Scan "
+    keystone_text2: "Keystoneでスキャンが完了したら、以下の"
+    keystone_text3: "次へ"
+    keystone_text4: "ボタンを押してください。"
+    keystone_text5: "Wallet Profile "
+    keystone_text6: "Wallet Profile "
+    keystone_text7: "ホーム画面で ウォレットを追加"
+    keystone_text8: "$name "
+    keystone_text9: "Set as Current Wallet "
+    keystone_text0_en: ""
+    keystone_text1_en: ""
+    keystone_text2_en: ""
+    keystone_text3_en: ""
+    keystone_text4_en: ""
+    keystone_text5_en: ""
+    keystone_text6_en: ""
+    keystone_text7_en: ""
+    keystone_text8_en: "$noInput"
+    keystone_text9_en: "$name"
+    keystone_text10_en: ""
+    krux_text0: "MFPシードをマルチシグ / Native Segwitとして読み込んだ状態で\n"
+    krux_text1: "Wallet "
+    krux_text2: "Wallet Descriptor - Yes "
+    krux_text3: "Kruxで情報のスキャンが完了したら、"
+    krux_text4: "「はい」 "
+    krux_text5: "< 戻る "
+    krux_text0_en: "$mfp"
+    krux_text1_en: ""
+    krux_text2_en: ""
+    krux_text3_en: ""
+    krux_text4_en: ""
+    krux_text5_en: ""
+    vault_text0: "他のデバイスのココナッツボルトから\n"
+    vault_text1: "ホーム画面のウォレット追加ボタン "
+    vault_text2: "マルチシグ ウォレット "
+    vault_text3: "ウォレットのバックアップデータがあります "
+    vault_text4: "下記のQRコードをスキャンしてウォレット追加完了"
+    vault_text0_en: ""
+    vault_text1_en: ""
+    vault_text2_en: ""
+    vault_text3_en: ""
+    vault_text4_en: ""
+
 unit_bottom_sheet:
   basic_unit: "基本単位"
   header_text: "1 BTC = 100,000,000 sats"
 
 coconut_qr_scanner:
   reading_extra_data: "収集する追加データを読み取り中\nスキャンを続けてください"
+  camera_error:
+    title: "カメラを使用できません"
+    need_camera_permission: "設定でカメラの使用を許可してください。"
 
 # lib/screens/setting
 app_info_screen:
@@ -495,6 +607,8 @@ seed_qr_import_screen:
   title: "シードQRコードスキャン"
   error_title: "スキャンエラー"
   error_message: "シードQRコードのスキャン中にエラーが発生しました。再試行してください。"
+  format_error_title: "フォーマットエラー"
+  format_error_message: "シードQRコードのフォーマットが正しくありません。再試行してください。"
   guide: "シードQRコードをスキャンしてください。(21x21または25x25)"
 seed_qr_confirmation_screen:
   title: "ニーモニック確認"
@@ -508,42 +622,141 @@ vault_name_icon_setup_screen:
 # lib/screens/vault_creation/multisig
 assign_signers_screen:
   create_multisig_wallet_by_quorum: "$requiredSignatureCount/$totalSignatureCount ウォレット作成"
-  order_keys: "同じ順序を維持するためキー順序を並べ替えます"
   data_verifying: "データ検証中..."
   use_internal_key: "このボルトのキーを使用"
   select_key_option: "キータイプを選択"
-  use_internal_key_option: "キー選択"
   import_from_other_vault: "他のボルトからインポート"
+  import_from_hww: "ハードウェアウォレットからインポート"
+  hardware_wallet_type_selection: "ハードウェアウォレットの選択"
 
-confirm_importing_screen:
-  guide1: "他のボルトから"
-  guide2: "インポートした情報が"
+hardware_wallet_type:
+  vault: "ココナッツボルト"
+  keystone3pro: "Keystone 3 Pro"
+  keystone: "Keystone"
+  seedsigner: "SeedSigner"
+  jade: "Jade"
+  coldcard: "Coldcard"
+  krux: "Krux"
+
+multisig_creation_options_screen:
+  new_multisig: "新しいウォレットを作成"
+  import_bsms: "ウォレットのバックアップデータあり"
+
+multisig_sign_screen:
+  loading_overlay: "署名情報を生成します"
+  dialog:
+    preparation:
+      title: '$name 準備'
+      description_for_vault: '別のVaultで署名するには、鍵が保管されているVaultにBSMS（マルチシグウォレット）情報を追加する必要があります。BSMSのQRコードを表示しますか？'
+      description: '$hwwTypeで署名するには、鍵が保管されている$hwwTypeにBSMS（マルチシグウォレット）情報を追加する必要があります。BSMSのQRコードを表示しますか？'
+    signature_update:
+      title: "署名更新"
+      description: "署名が更新されました。"
+    signature_failed:
+      title: "署名失敗"
+    signature_update_failed:
+      title: "署名更新失敗"
+  creating_qr_code: "QRコードを生成します"
+  select_signer_hardware_wallet: "署名者ハードウェアウォレットを選択"
+  exception:
+    not_segwit: "サポートされていないトランザクション形式です。（noSegwit）"
+    invalid_sign_error: "署名情報が正しくありません。もう一度お試しください。"
+    needs_more_signature: "署名が完了していないトランザクションです。"
+    no_signature: "署名情報がありません。"
+
+import_confirmation_screen:
+  guide1: "$hwwTypeから"
+  guide2: "インポートした情報が$hwwType"
   guide3: "一致するか確認してください。"
   scan_info: "スキャン情報"
   memo: "メモ"
   placeholder: "キーの簡単なメモを追加"
-select_multisig_quorum_screen:
+  other_vault: "他のボルト"
+multisig_wallet_creation: "マルチシグウォレット作成"
+multisig_quorum_selection_screen:
   total_key_count: "総キー数"
   required_signature_count: "必要署名数"
-  one_or_two_of_n: "1つのキーが失われたり、1つのキー保持者が不在でもビットコインを送信できます。"
-  n_of_n: "ビットコインを送信するにはすべてのキーが必要です。1つのキーを失うだけで資金にアクセスできなくなるため、紛失には十分注意してください。"
-  one_of_n: "1つのキーだけでビットコインを移動できます。セキュリティが比較的低いため推奨されません。"
+  quorum_category:
+    loss_tolerant: "紛失耐性型"
+    balanced: "バランス型"
+    high_security: "高セキュリティ型"
+  quorum_message:
+    loss_tolerant: "1つの鍵だけで送金できます。\n紛失には強いですが、その鍵が漏洩すると全資金が危険になります。"
+    balanced: "紛失・盗難の両方に強いおすすめの構成です。\n送金には$m個の鍵だけが必要です。"
+    high_security: "送金には$m個の鍵が必要です。\n盗難に強い一方、鍵の管理には注意が必要です。"
+    highest_security: "送金にはすべての鍵が必要です。\n盗難に対して最も高い保護を提供しますが、管理の難易度も高くなります。"
 signer_scanner_bottom_sheet:
   title: "署名更新"
   guide: "他のボルトから署名を追加しましたか？追加された署名済みトランザクションのQRコードをスキャンして情報を更新してください。"
-signer_scanner_screen:
+
+bsms_scanner_base:
+  paste: "ペーストからインポート"
+
+coordinator_bsms_config_scanner_screen:
+  guide1: "Coconut Vault は、安全なマルチシグ管理標準である BSMS（BIP-129） をサポートしています。"
+  guide2: "BSMS QRコードをスキャンしてください。"
+  error_title: "形式が正しくありません"
+  error_message: "BSMSデータが無効です。正しいQRコードを再度スキャンしてください。"
+
+bsms_scanner_screen:
   import_bsms: "BSMSインポート"
   import_multisig_wallet: "マルチシグウォレットインポート"
+  select: "選択"
   guide1_1: "他のボルトで作成されたマルチシグウォレットをインポートできます。"
   guide1_2: "別のボールトのホーム画面で、"
-  guide1_3: "マルチシグウォレット "
-  guide1_4: "ウォレット設定表示を選択 "
+  guide1_3: "マルチシグウォレット"
+  guide1_4: "ウォレット設定表示を選択"
   guide1_5: "画面に表示されるQRコードをスキャンしてください。"
-  guide2_1: "使用したいキーがあるボルトのホーム画面で "
-  guide2_2: "ウォレット "
-  guide2_3: "マルチシグキーとして使用 "
-  guide2_4: "画面に表示されるQRコードをスキャンしてください。"
-  select: "選択"
+  coconut_vault:
+    guide2_1: "使用したいキーがあるボルトのホーム画面で"
+    guide2_2: "ウォレット"
+    guide2_3: "マルチシグキーとして使用"
+    guide2_4: "画面に表示されるQRコードをスキャンしてください。"
+  keystone3pro:
+    guide2_1: "Keystone 3 Proと互換性があります。"
+    guide2_2: "Keystoneのホーム画面で"
+    guide2_3: "左上のウォレットアイコン"
+    guide2_4: "Show/Export xPub"
+    guide2_5: "Multisig Wallet"
+    guide2_6: "Native Segwit オプション"
+    guide2_7: "のQRをスキャン"
+  seedsigner:
+    guide2_1: "シードを追加した後、"
+    guide2_2: "Export Xpub "
+    guide2_3: "Multisig - Native Segwit"
+    guide2_4: "BlueWallet"
+    guide2_5: "案内メッセージを確認した後"
+    guide2_6: "I Understand > Export Xpub"
+  jade:
+    guide2_1: "Active"
+    guide2_2: "状態で"
+    guide2_3: "Options"
+    guide2_4: "Wallet"
+    guide2_5: "Export Xpub"
+    guide2_6: "Wallet: Singlesig"
+    guide2_7: "Multisig"
+    guide2_8: "に変更して戻る"
+  cold_card:
+    guide2_1: "Settings"
+    guide2_2: "Multisig Wallets"
+    guide2_3: "Export XPUB"
+    guide2_4: "Enter"
+    guide2_5: "0を入力してEnter"
+    guide2_6: "QR"
+  krux:
+    guide2_1: "ニーモニック追加後、"
+    guide2_2: "ユーザー定義 (Custom)"
+    guide2_3: "証券の種類 > Multisig"
+    guide2_4: "< 戻る"
+    guide2_5: "ウォレットをロード"
+    guide2_6: "拡張公開キー"
+    guide2_7: "ZPUB - QRコード"
+    guide2_7_regtest: "VPUB - QRコード"
+
+bsms_paste_screen:
+  import_bsms: "BSMS文字列を入力してください。"
+  back_scan: "QRスキャンに戻る"
+  error_message: "正しいBSMS文字列を入力してください。"
 
 # lib/screens/vault_detail
 address_list_screen:
@@ -552,42 +765,56 @@ address_list_screen:
 export_detail_screen:
   title: "エクスポート詳細"
   info_copied: "詳細をコピーしました"
-multi_sig_bsms_screen:
-  bottom_sheet:
-    title: "ウォレット詳細"
-    info_copied: "ウォレット詳細をコピーしました"
-  title: "ウォレット設定情報"
+coordinator_bsms_qr_screen:
   guide:
-    text1: "安全なマルチシグウォレット管理のための標準に従ってウォレット設定情報を管理・共有します。"
+    text1: "他のボルトにこのウォレットを共有します。"
     text2: "すべてのキーはボルトに保存されています。"
-    text3: "同じキーを保存している他のボルトもこのQRを読み取ってマルチシグウォレットを追加できます。"
-    text4: "このマルチシグウォレットに指定された**$gen**キーのニーモニックフレーズは現在他のボルトにあります。"
-    text5: "**$gen**キー保存ウォレット - 下記のQRコードを**マルチシグウォレットインポート**で読み取ってください。この手順は**$gen**キーでマルチシグトランザクションに署名するために絶対に必要です。"
-  first_key: "$first"
-  first_and_last_keys: "$firstと$last"
-  first_or_last_key: "$firstまたは$last"
-  view_detail: "詳細表示"
 multi_sig_memo_bottom_sheet:
   imported_wallet_memo: "外部ウォレットメモ"
   placeholder: "メモを書いてください。"
 multi_sig_setting_screen:
   edit_memo: "メモ編集"
   add_memo: "メモ追加"
-  view_bsms: "ウォレット設定表示"
+  export_menu: 
+    export_wallet: "ウォレットエクスポート"
+    share_bsms: "他のボルトと共有"
+    share_bsms_description: "他のボルトにこのウォレットを共有します。"
+    export_watch_only_wallet: "ウォッチオンリーウォレットにエクスポート"
+    export_watch_only_wallet_description: "残高/アドレスの表示のみ可能なウォッチオンリーウォレットにエクスポートします。"
+    backup_wallet_data: "ウォレットデータバックアップ"
+    backup_wallet_data_description: "損失やデバイス変更に備えて、ウォレット復元に必要なBSMSデータをバックアップします。"
+    guide:
+      text1: "紛失や機種変更に備えたウォレット復元用のBSMSバックアップデータです。"
+      text2: "Coconut Walletに$nameウォレットを追加した後、ウォレット詳細画面の「ウォレットバックアップデータ表示」で同じ情報を確認できます。"
   tooltip: 
     one: "$total個のキー中$n個の署名が必要なマルチシグウォレット。"
     other: "$total個のキー中$n個の署名が必要なマルチシグウォレット。"
+  add_key: "キー追加"
+  add_key_option: "キー追加オプション"
+  input_mnemonic_word: "ニーモニックフレーズ入力"
+  scan_seed_qr: "シードQRスキャン"
+  add_signer:
+    title: "署名者選択"
+    coconut_vault: "Coconut Vault"
+    keystone3pro: "Keystone 3 Pro"
+    seed_signer: "SeedSigner"
+    jade: "Jade"
+    cold_card: "ColdCard"
+    krux: "Krux"
+  popup:  
+    title: "$name 選択完了"
+    description: "マルチシグ時に、$nameの設定に基づいて案内します"
+    button: "了解致しました"
 select_export_type_screen:
   title: "エクスポート"
 signer_bsms_screen:
   guide1_1: "他のボルトでマルチシグウォレットを作成しています！"
   guide1_2: "下記のQRコードをインポートBSMS画面でスキャンしてください。"
-  export_info: "エクスポート情報"
 sync_to_wallet_screen:
   title: "$name エクスポート"
   guide: 
     multisig: "Multisig"
-    coconut: "ホーム画面でウォレット追加アイコンを選択"
+    coconut: "ウォレット追加アイコン"
     sparrow_singlesig:
       guide0_1: "メニューから"
       guide1_1: "Import Wallet"
@@ -604,11 +831,13 @@ sync_to_wallet_screen:
       guide4_1_singlesig: "続行 - QRコードスキャン"
       guide4_1_multisig: "QRコードを使用して復元"
     bluewallet:
-      guide1_1: "右上の+ボタンをクリック"
+      guide1_1: "BlueWalletの右上の+ボタンをクリック"
       guide2_1: "Import Wallet"
       guide3_1: "QRコードまたはファイルをスキャン"
     common: "下記のQRコードをスキャンしてください。"
 vault_menu_screen:
+  export_wallet: "ウォレットエクスポート"
+  view_xpub: "XPub表示"
   title:  
     view_info: "$name情報"
     view_address: "アドレス表示"
@@ -624,7 +853,7 @@ vault_menu_screen:
     view_address: "$nameのアドレスを確認"
     export_xpub: "ウォレットにウォッチオンリーウォレットを追加"
     sign: "ウォレットで作成した情報をスキャンして署名"
-    use_as_multisig_signer: "他のボルトで自分のキーをマルチシグキーとして登録"
+    use_as_multisig_signer: "このキーを使用して他のボルトでマルチシグウォレットを構成します"
 vault_settings:
   used_in_multisig: "マルチシグウォレットで使用中"
   of: " の "
@@ -675,6 +904,8 @@ permission:
   secure_zone_authentication:
     title: "セキュアモジュールへのアクセス"
     description: "セキュアモジュールにアクセスするには認証が必要です。"
+  android_security_folder_auth:
+    description: "‼️ Security Folderを使用している場合は、PIN/Pattern/Password認証でアクセスしてください。"
 
 alert:
   delete_vault: 
@@ -745,6 +976,10 @@ alert:
   auth_canceled_when_encrypt:
     title: "デバイス認証がキャンセルされました"
     description: "ウォレット情報をセキュアエリアに保存するにはデバイスの認証が必要です。"
+  bsms_network_mismatch:
+    title: "無効なBSMSです"
+    description_when_mainnet: "このBSMSはテストネット用です。"
+    description_when_testnet: "このBSMSはメインネット用です。"
 
 toast:
   clipboard_copied: "クリップボードにコピーしました"
@@ -763,6 +998,7 @@ toast:
 errors:
   invalid_qr: "無効なQR。再度お試しください。"
   invalid_single_sig_qr_error: "無効なQR。再度お試しください。"
+  invalid_network_type_error: "拡張公開鍵のネットワークタイプが一致しません"
   invalid_multisig_qr_error: "無効なQR。\nマルチシグウォレットの「ウォレット設定表示」画面のQRコードをスキャンしてインポートしてください。"
   unsupport_bsms_version_error: "サポートされていないBSMSバージョン。BSMS 1.0のみサポートされています。"
   unsupport_derivation_path_error: "カスタム派生パスはサポートされていません"
@@ -777,6 +1013,7 @@ errors:
   retry_after: "$time後に再試行可能"
   invalid_word_error: "無効な単語。$filter"
   invalid_mnemonic_phrase: "無効なニーモニックフレーズ"
+  different_wallet: "同じ財布ではありません"
   data_loading_error: "データ読み込み中にエラーが発生しました"
   data_not_found_error: "データが見つかりません"
   cannot_sign_error: "このトランザクションに署名できません"
@@ -798,6 +1035,7 @@ exceptions:
   seed_invalidated: 
     title: "ウォレット使用不可"
     description: "保存されているウォレットはこれ以上使用できません。ウォレットを削除し、バックアップしておいたニーモニックで再度復元してください。"
+  needs_multisig_setup: "$name で署名するには、まずマルチシグウォレットを追加してください。"
 
 tooltip:
   mfp: "ウォレットの固有値。\nマスターフィンガープリント(MFP)とも呼ばれます。"

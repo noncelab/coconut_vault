@@ -18,7 +18,7 @@ class VaultTypeSelectionScreen extends StatefulWidget {
 class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
   String? nextPath;
   bool _showLoading = false;
-  List<String> routesOptions = [AppRoutes.vaultCreationOptions, AppRoutes.multisigQuorumSelection];
+  List<String> routesOptions = [AppRoutes.vaultCreationOptions, AppRoutes.multisigCreationOptions];
   late final WalletProvider _walletProvider;
 
   @override
@@ -53,9 +53,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
   }
 
   void onTapMultisigWallet() {
-    if (_walletProvider.vaultList.isNotEmpty) {
-      Navigator.pushNamed(context, routesOptions[1]);
-    }
+    Navigator.pushNamed(context, routesOptions[1]);
   }
 
   @override
@@ -78,12 +76,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                       true,
                     ),
                     CoconutLayout.spacing_300h,
-                    _buildOption(
-                      t.multisig_wallet,
-                      t.select_vault_type_screen.multisig,
-                      onTapMultisigWallet,
-                      _walletProvider.vaultList.isNotEmpty,
-                    ),
+                    _buildOption(t.multisig_wallet, t.select_vault_type_screen.multisig, onTapMultisigWallet, true),
                   ],
                 ),
                 Visibility(
@@ -102,6 +95,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
   }
 
   Widget _buildOption(String title, String description, VoidCallback onPressed, bool isSelectable) {
+    print('isSelectable: $isSelectable');
     return ShrinkAnimationButton(
       defaultColor: CoconutColors.gray150,
       pressedColor: CoconutColors.gray500.withValues(alpha: 0.1),

@@ -1,8 +1,10 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
@@ -12,15 +14,21 @@ import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/multisig_sign_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/airgap/multisig_info_qr_code_screen.dart';
+import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/screens/airgap/multisig_signer_qr_bottom_sheet.dart';
-import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
+import 'package:coconut_vault/screens/common/select_external_wallet_bottom_sheet.dart';
+import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_check_screen.dart';
+import 'package:coconut_vault/screens/airgap/multisig_psbt_qr_code_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
+import 'package:coconut_vault/utils/coconut/transaction_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
-import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -36,8 +44,9 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   late MultisigSignViewModel _viewModel;
   late BitcoinUnit _currentUnit;
   bool _showLoading = false;
-  bool _isProgressCompleted = false;
   bool _showFullAddress = false;
+  bool _isCupertinoLoadingShown = false;
+  String _cupertinoLoadingMessage = '';
 
   @override
   void initState() {
@@ -92,34 +101,13 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     return false;
   }
 
-  Future<void> _sign(bool isKeyInsideVault, int index) async {
-    if (isKeyInsideVault) {
-      if (!_viewModel.isSigningOnlyMode) {
-        // 안전 저장 모드
-        await _addSignatureToPsbtInStorageMode(index);
-      } else {
-        // 서명 전용 모드
-        await _addSignatureToPsbtInSigningOnlyMode(index);
-      }
+  Future<void> _signByInnerWallet(int index) async {
+    if (!_viewModel.isSigningOnlyMode) {
+      // 안전 저장 모드
+      await _addSignatureToPsbtInStorageMode(index);
     } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return CoconutPopup(
-            insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-            title: t.move_to_qr_screen,
-            description: t.move_to_qr_screen_description,
-            backgroundColor: CoconutColors.white,
-            leftButtonText: t.cancel,
-            rightButtonText: t.confirm,
-            rightButtonColor: CoconutColors.black,
-            onTapRight: () {
-              Navigator.pop(context);
-              _showQrBottomSheet(index);
-            },
-          );
-        },
-      );
+      // 서명 전용 모드
+      await _addSignatureToPsbtInSigningOnlyMode(index);
     }
   }
 
@@ -159,6 +147,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       });
 
       await _viewModel.sign(index, seed);
+      await _checkCompletedAndGoNext();
     } catch (error) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: error));
@@ -177,6 +166,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       });
 
       await _viewModel.signPsbtInSigningOnlyMode(index);
+      await _checkCompletedAndGoNext();
     } on UserCanceledAuthException catch (_) {
       return;
     } on SeedInvalidatedException catch (e) {
@@ -185,6 +175,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         context: context,
         builder:
             (context) => CoconutPopup(
+              languageCode: context.read<VisibilityProvider>().language,
               title: t.exceptions.seed_invalidated.title,
               description: e.message,
               onTapRight: () {
@@ -203,38 +194,227 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     }
   }
 
-  void _showQrBottomSheet(int index) {
-    MyBottomSheet.showBottomSheet_90(
-      context: context,
-      child: SignerQrBottomSheet(
-        multisigName: _viewModel.walletName,
-        keyIndex: '${index + 1}',
-        signedRawTx: _viewModel.psbtForSigning,
-      ),
-    );
+  Future<bool> _checkCompletedAndGoNext({bool shouldPopBeforeNavigate = false}) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!_viewModel.isSignatureCompleted) return false;
+
+    if (shouldPopBeforeNavigate) {
+      if (mounted) {
+        Navigator.pop(context);
+      } else {
+        return false;
+      }
+    }
+
+    setState(() {
+      _cupertinoLoadingMessage = t.multisig_sign_screen.creating_qr_code;
+      _isCupertinoLoadingShown = true;
+    });
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    setState(() {
+      _isCupertinoLoadingShown = false;
+    });
+    _viewModel.saveSignedResult();
+
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, AppRoutes.signedTransaction);
+      return true;
+    }
+    return false;
   }
 
-  void _askIfSureToQuit() {
+  void _showDialogForImportMultisig(int signerIndex, HardwareWalletType hwwType, String multisigInfoQrData) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-          title: t.alert.exit_sign.title,
-          description: t.alert.exit_sign.description,
+          title: t.multisig_sign_screen.dialog.preparation.title(name: hwwType.displayName),
+          description:
+              hwwType == HardwareWalletType.coconutVault
+                  ? t.multisig_sign_screen.dialog.preparation.description_for_vault
+                  : t.multisig_sign_screen.dialog.preparation.description(hwwType: hwwType.displayName),
           backgroundColor: CoconutColors.white,
-          leftButtonText: t.no,
-          leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
-          rightButtonText: t.yes,
-          rightButtonColor: CoconutColors.warningText,
-          onTapLeft: () => Navigator.pop(context),
+          leftButtonText: t.skip,
+          rightButtonText: t.confirm,
+          rightButtonColor: CoconutColors.black,
           onTapRight: () {
-            _viewModel.resetAll();
-            Navigator.popUntil(context, (route) => route.isFirst);
+            Navigator.pop(context);
+            // 하드월렛 추가 정보 QR 뷰 보여주기
+            _showMultisigBsmsQrCodeBottomSheet(signerIndex, hwwType, multisigInfoQrData);
+          },
+          onTapLeft: () {
+            Navigator.pop(context);
+            // PSBT QR 뷰 보여주기
+            _showPsbtQrCodeBottomSheet(hwwType, signerIndex: signerIndex);
           },
         );
       },
     );
+  }
+
+  void _showMultisigBsmsQrCodeBottomSheet(int signerIndex, HardwareWalletType hwwType, String multisigInfoQrData) {
+    final mfp = _viewModel.signers[signerIndex].keyStore.masterFingerprint;
+    MyBottomSheet.showBottomSheet_95(
+      context: context,
+      child: MultisigQrCodeViewScreen(
+        multisigName: _viewModel.walletName,
+        keyIndex: '${signerIndex + 1}',
+        signedRawTx: _viewModel.psbtForSigning,
+        hardwareWalletType: hwwType,
+        qrData: multisigInfoQrData,
+        mfp: mfp,
+        onNextPressed: () async {
+          await Future.delayed(const Duration(milliseconds: 300));
+          if (!mounted) return;
+          _showPsbtQrCodeBottomSheet(hwwType, signerIndex: signerIndex);
+        },
+      ),
+    );
+  }
+
+  void _showPsbtQrCodeBottomSheet(HardwareWalletType hwwType, {int? signerIndex}) {
+    final masterFingerprint = signerIndex != null ? _viewModel.signers[signerIndex].keyStore.masterFingerprint : null;
+    MyBottomSheet.showBottomSheet_95(
+      context: context,
+      child: PsbtQrCodeViewScreen(
+        multisigName: _viewModel.walletName,
+        index: signerIndex,
+        signedRawTx: _viewModel.psbtForSigning,
+        hardwareWalletType: hwwType,
+        masterFingerprint: masterFingerprint,
+        onNextPressed:
+            signerIndex == null
+                ? null
+                : () async {
+                  Navigator.pop(context); // 현재 다이얼로그 닫기
+
+                  await Future.delayed(const Duration(milliseconds: 300));
+                  if (!mounted) return;
+                  _showPsbtScannerBottomSheet(hwwType, signerIndex: signerIndex);
+                },
+      ),
+    );
+  }
+
+  /// signerIndex == null : 화면 하단 'QR 스캔하기' 버튼을 누른 경우
+  /// signerIndex != null : SignerList 중 하나를 눌러 서명하기 진행하는 경우
+  void _showPsbtScannerBottomSheet(HardwareWalletType hwwType, {int? signerIndex}) {
+    MyBottomSheet.showBottomSheet_95(
+      context: context,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        child: PsbtScannerScreen(
+          id: _viewModel.vaultId,
+          hardwareWalletType: hwwType,
+          onMultisigPsbtScanned: (String scannedData) async {
+            try {
+              bool isRawTxHexString = isRawTransactionHexString(scannedData);
+              if (isRawTxHexString) {
+                _viewModel.validateRawSignedTransaction(scannedData);
+                _viewModel.saveSignedRawTxHex(scannedData);
+              } else {
+                _viewModel.onScannedPsbt(scannedData, isOverwrite: signerIndex == null);
+              }
+
+              bool navigated = false;
+              navigated = await _checkCompletedAndGoNext(shouldPopBeforeNavigate: true);
+
+              // 서명이 모두 완료되어 _checkAndShowCreatingQrCode 안에서 화면 전환이 일어난 경우
+              // (Navigator.pushReplacementNamed 호출)에는 추가 pop을 하지 않는다.
+              if (navigated) {
+                return;
+              }
+
+              if (!mounted) return;
+              Navigator.pop(context);
+
+              // 바텀시트가 닫힌 후 서명 정보 업데이트 완료 안내
+              if (signerIndex == null && mounted) {
+                await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return CoconutPopup(
+                      languageCode: context.read<VisibilityProvider>().language,
+                      title: t.multisig_sign_screen.dialog.signature_update.title,
+                      description: t.multisig_sign_screen.dialog.signature_update.description,
+                      onTapRight: () {
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                );
+              }
+            } on FormatException catch (e) {
+              await showInfoPopup(
+                context,
+                signerIndex != null
+                    ? t.multisig_sign_screen.dialog.signature_failed.title
+                    : t.multisig_sign_screen.dialog.signature_update_failed.title,
+                e.message,
+              );
+              if (mounted) {
+                Navigator.of(context).pop(); // close this bottom sheet
+              }
+              return;
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Future<HardwareWalletType?> _showHardwareSelectionBottomSheet({int? index, bool isFromBottomButton = false}) async {
+    // 하단의 'QR 스캔하기'로 들어온 경우 index는 null
+
+    HardwareWalletType? hwwType;
+
+    final iconSourceList = [
+      kCoconutVaultIconPath,
+      kKeystoneIconPath,
+      kSeedSignerIconPath,
+      kJadeIconPath,
+      kColdCardIconPath,
+      kKruxIconPath,
+    ];
+
+    final externalWalletButtonList = [
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.coconut_vault, iconSource: iconSourceList[0]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.keystone3pro, iconSource: iconSourceList[1]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.seed_signer, iconSource: iconSourceList[2]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.jade, iconSource: iconSourceList[3]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.cold_card, iconSource: iconSourceList[4]),
+      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.krux, iconSource: iconSourceList[5]),
+    ];
+    await MyBottomSheet.showDraggableBottomSheet<HardwareWalletType?>(
+      context: context,
+      showDragHandle: false,
+      maxChildSize: 0.45,
+      minChildSize: 0.2,
+      initialChildSize: 0.45,
+      childBuilder:
+          (context) => SelectExternalWalletBottomSheet(
+            title:
+                index == null
+                    ? t.multisig_sign_screen.select_signer_hardware_wallet
+                    : t.multi_sig_setting_screen.add_signer.title,
+            externalWalletButtonList: externalWalletButtonList,
+            showConfirmDialog: !isFromBottomButton,
+            selectedIndex: null,
+            onSelected: (selectedIndex) {
+              hwwType = HardwareWalletTypeExtension.getHardwareWalletTypeByIconPath(iconSourceList[selectedIndex]);
+              // if (hwwType != null && index != null) {
+              //   // 선택 후 볼트 정보에서도 아이콘을 적용합니다
+              //   _viewModel.updateSignerSource(index, hwwType!);
+              // }
+            },
+          ),
+    );
+    return hwwType;
   }
 
   void _askIfSureToGoBack() {
@@ -242,6 +422,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       context: context,
       builder: (BuildContext context) {
         return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.alert.stop_sign.title,
           description: t.alert.stop_sign.description,
@@ -289,6 +470,37 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   context: context,
                   onBackPressed: _onBackPressed,
                   backgroundColor: CoconutColors.white,
+                  actionButtonList: [
+                    SizedBox(
+                      height: 40,
+                      width: 40,
+                      child: IconButton(
+                        icon: SvgPicture.asset('assets/svg/log-out.svg'),
+                        highlightColor: CoconutColors.gray200,
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder:
+                                (context) => CoconutPopup(
+                                  languageCode: context.read<VisibilityProvider>().language,
+                                  title: t.alert.exit_sign.title,
+                                  description: t.alert.exit_sign.description,
+                                  backgroundColor: CoconutColors.white,
+                                  leftButtonText: t.no,
+                                  leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
+                                  rightButtonText: t.yes,
+                                  rightButtonColor: CoconutColors.warningText,
+                                  onTapLeft: () => Navigator.pop(context),
+                                  onTapRight: () {
+                                    Navigator.popUntil(context, (route) => route.isFirst);
+                                  },
+                                ),
+                          );
+                        },
+                        color: CoconutColors.white,
+                      ),
+                    ),
+                  ],
                 ),
                 body: SafeArea(
                   child: Stack(
@@ -297,26 +509,23 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 36),
-                              child: Text(
-                                viewModel.isSignatureComplete
-                                    ? t.sign_completed
-                                    : t.sign_required_amount(n: viewModel.remainingSignatures),
-                                style: CoconutTypography.heading4_18_Bold,
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
                             CoconutLayout.spacing_600h,
                             _buildSendInfo(),
-                            CoconutLayout.spacing_1400h,
+                            CoconutLayout.spacing_1300h,
+                            Text(
+                              viewModel.isSignatureCompleted
+                                  ? t.sign_completed
+                                  : t.sign_required_amount(n: viewModel.remainingSignatures),
+                              style: CoconutTypography.body1_16_Bold,
+                              textAlign: TextAlign.center,
+                            ),
+                            CoconutLayout.spacing_600h,
                             _buildSignerList(),
                             CoconutLayout.spacing_2500h,
                           ],
                         ),
                       ),
                       _buildBottomButtons(),
-                      _buildProgressIndicator(),
                       Visibility(
                         visible: _showLoading,
                         child: Container(
@@ -324,6 +533,19 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                           height: MediaQuery.of(context).size.height,
                           decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
                           child: const Center(child: CircularProgressIndicator(color: CoconutColors.gray800)),
+                        ),
+                      ),
+                      Visibility(
+                        visible: _isCupertinoLoadingShown,
+                        child: Container(
+                          decoration: BoxDecoration(color: CoconutColors.black.withValues(alpha: 0.3)),
+                          child: Center(
+                            child: MessageActivityIndicator(
+                              message: _cupertinoLoadingMessage,
+                              isCupertinoIndicator: true,
+                              padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 45),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -340,75 +562,99 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     super.dispose();
   }
 
-  Widget _buildProgressIndicator() {
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: TweenAnimationBuilder<double>(
-        tween: Tween<double>(
-          begin: 0.0,
-          end: _viewModel.signersApproved.where((item) => item).length / _viewModel.requiredSignatureCount,
-        ),
-        duration: const Duration(milliseconds: 1500),
-        builder: (context, value, child) {
-          if (value == 1.0) {
-            _isProgressCompleted = true;
-          } else {
-            _isProgressCompleted = false;
-          }
-          return LinearProgressIndicator(
-            value: value,
-            minHeight: 6,
-            backgroundColor: CoconutColors.black.withValues(alpha: 0.06),
-            borderRadius:
-                _isProgressCompleted
-                    ? BorderRadius.zero
-                    : const BorderRadius.only(topRight: Radius.circular(6), bottomRight: Radius.circular(6)),
-            valueColor: const AlwaysStoppedAnimation<Color>(CoconutColors.black),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildSendInfo() {
     final addressPostfix =
         _viewModel.recipientCount > 1 ? '\n${t.extra_count(count: _viewModel.recipientCount - 1)}' : '';
     final address =
         _showFullAddress
             ? _viewModel.firstRecipientAddress
-            : '${_viewModel.firstRecipientAddress.substring(0, 6)}...${_viewModel.firstRecipientAddress.substring(_viewModel.firstRecipientAddress.length - 6)}';
+            : '${_viewModel.firstRecipientAddress.substring(0, 11)}...${_viewModel.firstRecipientAddress.substring(_viewModel.firstRecipientAddress.length - 8)}';
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28.0),
-          color: CoconutColors.black.withValues(alpha: 0.03),
-        ),
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            children: [
-              InformationItemCard(
-                label: t.recipient,
-                value: ['$address$addressPostfix'],
-                isNumber: true,
-                onPressed: () {
-                  setState(() {
-                    _showFullAddress = !_showFullAddress;
-                  });
-                },
-              ),
-              const Divider(color: CoconutColors.borderLightGray, height: 1),
-              InformationItemCard(
-                label: t.send_amount,
-                value: [_currentUnit.displayBitcoinAmount(_viewModel.sendingAmount, withUnit: true)],
-                isNumber: true,
-                onPressed: _toggleUnit,
-              ),
-            ],
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.0), color: CoconutColors.gray150),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(t.recipient, style: CoconutTypography.body2_14.setColor(CoconutColors.gray700)),
+                    ),
+                    CoconutLayout.spacing_400w,
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          setState(() {
+                            _showFullAddress = !_showFullAddress;
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 200),
+                            switchInCurve: Curves.easeInOut,
+                            switchOutCurve: Curves.easeInOut,
+                            transitionBuilder: (Widget child, Animation<double> animation) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: SizeTransition(sizeFactor: animation, axisAlignment: 1.0, child: child),
+                              );
+                            },
+                            child: Align(
+                              key: ValueKey('$_showFullAddress$address'),
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                '$address$addressPostfix',
+                                textAlign: TextAlign.end,
+                                style: CoconutTypography.body2_14,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                CoconutLayout.spacing_100h,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(t.send_amount, style: CoconutTypography.body2_14.setColor(CoconutColors.gray700)),
+                    ),
+                    CoconutLayout.spacing_400w,
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          _toggleUnit();
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(
+                            _currentUnit.displayBitcoinAmount(_viewModel.sendingAmount, withUnit: true),
+                            textAlign: TextAlign.end,
+                            style: CoconutTypography.body2_14_Number,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -425,61 +671,94 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               final isInnerWallet = signer.innerVaultId != null;
               final name = signer.name ?? t.external_wallet;
               final nameText = name.length > 6 ? '${name.substring(0, 6)}...' : name;
-              final memo = signer.memo;
               final iconIndex = signer.iconIndex ?? 0;
-              final colorIndex = _viewModel.signers[index].colorIndex ?? 0;
               final isSignerApproved = _viewModel.signersApproved[index];
+              var hwwType = _viewModel.getSignerHwwType(index);
+
               return ShrinkAnimationButton(
-                onPressed: () {
+                onPressed: () async {
                   if (isSignerApproved) {
                     return;
                   }
-                  _sign(isInnerWallet, index);
+
+                  if (isInnerWallet) {
+                    _signByInnerWallet(index);
+                    return;
+                  }
+
+                  hwwType ??= await _showHardwareSelectionBottomSheet(index: index);
+                  if (hwwType == null) return;
+
+                  setState(() {
+                    _cupertinoLoadingMessage = t.multisig_sign_screen.loading_overlay;
+                    _isCupertinoLoadingShown = true;
+                  });
+
+                  await Future.delayed(const Duration(seconds: 2));
+                  if (mounted) {
+                    setState(() {
+                      _isCupertinoLoadingShown = false;
+                    });
+                  }
+                  switch (hwwType) {
+                    case HardwareWalletType.krux:
+                    case HardwareWalletType.keystone:
+                    case HardwareWalletType.coconutVault:
+                      final multisigInfoQrData = _viewModel.getMultisigInfoQrData(hwwType!);
+                      if (multisigInfoQrData == null) {
+                        return;
+                      }
+                      _showDialogForImportMultisig(index, hwwType!, multisigInfoQrData);
+                      break;
+                    case HardwareWalletType.seedSigner:
+                    case HardwareWalletType.jade:
+                    case HardwareWalletType.coldCard:
+                      _showPsbtQrCodeBottomSheet(hwwType!, signerIndex: index);
+                      break;
+                    default:
+                      return;
+                  }
                 },
-                defaultColor:
-                    isSignerApproved
-                        ? isInnerWallet
-                            ? CoconutColors.backgroundColorPaletteLight[colorIndex]
-                            : CoconutColors.backgroundColorPaletteLight[8]
-                        : CoconutColors.white,
-                pressedColor:
-                    isSignerApproved
-                        ? isInnerWallet
-                            ? CoconutColors.backgroundColorPaletteLight[colorIndex].withAlpha(70)
-                            : CoconutColors.backgroundColorPaletteLight[8].withAlpha(70)
-                        : CoconutColors.gray150,
+                defaultColor: isSignerApproved ? const Color(0xFF88C125).withAlpha(16) : CoconutColors.white,
+                pressedColor: isSignerApproved ? const Color(0xFF88C125).withAlpha(70) : CoconutColors.gray150,
                 borderRadius: 100,
                 borderWidth: 1,
-                border: Border.all(
-                  color:
-                      isSignerApproved
-                          ? isInnerWallet
-                              ? CoconutColors.backgroundColorPaletteLight[colorIndex].withAlpha(70)
-                              : CoconutColors.gray300
-                          : CoconutColors.gray200,
-                  width: 1,
-                ),
+                border: Border.all(color: isSignerApproved ? const Color(0xFF88C125) : CoconutColors.gray200, width: 1),
                 child: Container(
-                  width: 210,
-                  height: 64,
+                  width: MediaQuery.sizeOf(context).width * 0.9,
+                  height: 72,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SvgPicture.asset(
-                        isInnerWallet ? CustomIcons.getPathByIndex(iconIndex) : 'assets/svg/qr-code.svg',
-                        colorFilter: ColorFilter.mode(
-                          isInnerWallet ? CoconutColors.colorPalette[colorIndex] : CoconutColors.black,
-                          BlendMode.srcIn,
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        transitionBuilder: (Widget child, Animation<double> animation) {
+                          return ScaleTransition(
+                            scale: animation,
+                            child: FadeTransition(opacity: animation, child: child),
+                          );
+                        },
+                        child: SvgPicture.asset(
+                          isSignerApproved
+                              ? 'assets/svg/check-circle-green.svg'
+                              : _getHardwareWalletIconPath(hwwType, isInnerWallet, iconIndex: iconIndex),
+                          width: 24.0,
+                          colorFilter:
+                              isSignerApproved ? null : const ColorFilter.mode(CoconutColors.gray300, BlendMode.srcIn),
+                          key: ValueKey<bool>(isSignerApproved),
                         ),
-                        width: 14.0,
                       ),
                       CoconutLayout.spacing_300w,
                       Flexible(
                         child: MediaQuery(
                           data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
                           child: Text(
-                            '${isInnerWallet ? nameText : memo ?? t.external_wallet} - ${isSignerApproved ? t.sign_completion : t.sign}',
+                            '${isInnerWallet ? nameText : signer.keyStore.masterFingerprint} - ${isSignerApproved
+                                ? t.sign_completion
+                                : isInnerWallet
+                                ? t.sign
+                                : t.add_sign}',
                             style: CoconutTypography.body1_16,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -499,75 +778,42 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     );
   }
 
+  String _getHardwareWalletIconPath(HardwareWalletType? hwwType, bool isInnerWallet, {int? iconIndex}) {
+    debugPrint('hwwType: $hwwType');
+    if (isInnerWallet) {
+      return CustomIcons.getPathByIndex(iconIndex ?? 0);
+    }
+    if (hwwType == null) {
+      return 'assets/svg/check-circle-outlined.svg';
+    }
+    return hwwType.iconPath;
+  }
+
   Widget _buildBottomButtons() {
     return Selector<MultisigSignViewModel, bool>(
-      selector: (_, viewModel) => viewModel.isSignatureComplete,
+      selector: (_, viewModel) => viewModel.isSignatureCompleted,
       builder: (context, isSignatureComplete, child) {
-        return Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
-            child: SizedBox(
-              width: MediaQuery.sizeOf(context).width,
-              child: Row(
-                children: [
-                  Flexible(
-                    flex: 1,
-                    child: SizedBox(
-                      width: MediaQuery.sizeOf(context).width,
-                      height: 50,
-                      child: ShrinkAnimationButton(
-                        defaultColor: CoconutColors.gray300,
-                        onPressed: _askIfSureToQuit,
-                        borderRadius: CoconutStyles.radius_200,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.center,
-                            child: Text(t.abort, style: CoconutTypography.body2_14_Bold, textAlign: TextAlign.center),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  CoconutLayout.spacing_200w,
-                  Flexible(
-                    flex: 2,
-                    child: SizedBox(
-                      width: MediaQuery.sizeOf(context).width,
-                      height: 50,
-                      child: ShrinkAnimationButton(
-                        isActive: isSignatureComplete,
-                        disabledColor: CoconutColors.gray150,
-                        defaultColor: CoconutColors.black,
-                        onPressed: () {
-                          _viewModel.saveSignedPsbt();
-                          Navigator.pushNamed(context, AppRoutes.signedTransaction);
-                        },
-                        pressedColor: CoconutColors.gray400,
-                        borderRadius: CoconutStyles.radius_200,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            alignment: Alignment.center,
-                            child: Text(
-                              t.next,
-                              style: CoconutTypography.body2_14_Bold.setColor(
-                                isSignatureComplete ? CoconutColors.white : CoconutColors.gray350,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        return FixedBottomTweenButton(
+          leftButtonClicked: () async {
+            final hwwType = await _showHardwareSelectionBottomSheet(isFromBottomButton: true);
+            if (hwwType != null) {
+              _showPsbtQrCodeBottomSheet(hwwType);
+            }
+          },
+          rightButtonClicked: () async {
+            final hwwType = await _showHardwareSelectionBottomSheet(isFromBottomButton: true);
+            if (hwwType != null) {
+              _showPsbtScannerBottomSheet(hwwType);
+            }
+          },
+          leftText: t.export_qr,
+          rightText: t.scan_qr,
+          leftButtonBackgroundColor: CoconutColors.white,
+          rightButtonBackgroundColor: CoconutColors.white,
+          leftButtonTextColor: CoconutColors.black,
+          rightButtonTextColor: CoconutColors.black,
+          leftButtonBorderColor: CoconutColors.gray400,
+          rightButtonBorderColor: CoconutColors.gray400,
         );
       },
     );

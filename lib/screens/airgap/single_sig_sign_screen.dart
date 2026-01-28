@@ -13,7 +13,7 @@ import 'package:coconut_vault/providers/view_model/airgap/single_sig_sign_view_m
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/screens/vault_menu/info/passphrase_check_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_check_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -162,6 +162,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
         context: context,
         builder:
             (context) => CoconutPopup(
+              languageCode: context.read<VisibilityProvider>().language,
               title: t.exceptions.seed_invalidated.title,
               description: e.message,
               onTapRight: () {
@@ -185,6 +186,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
       context: context,
       builder: (BuildContext context) {
         return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.alert.exit_sign.title,
           description: t.alert.exit_sign.description,

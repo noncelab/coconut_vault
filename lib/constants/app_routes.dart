@@ -1,6 +1,5 @@
 class AppRoutes {
   static const String vaultTypeSelection = '/select-vault-type';
-  static const String multisigQuorumSelection = '/select-multisig-quorum';
   static const String signerAssignment = '/assign-signers';
   static const String vaultCreationOptions = '/vault-creation-options';
   static const String mnemonicImport = '/mnemonic-import';
@@ -15,12 +14,18 @@ class AppRoutes {
   static const String multisigBsmsView = '/multisig-bsms';
   static const String mnemonicWordList = '/mnemonic-word-list';
   static const String addressList = '/address-list';
+  static const String multisigCreationOptions = '/multisig-creation-options';
+  static const String multisigQuorumSelection = '/select-multisig-quorum';
+  static const String coordinatorBsmsConfigScanner = '/coordinator-bsms-config-scanner';
+  static const String viewXpub = '/view-xpub';
   static const String signerBsmsScanner = '/signer-scanner';
   static const String psbtScanner = '/psbt-scanner';
   static const String psbtConfirmation = '/psbt-confirmation';
   static const String signedTransaction = '/signed-transaction';
   static const String syncToWallet = '/sync-to-wallet';
   static const String multisigSignerBsmsExport = '/signer-bsms';
+  static const String vaultExportOptions = '/vault-export-options';
+  static const String backupWalletData = '/backup-wallet-data';
   static const String multisigSign = '/multi-signature';
   static const String singleSigSign = '/single-sig-sign';
   static const String securitySelfCheck = '/security-self-check';
@@ -34,4 +39,5 @@ class AppRoutes {
   static const String mnemonicCoinflip = '/mnemonic-coinflip';
   static const String mnemonicDiceRoll = '/mnemonic-dice-roll';
   static const String mnemonicAutoGen = '/mnemonic-auto-gen';
+  static const String bsmsPaste = '/bsms-paste';
 }

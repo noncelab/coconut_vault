@@ -1,10 +1,13 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
+import 'package:coconut_vault/utils/app_settings_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_fragmented_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/scan_data_handler_exceptions.dart';
+import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -16,6 +19,7 @@ class CoconutQrScanner extends StatefulWidget {
   final Function(MobileScannerController) setQrViewController;
   final Function(dynamic) onComplete;
   final Function(String) onFailed;
+  final Function(MobileScannerException)? onScannerInitError;
   final Color borderColor;
   final IQrScanDataHandler qrDataHandler;
 
@@ -26,6 +30,7 @@ class CoconutQrScanner extends StatefulWidget {
     required this.onFailed,
     required this.qrDataHandler,
     this.borderColor = CoconutColors.white,
+    this.onScannerInitError,
   });
 
   @override
@@ -40,8 +45,9 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   double scannerLoadingVerticalPos = 0;
   bool _showLoadingBar = false;
   bool _isFirstScanData = true;
+  bool _isShowedCameraPermissionDialog = false;
 
-  MobileScannerController? _controller;
+  late MobileScannerController _controller;
 
   late AppLifecycleStateProvider _appLifecycleStateProvider;
 
@@ -51,6 +57,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
     _appLifecycleStateProvider = Provider.of<AppLifecycleStateProvider>(context, listen: false);
     _appLifecycleStateProvider.startOperation(AppLifecycleOperations.cameraAuthRequest, ignoreNotify: true);
     _controller = MobileScannerController()..addListener(_onCameraStateChanged);
+    widget.setQrViewController(_controller);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final rect = getQrViewRect();
       if (rect != null) {
@@ -71,6 +78,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   void dispose() {
     _progressNotifier.dispose();
     _controller?.removeListener(_onCameraStateChanged);
+    _controller?.dispose();
     if (_appLifecycleStateProvider.ignoredOperations.contains(AppLifecycleOperations.cameraAuthRequest)) {
       _appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
     }
@@ -143,7 +151,11 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
 
       if (handler.isCompleted()) {
         _resetLoadingBarState();
-        final result = handler.result!;
+        final result = handler.result;
+        if (result == null) {
+          widget.onFailed(CoconutQrScanner.qrInvalidErrorMessage);
+          return;
+        }
         widget.onComplete(result);
       }
     } catch (e) {
@@ -169,9 +181,38 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
+        final Size layoutSize = constraints.biggest;
+        // ScannerOverlay와 동일한 크기의 정사각형 스캔 영역 계산
+        final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context);
+        final Rect scanWindow = Rect.fromCenter(
+          center: layoutSize.center(Offset.zero),
+          width: scanAreaSize,
+          height: scanAreaSize,
+        );
+
         return Stack(
           children: [
-            MobileScanner(controller: _controller, onDetect: _onDetect),
+            MobileScanner(
+              controller: _controller,
+              scanWindow: scanWindow,
+              onDetect: _onDetect,
+              errorBuilder: (context, error) {
+                if (widget.onScannerInitError != null) {
+                  widget.onScannerInitError!(error);
+                }
+
+                if (error.errorCode == MobileScannerErrorCode.permissionDenied && !_isShowedCameraPermissionDialog) {
+                  _isShowedCameraPermissionDialog = true;
+                  WidgetsBinding.instance.addPostFrameCallback((_) async {
+                    if (!mounted) return;
+                    await _showCameraPermissionDialog();
+                    if (!mounted) return;
+                    Navigator.pop(context);
+                  });
+                }
+                return Center(child: Text(error.errorCode.message));
+              },
+            ),
             const ScannerOverlay(),
             _buildProgressOverlay(context),
           ],
@@ -180,12 +221,21 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
     );
   }
 
-  Widget _buildProgressOverlay(BuildContext context) {
-    final scanAreaSize =
-        (MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
-            ? 320.0
-            : MediaQuery.of(context).size.width * 0.85;
+  Future<void> _showCameraPermissionDialog() async {
+    await showConfirmDialog(
+      context,
+      context.read<PreferenceProvider>().language,
+      t.coconut_qr_scanner.camera_error.title,
+      t.coconut_qr_scanner.camera_error.need_camera_permission,
+      rightButtonText: t.go_to_settings,
+      onTapRight: () {
+        openAppSettings();
+      },
+    );
+  }
 
+  Widget _buildProgressOverlay(BuildContext context) {
+    final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context);
     final scanAreaTop = (MediaQuery.of(context).size.height - scanAreaSize) / 2;
     final scanAreaBottom = scanAreaTop + scanAreaSize;
 

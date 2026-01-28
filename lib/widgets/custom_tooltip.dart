@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class CustomTooltip {
+  /// QR 스캐너와 같이 뒷 배경이 어두운 경우 paddingTop을 20으로 설정해야 합니다.
   static Widget buildInfoTooltip(
     BuildContext context, {
     required RichText richText,
     bool isBackgroundWhite = true,
-    double paddingTop = 20,
+    double paddingTop = 4,
   }) {
     return Padding(
       padding: EdgeInsets.only(top: paddingTop, left: 16, right: 16),

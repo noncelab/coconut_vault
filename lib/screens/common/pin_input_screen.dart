@@ -7,7 +7,6 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/widgets/button/key_button.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:local_auth/local_auth.dart';

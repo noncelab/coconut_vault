@@ -16,6 +16,14 @@ class PreferenceProvider extends ChangeNotifier {
   late List<int> _favoriteVaultIds;
   List<int> get favoriteVaultIds => _favoriteVaultIds;
 
+  /// 언어 설정
+  late String _language;
+  String get language => _language;
+
+  bool get isKorean => _language == "kr";
+  bool get isEnglish => _language == "en";
+  bool get isJapanese => _language == "jp";
+
   bool get isSigningOnlyMode => getVaultMode() == VaultMode.signingOnly;
 
   late (double?, double?) _signingModeEdgePanelPos;
@@ -25,6 +33,8 @@ class PreferenceProvider extends ChangeNotifier {
     _vaultOrder = _getVaultOrder();
     _favoriteVaultIds = _getFavoriteVaultIds();
     _signingModeEdgePanelPos = getSigningModeEdgePanelPos();
+
+    _language = _getLanguage();
   }
 
   /// 지갑 순서 불러오기
@@ -116,5 +126,14 @@ class PreferenceProvider extends ChangeNotifier {
     final posY = _sharedPrefs.getDouble(SharedPrefsKeys.kSigningModeEdgePanelPosY);
     _signingModeEdgePanelPos = (posX, posY);
     return _signingModeEdgePanelPos;
+  }
+
+  String _getLanguage() {
+    final lang = _sharedPrefs.getString(SharedPrefsKeys.kLanguage);
+
+    if (lang.isEmpty) {
+      return "en";
+    }
+    return lang;
   }
 }

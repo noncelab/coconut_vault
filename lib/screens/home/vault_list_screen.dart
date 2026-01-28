@@ -3,8 +3,6 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
-import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
@@ -286,21 +284,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       },
       itemBuilder: (context, index) {
         VaultListItemBase vault = _viewModel.vaults.firstWhere((w) => w.id == _viewModel.tempVaultOrder[index]);
-        // 삭제 가능한 조건
-        // MultisigVaultListItem 인 경우 삭제 가능
-        // SingleSigVaultListItem 인 경우 연결된 MultisigVaultListItem 이 없는 경우 삭제 가능
-        // 연결된 MultisigVaultListItem 이 있는 경우 연결된 MultisigVaultListItem 이 먼저 Dismiss된 경우 삭제 가능
-        var canDismiss = false;
-        if (vault is MultisigVaultListItem) {
-          canDismiss = true;
-        } else {
-          if ((vault as SingleSigVaultListItem).linkedMultisigInfo?.entries.isEmpty == true ||
-              vault.linkedMultisigInfo?.entries == null ||
-              (vault.linkedMultisigInfo?.entries.isNotEmpty == true &&
-                  vault.linkedMultisigInfo!.entries.every((entry) => !_viewModel.tempVaultOrder.contains(entry.key)))) {
-            canDismiss = true;
-          }
-        }
+
         return Dismissible(
           key: ValueKey(vault.id),
           direction: DismissDirection.endToStart,
@@ -315,16 +299,9 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
             ),
           ),
           confirmDismiss: (direction) async {
-            if (!canDismiss) {
-              CoconutToast.showToast(context: context, text: t.toast.name_multisig_in_use, isVisibleIcon: true);
-              return false; // 되돌리기
-            }
             return true;
           },
           onDismissed: (direction) {
-            if (!canDismiss) {
-              return;
-            }
             _viewModel.removeTempWalletOrderByWalletId(vault.id);
           },
           child: KeyedSubtree(
@@ -426,6 +403,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
               context: context,
               builder: (BuildContext context) {
                 return CoconutPopup(
+                  languageCode: context.read<VisibilityProvider>().language,
                   title: t.vault_list_screen.edit.finish,
                   description: t.vault_list_screen.edit.unsaved_changes_confirm_exit,
                   leftButtonText: t.no,

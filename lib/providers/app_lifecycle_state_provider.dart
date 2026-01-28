@@ -13,6 +13,7 @@ class AppLifecycleOperations {
 
   // 보안 관련
   static const String cameraAuthRequest = 'camera_auth_request';
+  static const String pastAuthRequest = 'past_auth_request';
 }
 
 class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserver {

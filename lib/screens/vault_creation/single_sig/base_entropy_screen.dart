@@ -87,6 +87,7 @@ abstract class BaseMnemonicEntropyScreenState<T extends BaseMnemonicEntropyScree
       context: context,
       builder: (BuildContext context) {
         return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.alert.stop_generating_mnemonic.title,
           description: t.alert.stop_generating_mnemonic.description,

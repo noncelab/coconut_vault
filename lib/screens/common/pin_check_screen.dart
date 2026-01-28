@@ -7,6 +7,7 @@ import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
@@ -315,6 +316,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       context: context,
       builder: (context) {
         return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title:
               !_authProvider.isPermanentlyLocked

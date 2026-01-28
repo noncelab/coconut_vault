@@ -5,14 +5,17 @@ import 'package:json_annotation/json_annotation.dart';
 @JsonSerializable(ignoreUnannotated: true)
 abstract class VaultListItemBase {
   static const String vaultTypeField = 'vaultType';
+  static const String fieldName = 'name';
+  static const String fieldIconIndex = 'iconIndex';
+  static const String fieldColorIndex = 'colorIndex';
 
   @JsonKey(name: "id")
   final int id;
-  @JsonKey(name: "name")
+  @JsonKey(name: fieldName)
   String name;
-  @JsonKey(name: "colorIndex")
+  @JsonKey(name: fieldColorIndex)
   int colorIndex;
-  @JsonKey(name: "iconIndex")
+  @JsonKey(name: fieldIconIndex)
   int iconIndex;
   @JsonKey(name: vaultTypeField)
   WalletType vaultType;
@@ -36,6 +39,8 @@ abstract class VaultListItemBase {
 
   Map<String, dynamic> toJson();
   // factory fromJson은 abstract class에 선언 불가하여 생략했습니다. 하지만 새로운 타입의 지갑 list item class 추가 시 꼭 구현 필요.
+
+  Map<String, dynamic> toPublicJson();
 
   @override
   String toString() => 'Vault($id) / type=$vaultType / name=$name / colorIndex=$colorIndex / iconIndex=$iconIndex';

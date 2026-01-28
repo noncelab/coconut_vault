@@ -26,6 +26,8 @@ class FixedBottomTweenButton extends StatefulWidget {
     this.subWidget,
     this.leftButtonBackgroundColor = CoconutColors.gray200,
     this.rightButtonBackgroundColor = CoconutColors.black,
+    this.leftButtonBorderColor = CoconutColors.gray200,
+    this.rightButtonBorderColor = CoconutColors.black,
     this.leftButtonTextColor = CoconutColors.black,
     this.rightButtonTextColor = CoconutColors.white,
     this.buttonSpacing = 8.0, // 두 버튼 사이의 간격
@@ -47,6 +49,8 @@ class FixedBottomTweenButton extends StatefulWidget {
   final Widget? subWidget;
   final Color leftButtonBackgroundColor;
   final Color rightButtonBackgroundColor;
+  final Color leftButtonBorderColor;
+  final Color rightButtonBorderColor;
   final Color leftButtonTextColor;
   final Color rightButtonTextColor;
   final double buttonSpacing;
@@ -119,8 +123,10 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                         backgroundColor: widget.leftButtonBackgroundColor,
                         foregroundColor: widget.leftButtonTextColor,
                         pressedTextColor: widget.leftButtonTextColor,
+                        borderColor: widget.leftButtonBorderColor,
                         text: widget.leftText,
                         textStyle: CoconutTypography.body1_16_Bold,
+                        pressedBackgroundColor: CoconutColors.gray200,
                       ),
                     ),
                     SizedBox(width: widget.buttonSpacing),
@@ -138,8 +144,10 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                         backgroundColor: widget.rightButtonBackgroundColor,
                         foregroundColor: widget.rightButtonTextColor,
                         pressedTextColor: widget.rightButtonTextColor,
+                        borderColor: widget.rightButtonBorderColor,
                         text: widget.rightText,
                         textStyle: CoconutTypography.body1_16_Bold,
+                        pressedBackgroundColor: CoconutColors.gray200,
                       ),
                     ),
                   ],

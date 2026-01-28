@@ -1,3 +1,4 @@
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
@@ -25,6 +26,8 @@ class VaultHomeViewModel extends ChangeNotifier {
   bool get isVaultInitialized => false;
   bool get isVaultsLoaded => _walletProvider.isVaultsLoaded;
   int get vaultCount => _walletProvider.vaultList.length;
+  bool get hasSingleSigVault =>
+      _walletProvider.vaultList.whereType<VaultListItemBase>().any((v) => v.vaultType == WalletType.singleSignature);
   List<int> get favoriteVaultIds => _favoriteVaultIds;
   bool get isSigningOnlyMode => _preferenceProvider.isSigningOnlyMode;
 

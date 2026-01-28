@@ -1,5 +1,4 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -31,8 +30,7 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
 
   Future<void> _setSignerBsms() async {
     try {
-      List<String> bsmses = await compute(WalletIsolates.extractSignerBsms, [_singleSigVaultListItem]);
-      _qrData = bsmses[0];
+      _qrData = _singleSigVaultListItem.getSignerBsmsByAddressType(AddressType.p2wsh);
       _bsms = Bsms.parseSigner(_qrData);
     } catch (e) {
       Logger.error('setSignerBsms error: $e');
