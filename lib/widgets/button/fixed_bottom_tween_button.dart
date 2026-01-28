@@ -30,6 +30,8 @@ class FixedBottomTweenButton extends StatefulWidget {
     this.rightButtonBorderColor = CoconutColors.black,
     this.leftButtonTextColor = CoconutColors.black,
     this.rightButtonTextColor = CoconutColors.white,
+    this.leftButtonPressedBackgroundColor = CoconutColors.gray800,
+    this.rightButtonPressedBackgroundColor = CoconutColors.gray800,
     this.buttonSpacing = 8.0, // 두 버튼 사이의 간격
   });
 
@@ -53,6 +55,8 @@ class FixedBottomTweenButton extends StatefulWidget {
   final Color rightButtonBorderColor;
   final Color leftButtonTextColor;
   final Color rightButtonTextColor;
+  final Color leftButtonPressedBackgroundColor;
+  final Color rightButtonPressedBackgroundColor;
   final double buttonSpacing;
 
   @override
@@ -126,7 +130,7 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                         borderColor: widget.leftButtonBorderColor,
                         text: widget.leftText,
                         textStyle: CoconutTypography.body1_16_Bold,
-                        pressedBackgroundColor: CoconutColors.gray200,
+                        pressedBackgroundColor: widget.leftButtonPressedBackgroundColor,
                       ),
                     ),
                     SizedBox(width: widget.buttonSpacing),
@@ -147,7 +151,7 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                         borderColor: widget.rightButtonBorderColor,
                         text: widget.rightText,
                         textStyle: CoconutTypography.body1_16_Bold,
-                        pressedBackgroundColor: CoconutColors.gray200,
+                        pressedBackgroundColor: widget.rightButtonPressedBackgroundColor,
                       ),
                     ),
                   ],
