@@ -334,6 +334,7 @@ class EntropyBottomButtons extends StatelessWidget {
       leftText: leftText,
       rightText: rightText,
       subWidget: subWidget,
+      rightButtonBorderColor: isRightButtonActive ? CoconutColors.black : CoconutColors.gray150,
     );
   }
 }

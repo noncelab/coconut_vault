@@ -814,6 +814,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           rightButtonTextColor: CoconutColors.black,
           leftButtonBorderColor: CoconutColors.gray400,
           rightButtonBorderColor: CoconutColors.gray400,
+          leftButtonPressedBackgroundColor: CoconutColors.gray200,
+          rightButtonPressedBackgroundColor: CoconutColors.gray200,
         );
       },
     );
