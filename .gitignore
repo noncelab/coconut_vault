@@ -155,5 +155,6 @@ coconut_lib
 *.g.dart
 
 # fastlane
+play_store_credentials.json
 coconut-fastlane-supply.json
 report.xml
