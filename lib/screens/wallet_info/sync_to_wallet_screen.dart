@@ -105,7 +105,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   List<TextSpan> _getGuideTextSpan() {
     final language = Provider.of<VisibilityProvider>(context, listen: false).language;
 
-    if (widget.syncOption.title == t.coconut) {
+    if (widget.syncOption.title == t.watch_only_options.coconut_wallet) {
       switch (language) {
         case 'en':
           return [
