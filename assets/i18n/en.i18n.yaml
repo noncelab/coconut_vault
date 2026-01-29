@@ -89,7 +89,6 @@ delete_one: "Delete One"
 name_wallet: "$name Wallet"
 one_sign_guide: "Click the button to sign"
 bitcoin_text: "$bitcoin BTC"
-sign_required: "Click the button to sign"
 sign_required_amount: 
   one: "$n signature required"
   other: "$n signatures required"

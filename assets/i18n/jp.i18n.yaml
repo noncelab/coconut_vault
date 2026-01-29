@@ -89,7 +89,6 @@ delete_one: "1つ削除"
 name_wallet: "$nameウォレット"
 one_sign_guide: "ボタンを押して署名してください"
 bitcoin_text: "$bitcoin BTC"
-sign_required: "ボタンを押して署名してください"
 sign_required_amount:
   one: "$n個の署名が必要"
   other: "$n個の署名が必要"

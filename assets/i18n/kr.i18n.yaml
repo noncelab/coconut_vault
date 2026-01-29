@@ -89,7 +89,6 @@ delete_one: "하나 지우기"
 name_wallet: "$name 지갑"
 one_sign_guide: "버튼을 눌러 서명해 주세요"
 bitcoin_text: "$bitcoin BTC"
-sign_required: "버튼을 눌러 서명해 주세요"
 sign_required_amount: 
   one: "$n개의 서명이 필요해요"
   other: "$n개의 서명이 필요해요"

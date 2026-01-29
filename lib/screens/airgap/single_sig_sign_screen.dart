@@ -343,7 +343,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
     final colorIndex = _viewModel.walletColorIndex;
     final iconIndex = _viewModel.walletIconIndex;
     final name =
-        _viewModel.walletName.length > 6 ? '${_viewModel.walletName.substring(0, 6)}...' : _viewModel.walletName;
+        _viewModel.walletName.length > 7 ? '${_viewModel.walletName.substring(0, 7)}...' : _viewModel.walletName;
 
     return Column(
       children: [
