@@ -20,6 +20,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
@@ -364,7 +365,12 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
           backgroundColor: CoconutColors.white,
           actionButtonList: [
             IconButton(
-              icon: const Icon(CupertinoIcons.camera_rotate, size: 22),
+              icon: SvgPicture.asset(
+                'assets/svg/arrow-reload.svg',
+                width: 20,
+                height: 20,
+                colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+              ),
               color: CoconutColors.black,
               onPressed: () {
                 controller?.switchCamera();
