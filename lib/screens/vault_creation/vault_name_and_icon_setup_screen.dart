@@ -61,7 +61,8 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     _walletProvider.isVaultListLoadingNotifier.removeListener(_onVaultListLoading);
     if (!_poppedByBack) {
       _walletCreationProvider.resetAll();
-    } else if (_walletCreationProvider.singleSigCreationOption != AppRoutes.mnemonicAutoGen) {
+    } else if (_walletCreationProvider.walletType == WalletType.singleSignature &&
+        _walletCreationProvider.singleSigCreationOption != AppRoutes.mnemonicAutoGen) {
       _walletCreationProvider.resetAll();
     }
     _controller.dispose();
