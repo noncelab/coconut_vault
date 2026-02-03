@@ -64,6 +64,8 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
     } else if (_walletCreationProvider.walletType == WalletType.singleSignature &&
         _walletCreationProvider.singleSigCreationOption != AppRoutes.mnemonicAutoGen) {
       _walletCreationProvider.resetAll();
+    } else if (_walletCreationProvider.walletType == WalletType.multiSignature) {
+      _walletCreationProvider.resetSigner();
     }
     _controller.dispose();
     super.dispose();
