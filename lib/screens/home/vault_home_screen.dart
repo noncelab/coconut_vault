@@ -608,10 +608,10 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       context: context,
       ratio: 0.5,
       child: SelectSyncOptionBottomSheet(
-        onSyncOptionSelected: (format) {
+        onSyncOptionSelected: (SyncOption syncOption) {
           if (!context.mounted) return;
           Navigator.popUntil(context, (route) => route.isFirst);
-          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
+          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': syncOption});
         },
       ),
     );
