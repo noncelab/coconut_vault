@@ -41,6 +41,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
   late int selectedColorIndex;
   final TextEditingController _controller = TextEditingController();
   bool _showLoading = false;
+  bool _poppedByBack = false;
 
   @override
   void initState() {
@@ -58,7 +59,11 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
   @override
   void dispose() {
     _walletProvider.isVaultListLoadingNotifier.removeListener(_onVaultListLoading);
-    _walletCreationProvider.resetAll();
+    if (!_poppedByBack) {
+      _walletCreationProvider.resetAll();
+    } else if (_walletCreationProvider.singleSigCreationOption != AppRoutes.mnemonicAutoGen) {
+      _walletCreationProvider.resetAll();
+    }
     _controller.dispose();
     super.dispose();
   }
@@ -208,10 +213,8 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         PopScope(
           canPop: !_showLoading,
           onPopInvokedWithResult: (didPop, result) {
-            if (_walletCreationProvider.walletType == WalletType.singleSignature) {
-              _walletCreationProvider.resetSecretAndPassphrase();
-            } else {
-              _walletCreationProvider.resetSigner();
+            if (didPop) {
+              _poppedByBack = true;
             }
           },
           child: Scaffold(

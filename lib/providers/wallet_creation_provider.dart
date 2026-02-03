@@ -16,6 +16,7 @@ class WalletCreationProvider {
   Uint8List _passphrase = Uint8List(0); // utf8.encode(passphraseString)
   MultisigSigner? _externalSigner; // 멀티시그 지갑에서 외부지갑 키 추가 시
   int? _multisigVaultIdOfExternalSigner; // 멀티시그 지갑에서 외부지갑 키 추가 시 호출한 화면의 vault id
+  String? _singleSigCreationOption; // 현재는 'mnemonicAutoGen'일 때만 할당하고 있음. 'mnemonicCoinflip' or 'mnemonicDiceRoll'은 생략
 
   /// multisig
   int? get requiredSignatureCount => _requiredSignatureCount;
@@ -27,6 +28,7 @@ class WalletCreationProvider {
   Uint8List? get passphrase => _passphrase.isNotEmpty ? _passphrase : null;
   MultisigSigner? get externalSigner => _externalSigner;
   int? get multisigVaultIdOfExternalSigner => _multisigVaultIdOfExternalSigner;
+  String? get singleSigCreationOption => _singleSigCreationOption;
 
   WalletType get walletType {
     if (_requiredSignatureCount != null &&
@@ -71,12 +73,17 @@ class WalletCreationProvider {
     _passphrase = passphrase ?? Uint8List(0);
   }
 
+  void setSingleSigCreationOption(String routeName) {
+    _singleSigCreationOption = routeName;
+  }
+
   /// SingleSig
   void resetSecretAndPassphrase() {
     _secret.wipe();
     _passphrase.wipe();
     _secret = Uint8List(0);
     _passphrase = Uint8List(0);
+    _singleSigCreationOption = null;
   }
 
   /// Multisig
@@ -90,6 +97,7 @@ class WalletCreationProvider {
 
     /// multisig
     _requiredSignatureCount =
-        _totalSignatureCount = _signers = _externalSigner = _multisigVaultIdOfExternalSigner = null;
+        _totalSignatureCount =
+            _signers = _externalSigner = _multisigVaultIdOfExternalSigner = _singleSigCreationOption = null;
   }
 }
