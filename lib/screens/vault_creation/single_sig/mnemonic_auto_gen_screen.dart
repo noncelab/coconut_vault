@@ -1,12 +1,14 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
 import 'package:coconut_vault/widgets/entropy_base/base_entropy_widget.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MnemonicAutoGenScreen extends BaseMnemonicEntropyScreen {
   const MnemonicAutoGenScreen({super.key, required super.entropyType});
@@ -18,6 +20,12 @@ class MnemonicAutoGenScreen extends BaseMnemonicEntropyScreen {
 class _MnemonicAutoGenScreenState extends BaseMnemonicEntropyScreenState<MnemonicAutoGenScreen> {
   @override
   String get screenTitle => t.mnemonic_dice_roll_screen.title;
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<WalletCreationProvider>(context, listen: false).setSingleSigCreationOption(AppRoutes.mnemonicAutoGen);
+  }
 
   @override
   Widget buildEntropyWidget() {
