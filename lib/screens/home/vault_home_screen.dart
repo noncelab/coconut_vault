@@ -57,7 +57,6 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       Provider.of<AuthProvider>(context, listen: false),
       Provider.of<WalletProvider>(context, listen: false),
       Provider.of<PreferenceProvider>(context, listen: false),
-      Provider.of<VisibilityProvider>(context, listen: false).walletCount,
     );
 
     _scrollController = ScrollController();
@@ -133,7 +132,6 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       Provider.of<AuthProvider>(context, listen: false),
       Provider.of<WalletProvider>(context, listen: false),
       Provider.of<PreferenceProvider>(context, listen: false),
-      Provider.of<VisibilityProvider>(context, listen: false).walletCount,
     );
     return _viewModel;
   }
