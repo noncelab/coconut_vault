@@ -5,6 +5,8 @@ import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -52,22 +54,44 @@ class SecureZoneManager {
   }
 
   /// 보안 영역 접근 불가 시 저장된 데이터 초기화
-  Future<bool> deleteStoredData(AuthProvider authProvider) async {
+  Future<bool> deleteStoredData(
+    AuthProvider authProvider,
+    WalletProvider? walletProvider,
+    VisibilityProvider visibilityProvider,
+    PreferenceProvider preferenceProvider,
+  ) async {
     try {
-      final sharedPrefsRepository = SharedPrefsRepository();
+      // Keep some data to restore
       final hasSeenGuide = SharedPrefsRepository().getBool(SharedPrefsKeys.hasShownStartGuide) == true;
       final selectedVaultMode = SharedPrefsRepository().getString(SharedPrefsKeys.kVaultMode);
-      await sharedPrefsRepository.clearSharedPref();
-      final secureStorageRepository = SecureStorageRepository();
-      await secureStorageRepository.deleteAll();
+      final language = SharedPrefsRepository().getString(SharedPrefsKeys.kLanguage);
+      final isBtcUnit = SharedPrefsRepository().getBool(SharedPrefsKeys.kIsBtcUnit);
+      final isPassphraseUseEnabled = SharedPrefsRepository().getBool(SharedPrefsKeys.kPassphraseUseEnabled);
+
+      await SharedPrefsRepository().clearSharedPref();
+      await SecureStorageRepository().deleteAll();
       await authProvider.resetPinData();
 
+      // Restore some data
       if (hasSeenGuide) {
         await SharedPrefsRepository().setBool(SharedPrefsKeys.hasShownStartGuide, true);
       }
       if (selectedVaultMode != '') {
         await SharedPrefsRepository().setString(SharedPrefsKeys.kVaultMode, selectedVaultMode);
       }
+      if (language != '') {
+        await SharedPrefsRepository().setString(SharedPrefsKeys.kLanguage, language);
+      }
+      if (isBtcUnit != null) {
+        await SharedPrefsRepository().setBool(SharedPrefsKeys.kIsBtcUnit, isBtcUnit);
+      }
+      if (isPassphraseUseEnabled != null) {
+        await SharedPrefsRepository().setBool(SharedPrefsKeys.kPassphraseUseEnabled, isPassphraseUseEnabled);
+      }
+
+      await walletProvider?.reloadRelatedToVault();
+      visibilityProvider.reloadRelatedToVault();
+      preferenceProvider.reloadRelatedToVault();
       return true;
     } catch (e) {
       return false;

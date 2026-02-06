@@ -33,7 +33,6 @@ class PreferenceProvider extends ChangeNotifier {
     _vaultOrder = _getVaultOrder();
     _favoriteVaultIds = _getFavoriteVaultIds();
     _signingModeEdgePanelPos = getSigningModeEdgePanelPos();
-
     _language = _getLanguage();
   }
 
@@ -135,5 +134,11 @@ class PreferenceProvider extends ChangeNotifier {
       return "en";
     }
     return lang;
+  }
+
+  void reloadRelatedToVault() {
+    _vaultOrder = _getVaultOrder();
+    _favoriteVaultIds = _getFavoriteVaultIds();
+    notifyListeners();
   }
 }

@@ -348,7 +348,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         return DevicePasswordCheckerScreen(
           state: DevicePasswordCheckerScreenState.devicePasswordChanged,
           onComplete: () async {
-            await _handleDevicePasswordChangedOnResume();
             _updateEntryFlow(AppEntryFlow.vaultHome);
           },
         );
@@ -620,17 +619,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   }) {
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? defaultArgs ?? {};
     return builder(args);
-  }
-
-  /// onAppGoActive에서 기기 비밀번호 변경 시 볼트 초기화 처리
-  Future<void> _handleDevicePasswordChangedOnResume() async {
-    try {
-      // 볼트 초기화 (앱 최초실행 여부, 볼트 모드는 유지)
-      await SecureZoneManager().deleteStoredData(authProvider);
-    } catch (e) {
-      debugPrint('볼트 초기화 실패: $e');
-      // 볼트 초기화 실패 시에도 계속 진행
-    }
   }
 
   @override

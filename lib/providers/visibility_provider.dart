@@ -16,7 +16,6 @@ class VisibilityProvider extends ChangeNotifier {
   late bool _isBtcUnit;
 
   bool get hasSeenGuide => _hasSeenGuide;
-  int get walletCount => _walletCount;
   bool get isPassphraseUseEnabled => _isPassphraseUseEnabled;
   String get language => _language;
   bool get isKorean => _language == 'kr';
@@ -215,5 +214,9 @@ class VisibilityProvider extends ChangeNotifier {
       SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, _walletCount);
     }
     _isSigningOnlyMode = isSigningOnlyMode;
+  }
+
+  void reloadRelatedToVault() {
+    _walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
   }
 }
