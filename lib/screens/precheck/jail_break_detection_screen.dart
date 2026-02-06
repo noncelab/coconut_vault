@@ -2,7 +2,9 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -162,7 +164,18 @@ class _JailBreakDetectionScreenState extends State<JailBreakDetectionScreen> {
       ),
       isActive: true,
       onButtonClicked: () async {
-        final result = await SecureZoneManager().deleteStoredData(context.read<AuthProvider>());
+        WalletProvider? walletProvider;
+        try {
+          walletProvider = context.read<WalletProvider>();
+        } catch (_) {
+          // igrore
+        }
+        final result = await SecureZoneManager().deleteStoredData(
+          context.read<AuthProvider>(),
+          walletProvider,
+          context.read<VisibilityProvider>(),
+          context.read<PreferenceProvider>(),
+        );
         if (!mounted || !result) return;
         widget.onReset?.call();
       },

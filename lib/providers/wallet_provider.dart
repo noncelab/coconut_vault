@@ -562,6 +562,12 @@ class WalletProvider extends ChangeNotifier {
     return target;
   }
 
+  Future<void> reloadRelatedToVault() async {
+    _isVaultListLoading = false;
+    _isVaultsLoaded = false;
+    await loadVaultList();
+  }
+
   // 7) 오버라이드/생명주기
   @override
   void dispose() {
