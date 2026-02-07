@@ -138,7 +138,7 @@ vault_home_screen:
     import_multisig_wallet: "다중 서명 지갑\n가져오기"
     mnemonic_wordlist: "니모닉 단어집"
   toast:
-    wallet_added_but_not_favorite: "지갑이 추가 됐어요. 지갑 전체보기에서 확인하세요."
+    wallet_added_but_not_favorite: "지갑이 추가 됐어요. 지갑 모두 보기에서 확인하세요."
   secure_zone_checking: "보안 영역에 접근 가능한지 확인 중이에요."
   secure_zone_check_failed: "보안 데이터 확인 실패"
 

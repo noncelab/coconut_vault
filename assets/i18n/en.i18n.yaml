@@ -129,7 +129,7 @@ connectivity_state:
   inactive: "Inactive"
 
 vault_home_screen:
-  view_all_wallets: "View My Wallets"
+  view_all_wallets: "View All Wallets"
   wallet_count: "$count Items"
   action_items:
     sign: "Sign"

@@ -129,7 +129,7 @@ connectivity_state:
   inactive: "非アクティブ"
 
 vault_home_screen:
-  view_all_wallets: "すべてのウォレット表示"
+  view_all_wallets: "ウォレットをすべて表示"
   wallet_count: "$count項目"
   action_items:
     sign: "署名"
@@ -138,7 +138,7 @@ vault_home_screen:
     import_multisig_wallet: "マルチシグ\nウォレットインポート"
     mnemonic_wordlist: "ニーモニック単語リスト"
   toast:
-    wallet_added_but_not_favorite: "ウォレットが追加されました。View All Wallets画面で確認してください。"
+    wallet_added_but_not_favorite: "ウォレットが追加されました。 「ウォレットをすべて表示」で確認してください。"
   secure_zone_checking: "セキュリティ領域にアクセスできるか確認しています。"
   secure_zone_check_failed: "セキュリティデータチェックに失敗しました"
 
