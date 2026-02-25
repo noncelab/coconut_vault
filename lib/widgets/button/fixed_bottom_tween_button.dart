@@ -67,17 +67,16 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
   @override
   Widget build(BuildContext context) {
     double keyboardHeight = (widget.isVisibleAboveKeyboard ? MediaQuery.of(context).viewInsets.bottom : 0);
+    double buttonHeight =
+        widget.buttonHeight ??
+        (Platform.isAndroid
+            ? FixedBottomButton.fixedBottomButtonDefaultHeight
+            : FixedBottomButton.fixedBottomButtonDefaultHeight + 3);
 
     // 전체 너비에서 패딩과 버튼 간격을 제외한 실제 버튼 영역
     final totalWidth = MediaQuery.sizeOf(context).width - (widget.horizontalPadding * 2) - widget.buttonSpacing;
     final leftButtonWidth = totalWidth * widget.leftButtonRatio;
     final rightButtonWidth = totalWidth * (1 - widget.leftButtonRatio);
-
-    double buttonHeight =
-        widget.buttonHeight ??
-        (Platform.isAndroid
-            ? FixedBottomButton.fixedBottomButtonDefaultHeight
-            : FixedBottomButton.fixedBottomButtonDefaultHeight + 8);
 
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
@@ -91,13 +90,21 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
               child: IgnorePointer(
                 ignoring: true,
                 child: Container(
-                  padding: widget.gradientPadding ?? const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 150),
+                  padding:
+                      widget.gradientPadding ??
+                      EdgeInsets.only(left: 16, right: 16, bottom: 40, top: buttonHeight + 24),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [CoconutColors.gray100.withValues(alpha: 0.1), CoconutColors.white],
-                      stops: const [0.0, 1.0],
+                      colors: [
+                        CoconutColors.white.withValues(alpha: 0.1),
+                        CoconutColors.white.withValues(alpha: 0.3),
+                        CoconutColors.white.withValues(alpha: 0.6),
+                        CoconutColors.white.withValues(alpha: 0.8),
+                        CoconutColors.white,
+                      ],
+                      stops: const [0.03, 0.07, 0.1, 0.15, 0.23],
                     ),
                   ),
                 ),
