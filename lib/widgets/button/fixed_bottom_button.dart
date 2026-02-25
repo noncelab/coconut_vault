@@ -4,8 +4,8 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 
 class FixedBottomButton extends StatefulWidget {
-  static const fixedBottomButtonDefaultHeight = 50.0;
-  static const fixedBottomButtonDefaultBottomPadding = 16.0;
+  static const fixedBottomButtonDefaultHeight = 55.0;
+  static const fixedBottomButtonDefaultBottomPadding = 22.0;
 
   const FixedBottomButton({
     super.key,
@@ -52,7 +52,7 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
         widget.buttonHeight ??
         (Platform.isAndroid
             ? FixedBottomButton.fixedBottomButtonDefaultHeight
-            : FixedBottomButton.fixedBottomButtonDefaultHeight + 8);
+            : FixedBottomButton.fixedBottomButtonDefaultHeight + 3);
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
       child: Stack(
@@ -65,19 +65,21 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
               child: IgnorePointer(
                 ignoring: true,
                 child: Container(
-                  padding: widget.gradientPadding ?? const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 150),
+                  padding:
+                      widget.gradientPadding ??
+                      EdgeInsets.only(left: 16, right: 16, bottom: 40, top: buttonHeight + 24),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        CoconutColors.white.withValues(alpha: 0.0),
+                        CoconutColors.white.withValues(alpha: 0.1),
                         CoconutColors.white.withValues(alpha: 0.3),
-                        CoconutColors.white.withValues(alpha: 0.7),
-                        CoconutColors.white.withValues(alpha: 0.9),
+                        CoconutColors.white.withValues(alpha: 0.6),
+                        CoconutColors.white.withValues(alpha: 0.8),
                         CoconutColors.white,
                       ],
-                      stops: const [0.0, 0.3, 0.6, 0.85, 1.0],
+                      stops: const [0.03, 0.07, 0.1, 0.15, 0.23],
                     ),
                   ),
                 ),
