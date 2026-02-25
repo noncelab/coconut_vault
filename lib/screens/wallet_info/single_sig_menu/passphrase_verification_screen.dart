@@ -124,7 +124,6 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
                             !_isSubmitting,
                         backgroundColor: CoconutColors.black,
                         showGradient: true,
-                        gradientPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
                       );
                     },
                   ),
