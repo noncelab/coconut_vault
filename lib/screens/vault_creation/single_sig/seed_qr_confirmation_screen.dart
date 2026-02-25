@@ -151,7 +151,6 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
                   isActive: _usePassphrase ? _passphrase.isNotEmpty && !_isWarningVisible : true && !_isWarningVisible,
                   backgroundColor: CoconutColors.black,
                   onButtonClicked: () => _handleNextButton(),
-                  gradientPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 140),
                 ),
                 WarningWidget(
                   visible: _isWarningVisible,
