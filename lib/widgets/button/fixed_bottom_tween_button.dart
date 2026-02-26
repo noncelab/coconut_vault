@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 
 class FixedBottomTweenButton extends StatefulWidget {
@@ -123,42 +124,52 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                     // 왼쪽 버튼
                     SizedBox(
                       width: leftButtonWidth,
-                      child: CoconutButton(
+                      child: ShrinkAnimationButton(
                         onPressed: () {
                           widget.leftButtonClicked();
                         },
-                        disabledBackgroundColor: CoconutColors.gray150,
-                        disabledForegroundColor: CoconutColors.gray350,
-                        isActive: widget.isLeftButtonActive,
-                        height: buttonHeight,
-                        backgroundColor: widget.leftButtonBackgroundColor,
-                        foregroundColor: widget.leftButtonTextColor,
-                        pressedTextColor: widget.leftButtonTextColor,
-                        borderColor: widget.leftButtonBorderColor,
-                        text: widget.leftText,
-                        textStyle: CoconutTypography.body1_16_Bold,
-                        pressedBackgroundColor: widget.leftButtonPressedBackgroundColor,
+                        defaultColor: widget.leftButtonBackgroundColor,
+                        pressedColor: getLighterColor(widget.leftButtonBackgroundColor),
+                        disabledColor: CoconutColors.gray150,
+                        borderRadius: 12,
+                        child: SizedBox(
+                          width: leftButtonWidth,
+                          height: buttonHeight,
+                          child: Center(
+                            child: Text(
+                              widget.leftText,
+                              style: CoconutTypography.body1_16_Bold.setColor(
+                                widget.isLeftButtonActive ? widget.leftButtonTextColor : CoconutColors.gray350,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     SizedBox(width: widget.buttonSpacing),
                     // 오른쪽 버튼
                     SizedBox(
                       width: rightButtonWidth,
-                      child: CoconutButton(
+                      child: ShrinkAnimationButton(
                         onPressed: () {
                           widget.rightButtonClicked();
                         },
-                        disabledBackgroundColor: CoconutColors.gray150,
-                        disabledForegroundColor: CoconutColors.gray350,
-                        isActive: widget.isRightButtonActive,
-                        height: buttonHeight,
-                        backgroundColor: widget.rightButtonBackgroundColor,
-                        foregroundColor: widget.rightButtonTextColor,
-                        pressedTextColor: widget.rightButtonTextColor,
-                        borderColor: widget.rightButtonBorderColor,
-                        text: widget.rightText,
-                        textStyle: CoconutTypography.body1_16_Bold,
-                        pressedBackgroundColor: widget.rightButtonPressedBackgroundColor,
+                        defaultColor: widget.rightButtonBackgroundColor,
+                        pressedColor: getLighterColor(widget.rightButtonBackgroundColor),
+                        disabledColor: CoconutColors.gray150,
+                        borderRadius: 12,
+                        child: SizedBox(
+                          width: rightButtonWidth,
+                          height: buttonHeight,
+                          child: Center(
+                            child: Text(
+                              widget.rightText,
+                              style: CoconutTypography.body1_16_Bold.setColor(
+                                widget.isRightButtonActive ? widget.rightButtonTextColor : CoconutColors.gray350,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
