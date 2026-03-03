@@ -12,11 +12,13 @@ class VisibilityProvider extends ChangeNotifier {
   late bool _hasSeenGuide;
   late int _walletCount;
   late bool _isPassphraseUseEnabled;
+  late bool _isChangeAccountEnabled;
   late String _language;
   late bool _isBtcUnit;
 
   bool get hasSeenGuide => _hasSeenGuide;
   bool get isPassphraseUseEnabled => _isPassphraseUseEnabled;
+  bool get isChangeAccountEnabled => _isChangeAccountEnabled;
   String get language => _language;
   bool get isKorean => _language == 'kr';
   bool get isEnglish => _language == 'en';
@@ -35,6 +37,10 @@ class VisibilityProvider extends ChangeNotifier {
 
     _isPassphraseUseEnabled =
         isSigningOnlyMode ? true : (prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false);
+
+    _isChangeAccountEnabled =
+        isSigningOnlyMode ? true : (prefs.getBool(SharedPrefsKeys.kChangeAccountEnabled) ?? false);
+
     _language = _initializeLanguageFromOS(prefs);
     _isBtcUnit = prefs.getBool(SharedPrefsKeys.kIsBtcUnit) ?? true;
     _initializeLanguage();
@@ -60,9 +66,15 @@ class VisibilityProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setAdvancedMode(bool value) async {
+  Future<void> setPassphraseUseEnabled(bool value) async {
     _isPassphraseUseEnabled = value;
     SharedPrefsRepository().setBool(SharedPrefsKeys.kPassphraseUseEnabled, value);
+    notifyListeners();
+  }
+
+  Future<void> setChangeAccountEnabled(bool value) async {
+    _isChangeAccountEnabled = value;
+    SharedPrefsRepository().setBool(SharedPrefsKeys.kChangeAccountEnabled, value);
     notifyListeners();
   }
 
@@ -207,10 +219,12 @@ class VisibilityProvider extends ChangeNotifier {
   void updateIsSigningOnlyMode(bool isSigningOnlyMode) {
     if (_isSigningOnlyMode == isSigningOnlyMode) return;
     if (isSigningOnlyMode) {
-      setAdvancedMode(true);
+      setPassphraseUseEnabled(true);
+      setChangeAccountEnabled(true);
       SharedPrefsRepository().deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
     } else {
-      setAdvancedMode(false);
+      setPassphraseUseEnabled(false);
+      setChangeAccountEnabled(false);
       SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, _walletCount);
     }
     _isSigningOnlyMode = isSigningOnlyMode;

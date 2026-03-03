@@ -448,6 +448,8 @@ settings_screen:
   set_password: "Set Password"
   advanced_user: "Advanced User"
   use_passphrase: "Use Passphrase"
+  change_account: "Change Account Number"
+  change_account_description: "Select account in m/84’/0’/account’"
   information: "Information"
   toast:
     no_enrolled_biometrics: "No biometrics are set up on this device"
@@ -458,6 +460,9 @@ settings_screen:
     use_passphrase_title: "Use Passphrase"
     use_passphrase_description: "Using passphrase is like creating a new wallet. If used incorrectly, you may lose bitcoins forever."
     use_passphrase_btn: "I understand"
+    change_account_title: "Change Account Number"
+    change_account_description: "Changing the account number will display a different wallet. If you forget the account number, it may be difficult to find your bitcoins."
+    change_account_btn: "I Understand"
 
 # lib/screens/start_guide
 welcome_screen:

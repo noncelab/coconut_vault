@@ -15,6 +15,7 @@ class SharedPrefsKeys {
   static const String kPinInputCurrentAttemptCount = 'PIN_ATTEMPT';
 
   static const String kPassphraseUseEnabled = 'PASSPHRASE_USE_ENABLED';
+  static const String kChangeAccountEnabled = 'CHANGE_ACCOUNT_ENABLED';
   static const String kIsBtcUnit = "IS_BTC_UNIT";
   static const String kLanguage = 'LANGUAGE';
 

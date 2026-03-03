@@ -449,6 +449,8 @@ settings_screen:
   set_password: "비밀번호 설정하기"
   advanced_user: "고급 사용자"
   use_passphrase: "패스프레이즈 사용하기"
+  change_account: "계정 번호 변경하기"
+  change_account_description: "m/84’/0’/account’에서 account를 선택합니다"
   information: "안내"
   toast:
     no_enrolled_biometrics: "기기에 등록된 생체 인증이 없어요"
@@ -459,7 +461,10 @@ settings_screen:
     use_passphrase_title: "패스프레이즈 사용"
     use_passphrase_description: "패스프레이즈 사용은 새로운 지갑을 만드는 것과 같습니다. 잘못 사용하면 비트코인을 영원히 잃을 수 있습니다."
     use_passphrase_btn: "이해했습니다"
-  
+    change_account_title: "계정 번호 변경"
+    change_account_description: "계정 번호를 변경하면 다른 지갑이 표시됩니다. 계정 번호를 잊어버리면 비트코인을 찾기 어려울 수 있습니다."
+    change_account_btn: "이해했습니다"
+
 # lib/screens/start_guide
 welcome_screen:
   screen_1_title: "안전한 환경에서 시작하세요"

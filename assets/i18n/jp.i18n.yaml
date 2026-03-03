@@ -448,6 +448,8 @@ settings_screen:
   set_password: "パスワード設定"
   advanced_user: "上級ユーザー"
   use_passphrase: "パスフレーズを使用"
+  change_account: "アカウント番号を変更する"
+  change_account_description: "m/84’/0’/account’ の account を選択します"
   information: "情報"
   toast:
     no_enrolled_biometrics: "生体認証が登録されていません"
@@ -458,6 +460,9 @@ settings_screen:
     use_passphrase_title: "パスフレーズを使用"
     use_passphrase_description: "パスフレーズを使用すると、新しいウォレットを作成するのと同じです。誤って使用すると、ビットコインを永久に失う可能性があります。"
     use_passphrase_btn: "理解しました"
+    change_account_title: "アカウント番号の変更"
+    change_account_description: "アカウント番号を変更すると、別のウォレットが表示されます。アカウント番号を忘れると、ビットコインを見つけるのが困難になる可能性があります。"
+    change_account_btn: "理解しました"
 
 # lib/screens/start_guide
 welcome_screen:

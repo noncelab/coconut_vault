@@ -335,43 +335,86 @@ class _SettingsScreenState extends State<SettingsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _category(t.advanced_user),
-        Selector<VisibilityProvider, bool>(
-          selector: (_, viewModel) => viewModel.isPassphraseUseEnabled,
-          builder: (context, isPassphraseUseEnabled, child) {
-            return SingleButton(
-              buttonPosition: SingleButtonPosition.none,
-              title: t.settings_screen.use_passphrase,
-              rightElement: CupertinoSwitch(
-                value: isPassphraseUseEnabled,
-                activeTrackColor: CoconutColors.black,
-                onChanged: (isOn) async {
-                  if (!isOn) {
-                    await context.read<VisibilityProvider>().setAdvancedMode(isOn);
-                    return;
-                  }
+        Consumer<VisibilityProvider>(
+          builder: (context, visibilityProvider, child) {
+            return MultiButton(
+              children: [
+                // Passphrase use
+                SingleButton(
+                  buttonPosition: SingleButtonPosition.none,
+                  title: t.settings_screen.use_passphrase,
+                  rightElement: CupertinoSwitch(
+                    value: visibilityProvider.isPassphraseUseEnabled,
+                    activeTrackColor: CoconutColors.black,
+                    onChanged: (isOn) async {
+                      if (!isOn) {
+                        await visibilityProvider.setPassphraseUseEnabled(isOn);
+                        return;
+                      }
 
-                  if (context.mounted) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return CoconutPopup(
-                          languageCode: context.read<VisibilityProvider>().language,
-                          insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-                          title: t.settings_screen.dialog.use_passphrase_title,
-                          description: t.settings_screen.dialog.use_passphrase_description,
-                          rightButtonText: t.settings_screen.dialog.use_passphrase_btn,
-                          onTapRight: () async {
-                            await context.read<VisibilityProvider>().setAdvancedMode(isOn);
-                            if (context.mounted) {
-                              Navigator.pop(context);
-                            }
+                      if (context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CoconutPopup(
+                              languageCode: context.read<VisibilityProvider>().language,
+                              insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+                              title: t.settings_screen.dialog.use_passphrase_title,
+                              description: t.settings_screen.dialog.use_passphrase_description,
+                              rightButtonText: t.settings_screen.dialog.use_passphrase_btn,
+                              onTapRight: () async {
+                                await context.read<VisibilityProvider>().setPassphraseUseEnabled(isOn);
+                                if (context.mounted) {
+                                  Navigator.pop(context);
+                                }
+                              },
+                            );
                           },
                         );
-                      },
-                    );
-                  }
-                },
-              ),
+                      }
+                    },
+                  ),
+                ),
+
+                // Account change
+                SingleButton(
+                  buttonPosition: SingleButtonPosition.none,
+                  title: t.settings_screen.change_account,
+                  description: t.settings_screen.change_account_description,
+                  isDescriptionUnderTitle: true,
+                  rightElement: CupertinoSwitch(
+                    value: visibilityProvider.isChangeAccountEnabled,
+                    activeTrackColor: CoconutColors.black,
+                    onChanged: (isOn) async {
+                      if (!isOn) {
+                        await visibilityProvider.setChangeAccountEnabled(isOn);
+                        return;
+                      }
+
+                      if (context.mounted) {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CoconutPopup(
+                              languageCode: context.read<VisibilityProvider>().language,
+                              insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+                              title: t.settings_screen.dialog.change_account_title,
+                              description: t.settings_screen.dialog.change_account_description,
+                              rightButtonText: t.settings_screen.dialog.change_account_btn,
+                              onTapRight: () async {
+                                await context.read<VisibilityProvider>().setChangeAccountEnabled(isOn);
+                                if (context.mounted) {
+                                  Navigator.pop(context);
+                                }
+                              },
+                            );
+                          },
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ],
             );
           },
         ),
