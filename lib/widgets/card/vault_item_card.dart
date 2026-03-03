@@ -4,6 +4,7 @@ import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/widgets/button/tooltip_button.dart';
 import 'package:coconut_vault/widgets/icon/vault_icon.dart';
@@ -12,6 +13,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
 import 'dart:math' as math;
+
+import 'package:provider/provider.dart';
 
 class VaultItemCard extends StatefulWidget {
   final VaultListItemBase vaultItem;
@@ -36,9 +39,12 @@ class _VaultItemCardState extends State<VaultItemCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isChangeAccountEnabled = context.watch<VisibilityProvider>().isChangeAccountEnabled;
+
     List<MultisigSigner>? signers;
     bool isMultisig = false;
     late String rightText;
+    String? derivationPath;
 
     if (widget.vaultItem is MultisigVaultListItem) {
       /// 멀티 시그
@@ -51,6 +57,7 @@ class _VaultItemCardState extends State<VaultItemCard> {
       SingleSigVaultListItem singleVault = widget.vaultItem as SingleSigVaultListItem;
       final singlesigVault = singleVault.coconutVault as SingleSignatureVault;
       rightText = singlesigVault.keyStore.masterFingerprint;
+      derivationPath = singlesigVault.derivationPath;
     }
 
     return Container(
@@ -172,10 +179,30 @@ class _VaultItemCardState extends State<VaultItemCard> {
                       constraints: const BoxConstraints(maxWidth: 120),
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: Text(
-                          DateFormat('yy.MM.dd HH:mm').format(widget.vaultItem.createdAt),
-                          style: CoconutTypography.body2_14.setColor(CoconutColors.gray600),
-                        ),
+                        child:
+                            (!isMultisig && derivationPath != null)
+                                ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      derivationPath,
+                                      style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
+                                    ),
+
+                                    if (isChangeAccountEnabled) ...[
+                                      const SizedBox(width: 4),
+                                      SvgPicture.asset(
+                                        'assets/svg/edit-outlined.svg',
+                                        width: 14,
+                                        colorFilter: const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn),
+                                      ),
+                                    ],
+                                  ],
+                                )
+                                : Text(
+                                  DateFormat('yy.MM.dd HH:mm').format(widget.vaultItem.createdAt),
+                                  style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
+                                ),
                       ),
                     );
                   },
