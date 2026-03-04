@@ -896,6 +896,10 @@ bottom_sheet:
   ask_about_license: "[ボルト] ライセンスお問い合わせ"
   mnemonic_backup: "生成されたニーモニックフレーズを\nバックアップしてください。"
   mnemonic_backup_and_confirm_passphrase: "生成されたニーモニックフレーズをバックアップし\nパスフレーズを確認してください。"
+  account_settings:
+    title: "アカウント番号の設定"
+    placeholder: "アカウント番号を入力してください"
+    account_error_message: "0〜2,147,483,647の範囲の値を入力してください。"
 
 permission:
   biometric: 

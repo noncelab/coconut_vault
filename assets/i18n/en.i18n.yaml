@@ -898,6 +898,10 @@ bottom_sheet:
   ask_about_license: "[Vault] License Inquiry"
   mnemonic_backup: "Please backup\ngenerated mnemonic phrase."
   mnemonic_backup_and_confirm_passphrase: "Please backup generated mnemonic phrase\nand confirm passphrase."
+  account_settings:
+    title: "Set Account Number"
+    placeholder: "Please enter the account number"
+    account_error_message: "Enter a value in the range 0 and 2,147,483,647."
 
 permission:
   biometric: 

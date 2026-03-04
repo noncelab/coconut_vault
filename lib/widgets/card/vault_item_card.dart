@@ -5,7 +5,9 @@ import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/screens/wallet_info/account_number_settings_bottom_sheet.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
+import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/tooltip_button.dart';
 import 'package:coconut_vault/widgets/icon/vault_icon.dart';
 import 'package:flutter/material.dart';
@@ -36,10 +38,11 @@ class VaultItemCard extends StatefulWidget {
 
 class _VaultItemCardState extends State<VaultItemCard> {
   bool isItemTapped = false;
+  late int currentAccount;
 
   @override
   Widget build(BuildContext context) {
-    final isChangeAccountEnabled = context.watch<VisibilityProvider>().isChangeAccountEnabled;
+    final isAccountEditEnabled = context.watch<VisibilityProvider>().isAccountEditEnabled;
 
     List<MultisigSigner>? signers;
     bool isMultisig = false;
@@ -181,23 +184,27 @@ class _VaultItemCardState extends State<VaultItemCard> {
                         fit: BoxFit.scaleDown,
                         child:
                             (!isMultisig && derivationPath != null)
-                                ? Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      derivationPath,
-                                      style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
-                                    ),
-
-                                    if (isChangeAccountEnabled) ...[
-                                      const SizedBox(width: 4),
-                                      SvgPicture.asset(
-                                        'assets/svg/edit-outlined.svg',
-                                        width: 14,
-                                        colorFilter: const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn),
+                                ? GestureDetector(
+                                  onTap:
+                                      isAccountEditEnabled ? () => _showAccountEditBottomSheet(derivationPath!) : null,
+                                  behavior: HitTestBehavior.opaque,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        derivationPath,
+                                        style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
                                       ),
+                                      if (isAccountEditEnabled) ...[
+                                        const SizedBox(width: 4),
+                                        SvgPicture.asset(
+                                          'assets/svg/edit-outlined.svg',
+                                          width: 14,
+                                          colorFilter: const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn),
+                                        ),
+                                      ],
                                     ],
-                                  ],
+                                  ),
                                 )
                                 : Text(
                                   DateFormat('yy.MM.dd HH:mm').format(widget.vaultItem.createdAt),
@@ -250,6 +257,23 @@ class _VaultItemCardState extends State<VaultItemCard> {
           ),
         ),
       ],
+    );
+  }
+
+  void _showAccountEditBottomSheet(String path) {
+    final parts = path.split('/');
+    final targetStr = parts.length >= 4 ? parts[3] : path;
+
+    currentAccount = int.tryParse(targetStr.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+
+    MyBottomSheet.showBottomSheet_75(
+      context: context,
+      child: AccountEditBottomSheet(
+        account: currentAccount,
+        onUpdate: (account) {
+          // TODO: 데이터 업데이트 로직 구현 필요
+        },
+      ),
     );
   }
 }

@@ -383,7 +383,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   description: t.settings_screen.change_account_description,
                   isDescriptionUnderTitle: true,
                   rightElement: CupertinoSwitch(
-                    value: visibilityProvider.isChangeAccountEnabled,
+                    value: visibilityProvider.isAccountEditEnabled,
                     activeTrackColor: CoconutColors.black,
                     onChanged: (isOn) async {
                       if (!isOn) {

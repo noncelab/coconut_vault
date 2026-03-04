@@ -12,13 +12,13 @@ class VisibilityProvider extends ChangeNotifier {
   late bool _hasSeenGuide;
   late int _walletCount;
   late bool _isPassphraseUseEnabled;
-  late bool _isChangeAccountEnabled;
+  late bool _isAccountEditEnabled;
   late String _language;
   late bool _isBtcUnit;
 
   bool get hasSeenGuide => _hasSeenGuide;
   bool get isPassphraseUseEnabled => _isPassphraseUseEnabled;
-  bool get isChangeAccountEnabled => _isChangeAccountEnabled;
+  bool get isAccountEditEnabled => _isAccountEditEnabled;
   String get language => _language;
   bool get isKorean => _language == 'kr';
   bool get isEnglish => _language == 'en';
@@ -38,8 +38,7 @@ class VisibilityProvider extends ChangeNotifier {
     _isPassphraseUseEnabled =
         isSigningOnlyMode ? true : (prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false);
 
-    _isChangeAccountEnabled =
-        isSigningOnlyMode ? true : (prefs.getBool(SharedPrefsKeys.kChangeAccountEnabled) ?? false);
+    _isAccountEditEnabled = isSigningOnlyMode ? true : (prefs.getBool(SharedPrefsKeys.kChangeAccountEnabled) ?? false);
 
     _language = _initializeLanguageFromOS(prefs);
     _isBtcUnit = prefs.getBool(SharedPrefsKeys.kIsBtcUnit) ?? true;
@@ -73,7 +72,7 @@ class VisibilityProvider extends ChangeNotifier {
   }
 
   Future<void> setChangeAccountEnabled(bool value) async {
-    _isChangeAccountEnabled = value;
+    _isAccountEditEnabled = value;
     SharedPrefsRepository().setBool(SharedPrefsKeys.kChangeAccountEnabled, value);
     notifyListeners();
   }

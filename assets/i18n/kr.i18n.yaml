@@ -901,6 +901,10 @@ bottom_sheet:
   ask_about_license: "[볼트] 라이선스 문의"
   mnemonic_backup: "생성된 니모닉 문구를\n백업해 주세요."
   mnemonic_backup_and_confirm_passphrase: "생성된 니모닉 문구를 백업하시고\n패스프레이즈를 확인해 주세요."
+  account_settings:
+    title: "계정 번호 설정"
+    placeholder: "계정 번호를 입력해 주세요"
+    account_error_message: "0~2,147,483,647 범위의 값을 입력해 주세요."
 
 permission:
   biometric: 
