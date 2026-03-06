@@ -5,6 +5,7 @@ import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/wallet_info/account_number_settings_bottom_sheet.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -38,7 +39,6 @@ class VaultItemCard extends StatefulWidget {
 
 class _VaultItemCardState extends State<VaultItemCard> {
   bool isItemTapped = false;
-  late int currentAccount;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,6 @@ class _VaultItemCardState extends State<VaultItemCard> {
     List<MultisigSigner>? signers;
     bool isMultisig = false;
     late String rightText;
-    String? derivationPath;
 
     if (widget.vaultItem is MultisigVaultListItem) {
       /// 멀티 시그
@@ -60,7 +59,6 @@ class _VaultItemCardState extends State<VaultItemCard> {
       SingleSigVaultListItem singleVault = widget.vaultItem as SingleSigVaultListItem;
       final singlesigVault = singleVault.coconutVault as SingleSignatureVault;
       rightText = singlesigVault.keyStore.masterFingerprint;
-      derivationPath = singlesigVault.derivationPath;
     }
 
     return Container(
@@ -183,32 +181,62 @@ class _VaultItemCardState extends State<VaultItemCard> {
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
                         child:
-                            (!isMultisig && derivationPath != null)
-                                ? GestureDetector(
-                                  onTap:
-                                      isAccountEditEnabled ? () => _showAccountEditBottomSheet(derivationPath!) : null,
-                                  behavior: HitTestBehavior.opaque,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        derivationPath,
-                                        style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
-                                      ),
-                                      if (isAccountEditEnabled) ...[
-                                        const SizedBox(width: 4),
-                                        SvgPicture.asset(
-                                          'assets/svg/edit-outlined.svg',
-                                          width: 14,
-                                          colorFilter: const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                )
-                                : Text(
+                            isMultisig
+                                ? Text(
                                   DateFormat('yy.MM.dd HH:mm').format(widget.vaultItem.createdAt),
                                   style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
+                                )
+                                : Selector<WalletProvider, ({String derivationPath, int currentAccount})>(
+                                  selector: (context, provider) {
+                                    final vault = provider.getVaultById(widget.vaultItem.id) as SingleSigVaultListItem;
+
+                                    return (
+                                      derivationPath: vault.derivationPath,
+                                      currentAccount: vault.currentAccountIndex,
+                                    );
+                                  },
+                                  builder: (context, data, child) {
+                                    return GestureDetector(
+                                      onTap:
+                                          isAccountEditEnabled
+                                              ? () {
+                                                MyBottomSheet.showBottomSheet_75(
+                                                  context: context,
+                                                  child: AccountEditBottomSheet(
+                                                    account: data.currentAccount,
+                                                    onUpdate: (account) async {
+                                                      await context.read<WalletProvider>().updateSingleSigAccount(
+                                                        widget.vaultItem.id,
+                                                        account,
+                                                      );
+                                                    },
+                                                  ),
+                                                );
+                                              }
+                                              : null,
+                                      behavior: HitTestBehavior.opaque,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            data.derivationPath,
+                                            style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
+                                          ),
+                                          if (isAccountEditEnabled) ...[
+                                            const SizedBox(width: 4),
+                                            SvgPicture.asset(
+                                              'assets/svg/edit-outlined.svg',
+                                              width: 14,
+                                              colorFilter: const ColorFilter.mode(
+                                                CoconutColors.gray700,
+                                                BlendMode.srcIn,
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    );
+                                  },
                                 ),
                       ),
                     );
@@ -257,23 +285,6 @@ class _VaultItemCardState extends State<VaultItemCard> {
           ),
         ),
       ],
-    );
-  }
-
-  void _showAccountEditBottomSheet(String path) {
-    final parts = path.split('/');
-    final targetStr = parts.length >= 4 ? parts[3] : path;
-
-    currentAccount = int.tryParse(targetStr.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-
-    MyBottomSheet.showBottomSheet_75(
-      context: context,
-      child: AccountEditBottomSheet(
-        account: currentAccount,
-        onUpdate: (account) {
-          // TODO: 데이터 업데이트 로직 구현 필요
-        },
-      ),
     );
   }
 }

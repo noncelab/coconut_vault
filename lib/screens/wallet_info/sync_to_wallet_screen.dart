@@ -5,13 +5,16 @@ import 'package:coconut_vault/providers/view_model/wallet_info/sync_to_wallet_vi
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
+import 'package:coconut_vault/screens/wallet_info/account_number_settings_bottom_sheet.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
+import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/tooltip_description.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class SyncToWalletScreen extends StatefulWidget {
@@ -31,6 +34,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   @override
   Widget build(BuildContext context) {
     final qrSize = MediaQuery.of(context).size.width * 0.8;
+    final isAccountEditEnabled = context.watch<VisibilityProvider>().isAccountEditEnabled;
 
     return ChangeNotifierProvider<WalletToSyncViewModel>(
       create: (context) {
@@ -67,7 +71,57 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 20),
+                      Selector<WalletToSyncViewModel, ({String derivationPath, int currentAccount})>(
+                        selector:
+                            (context, vm) => (
+                              derivationPath: vm.derivationPath,
+                              currentAccount: vm.currentAccountIndex,
+                            ),
+                        builder: (context, data, child) {
+                          if (data.derivationPath.isEmpty) return const SizedBox.shrink();
+                          return GestureDetector(
+                            onTap:
+                                isAccountEditEnabled
+                                    ? () {
+                                      MyBottomSheet.showBottomSheet_75(
+                                        context: context,
+                                        child: AccountEditBottomSheet(
+                                          account: data.currentAccount,
+                                          onUpdate: (account) async {
+                                            await providerContext.read<WalletToSyncViewModel>().updateAccount(account);
+                                          },
+                                        ),
+                                      );
+                                    }
+                                    : null,
+                            behavior: HitTestBehavior.opaque,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    data.derivationPath,
+                                    style: CoconutTypography.body2_14_Bold.copyWith(
+                                      color: isAccountEditEnabled ? CoconutColors.gray900 : CoconutColors.gray700,
+                                    ),
+                                  ),
+                                  if (isAccountEditEnabled) ...[
+                                    const SizedBox(width: 4),
+                                    SvgPicture.asset(
+                                      'assets/svg/edit-outlined.svg',
+                                      width: 14,
+                                      colorFilter: const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 20),
                       Selector<WalletToSyncViewModel, ({QrData qrData, UrType urType})>(
                         selector: (context, vm) => (qrData: vm.qrData, urType: vm.urType),
                         builder: (context, selectedValue, child) {
