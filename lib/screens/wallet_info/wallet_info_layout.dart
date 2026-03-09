@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
@@ -485,6 +486,11 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
 
   Widget _buildLinkedMultisigInfo() {
     final viewModel = context.read<WalletInfoViewModel>();
+
+    final isMainnet = NetworkType.currentNetworkType == NetworkType.mainnet;
+    final coinType = isMainnet ? 0 : 1;
+    final String derivationPath = "m/48'/$coinType'/0'/2'";
+
     const linearGradient = LinearGradient(
       colors: [Color(0xFFB2E774), Color(0xFF6373EB), Color(0xFF2ACEC3)],
       begin: Alignment.centerLeft,
@@ -561,6 +567,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                               ),
                               TextSpan(text: t.vault_settings.key),
                             ],
+                            TextSpan(text: " ( $derivationPath )"),
                           ],
                         ),
                       ),
