@@ -7,11 +7,13 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/wallet_info/account_number_settings_bottom_sheet.dart';
+import 'package:coconut_vault/screens/wallet_info/passphrase_check_bottom_sheet.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/tooltip_button.dart';
 import 'package:coconut_vault/widgets/icon/vault_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
@@ -38,36 +40,31 @@ class VaultItemCard extends StatefulWidget {
 }
 
 class _VaultItemCardState extends State<VaultItemCard> {
-  bool isItemTapped = false;
+  bool _isItemTapped = false;
+  bool get _isMultisig => widget.vaultItem is MultisigVaultListItem;
 
   @override
   Widget build(BuildContext context) {
-    final isAccountEditEnabled = context.watch<VisibilityProvider>().isAccountEditEnabled;
-
     List<MultisigSigner>? signers;
-    bool isMultisig = false;
-    late String rightText;
+    String rightText = '';
 
-    if (widget.vaultItem is MultisigVaultListItem) {
-      /// 멀티 시그
-      MultisigVaultListItem multiVault = widget.vaultItem as MultisigVaultListItem;
-      signers = multiVault.signers;
-      rightText = '${multiVault.requiredSignatureCount}/${multiVault.signers.length}';
-      isMultisig = true;
-    } else {
-      /// 싱글 시그
-      SingleSigVaultListItem singleVault = widget.vaultItem as SingleSigVaultListItem;
-      final singlesigVault = singleVault.coconutVault as SingleSignatureVault;
-      rightText = singlesigVault.keyStore.masterFingerprint;
+    switch (widget.vaultItem) {
+      case MultisigVaultListItem multiVault:
+        signers = multiVault.signers;
+        rightText = '${multiVault.requiredSignatureCount}/${multiVault.signers.length}';
+      case SingleSigVaultListItem singleVault:
+        rightText = (singleVault.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
+      default:
+        break;
     }
 
     return Container(
-      margin: const EdgeInsets.only(left: 16, right: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
-        border: isMultisig ? null : Border.all(color: CoconutColors.borderLightGray, width: 1),
+        borderRadius: BorderRadius.circular(14),
+        border: _isMultisig ? null : Border.all(color: CoconutColors.borderLightGray, width: 1),
         gradient:
-            isMultisig
+            _isMultisig
                 ? LinearGradient(
                   colors: CustomColorHelper.getGradientColors(signers!),
                   begin: Alignment.topLeft,
@@ -77,35 +74,20 @@ class _VaultItemCardState extends State<VaultItemCard> {
                 : null,
       ),
       child: Container(
-        margin: isMultisig ? const EdgeInsets.all(2) : null, // 멀티시그의 경우 border 대신
+        margin: _isMultisig ? const EdgeInsets.all(2) : null,
         padding: const EdgeInsets.all(20),
         decoration:
-            isMultisig
-                ? BoxDecoration(
-                  color: CoconutColors.white,
-                  borderRadius: BorderRadius.circular(12), // defaultRadius로 통일하면 border 넓이가 균일해보이지 않음
-                )
-                : null,
+            _isMultisig ? BoxDecoration(color: CoconutColors.white, borderRadius: BorderRadius.circular(12)) : null,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               child: GestureDetector(
-                onTapDown: (details) {
-                  setState(() {
-                    isItemTapped = true;
-                  });
-                },
-                onTapCancel: () {
-                  setState(() {
-                    isItemTapped = false;
-                  });
-                },
+                onTapDown: (_) => setState(() => _isItemTapped = true),
+                onTapCancel: () => setState(() => _isItemTapped = false),
                 onTap: () {
                   widget.onNameChangeClicked();
-                  setState(() {
-                    isItemTapped = false;
-                  });
+                  setState(() => _isItemTapped = false);
                 },
                 child: Row(
                   children: [
@@ -135,114 +117,7 @@ class _VaultItemCardState extends State<VaultItemCard> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isMultisig)
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      return ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 120),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            rightText.replaceAllMapped(RegExp(r'[a-z]+'), (match) => match.group(0)!.toUpperCase()),
-                            style: CoconutTypography.heading4_18_NumberBold,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                if (!isMultisig)
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      return ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 120),
-                        child: TooltipButton(
-                          isSelected: false,
-                          text: rightText,
-                          isLeft: true,
-                          iconkey: widget.tooltipKey,
-                          containerMargin: EdgeInsets.zero,
-                          onTapDown: (details) {
-                            widget.onTooltipClicked();
-                          },
-                          textStyle: CoconutTypography.heading4_18_NumberBold,
-                          iconColor: CoconutColors.black,
-                          iconSize: 18,
-                          isIconBold: true,
-                        ),
-                      );
-                    },
-                  ),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    return ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 120),
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child:
-                            isMultisig
-                                ? Text(
-                                  DateFormat('yy.MM.dd HH:mm').format(widget.vaultItem.createdAt),
-                                  style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
-                                )
-                                : Selector<WalletProvider, ({String derivationPath, int currentAccount})>(
-                                  selector: (context, provider) {
-                                    final vault = provider.getVaultById(widget.vaultItem.id) as SingleSigVaultListItem;
-
-                                    return (
-                                      derivationPath: vault.derivationPath,
-                                      currentAccount: vault.currentAccountIndex,
-                                    );
-                                  },
-                                  builder: (context, data, child) {
-                                    return GestureDetector(
-                                      onTap:
-                                          isAccountEditEnabled
-                                              ? () {
-                                                MyBottomSheet.showBottomSheet_75(
-                                                  context: context,
-                                                  child: AccountEditBottomSheet(
-                                                    account: data.currentAccount,
-                                                    onUpdate: (account) async {
-                                                      await context.read<WalletProvider>().updateSingleSigAccount(
-                                                        widget.vaultItem.id,
-                                                        account,
-                                                      );
-                                                    },
-                                                  ),
-                                                );
-                                              }
-                                              : null,
-                                      behavior: HitTestBehavior.opaque,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            data.derivationPath,
-                                            style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
-                                          ),
-                                          if (isAccountEditEnabled) ...[
-                                            const SizedBox(width: 4),
-                                            SvgPicture.asset(
-                                              'assets/svg/edit-outlined.svg',
-                                              width: 14,
-                                              colorFilter: const ColorFilter.mode(
-                                                CoconutColors.gray700,
-                                                BlendMode.srcIn,
-                                              ),
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
-                      ),
-                    );
-                  },
-                ),
-              ],
+              children: [_buildMfpContent(rightText), _buildBottomRightContent()],
             ),
           ],
         ),
@@ -250,9 +125,92 @@ class _VaultItemCardState extends State<VaultItemCard> {
     );
   }
 
+  Widget _buildMfpContent(String rightText) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 120),
+          child:
+              _isMultisig
+                  ? FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      rightText.replaceAllMapped(RegExp(r'[a-z]+'), (match) => match.group(0)!.toUpperCase()),
+                      style: CoconutTypography.heading4_18_NumberBold,
+                    ),
+                  )
+                  : TooltipButton(
+                    isSelected: false,
+                    text: rightText,
+                    isLeft: true,
+                    iconkey: widget.tooltipKey,
+                    containerMargin: EdgeInsets.zero,
+                    onTapDown: (_) => widget.onTooltipClicked(),
+                    textStyle: CoconutTypography.heading4_18_NumberBold,
+                    iconColor: CoconutColors.black,
+                    iconSize: 18,
+                    isIconBold: true,
+                  ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBottomRightContent() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 120),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child:
+                _isMultisig
+                    ? Text(
+                      DateFormat('yy.MM.dd HH:mm').format(widget.vaultItem.createdAt),
+                      style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
+                    )
+                    : _buildDerivationPathContent(),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDerivationPathContent() {
+    final isAccountEditEnabled = context.watch<VisibilityProvider>().isAccountEditEnabled;
+
+    return Selector<WalletProvider, ({String derivationPath, int currentAccount})>(
+      selector: (context, provider) {
+        final vault = provider.getVaultById(widget.vaultItem.id) as SingleSigVaultListItem;
+        return (derivationPath: vault.derivationPath, currentAccount: vault.currentAccountIndex);
+      },
+      builder: (context, data, child) {
+        return GestureDetector(
+          onTap: isAccountEditEnabled ? () => _handleAccountEditTap(data.currentAccount) : null,
+          behavior: HitTestBehavior.opaque,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(data.derivationPath, style: CoconutTypography.body2_14.setColor(CoconutColors.gray700)),
+              if (isAccountEditEnabled) ...[
+                const SizedBox(width: 4),
+                SvgPicture.asset(
+                  'assets/svg/edit-outlined.svg',
+                  width: 14,
+                  colorFilter: const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildIcon() {
-    int colorIndex = widget.vaultItem.colorIndex;
-    int iconIndex = widget.vaultItem.iconIndex;
+    final int colorIndex = widget.vaultItem.colorIndex;
+    final int iconIndex = widget.vaultItem.iconIndex;
 
     return Stack(
       clipBehavior: Clip.none,
@@ -264,7 +222,7 @@ class _VaultItemCardState extends State<VaultItemCard> {
           child: Container(
             padding: const EdgeInsets.all(4.3),
             decoration: BoxDecoration(
-              color: isItemTapped ? CoconutColors.gray300 : CoconutColors.gray150,
+              color: _isItemTapped ? CoconutColors.gray300 : CoconutColors.gray150,
               shape: BoxShape.circle,
               boxShadow: const [
                 BoxShadow(color: CoconutColors.gray300, offset: Offset(2, 2), blurRadius: 10, spreadRadius: 0),
@@ -273,7 +231,7 @@ class _VaultItemCardState extends State<VaultItemCard> {
             child: Container(
               padding: const EdgeInsets.all(1),
               decoration: BoxDecoration(
-                color: isItemTapped ? CoconutColors.gray300 : CoconutColors.gray150,
+                color: _isItemTapped ? CoconutColors.gray300 : CoconutColors.gray150,
                 shape: BoxShape.circle,
               ),
               child: SvgPicture.asset(
@@ -285,6 +243,48 @@ class _VaultItemCardState extends State<VaultItemCard> {
           ),
         ),
       ],
+    );
+  }
+
+  Future<void> _handleAccountEditTap(int currentAccount) async {
+    final walletProvider = context.read<WalletProvider>();
+    bool hasPassphrase = false;
+
+    if (!walletProvider.isSigningOnlyMode) {
+      hasPassphrase = await walletProvider.hasPassphrase(widget.vaultItem.id);
+    }
+
+    if (!mounted) return;
+
+    if (hasPassphrase) {
+      MyBottomSheet.showBottomSheet_90(
+        context: context,
+        child: PassphraseVerificationBottomSheet(
+          vaultId: widget.vaultItem.id,
+          onVerificationSuccess: (passphrase) {
+            Navigator.pop(context);
+            _showAccountEditSheet(currentAccount, passphrase: passphrase);
+          },
+        ),
+      );
+    } else {
+      _showAccountEditSheet(currentAccount);
+    }
+  }
+
+  void _showAccountEditSheet(int currentAccount, {Uint8List? passphrase}) {
+    MyBottomSheet.showBottomSheet_75(
+      context: context,
+      child: AccountEditBottomSheet(
+        account: currentAccount,
+        onUpdate: (account) async {
+          await context.read<WalletProvider>().updateSingleSigAccount(
+            widget.vaultItem.id,
+            account,
+            passphrase: passphrase,
+          );
+        },
+      ),
     );
   }
 }

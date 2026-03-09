@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -13,7 +14,7 @@ bool isValidAccountIndex(int v) => v >= 0 && v <= kMaxAccountIndex;
 
 class AccountEditBottomSheet extends StatefulWidget {
   final int account;
-  final Function(int) onUpdate;
+  final Future<void> Function(int) onUpdate;
 
   const AccountEditBottomSheet({super.key, required this.account, required this.onUpdate});
 
@@ -24,6 +25,8 @@ class AccountEditBottomSheet extends StatefulWidget {
 class _AccountEditBottomSheetState extends State<AccountEditBottomSheet> {
   final TextEditingController _controller = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+
+  bool _isSubmitting = false; // prevent duplicate execution of async logic caused by double taps
 
   @override
   void initState() {
@@ -67,62 +70,70 @@ class _AccountEditBottomSheetState extends State<AccountEditBottomSheet> {
   Widget build(BuildContext context) {
     final validatedValue = _validatedValue;
     final isError = _controller.text.isNotEmpty && validatedValue == null;
-    final isValid = validatedValue != null;
+    final isValid = validatedValue != null && !_isSubmitting;
 
     return ClipRRect(
       borderRadius: CoconutBorder.defaultRadius,
       child: CustomLoadingOverlay(
-        child: Scaffold(
-          backgroundColor: CoconutColors.white,
-          appBar: CoconutAppBar.build(context: context, title: t.bottom_sheet.account_settings.title, isBottom: true),
-          body: SafeArea(
-            child: Stack(
-              children: [
-                GestureDetector(
-                  onTap: _closeKeyboard,
-                  behavior: HitTestBehavior.opaque,
-                  child: Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: CoconutColors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CoconutTextField(
-                          isLengthVisible: false,
-                          placeholderColor: CoconutColors.gray400,
-                          placeholderText: t.bottom_sheet.account_settings.placeholder,
-                          maxLength: 10,
-                          maxLines: 1,
-                          controller: _controller,
-                          focusNode: _focusNode,
-                          onChanged: (_) {},
-                          textInputType: TextInputType.number,
-                          textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
-                          isError: isError,
-                          suffix: _buildClearButton(isError),
+        child: Builder(
+          builder: (overlayContext) {
+            return Scaffold(
+              backgroundColor: CoconutColors.white,
+              appBar: CoconutAppBar.build(
+                context: context,
+                title: t.bottom_sheet.account_settings.title,
+                isBottom: true,
+              ),
+              body: SafeArea(
+                child: Stack(
+                  children: [
+                    GestureDetector(
+                      onTap: _closeKeyboard,
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        color: CoconutColors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CoconutTextField(
+                              isLengthVisible: false,
+                              placeholderColor: CoconutColors.gray400,
+                              placeholderText: t.bottom_sheet.account_settings.placeholder,
+                              maxLength: 10,
+                              maxLines: 1,
+                              controller: _controller,
+                              focusNode: _focusNode,
+                              onChanged: (_) {},
+                              textInputType: TextInputType.number,
+                              textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
+                              isError: isError,
+                              suffix: _buildClearButton(isError),
+                            ),
+                            if (isError) ...[
+                              const SizedBox(height: 8),
+                              Text(
+                                t.bottom_sheet.account_settings.account_error_message,
+                                style: CoconutTypography.body3_12.setColor(CoconutColors.hotPink),
+                              ),
+                            ],
+                          ],
                         ),
-                        if (isError) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            t.bottom_sheet.account_settings.account_error_message,
-                            style: CoconutTypography.body3_12.setColor(CoconutColors.hotPink),
-                          ),
-                        ],
-                      ],
+                      ),
                     ),
-                  ),
+                    FixedBottomButton(
+                      text: t.complete,
+                      isActive: isValid,
+                      onButtonClicked: () => _onNextPressed(overlayContext, validatedValue),
+                      showGradient: false,
+                    ),
+                  ],
                 ),
-                FixedBottomButton(
-                  text: t.complete,
-                  isActive: isValid,
-                  onButtonClicked: () => _onNextPressed(validatedValue),
-                  showGradient: false,
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -143,8 +154,8 @@ class _AccountEditBottomSheetState extends State<AccountEditBottomSheet> {
     );
   }
 
-  Future<void> _onNextPressed(int? value) async {
-    if (value == null) return;
+  Future<void> _onNextPressed(BuildContext overlayContext, int? value) async {
+    if (value == null || _isSubmitting) return;
 
     _closeKeyboard();
 
@@ -153,14 +164,27 @@ class _AccountEditBottomSheetState extends State<AccountEditBottomSheet> {
       return;
     }
 
-    context.loaderOverlay.show();
-    await Future.delayed(const Duration(seconds: 1));
+    setState(() {
+      _isSubmitting = true;
+    });
 
-    if (!mounted) return;
-    context.loaderOverlay.hide();
+    overlayContext.loaderOverlay.show();
 
-    widget.onUpdate(value);
-    Navigator.of(context).pop();
+    try {
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      await widget.onUpdate(value);
+
+      await Future.delayed(const Duration(milliseconds: 300));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+        overlayContext.loaderOverlay.hide();
+        Navigator.of(context).pop();
+      }
+    }
   }
 
   void _closeKeyboard() {

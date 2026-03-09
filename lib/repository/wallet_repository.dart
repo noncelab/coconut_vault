@@ -750,6 +750,17 @@ class WalletRepository {
     final parsed = await _decryptSecret(id);
     final passphrase = _isSigningOnlyMode ? parsed.passphrase : inputPassphrase;
 
+    final verifyVault = SingleSignatureVault.fromMnemonic(
+      parsed.secret,
+      addressType: currentCoconutVault.addressType,
+      passphrase: passphrase,
+      accountIndex: currentCoconutVault.accountIndex,
+    );
+
+    if (verifyVault.keyStore.masterFingerprint != currentCoconutVault.keyStore.masterFingerprint) {
+      throw Exception('Invalid passphrase');
+    }
+
     final updatedCoconutVault = SingleSignatureVault.fromMnemonic(
       parsed.secret,
       addressType: currentCoconutVault.addressType,

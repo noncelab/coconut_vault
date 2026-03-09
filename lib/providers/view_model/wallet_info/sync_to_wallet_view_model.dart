@@ -64,9 +64,9 @@ class WalletToSyncViewModel extends ChangeNotifier {
     ];
   }
 
-  Future<void> updateAccount(int newAccount) async {
+  Future<void> updateAccount(int newAccount, {Uint8List? passphrase}) async {
     Logger.log('1. Provider 업데이트 요청 시작: Account $newAccount');
-    await _walletProvider.updateSingleSigAccount(_vaultId, newAccount);
+    await _walletProvider.updateSingleSigAccount(_vaultId, newAccount, passphrase: passphrase);
 
     Logger.log('2. Provider 업데이트 완료. 뷰모델 데이터 재초기화 진행');
     _initVaultData();
