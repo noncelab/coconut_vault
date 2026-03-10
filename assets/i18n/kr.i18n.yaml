@@ -459,11 +459,14 @@ settings_screen:
     need_biometrics_setting_desc: "생체 인증 설정을 확인해주세요."
     btn_move_to_setting: "설정하러 가기"
     use_passphrase_title: "패스프레이즈 사용"
-    use_passphrase_description: "패스프레이즈 사용은 새로운 지갑을 만드는 것과 같습니다. 잘못 사용하면 비트코인을 영원히 잃을 수 있습니다."
+    use_passphrase_description: "패스프레이즈 사용은\n새로운 지갑을 만드는 것과\n같습니다. 잘못 사용하면\n비트코인을 영원히\n잃을 수 있습니다."
     use_passphrase_btn: "이해했습니다"
     change_account_title: "계정 번호 변경"
-    change_account_description: "계정 번호를 변경하면 다른 지갑이 표시됩니다. 계정 번호를 잊어버리면 비트코인을 찾기 어려울 수 있습니다."
+    disable_change_account_title: "계정 번호 변경 비활성화"
+    change_account_description: "계정 번호를 변경하면\n다른 지갑이 표시됩니다.\n계정 번호를 잊어버리면\n비트코인을 찾기 어려울 수 있습니다."
+    disable_change_account_description: "계정 번호 변경을 끄면\n현재 선택된 계정 번호가\n최종 저장됩니다.\n\n계속 진행하시겠어요?"
     change_account_btn: "이해했습니다"
+    disable_change_account_btn: "변경하기"
 
 # lib/screens/start_guide
 welcome_screen:

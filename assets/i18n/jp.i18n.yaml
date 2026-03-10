@@ -457,12 +457,14 @@ settings_screen:
     need_biometrics_setting_title: "生体認証を使用"
     need_biometrics_setting_desc: "生体認証を設定してください。"
     btn_move_to_setting: "設定に移動"
-    use_passphrase_title: "パスフレーズを使用"
-    use_passphrase_description: "パスフレーズを使用すると、新しいウォレットを作成するのと同じです。誤って使用すると、ビットコインを永久に失う可能性があります。"
+    use_passphrase_description: "パスフレーズの使用は\n新しいウォレットを\n作成するのと同じです。\n誤って使用すると\nビットコインを\n永久に失う可能性があります。"
     use_passphrase_btn: "理解しました"
     change_account_title: "アカウント番号の変更"
-    change_account_description: "アカウント番号を変更すると、別のウォレットが表示されます。アカウント番号を忘れると、ビットコインを見つけるのが困難になる可能性があります。"
+    disable_change_account_title: "アカウント番号変更の無効化"
+    change_account_description: "アカウント番号を変更すると\n別のウォレットが表示されます。\nアカウント番号を忘れると\nビットコインを見つけるのが\n難しくなる可能性があります。"
+    disable_change_account_description: "アカウント番号の変更をオフにすると\n現在選択されているアカウント番号が\n最終的に保存されます。\n\nこのまま続行しますか？"
     change_account_btn: "理解しました"
+    disable_change_account_btn: "変更する"
 
 # lib/screens/start_guide
 welcome_screen:

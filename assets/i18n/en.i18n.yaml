@@ -458,11 +458,14 @@ settings_screen:
     need_biometrics_setting_desc: "Please check biometrics settings."
     btn_move_to_setting: "Go to Settings"
     use_passphrase_title: "Use Passphrase"
-    use_passphrase_description: "Using passphrase is like creating a new wallet. If used incorrectly, you may lose bitcoins forever."
+    use_passphrase_description: "Using a passphrase\nis like creating\nan entirely new wallet.\nIf used incorrectly,\nyou could lose your\nBitcoin forever."
     use_passphrase_btn: "I understand"
     change_account_title: "Change Account Number"
-    change_account_description: "Changing the account number will display a different wallet. If you forget the account number, it may be difficult to find your bitcoins."
-    change_account_btn: "I Understand"
+    disable_change_account_title: "Disable Account Number Change"
+    change_account_description: "Changing the account number\nwill display a different wallet.\nIf you forget the account number,\nit may be difficult to\nfind your Bitcoin."
+    disable_change_account_description: "If you turn off account number change,\nthe currently selected account number\nwill be saved as the final one.\n\nDo you want to continue?"
+    change_account_btn: "I understand"
+    disable_change_account_btn: "Change"
 
 # lib/screens/start_guide
 welcome_screen:
