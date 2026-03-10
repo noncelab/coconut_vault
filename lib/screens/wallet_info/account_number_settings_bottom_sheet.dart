@@ -94,10 +94,19 @@ class _AccountEditBottomSheetState extends State<AccountEditBottomSheet> {
                         width: double.infinity,
                         height: double.infinity,
                         color: CoconutColors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            Center(
+                              child: Text(
+                                t.bottom_sheet.account_settings.description,
+                                style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.hotPink),
+                                textAlign: TextAlign.center,
+                                softWrap: true,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
                             CoconutTextField(
                               isLengthVisible: false,
                               placeholderColor: CoconutColors.gray400,

@@ -903,6 +903,7 @@ bottom_sheet:
   mnemonic_backup_and_confirm_passphrase: "Please backup generated mnemonic phrase\nand confirm passphrase."
   account_settings:
     title: "Set Account Number"
+    description: "Make sure to remember your account number."
     placeholder: "Please enter the account number"
     account_error_message: "Enter a value in the range 0 and 2,147,483,647."
 
