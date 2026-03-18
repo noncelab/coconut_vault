@@ -70,7 +70,8 @@ class _AccountEditBottomSheetState extends State<AccountEditBottomSheet> {
   Widget build(BuildContext context) {
     final validatedValue = _validatedValue;
     final isError = _controller.text.isNotEmpty && validatedValue == null;
-    final isValid = validatedValue != null && !_isSubmitting;
+    final isChanged = validatedValue != widget.account;
+    final isValid = validatedValue != null && !_isSubmitting && isChanged;
 
     return ClipRRect(
       borderRadius: CoconutBorder.defaultRadius,
