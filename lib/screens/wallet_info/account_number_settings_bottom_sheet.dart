@@ -135,7 +135,7 @@ class _AccountEditBottomSheetState extends State<AccountEditBottomSheet> {
                     FixedBottomButton(
                       text: t.complete,
                       isActive: isValid,
-                      onButtonClicked: () => _onNextPressed(overlayContext, validatedValue),
+                      onButtonClicked: () => _onCompletePressed(overlayContext, validatedValue),
                       showGradient: false,
                     ),
                   ],
@@ -163,7 +163,7 @@ class _AccountEditBottomSheetState extends State<AccountEditBottomSheet> {
     );
   }
 
-  Future<void> _onNextPressed(BuildContext overlayContext, int? value) async {
+  Future<void> _onCompletePressed(BuildContext overlayContext, int? value) async {
     if (value == null || _isSubmitting) return;
 
     _closeKeyboard();

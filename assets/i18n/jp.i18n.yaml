@@ -449,7 +449,7 @@ settings_screen:
   advanced_user: "上級ユーザー"
   use_passphrase: "パスフレーズを使用"
   change_account: "アカウント番号を変更する"
-  change_account_description: "m/84’/0’/account’ の account を選択します"
+  change_account_description: "m/84’/0’/account’ の account を変更します"
   information: "情報"
   toast:
     no_enrolled_biometrics: "生体認証が登録されていません"

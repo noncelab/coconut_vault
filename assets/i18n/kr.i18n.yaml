@@ -450,7 +450,7 @@ settings_screen:
   advanced_user: "고급 사용자"
   use_passphrase: "패스프레이즈 사용하기"
   change_account: "계정 번호 변경하기"
-  change_account_description: "m/84’/0’/account’에서 account를 선택합니다"
+  change_account_description: "m/84’/0’/account’에서 account를 변경합니다"
   information: "안내"
   toast:
     no_enrolled_biometrics: "기기에 등록된 생체 인증이 없어요"

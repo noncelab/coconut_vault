@@ -449,7 +449,7 @@ settings_screen:
   advanced_user: "Advanced User"
   use_passphrase: "Use Passphrase"
   change_account: "Change Account Number"
-  change_account_description: "Select account in m/84’/0’/account’"
+  change_account_description: "Change the account in m/84’/0’/account’"
   information: "Information"
   toast:
     no_enrolled_biometrics: "No biometrics are set up on this device"
