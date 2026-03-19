@@ -867,7 +867,7 @@ vault_settings:
   used_in_multisig: "Used in multisig wallet"
   of: " of "
   nth: "$index"
-  key: "key "
+  key: "Key "
 
 verify_passphrase_screen:
   title: "Passphrase Verification"

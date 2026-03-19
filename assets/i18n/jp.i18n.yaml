@@ -863,8 +863,8 @@ vault_menu_screen:
 vault_settings:
   used_in_multisig: "マルチシグウォレットで使用中"
   of: " の "
-  nth: "$index"
-  key: " キー"
+  nth: "$index番目の"
+  key: "キー"
 
 verify_passphrase_screen:
   title: "パスフレーズ確認"

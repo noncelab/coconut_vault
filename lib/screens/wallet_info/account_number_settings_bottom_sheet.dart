@@ -121,14 +121,8 @@ class _AccountEditBottomSheetState extends State<AccountEditBottomSheet> {
                               textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
                               isError: isError,
                               suffix: _buildClearButton(isError),
+                              errorText: t.bottom_sheet.account_settings.account_error_message,
                             ),
-                            if (isError) ...[
-                              const SizedBox(height: 8),
-                              Text(
-                                t.bottom_sheet.account_settings.account_error_message,
-                                style: CoconutTypography.body3_12.setColor(CoconutColors.hotPink),
-                              ),
-                            ],
                           ],
                         ),
                       ),
@@ -159,7 +153,7 @@ class _AccountEditBottomSheetState extends State<AccountEditBottomSheet> {
       onPressed: _controller.clear,
       icon: SvgPicture.asset(
         'assets/svg/text-field-clear.svg',
-        colorFilter: ColorFilter.mode(isError ? CoconutColors.hotPink : CoconutColors.gray400, BlendMode.srcIn),
+        colorFilter: ColorFilter.mode(isError ? CoconutColors.hotPink : CoconutColors.gray900, BlendMode.srcIn),
       ),
     );
   }

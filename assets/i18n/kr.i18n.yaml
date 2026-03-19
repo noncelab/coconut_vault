@@ -869,7 +869,7 @@ vault_menu_screen:
 vault_settings:
   used_in_multisig: "다중 서명 지갑에서 사용 중입니다"
   of: "의 "
-  nth: "$index 번"
+  nth: "$index번"
   key: " 키"
 
 verify_passphrase_screen:

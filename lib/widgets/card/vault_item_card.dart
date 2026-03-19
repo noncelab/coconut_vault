@@ -273,8 +273,9 @@ class _VaultItemCardState extends State<VaultItemCard> {
   }
 
   void _showAccountEditSheet(int currentAccount, {Uint8List? passphrase}) {
-    MyBottomSheet.showBottomSheet_75(
+    MyBottomSheet.showBottomSheet_height(
       context: context,
+      heightRatio: 0.74,
       child: AccountEditBottomSheet(
         account: currentAccount,
         onUpdate: (account) async {

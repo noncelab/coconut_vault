@@ -195,8 +195,9 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   }
 
   void _showAccountEditSheet(BuildContext providerContext, int currentAccount, {Uint8List? passphrase}) {
-    MyBottomSheet.showBottomSheet_75(
+    MyBottomSheet.showBottomSheet_height(
       context: providerContext,
+      heightRatio: 0.74,
       child: AccountEditBottomSheet(
         account: currentAccount,
         onUpdate: (account) async {

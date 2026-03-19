@@ -545,14 +545,14 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                           style: CoconutTypography.body2_14.setColor(const Color(0xFF4E83FF)),
                           children: [
                             if (context.read<VisibilityProvider>().language == 'en') ...[
-                              TextSpan(
-                                text: TextUtils.ellipsisIfLonger(multisig.name),
-                                style: CoconutTypography.body2_14_Bold.setColor(const Color(0xFF4E83FF)),
-                              ),
-                              TextSpan(text: t.vault_settings.of),
                               TextSpan(text: t.vault_settings.key),
                               TextSpan(
                                 text: '#${t.vault_settings.nth(index: idx + 1)}',
+                                style: CoconutTypography.body2_14_Bold.setColor(const Color(0xFF4E83FF)),
+                              ),
+                              TextSpan(text: t.vault_settings.of),
+                              TextSpan(
+                                text: TextUtils.ellipsisIfLonger(multisig.name),
                                 style: CoconutTypography.body2_14_Bold.setColor(const Color(0xFF4E83FF)),
                               ),
                             ] else ...[
