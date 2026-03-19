@@ -14,6 +14,9 @@ class SingleSigVaultListItem extends VaultListItemBase {
   static const fieldDescriptor = 'descriptor';
   static const fieldSignerBsmsByAddressType = 'signerBsmsByAddressType';
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  late final int _currentAccountIndex;
+
   SingleSigVaultListItem({
     required super.id,
     required super.name,
@@ -30,17 +33,14 @@ class SingleSigVaultListItem extends VaultListItemBase {
     final parsedDesc = Descriptor.parse(descriptor);
     final keyStore = KeyStore.fromExtendedPublicKey(parsedDesc.getPublicKey(0), parsedDesc.getFingerprint(0));
 
-    coconutVault = SingleSignatureVault.fromKeyStore(keyStore, accountIndex: _extractAccountIndex(descriptor));
+    _currentAccountIndex = _extractAccountIndex(descriptor);
+    coconutVault = SingleSignatureVault.fromKeyStore(keyStore, accountIndex: _currentAccountIndex);
   }
 
   // Getter
   String get derivationPath => coconutVault.derivationPath;
 
-  int get currentAccountIndex {
-    final parts = derivationPath.split('/');
-    if (parts.isEmpty) return 0;
-    return int.tryParse(parts.last.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-  }
+  int get currentAccountIndex => _currentAccountIndex;
 
   @JsonKey(name: fieldDescriptor, includeToJson: false)
   String descriptor;

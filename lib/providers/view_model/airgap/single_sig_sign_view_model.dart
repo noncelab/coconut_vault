@@ -7,16 +7,18 @@ import 'package:flutter/foundation.dart';
 
 class SingleSigSignViewModel extends ChangeNotifier {
   final int requiredSignatureCount = 1;
-  late final WalletProvider _walletProvider;
-  late final SignProvider _signProvider;
-  late final SingleSignatureVault _coconutVault;
-  late final bool _isAlreadySigned;
-  late bool _isSignerApproved = false;
-  bool _hasPassphrase = false;
+  final WalletProvider _walletProvider;
+  final SignProvider _signProvider;
   final bool _isSigningOnlyMode;
 
+  late final SingleSignatureVault _coconutVault;
+  late final bool _isAlreadySigned;
+
+  bool _isSignerApproved = false;
+  bool _hasPassphrase = false;
+
   SingleSigSignViewModel(this._walletProvider, this._signProvider, this._isSigningOnlyMode) {
-    _coconutVault = (_signProvider.vaultListItem! as SingleSigVaultListItem).coconutVault as SingleSignatureVault;
+    _coconutVault = _vaultListItem.coconutVault as SingleSignatureVault;
 
     _isAlreadySigned = _isSigned();
     if (_isAlreadySigned) {
@@ -27,24 +29,29 @@ class SingleSigSignViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> _checkPassphraseStatus() async {
-    _hasPassphrase = await _walletProvider.hasPassphrase(_signProvider.walletId!);
-  }
+  // MARK: - Getters
+
+  SingleSigVaultListItem get _vaultListItem => _signProvider.vaultListItem! as SingleSigVaultListItem;
 
   bool get isAlreadySigned => _isAlreadySigned;
-  String get walletName => _signProvider.vaultListItem!.name;
+  String get walletName => _vaultListItem.name;
   bool get isSignerApproved => _isSignerApproved;
-  int get walletIconIndex => _signProvider.vaultListItem!.iconIndex;
-  int get walletColorIndex => _signProvider.vaultListItem!.colorIndex;
-  String get firstRecipientAddress =>
-      _signProvider.recipientAddress != null
-          ? _signProvider.recipientAddress!
-          : _signProvider.recipientAmounts!.keys.first;
+  int get walletIconIndex => _vaultListItem.iconIndex;
+  int get walletColorIndex => _vaultListItem.colorIndex;
+
+  String get firstRecipientAddress => _signProvider.recipientAddress ?? _signProvider.recipientAmounts!.keys.first;
   int get recipientCount => _signProvider.recipientAddress != null ? 1 : _signProvider.recipientAmounts!.length;
   int get sendingAmount => _signProvider.sendingAmount!;
   bool get hasPassphrase => _hasPassphrase;
   int get walletId => _signProvider.walletId!;
   bool get isSigningOnlyMode => _isSigningOnlyMode;
+
+  // MARK: - Status Checking
+
+  Future<void> _checkPassphraseStatus() async {
+    _hasPassphrase = await _walletProvider.hasPassphrase(walletId);
+    notifyListeners();
+  }
 
   bool _isSigned() {
     return _signProvider.psbt!.isSigned(_coconutVault.keyStore);
@@ -55,14 +62,11 @@ class SingleSigSignViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // MARK: - Signature Actions
+
   Future<void> sign({required Seed seed}) async {
     try {
-      final signedTx = await compute(SignIsolates.addSignatureToPsbtWithSingleVault, [
-        seed,
-        _signProvider.unsignedPsbtBase64!,
-      ]);
-      _signProvider.saveSignedPsbt(signedTx);
-      updateSignState();
+      await _processSignature(seed);
     } finally {
       seed.wipe();
     }
@@ -72,16 +76,24 @@ class SingleSigSignViewModel extends ChangeNotifier {
     assert(_isSigningOnlyMode);
     Seed? seed;
     try {
-      seed = await _walletProvider.getSeedInSigningOnlyMode(_signProvider.walletId!);
-      final signedTx = await compute(SignIsolates.addSignatureToPsbtWithSingleVault, [
-        seed,
-        _signProvider.unsignedPsbtBase64!,
-      ]);
-      _signProvider.saveSignedPsbt(signedTx);
-      updateSignState();
+      seed = await _walletProvider.getSeedInSigningOnlyMode(walletId);
+      await _processSignature(seed);
     } finally {
       seed?.wipe();
     }
+  }
+
+  Future<void> _processSignature(Seed seed) async {
+    final accountIndex = _vaultListItem.currentAccountIndex;
+
+    final signedTx = await compute(SignIsolates.addSignatureToPsbtWithSingleVault, [
+      seed,
+      _signProvider.unsignedPsbtBase64!,
+      accountIndex,
+    ]);
+
+    _signProvider.saveSignedPsbt(signedTx);
+    updateSignState();
   }
 
   void resetSignProvider() {
@@ -89,6 +101,6 @@ class SingleSigSignViewModel extends ChangeNotifier {
   }
 
   Future<Uint8List> getSecret() async {
-    return await _walletProvider.getSecret(_signProvider.walletId!);
+    return await _walletProvider.getSecret(walletId);
   }
 }
