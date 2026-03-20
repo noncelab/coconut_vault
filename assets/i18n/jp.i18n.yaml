@@ -103,7 +103,6 @@ forgot_password: "パスワードを忘れましたか？"
 scan_qr_url_link: "ネットワーク対応デバイスでQRコードをスキャンするか、上記URLにアクセスしてください"
 scan_qr_email_link: "ネットワーク対応デバイスでQRコードをスキャンするか、上記アドレスにメールを送信してください"
 developer_option: "開発者オプション"
-advanced_user: "上級ユーザー"
 
 extra_count: "+$count個追加"
 
@@ -464,7 +463,7 @@ settings_screen:
     change_account_description: "アカウント番号を変更すると\n別のウォレットが表示されます。\nアカウント番号を忘れると\nビットコインを見つけるのが\n難しくなる可能性があります。"
     disable_change_account_description: "アカウント番号の変更をオフにすると\n現在選択されているアカウント番号が\n最終的に保存されます。\n\nこのまま続行しますか？"
     change_account_btn: "理解しました"
-    disable_change_account_btn: "変更する"
+    disable_change_account_btn: "確認"
 
 # lib/screens/start_guide
 welcome_screen:

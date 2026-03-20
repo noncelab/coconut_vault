@@ -335,7 +335,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _category(t.advanced_user),
+        _category(t.settings_screen.advanced_user),
         Consumer<VisibilityProvider>(
           builder: (context, visibilityProvider, child) {
             return MultiButton(

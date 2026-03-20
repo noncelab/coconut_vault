@@ -103,7 +103,6 @@ forgot_password: "Forgot password?"
 scan_qr_url_link: "Scan QR code with network-enabled device or visit the URL above"
 scan_qr_email_link: "Scan QR code with network-enabled device or send email to the address above"
 developer_option: "Developer Option"
-advanced_user: "Advanced User"
 
 extra_count: "+$count more"
 
@@ -446,9 +445,9 @@ settings_screen:
   use_biometric: "Use Biometric"
   change_password: "Change Password"
   set_password: "Set Password"
-  advanced_user: "Advanced User"
+  advanced_user: "Advanced"
   use_passphrase: "Use Passphrase"
-  change_account: "Change Account Number"
+  change_account: "Change Account"
   change_account_description: "Change the account in m/84’/0’/account’"
   information: "Information"
   toast:
@@ -465,7 +464,7 @@ settings_screen:
     change_account_description: "Changing the account number\nwill display a different wallet.\nIf you forget the account number,\nit may be difficult to\nfind your Bitcoin."
     disable_change_account_description: "If you turn off account number change,\nthe currently selected account number\nwill be saved as the final one.\n\nDo you want to continue?"
     change_account_btn: "I understand"
-    disable_change_account_btn: "Change"
+    disable_change_account_btn: "Confirm"
 
 # lib/screens/start_guide
 welcome_screen:

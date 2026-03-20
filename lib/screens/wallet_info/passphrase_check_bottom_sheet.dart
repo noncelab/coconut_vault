@@ -12,7 +12,6 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -38,8 +37,6 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
 
   bool _isPassphraseVerified = false;
   bool _isVerificationResultSuccess = false;
-  String? _savedMfp;
-  String? _recoveredMfp;
   bool _isSubmitting = false;
   String? _previousInput;
   bool _passphraseObscured = false;
@@ -69,29 +66,23 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
 
   @override
   Widget build(BuildContext context) {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
     return ClipRRect(
       borderRadius: CoconutBorder.defaultRadius,
-      child: CustomLoadingOverlay(
-        child: Builder(
-          builder: (overlayContext) {
-            return Scaffold(
-              backgroundColor: CoconutColors.white,
-              appBar: CoconutAppBar.build(context: context, title: t.verify_passphrase_screen.title, isBottom: true),
-              body: SafeArea(
-                child: Stack(
-                  children: [
-                    _buildContentArea(),
-                    FixedBottomButton(
-                      text: t.verify_passphrase_screen.start_verification,
-                      isActive: _isButtonActive,
-                      onButtonClicked: () => _verifyPassphrase(overlayContext),
-                      showGradient: false,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+      child: CoconutBottomSheet(
+        useIntrinsicHeight: true,
+        appBar: CoconutAppBar.build(context: context, title: t.verify_passphrase_screen.title, isBottom: true),
+        bottomMargin: 20,
+        body: CustomLoadingOverlay(
+          child: Builder(
+            builder: (overlayContext) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: keyboardHeight > 0 ? keyboardHeight : 0, left: 20, right: 20, top: 8),
+                child: _buildContentArea(overlayContext),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -99,32 +90,41 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
 
   // MARK: - UI Components
 
-  Widget _buildContentArea() {
+  Widget _buildContentArea(BuildContext overlayContext) {
     return GestureDetector(
       onTap: _closeKeyboard,
       behavior: HitTestBehavior.opaque,
       child: Container(
         width: double.infinity,
-        height: double.infinity,
         color: CoconutColors.white,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                t.verify_passphrase_screen.description,
-                style: CoconutTypography.body1_16_Bold,
-                softWrap: true,
-                textAlign: TextAlign.center,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              t.bottom_sheet.verify_passphrase.description,
+              style: CoconutTypography.body2_14_Bold,
+              softWrap: true,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            _buildPassphraseInput(),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: CoconutButton(
+                text: t.verify_passphrase_screen.start_verification,
+                isActive: _isButtonActive,
+                onPressed: () => _verifyPassphrase(overlayContext),
+                backgroundColor: CoconutColors.black,
+                foregroundColor: CoconutColors.white,
+                disabledBackgroundColor: CoconutColors.gray150,
+                disabledForegroundColor: CoconutColors.gray350,
+                height: 50.0,
+                textStyle: CoconutTypography.body1_16_Bold,
               ),
-              const SizedBox(height: 24),
-              _buildPassphraseInput(),
-              const SizedBox(height: 40),
-              if (_isPassphraseVerified && !_isVerificationResultSuccess) _buildVerificationFailureCard(),
-              const SizedBox(height: 100),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -133,30 +133,6 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
   Widget _buildPassphraseInput() {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
-                _passphraseObscured
-                    ? t.passphrase_textfield.passphrase_visible
-                    : t.passphrase_textfield.passphrase_hidden,
-                style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black),
-              ),
-            ),
-            IconButton(
-              onPressed: () => setState(() => _passphraseObscured = !_passphraseObscured),
-              icon: Icon(
-                _passphraseObscured ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
-                color: CoconutColors.gray800,
-                size: 20,
-              ),
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-          ],
-        ),
         const SizedBox(height: 8),
         CoconutTextField(
           textAlign: TextAlign.left,
@@ -173,99 +149,52 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
           isError: _isPassphraseVerified && !_isVerificationResultSuccess,
           isLengthVisible: false,
           maxLength: 100,
-          placeholderText: t.verify_passphrase_screen.enter_passphrase,
-          suffix: _buildClearButton(),
+          placeholderText: t.bottom_sheet.verify_passphrase.placeholder,
+          suffix: _buildSuffixButtons(),
+          errorText: t.bottom_sheet.verify_passphrase.passphrase_error_message,
         ),
       ],
     );
   }
 
-  Widget? _buildClearButton() {
-    if (_controller.text.isEmpty) return null;
-
-    return IconButton(
-      highlightColor: CoconutColors.gray200,
-      iconSize: 14,
-      padding: EdgeInsets.zero,
-      onPressed: _controller.clear,
-      icon: SvgPicture.asset(
-        'assets/svg/text-field-clear.svg',
-        colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
-      ),
-    );
-  }
-
-  Widget _buildVerificationFailureCard() {
-    return Container(
-      padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 20),
-      decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(12)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SvgPicture.asset('assets/svg/triangle-warning.svg', width: 28),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  t.verify_passphrase_screen.result_title_failure,
-                  style: CoconutTypography.heading4_18_Bold,
-                  softWrap: true,
-                  overflow: TextOverflow.visible,
-                  textAlign: TextAlign.start,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(t.verify_passphrase_screen.result_description_failure, style: CoconutTypography.body2_14),
-          const SizedBox(height: 16),
-          const Divider(color: CoconutColors.gray350, height: 1),
-          const SizedBox(height: 16),
-          _buildResultRow(
-            title: t.verify_passphrase_screen.saved_mfp,
-            value: _savedMfp ?? '',
-            valueColor: CoconutColors.black,
-          ),
-          const SizedBox(height: 16),
-          _buildResultRow(
-            title: t.verify_passphrase_screen.recovered_mfp,
-            value: _recoveredMfp ?? '',
-            valueColor: CoconutColors.hotPink,
-            isBold: true,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildResultRow({
-    required String title,
-    required String value,
-    required Color valueColor,
-    bool isBold = false,
-  }) {
+  Widget _buildSuffixButtons() {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: CoconutTypography.body2_14.setColor(CoconutColors.gray850)),
-        const SizedBox(width: 8),
-        Expanded(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerRight,
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              style: CoconutTypography.body2_14_Number.copyWith(
-                color: valueColor,
-                fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
-              ),
-            ),
+      mainAxisSize: MainAxisSize.min,
+      children: [_buildPrivacyButton(), const SizedBox(width: 4), _buildClearButton(), const SizedBox(width: 8)],
+    );
+  }
+
+  Widget _buildPrivacyButton() {
+    return GestureDetector(
+      onTap: () => setState(() => _passphraseObscured = !_passphraseObscured),
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+        child: Icon(
+          _passphraseObscured ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+          color: CoconutColors.gray800,
+          size: 14,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildClearButton() {
+    return GestureDetector(
+      onTap: _controller.clear,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
+        child: SvgPicture.asset(
+          'assets/svg/text-field-clear.svg',
+          width: 14,
+          height: 14,
+          colorFilter: ColorFilter.mode(
+            _isPassphraseVerified && !_isVerificationResultSuccess ? CoconutColors.hotPink : CoconutColors.gray900,
+            BlendMode.srcIn,
           ),
         ),
-      ],
+      ),
     );
   }
 
@@ -376,8 +305,6 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
           _previousInput = _controller.text;
           _isPassphraseVerified = true;
           _isVerificationResultSuccess = false;
-          _savedMfp = result['savedMfp'];
-          _recoveredMfp = result['recoveredMfp'];
         });
       }
     } finally {

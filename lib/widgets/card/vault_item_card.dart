@@ -9,7 +9,6 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/wallet_info/account_number_settings_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/passphrase_check_bottom_sheet.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
-import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/tooltip_button.dart';
 import 'package:coconut_vault/widgets/icon/vault_icon.dart';
 import 'package:flutter/material.dart';
@@ -192,7 +191,7 @@ class _VaultItemCardState extends State<VaultItemCard> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(data.derivationPath, style: CoconutTypography.body2_14.setColor(CoconutColors.gray700)),
+              Text(data.derivationPath, style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.gray700)),
               if (isAccountEditEnabled) ...[
                 const SizedBox(width: 4),
                 SvgPicture.asset(
@@ -257,15 +256,17 @@ class _VaultItemCardState extends State<VaultItemCard> {
     if (!mounted) return;
 
     if (hasPassphrase) {
-      MyBottomSheet.showBottomSheet_90(
+      showModalBottomSheet(
         context: context,
-        child: PassphraseVerificationBottomSheet(
-          vaultId: widget.vaultItem.id,
-          onVerificationSuccess: (passphrase) {
-            Navigator.pop(context);
-            _showAccountEditSheet(currentAccount, passphrase: passphrase);
-          },
-        ),
+        isScrollControlled: true,
+        builder:
+            (context) => PassphraseVerificationBottomSheet(
+              vaultId: widget.vaultItem.id,
+              onVerificationSuccess: (passphrase) {
+                Navigator.pop(context);
+                _showAccountEditSheet(currentAccount, passphrase: passphrase);
+              },
+            ),
       );
     } else {
       _showAccountEditSheet(currentAccount);
@@ -273,19 +274,20 @@ class _VaultItemCardState extends State<VaultItemCard> {
   }
 
   void _showAccountEditSheet(int currentAccount, {Uint8List? passphrase}) {
-    MyBottomSheet.showBottomSheet_height(
+    showModalBottomSheet(
       context: context,
-      heightRatio: 0.74,
-      child: AccountEditBottomSheet(
-        account: currentAccount,
-        onUpdate: (account) async {
-          await context.read<WalletProvider>().updateSingleSigAccount(
-            widget.vaultItem.id,
-            account,
-            passphrase: passphrase,
-          );
-        },
-      ),
+      isScrollControlled: true,
+      builder:
+          (context) => AccountEditBottomSheet(
+            account: currentAccount,
+            onUpdate: (account) async {
+              await context.read<WalletProvider>().updateSingleSigAccount(
+                widget.vaultItem.id,
+                account,
+                passphrase: passphrase,
+              );
+            },
+          ),
     );
   }
 }

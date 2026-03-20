@@ -103,7 +103,6 @@ forgot_password: "비밀번호가 기억나지 않나요?"
 scan_qr_url_link: "네트워크가 활성화된 기기로 QR 코드를 스캔하시거나 위 URL로 접속해 주세요"
 scan_qr_email_link: "네트워크가 활성화된 기기로 QR 코드를 스캔하시거나 위 주소로 메일을 보내주세요"
 developer_option: "개발자 옵션"
-advanced_user: "고급 사용자"
 
 extra_count: "외 $count개"
 
@@ -466,7 +465,7 @@ settings_screen:
     change_account_description: "계정 번호를 변경하면\n다른 지갑이 표시됩니다.\n계정 번호를 잊어버리면\n비트코인을 찾기 어려울 수 있습니다."
     disable_change_account_description: "계정 번호 변경을 끄면\n현재 선택된 계정 번호가\n최종 저장됩니다.\n\n계속 진행하시겠어요?"
     change_account_btn: "이해했습니다"
-    disable_change_account_btn: "변경하기"
+    disable_change_account_btn: "확인"
 
 # lib/screens/start_guide
 welcome_screen:
@@ -909,6 +908,11 @@ bottom_sheet:
     description: "반드시 계정 번호를 기억하세요"
     placeholder: "계정 번호를 입력해 주세요"
     account_error_message: "0~2,147,483,647 범위의 값을 입력해 주세요."
+  verify_passphrase:
+    title: "패스프레이즈 확인"
+    description: "계정 번호 변경을 위해 패스프레이즈를 확인합니다"
+    placeholder: "패스프레이즈를 입력해 주세요"
+    passphrase_error_message: "패스프레이즈가 일치하지 않아요. 다시 입력해 주세요."
 
 permission:
   biometric: 

@@ -179,15 +179,17 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
     if (!providerContext.mounted) return;
 
     if (hasPassphrase) {
-      MyBottomSheet.showBottomSheet_90(
+      showModalBottomSheet(
         context: providerContext,
-        child: PassphraseVerificationBottomSheet(
-          vaultId: widget.id,
-          onVerificationSuccess: (passphrase) {
-            Navigator.pop(providerContext);
-            _showAccountEditSheet(providerContext, currentAccount, passphrase: passphrase);
-          },
-        ),
+        isScrollControlled: true,
+        builder:
+            (context) => PassphraseVerificationBottomSheet(
+              vaultId: widget.id,
+              onVerificationSuccess: (passphrase) {
+                Navigator.pop(providerContext);
+                _showAccountEditSheet(providerContext, currentAccount, passphrase: passphrase);
+              },
+            ),
       );
     } else {
       _showAccountEditSheet(providerContext, currentAccount);
@@ -195,15 +197,16 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   }
 
   void _showAccountEditSheet(BuildContext providerContext, int currentAccount, {Uint8List? passphrase}) {
-    MyBottomSheet.showBottomSheet_height(
+    showModalBottomSheet(
       context: providerContext,
-      heightRatio: 0.74,
-      child: AccountEditBottomSheet(
-        account: currentAccount,
-        onUpdate: (account) async {
-          await providerContext.read<WalletToSyncViewModel>().updateAccount(account, passphrase: passphrase);
-        },
-      ),
+      isScrollControlled: true,
+      builder:
+          (context) => AccountEditBottomSheet(
+            account: currentAccount,
+            onUpdate: (account) async {
+              await providerContext.read<WalletToSyncViewModel>().updateAccount(account, passphrase: passphrase);
+            },
+          ),
     );
   }
 

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -72,72 +71,75 @@ class _AccountEditBottomSheetState extends State<AccountEditBottomSheet> {
     final isError = _controller.text.isNotEmpty && validatedValue == null;
     final isChanged = validatedValue != widget.account;
     final isValid = validatedValue != null && !_isSubmitting && isChanged;
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
 
     return ClipRRect(
       borderRadius: CoconutBorder.defaultRadius,
-      child: CustomLoadingOverlay(
-        child: Builder(
-          builder: (overlayContext) {
-            return Scaffold(
-              backgroundColor: CoconutColors.white,
-              appBar: CoconutAppBar.build(
-                context: context,
-                title: t.bottom_sheet.account_settings.title,
-                isBottom: true,
-              ),
-              body: SafeArea(
-                child: Stack(
-                  children: [
-                    GestureDetector(
-                      onTap: _closeKeyboard,
-                      behavior: HitTestBehavior.opaque,
-                      child: Container(
-                        width: double.infinity,
-                        height: double.infinity,
-                        color: CoconutColors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Center(
-                              child: Text(
-                                t.bottom_sheet.account_settings.description,
-                                style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.hotPink),
-                                textAlign: TextAlign.center,
-                                softWrap: true,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            CoconutTextField(
-                              isLengthVisible: false,
-                              placeholderColor: CoconutColors.gray400,
-                              placeholderText: t.bottom_sheet.account_settings.placeholder,
-                              maxLength: 10,
-                              maxLines: 1,
-                              controller: _controller,
-                              focusNode: _focusNode,
-                              onChanged: (_) {},
-                              textInputType: TextInputType.number,
-                              textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
-                              isError: isError,
-                              suffix: _buildClearButton(isError),
-                              errorText: t.bottom_sheet.account_settings.account_error_message,
-                            ),
-                          ],
+      child: CoconutBottomSheet(
+        useIntrinsicHeight: true,
+        appBar: CoconutAppBar.build(context: context, title: t.bottom_sheet.account_settings.title, isBottom: true),
+        bottomMargin: 20,
+        body: CustomLoadingOverlay(
+          child: Builder(
+            builder: (overlayContext) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: keyboardHeight > 0 ? keyboardHeight : 0, left: 20, right: 20, top: 8),
+                child: GestureDetector(
+                  onTap: _closeKeyboard,
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    width: double.infinity,
+                    color: CoconutColors.white,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Center(
+                          child: Text(
+                            t.bottom_sheet.account_settings.description,
+                            style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.hotPink),
+                            textAlign: TextAlign.center,
+                            softWrap: true,
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 8),
+                        CoconutTextField(
+                          isLengthVisible: false,
+                          placeholderColor: CoconutColors.gray400,
+                          placeholderText: t.bottom_sheet.account_settings.placeholder,
+                          maxLength: 10,
+                          maxLines: 1,
+                          controller: _controller,
+                          focusNode: _focusNode,
+                          onChanged: (_) {},
+                          textInputType: TextInputType.number,
+                          textInputFormatter: [FilteringTextInputFormatter.digitsOnly],
+                          isError: isError,
+                          suffix: _buildClearButton(isError),
+                          errorText: t.bottom_sheet.account_settings.account_error_message,
+                        ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          child: CoconutButton(
+                            text: t.complete,
+                            isActive: isValid,
+                            onPressed: () => _onCompletePressed(overlayContext, validatedValue),
+                            backgroundColor: CoconutColors.black,
+                            foregroundColor: CoconutColors.white,
+                            disabledBackgroundColor: CoconutColors.gray150,
+                            disabledForegroundColor: CoconutColors.gray350,
+                            height: 50.0,
+                            textStyle: CoconutTypography.body1_16_Bold,
+                          ),
+                        ),
+                      ],
                     ),
-                    FixedBottomButton(
-                      text: t.complete,
-                      isActive: isValid,
-                      onButtonClicked: () => _onCompletePressed(overlayContext, validatedValue),
-                      showGradient: false,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );
