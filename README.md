@@ -8,15 +8,22 @@
 <p align="center">
   <img src="./assets/readme/vault.png" alt="Coconut Vault Logo" width="96"/>
 </p>
+
 <p align="center">
   <a href="https://apps.apple.com/kr/app/%EC%BD%94%EC%BD%94%EB%84%9B-%EB%B3%BC%ED%8A%B8/id6745778502"><img src="./assets/readme/app-store-badge.png" alt="App Store" height="40"/></a>&nbsp;&nbsp;
   <a href="https://play.google.com/store/apps/details?id=onl.coconut.vault.mainnet"><img src="./assets/readme/google-play-badge.png" alt="Google Play" height="40"/></a>
 </p>
 
+<p align="center">
+  <a href="https://apps.apple.com/kr/app/%EC%BD%94%EC%BD%94%EB%84%9B-%EB%B3%BC%ED%8A%B8/id6745778502">Download iOS App</a>
+  &nbsp;&nbsp;|&nbsp;&nbsp;
+  <a href="https://play.google.com/store/apps/details?id=onl.coconut.vault.mainnet">Download Android App</a>
+</p>
+
 **Offline Bitcoin Signer for iOS & Android**
 
-> **Try it risk-free!** A **regtest version** is available on both app stores, allowing you to practice air-gapped transactions with test bitcoin — no real funds required.  
-> [App Store](https://apps.apple.com/app/id6651839033) · [Google Play](https://play.google.com/store/apps/details?id=onl.coconut.vault.regtest)
+> **Try it risk-free!** A **REGTEST VERSION** is available on both app stores, allowing you to practice air-gapped transactions with test bitcoin — no real funds required.  
+> [Download iOS App(ver.regtest)](https://apps.apple.com/app/id6651839033) · [Download Android App(ver.regtest)](https://play.google.com/store/apps/details?id=onl.coconut.vault.regtest)
 
 ---
 
