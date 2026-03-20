@@ -279,6 +279,12 @@ psbt_confirmation_screen:
   guide: "월렛에서 스캔한 정보가 맞는지 다시 한번 확인해 주세요."
   self_sending: "내 지갑으로 보내는 트랜잭션입니다."
   warning: "⚠️ 해당 지갑으로 만든 psbt가 아닐 수 있습니다. 또는 잔액이 없는 트랜잭션일 수 있습니다."
+  total_cost:
+    total: "총 $n"
+    sentence: "가 소요됩니다"
+  output_detail_title: "출력 상세 보기"
+  flow_input_title: "입력 $index"
+  flow_output_title: "출력 $index"  
 psbt_scanner_screen:
   guide: "월렛에서 만든 보내기 정보 또는 외부 볼트에서 다중 서명 중인 정보를 스캔해 주세요."
   guide_import_psbt_0: "외부 볼트에서 "

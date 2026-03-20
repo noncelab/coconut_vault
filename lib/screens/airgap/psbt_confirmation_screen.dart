@@ -6,10 +6,12 @@ import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_confirmation_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/card/send_transaction_flow_card.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:coconut_vault/widgets/send_amount_header.dart';
+import 'package:coconut_vault/widgets/send_output_detail_card.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:provider/provider.dart';
 
 class PsbtConfirmationScreen extends StatefulWidget {
@@ -82,63 +84,22 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                             text: TextSpan(style: CoconutTypography.body3_12, children: _getTooltipRichText()),
                           ),
                         ),
-                        MediaQuery(
-                          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-                          child: GestureDetector(
-                            onTap: _toggleUnit,
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(vertical: Sizes.size40),
-                              child: Center(
-                                child: Text.rich(
-                                  TextSpan(
-                                    text: _currentUnit.displayBitcoinAmount(viewModel.sendingAmount),
-                                    children: <TextSpan>[
-                                      TextSpan(
-                                        text: ' ${_currentUnit.symbol}',
-                                        style: CoconutTypography.heading4_18_Number,
-                                      ),
-                                    ],
-                                  ),
-                                  style: CoconutTypography.heading1_32_Number.merge(
-                                    const TextStyle(fontSize: 36, fontWeight: FontWeight.w600),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                        SendAmountHeader(
+                          amountText: _currentUnit.displayBitcoinAmount(viewModel.sendingAmount),
+                          unitText: _currentUnit.symbol,
+                          satoshiAmount: viewModel.sendingAmount ?? 0,
+                          totalCostAmountText: _currentUnit.displayBitcoinAmount(viewModel.totalAmount),
+                          onTap: _toggleUnit,
                         ),
+                        CoconutLayout.spacing_300h,
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(28.0),
-                              color: CoconutColors.black.withValues(alpha: 0.03),
-                            ),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 24),
-                              child: Column(
-                                children: [
-                                  InformationItemCard(
-                                    label: t.recipient,
-                                    value: viewModel.recipientAddress,
-                                    isNumber: true,
-                                  ),
-                                  const Divider(color: CoconutColors.borderLightGray, height: 1),
-                                  InformationItemCard(
-                                    label: t.estimated_fee,
-                                    value: [_currentUnit.displayBitcoinAmount(viewModel.estimatedFee, withUnit: true)],
-                                    isNumber: true,
-                                  ),
-                                  const Divider(color: CoconutColors.borderLightGray, height: 1),
-                                  InformationItemCard(
-                                    label: t.total_amount,
-                                    value: [_currentUnit.displayBitcoinAmount(viewModel.totalAmount, withUnit: true)],
-                                    isNumber: true,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                          child: _buildTransactionFlowCard(viewModel),
+                        ),
+                        CoconutLayout.spacing_500h,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: _buildOutputDetailCard(viewModel),
                         ),
                         if (viewModel.isSendingToMyAddress) ...[
                           const SizedBox(height: 20),
@@ -210,6 +171,44 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
         style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
       ),
     ];
+  }
+
+  Widget _buildTransactionFlowCard(PsbtConfirmationViewModel viewModel) {
+    final List<int?> inputAmounts = viewModel.inputs;
+
+    final externalOutputAmounts =
+        viewModel.outputs.where((output) => output.isChange != true).map((output) => output.outAmount!).toList();
+    final changeOutputAmounts =
+        viewModel.outputs.where((output) => output.isChange == true).map((output) => output.outAmount!).toList();
+
+    return SendTransactionFlowCard(
+      inputAmounts: inputAmounts,
+      externalOutputAmounts: externalOutputAmounts,
+      changeOutputAmounts: changeOutputAmounts,
+      fee: viewModel.estimatedFee,
+      currentUnit: _currentUnit,
+    );
+  }
+
+  Widget _buildOutputDetailCard(PsbtConfirmationViewModel viewModel) {
+    final detailItems = <OutputDetailItem>[];
+    int outputIndex = 0;
+    for (final output in viewModel.outputs) {
+      final isChange = output.isChange == true;
+      if (!isChange) {
+        outputIndex += 1;
+      }
+      detailItems.add(
+        OutputDetailItem(
+          label: isChange ? t.change : t.psbt_confirmation_screen.flow_output_title(index: outputIndex),
+          address: output.outAddress,
+          amountSats: output.outAmount!,
+          isChange: isChange,
+        ),
+      );
+    }
+
+    return SendOutputDetailCard(items: detailItems, currentUnit: _currentUnit);
   }
 }
 

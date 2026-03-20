@@ -17,6 +17,8 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
   bool _isSendingToMyAddress = false;
   final List<String> _recipientAddresses = [];
   int? _sendingAmount;
+  List<int?> _inputs = [];
+  List<PsbtOutput> _outputs = [];
   // 현재 사용하지 않지만 관련 UI가 존재
   final bool _hasWarning = false;
 
@@ -30,11 +32,16 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
   int? get sendingAmount => _sendingAmount;
   int? get estimatedFee => _psbt?.fee;
   bool get hasWarning => _hasWarning;
+  List<int?> get inputs => _inputs;
+  List<PsbtOutput> get outputs => _outputs;
 
   int? get totalAmount => _psbt != null ? _psbt!.sendingAmount + _psbt!.fee : null;
 
   void setTxInfo() {
     _psbt = Psbt.parse(_unsignedPsbtBase64);
+
+    _inputs = _psbt!.inputs.map((input) => input.witnessUtxo?.amount).toList();
+    _outputs = _psbt!.outputs;
 
     List<PsbtOutput> outputs = _psbt!.outputs;
 

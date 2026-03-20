@@ -278,6 +278,12 @@ psbt_confirmation_screen:
   guide: "Please verify that the information scanned from the wallet is correct."
   self_sending: "This is a transaction sending to my own wallet."
   warning: "⚠️ This may not be a psbt created with this wallet. Or it may be a transaction with no balance."
+  total_cost:
+    total: "Total $n"
+    sentence: " is required."
+  output_detail_title: "Output Details"
+  flow_input_title: "Input $index"
+  flow_output_title: "Output $index"
 psbt_scanner_screen:
   guide: "Please scan sending info created in wallet or multisig info from external vault."
   guide_import_psbt_0: "Please scan the QR code created via "
