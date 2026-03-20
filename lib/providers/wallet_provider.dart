@@ -258,6 +258,22 @@ class WalletProvider extends ChangeNotifier {
     return await _walletRepository.hasPassphrase(walletId);
   }
 
+  Future<void> updateSingleSigAccount(int id, int newAccountIndex, {Uint8List? passphrase}) async {
+    _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedDecryption);
+    try {
+      await _walletRepository.updateSingleSigAccountVault(id, newAccountIndex, inputPassphrase: passphrase);
+
+      _setVaultList(List.from(_walletRepository.vaultList));
+      notifyListeners();
+    } catch (e) {
+      Logger.error('[WalletProvider] updateSingleSigAccount error: $e');
+      rethrow;
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 500));
+      _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+    }
+  }
+
   Future<MultisigVaultListItem> importMultisigVault(MultisigImportDetail details, int walletId) async {
     _setAddVaultCompleted(false);
 

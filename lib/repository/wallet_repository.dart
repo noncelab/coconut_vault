@@ -738,6 +738,65 @@ class WalletRepository {
     await _savePublicInfo();
   }
 
+  Future<void> updateSingleSigAccountVault(int id, int newAccountIndex, {Uint8List? inputPassphrase}) async {
+    if (_vaultList == null) throw Exception('vaultList is empty');
+
+    final index = _vaultList!.indexWhere((item) => item.id == id);
+    if (index == -1) throw Exception('Vault not found');
+
+    final existingVault = _vaultList![index] as SingleSigVaultListItem;
+    final currentCoconutVault = existingVault.coconutVault as SingleSignatureVault;
+
+    final parsed = await _decryptSecret(id);
+    final passphrase = _isSigningOnlyMode ? parsed.passphrase : inputPassphrase;
+
+    final verifyVault = SingleSignatureVault.fromMnemonic(
+      parsed.secret,
+      addressType: currentCoconutVault.addressType,
+      passphrase: passphrase,
+      accountIndex: currentCoconutVault.accountIndex,
+    );
+
+    if (verifyVault.keyStore.masterFingerprint != currentCoconutVault.keyStore.masterFingerprint) {
+      throw Exception('Invalid passphrase');
+    }
+
+    final updatedCoconutVault = SingleSignatureVault.fromMnemonic(
+      parsed.secret,
+      addressType: currentCoconutVault.addressType,
+      passphrase: passphrase,
+      accountIndex: newAccountIndex,
+    );
+
+    final newSignerBsmsMapByName = {
+      for (final addrType in existingVault.signerBsmsByAddressType.keys)
+        addrType.name: "${updatedCoconutVault.getSignerBsms(addrType, "").trimRight()}\n",
+    };
+
+    final rawJson =
+        existingVault.toPublicJson()
+          ..[SingleSigVaultListItem.fieldDescriptor] = updatedCoconutVault.descriptor
+          ..[SingleSigVaultListItem.fieldSignerBsmsByAddressType] = newSignerBsmsMapByName
+          ..['derivationPath'] = updatedCoconutVault.derivationPath;
+
+    final updatedItem = await compute<Map<String, dynamic>, VaultListItemBase>(
+      WalletIsolates.initializeWallet,
+      rawJson,
+    );
+
+    _vaultList![index] = updatedItem;
+
+    if (!_isSigningOnlyMode) {
+      final privacyInfo = SingleSigWalletPrivacyInfo.fromAddressTypeMap(
+        descriptor: updatedCoconutVault.descriptor,
+        signerBsmsByAddressType: (updatedItem as SingleSigVaultListItem).signerBsmsByAddressType,
+      );
+      await _savePrivacyInfo(id, WalletType.singleSignature, privacyInfo);
+    }
+
+    await _savePublicInfo();
+  }
+
   void dispose() {
     try {
       if (_walletLoadCancelToken != null && !_walletLoadCancelToken!.isCompleted) {

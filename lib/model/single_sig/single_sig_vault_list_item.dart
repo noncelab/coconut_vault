@@ -14,6 +14,9 @@ class SingleSigVaultListItem extends VaultListItemBase {
   static const fieldDescriptor = 'descriptor';
   static const fieldSignerBsmsByAddressType = 'signerBsmsByAddressType';
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  late final int _currentAccountIndex;
+
   SingleSigVaultListItem({
     required super.id,
     required super.name,
@@ -25,10 +28,19 @@ class SingleSigVaultListItem extends VaultListItemBase {
     required super.createdAt,
     this.signerBsms, // data scheme v1, signerBsmsByAddressType으로 대체됨
   }) : super(vaultType: WalletType.singleSignature) {
-    final descriptor = Descriptor.parse(this.descriptor);
-    final keyStore = KeyStore.fromExtendedPublicKey(descriptor.getPublicKey(0), descriptor.getFingerprint(0));
-    coconutVault = SingleSignatureVault.fromKeyStore(keyStore);
+    signerBsmsByAddressType.updateAll((key, bsms) => bsms.endsWith('\n') ? bsms : '${bsms.trimRight()}\n');
+
+    final parsedDesc = Descriptor.parse(descriptor);
+    final keyStore = KeyStore.fromExtendedPublicKey(parsedDesc.getPublicKey(0), parsedDesc.getFingerprint(0));
+
+    _currentAccountIndex = _extractAccountIndex(descriptor);
+    coconutVault = SingleSignatureVault.fromKeyStore(keyStore, accountIndex: _currentAccountIndex);
   }
+
+  // Getter
+  String get derivationPath => coconutVault.derivationPath;
+
+  int get currentAccountIndex => _currentAccountIndex;
 
   @JsonKey(name: fieldDescriptor, includeToJson: false)
   String descriptor;
@@ -45,10 +57,7 @@ class SingleSigVaultListItem extends VaultListItemBase {
   String getSignerBsmsByAddressType(AddressType addressType, {bool withLabel = true}) {
     final signerBsms = signerBsmsByAddressType[addressType]!;
     assert(signerBsms.endsWith('\n'), 'signerBsms should end with newline');
-    if (withLabel) {
-      return "$signerBsms$name";
-    }
-    return signerBsms;
+    return withLabel ? "$signerBsms$name" : signerBsms;
   }
 
   @JsonKey(name: "linkedMultisigInfo")
@@ -61,14 +70,12 @@ class SingleSigVaultListItem extends VaultListItemBase {
 
   @override
   String getWalletSyncString() {
-    Map<String, dynamic> json = {
+    return jsonEncode({
       'name': name,
       'colorIndex': colorIndex,
       'iconIndex': iconIndex,
       'descriptor': coconutVault.descriptor,
-    };
-
-    return jsonEncode(json);
+    });
   }
 
   @override
@@ -91,9 +98,31 @@ class SingleSigVaultListItem extends VaultListItemBase {
   String toString() =>
       'Vault($id) / type=$vaultType / linkedMultisigInfo=$linkedMultisigInfo / name=$name / colorIndex=$colorIndex / iconIndex=$iconIndex';
 
+  // --- Static Helper Methods ---
+
+  static int _extractAccountIndex(String descriptor) {
+    try {
+      final startIndex = descriptor.indexOf('[');
+      final endIndex = descriptor.indexOf(']');
+
+      if (startIndex != -1 && endIndex != -1) {
+        final pathContent = descriptor.substring(startIndex + 1, endIndex);
+        final parts = pathContent.split('/');
+
+        if (parts.length >= 4) {
+          final accountPart = parts[3].replaceAll(RegExp(r'[^0-9]'), '');
+          return int.tryParse(accountPart) ?? 0;
+        }
+      }
+    } catch (e) {
+      debugPrint('Failed to extract account index from descriptor: $e');
+    }
+    return 0;
+  }
+
   static Map<AddressType, String> _signerBsmsFromJson(Map<String, dynamic>? json) {
-    if (json == null) return {};
-    return json.map((key, value) => MapEntry(AddressType.values.firstWhere((e) => e.name == key), value as String));
+    return json?.map((key, value) => MapEntry(AddressType.values.firstWhere((e) => e.name == key), value as String)) ??
+        {};
   }
 
   static Map<String, String> _signerBsmsToJson(Map<AddressType, String> map) {

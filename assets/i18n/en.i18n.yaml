@@ -103,7 +103,6 @@ forgot_password: "Forgot password?"
 scan_qr_url_link: "Scan QR code with network-enabled device or visit the URL above"
 scan_qr_email_link: "Scan QR code with network-enabled device or send email to the address above"
 developer_option: "Developer Option"
-advanced_user: "Advanced User"
 
 extra_count: "+$count more"
 
@@ -452,8 +451,10 @@ settings_screen:
   use_biometric: "Use Biometric"
   change_password: "Change Password"
   set_password: "Set Password"
-  advanced_user: "Advanced User"
+  advanced_user: "Advanced"
   use_passphrase: "Use Passphrase"
+  change_account: "Change Account"
+  change_account_description: "Change the account in m/84’/0’/account’"
   information: "Information"
   toast:
     no_enrolled_biometrics: "No biometrics are set up on this device"
@@ -462,8 +463,14 @@ settings_screen:
     need_biometrics_setting_desc: "Please check biometrics settings."
     btn_move_to_setting: "Go to Settings"
     use_passphrase_title: "Use Passphrase"
-    use_passphrase_description: "Using passphrase is like creating a new wallet. If used incorrectly, you may lose bitcoins forever."
+    use_passphrase_description: "Using a passphrase\nis like creating\nan entirely new wallet.\nIf used incorrectly,\nyou could lose your\nBitcoin forever."
     use_passphrase_btn: "I understand"
+    change_account_title: "Change Account Number"
+    disable_change_account_title: "Disable Account Number Change"
+    change_account_description: "Changing the account number\nwill display a different wallet.\nIf you forget the account number,\nit may be difficult to\nfind your Bitcoin."
+    disable_change_account_description: "If you turn off account number change,\nthe currently selected account number\nwill be saved as the final one.\n\nDo you want to continue?"
+    change_account_btn: "I understand"
+    disable_change_account_btn: "Confirm"
 
 # lib/screens/start_guide
 welcome_screen:
@@ -865,7 +872,7 @@ vault_settings:
   used_in_multisig: "Used in multisig wallet"
   of: " of "
   nth: "$index"
-  key: "key "
+  key: "Key "
 
 verify_passphrase_screen:
   title: "Passphrase Verification"
@@ -899,6 +906,11 @@ bottom_sheet:
   ask_about_license: "[Vault] License Inquiry"
   mnemonic_backup: "Please backup\ngenerated mnemonic phrase."
   mnemonic_backup_and_confirm_passphrase: "Please backup generated mnemonic phrase\nand confirm passphrase."
+  account_settings:
+    title: "Set Account Number"
+    description: "Make sure to remember your account number."
+    placeholder: "Please enter the account number"
+    account_error_message: "Enter a value in the range 0 and 2,147,483,647."
 
 permission:
   biometric: 

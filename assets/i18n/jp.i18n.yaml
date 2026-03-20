@@ -103,7 +103,6 @@ forgot_password: "パスワードを忘れましたか？"
 scan_qr_url_link: "ネットワーク対応デバイスでQRコードをスキャンするか、上記URLにアクセスしてください"
 scan_qr_email_link: "ネットワーク対応デバイスでQRコードをスキャンするか、上記アドレスにメールを送信してください"
 developer_option: "開発者オプション"
-advanced_user: "上級ユーザー"
 
 extra_count: "+$count個追加"
 
@@ -454,6 +453,8 @@ settings_screen:
   set_password: "パスワード設定"
   advanced_user: "上級ユーザー"
   use_passphrase: "パスフレーズを使用"
+  change_account: "アカウント番号を変更する"
+  change_account_description: "m/84’/0’/account’ の account を変更します"
   information: "情報"
   toast:
     no_enrolled_biometrics: "生体認証が登録されていません"
@@ -461,9 +462,14 @@ settings_screen:
     need_biometrics_setting_title: "生体認証を使用"
     need_biometrics_setting_desc: "生体認証を設定してください。"
     btn_move_to_setting: "設定に移動"
-    use_passphrase_title: "パスフレーズを使用"
-    use_passphrase_description: "パスフレーズを使用すると、新しいウォレットを作成するのと同じです。誤って使用すると、ビットコインを永久に失う可能性があります。"
+    use_passphrase_description: "パスフレーズの使用は\n新しいウォレットを\n作成するのと同じです。\n誤って使用すると\nビットコインを\n永久に失う可能性があります。"
     use_passphrase_btn: "理解しました"
+    change_account_title: "アカウント番号の変更"
+    disable_change_account_title: "アカウント番号変更の無効化"
+    change_account_description: "アカウント番号を変更すると\n別のウォレットが表示されます。\nアカウント番号を忘れると\nビットコインを見つけるのが\n難しくなる可能性があります。"
+    disable_change_account_description: "アカウント番号の変更をオフにすると\n現在選択されているアカウント番号が\n最終的に保存されます。\n\nこのまま続行しますか？"
+    change_account_btn: "理解しました"
+    disable_change_account_btn: "確認"
 
 # lib/screens/start_guide
 welcome_screen:
@@ -862,8 +868,8 @@ vault_menu_screen:
 vault_settings:
   used_in_multisig: "マルチシグウォレットで使用中"
   of: " の "
-  nth: "$index"
-  key: " キー"
+  nth: "$index番目の"
+  key: "キー"
 
 verify_passphrase_screen:
   title: "パスフレーズ確認"
@@ -897,6 +903,11 @@ bottom_sheet:
   ask_about_license: "[ボルト] ライセンスお問い合わせ"
   mnemonic_backup: "生成されたニーモニックフレーズを\nバックアップしてください。"
   mnemonic_backup_and_confirm_passphrase: "生成されたニーモニックフレーズをバックアップし\nパスフレーズを確認してください。"
+  account_settings:
+    title: "アカウント番号の設定"
+    description: "必ずアカウント番号を覚えておいてください"
+    placeholder: "アカウント番号を入力してください"
+    account_error_message: "0〜2,147,483,647の範囲の値を入力してください。"
 
 permission:
   biometric: 

@@ -103,7 +103,6 @@ forgot_password: "비밀번호가 기억나지 않나요?"
 scan_qr_url_link: "네트워크가 활성화된 기기로 QR 코드를 스캔하시거나 위 URL로 접속해 주세요"
 scan_qr_email_link: "네트워크가 활성화된 기기로 QR 코드를 스캔하시거나 위 주소로 메일을 보내주세요"
 developer_option: "개발자 옵션"
-advanced_user: "고급 사용자"
 
 extra_count: "외 $count개"
 
@@ -455,6 +454,8 @@ settings_screen:
   set_password: "비밀번호 설정하기"
   advanced_user: "고급 사용자"
   use_passphrase: "패스프레이즈 사용하기"
+  change_account: "계정 번호 변경하기"
+  change_account_description: "m/84’/0’/account’에서 account를 변경합니다"
   information: "안내"
   toast:
     no_enrolled_biometrics: "기기에 등록된 생체 인증이 없어요"
@@ -463,9 +464,15 @@ settings_screen:
     need_biometrics_setting_desc: "생체 인증 설정을 확인해주세요."
     btn_move_to_setting: "설정하러 가기"
     use_passphrase_title: "패스프레이즈 사용"
-    use_passphrase_description: "패스프레이즈 사용은 새로운 지갑을 만드는 것과 같습니다. 잘못 사용하면 비트코인을 영원히 잃을 수 있습니다."
+    use_passphrase_description: "패스프레이즈 사용은\n새로운 지갑을 만드는 것과\n같습니다. 잘못 사용하면\n비트코인을 영원히\n잃을 수 있습니다."
     use_passphrase_btn: "이해했습니다"
-  
+    change_account_title: "계정 번호 변경"
+    disable_change_account_title: "계정 번호 변경 비활성화"
+    change_account_description: "계정 번호를 변경하면\n다른 지갑이 표시됩니다.\n계정 번호를 잊어버리면\n비트코인을 찾기 어려울 수 있습니다."
+    disable_change_account_description: "계정 번호 변경을 끄면\n현재 선택된 계정 번호가\n최종 저장됩니다.\n\n계속 진행하시겠어요?"
+    change_account_btn: "이해했습니다"
+    disable_change_account_btn: "확인"
+
 # lib/screens/start_guide
 welcome_screen:
   screen_1_title: "안전한 환경에서 시작하세요"
@@ -867,7 +874,7 @@ vault_menu_screen:
 vault_settings:
   used_in_multisig: "다중 서명 지갑에서 사용 중입니다"
   of: "의 "
-  nth: "$index 번"
+  nth: "$index번"
   key: " 키"
 
 verify_passphrase_screen:
@@ -902,6 +909,16 @@ bottom_sheet:
   ask_about_license: "[볼트] 라이선스 문의"
   mnemonic_backup: "생성된 니모닉 문구를\n백업해 주세요."
   mnemonic_backup_and_confirm_passphrase: "생성된 니모닉 문구를 백업하시고\n패스프레이즈를 확인해 주세요."
+  account_settings:
+    title: "계정 번호 설정"
+    description: "반드시 계정 번호를 기억하세요"
+    placeholder: "계정 번호를 입력해 주세요"
+    account_error_message: "0~2,147,483,647 범위의 값을 입력해 주세요."
+  verify_passphrase:
+    title: "패스프레이즈 확인"
+    description: "계정 번호 변경을 위해 패스프레이즈를 확인합니다"
+    placeholder: "패스프레이즈를 입력해 주세요"
+    passphrase_error_message: "패스프레이즈가 일치하지 않아요. 다시 입력해 주세요."
 
 permission:
   biometric: 
