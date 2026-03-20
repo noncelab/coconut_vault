@@ -1,11 +1,12 @@
 import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 
 class FixedBottomButton extends StatefulWidget {
-  static const fixedBottomButtonDefaultHeight = 50.0;
-  static const fixedBottomButtonDefaultBottomPadding = 16.0;
+  static const fixedBottomButtonDefaultHeight = 55.0;
+  static const fixedBottomButtonDefaultBottomPadding = 22.0;
 
   const FixedBottomButton({
     super.key,
@@ -52,7 +53,7 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
         widget.buttonHeight ??
         (Platform.isAndroid
             ? FixedBottomButton.fixedBottomButtonDefaultHeight
-            : FixedBottomButton.fixedBottomButtonDefaultHeight + 8);
+            : FixedBottomButton.fixedBottomButtonDefaultHeight + 3);
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
       child: Stack(
@@ -65,19 +66,21 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
               child: IgnorePointer(
                 ignoring: true,
                 child: Container(
-                  padding: widget.gradientPadding ?? const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 150),
+                  padding:
+                      widget.gradientPadding ??
+                      EdgeInsets.only(left: 16, right: 16, bottom: 40, top: buttonHeight + 24),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        CoconutColors.white.withValues(alpha: 0.0),
+                        CoconutColors.white.withValues(alpha: 0.1),
                         CoconutColors.white.withValues(alpha: 0.3),
-                        CoconutColors.white.withValues(alpha: 0.7),
-                        CoconutColors.white.withValues(alpha: 0.9),
+                        CoconutColors.white.withValues(alpha: 0.6),
+                        CoconutColors.white.withValues(alpha: 0.8),
                         CoconutColors.white,
                       ],
-                      stops: const [0.0, 0.3, 0.6, 0.85, 1.0],
+                      stops: const [0.03, 0.07, 0.1, 0.15, 0.23],
                     ),
                   ),
                 ),
@@ -91,20 +94,31 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
               children: [
                 widget.subWidget ?? Container(),
                 CoconutLayout.spacing_300h,
-                CoconutButton(
+                ShrinkAnimationButton(
                   onPressed: () {
                     widget.onButtonClicked();
                   },
-                  width: MediaQuery.sizeOf(context).width,
-                  disabledBackgroundColor: CoconutColors.gray150,
-                  disabledForegroundColor: CoconutColors.gray350,
                   isActive: widget.isActive,
-                  height: buttonHeight,
-                  backgroundColor: widget.backgroundColor,
-                  foregroundColor: widget.textColor,
-                  pressedTextColor: widget.textColor,
-                  text: widget.text,
-                  textStyle: CoconutTypography.body1_16_Bold,
+                  defaultColor: widget.backgroundColor,
+                  pressedColor: widget.pressedBackgroundColor ?? getLighterColor(widget.backgroundColor),
+                  disabledColor: CoconutColors.gray150,
+                  borderRadius: 12,
+                  child: SizedBox(
+                    width: MediaQuery.sizeOf(context).width,
+                    height: buttonHeight,
+                    child: Center(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          widget.text,
+                          textAlign: TextAlign.center,
+                          style: CoconutTypography.heading4_18_Bold.setColor(
+                            widget.isActive ? widget.textColor : CoconutColors.gray350,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -113,4 +127,10 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
       ),
     );
   }
+}
+
+Color getLighterColor(Color color, [double amount = 0.05]) {
+  final hsl = HSLColor.fromColor(color);
+  final lighter = hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));
+  return lighter.toColor();
 }

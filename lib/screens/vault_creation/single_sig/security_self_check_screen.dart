@@ -97,7 +97,6 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
               text: t.next,
               textColor: CoconutColors.white,
               showGradient: true,
-              gradientPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 110),
               isActive: _allItemsChecked,
               backgroundColor: CoconutColors.black,
             ),
