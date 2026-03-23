@@ -17,7 +17,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 import 'package:vibration/vibration.dart';
 
@@ -74,15 +73,9 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
         useIntrinsicHeight: true,
         appBar: CoconutAppBar.build(context: context, title: t.verify_passphrase_screen.title, isBottom: true),
         bottomMargin: 20,
-        body: CustomLoadingOverlay(
-          child: Builder(
-            builder: (overlayContext) {
-              return Padding(
-                padding: EdgeInsets.only(bottom: keyboardHeight > 0 ? keyboardHeight : 0, left: 20, right: 20, top: 8),
-                child: _buildContentArea(overlayContext),
-              );
-            },
-          ),
+        body: Padding(
+          padding: EdgeInsets.only(bottom: keyboardHeight > 0 ? keyboardHeight : 0, left: 20, right: 20, top: 8),
+          child: _buildContentArea(),
         ),
       ),
     );
@@ -90,7 +83,7 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
 
   // MARK: - UI Components
 
-  Widget _buildContentArea(BuildContext overlayContext) {
+  Widget _buildContentArea() {
     return GestureDetector(
       onTap: _closeKeyboard,
       behavior: HitTestBehavior.opaque,
@@ -115,7 +108,7 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
               child: CoconutButton(
                 text: t.verify_passphrase_screen.start_verification,
                 isActive: _isButtonActive,
-                onPressed: () => _verifyPassphrase(overlayContext),
+                onPressed: () => _verifyPassphrase(),
                 backgroundColor: CoconutColors.black,
                 foregroundColor: CoconutColors.white,
                 disabledBackgroundColor: CoconutColors.gray150,
@@ -220,9 +213,9 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
     return pinCheckResult == true;
   }
 
-  void _hideLoaderAndShowErrorPopup(BuildContext overlayContext, String title, String description) {
+  void _hideLoaderAndShowErrorPopup(String title, String description) {
     if (!mounted) return;
-    overlayContext.loaderOverlay.hide();
+    Navigator.of(context).pop();
 
     showDialog(
       context: context,
@@ -237,7 +230,7 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
     Vibration.vibrate(duration: 100);
   }
 
-  Future<void> _verifyPassphrase(BuildContext overlayContext) async {
+  Future<void> _verifyPassphrase() async {
     if (_isSubmitting) return;
 
     try {
@@ -247,11 +240,16 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
       final authResult = await _authenticateWithBiometricOrPin();
       if (!authResult || !mounted) return;
 
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future.delayed(const Duration(milliseconds: 200));
 
-      overlayContext.loaderOverlay.show();
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        barrierColor: CoconutColors.black.withValues(alpha: 0.2),
+        builder: (context) => const PopScope(canPop: false, child: Center(child: CoconutCircularIndicator())),
+      );
 
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 50));
 
       final walletProvider = context.read<WalletProvider>();
       Uint8List? mnemonic;
@@ -260,13 +258,12 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
         mnemonic = await walletProvider.getSecret(widget.vaultId);
       } on UserCanceledAuthException catch (_) {
         _hideLoaderAndShowErrorPopup(
-          overlayContext,
           t.alert.auth_canceled_when_decrypt.title,
           t.alert.auth_canceled_when_decrypt.description_passphrase_verify,
         );
         return;
       } catch (e) {
-        _hideLoaderAndShowErrorPopup(overlayContext, t.passphrase_check_screen.alert.failed.title, e.toString());
+        _hideLoaderAndShowErrorPopup(t.passphrase_check_screen.alert.failed.title, e.toString());
         return;
       }
 
@@ -289,17 +286,17 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
       if (result['success']) {
         vibrateLight();
 
-        await Future.delayed(const Duration(milliseconds: 600));
+        await Future.delayed(const Duration(milliseconds: 150));
 
         if (mounted) {
-          overlayContext.loaderOverlay.hide();
+          Navigator.of(context).pop();
           widget.onVerificationSuccess(passphrase);
         }
       } else {
         vibrateLightDouble();
         if (passphrase.isNotEmpty) passphrase.wipe();
 
-        overlayContext.loaderOverlay.hide();
+        Navigator.of(context).pop();
 
         setState(() {
           _previousInput = _controller.text;

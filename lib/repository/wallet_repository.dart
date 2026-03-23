@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
@@ -750,34 +751,26 @@ class WalletRepository {
     final parsed = await _decryptSecret(id);
     final passphrase = _isSigningOnlyMode ? parsed.passphrase : inputPassphrase;
 
-    final verifyVault = SingleSignatureVault.fromMnemonic(
-      parsed.secret,
-      addressType: currentCoconutVault.addressType,
-      passphrase: passphrase,
-      accountIndex: currentCoconutVault.accountIndex,
-    );
+    final derivedNewAccountVault = await compute(WalletIsolates.deriveNewAccountVault, {
+      'mnemonic': parsed.secret,
+      'passphrase': passphrase,
+      'addressTypeName': currentCoconutVault.addressType.name,
+      'currentAccountIndex': currentCoconutVault.accountIndex,
+      'newAccountIndex': newAccountIndex,
+      'expectedMfp': currentCoconutVault.keyStore.masterFingerprint,
+      'addressTypesToUpdate': existingVault.signerBsmsByAddressType.keys.map((e) => e.name).toList(),
+    });
 
-    if (verifyVault.keyStore.masterFingerprint != currentCoconutVault.keyStore.masterFingerprint) {
-      throw Exception('Invalid passphrase');
+    parsed.secret.wipe();
+    if (_isSigningOnlyMode && parsed.passphrase != null) {
+      parsed.passphrase!.wipe();
     }
-
-    final updatedCoconutVault = SingleSignatureVault.fromMnemonic(
-      parsed.secret,
-      addressType: currentCoconutVault.addressType,
-      passphrase: passphrase,
-      accountIndex: newAccountIndex,
-    );
-
-    final newSignerBsmsMapByName = {
-      for (final addrType in existingVault.signerBsmsByAddressType.keys)
-        addrType.name: "${updatedCoconutVault.getSignerBsms(addrType, "").trimRight()}\n",
-    };
 
     final rawJson =
         existingVault.toPublicJson()
-          ..[SingleSigVaultListItem.fieldDescriptor] = updatedCoconutVault.descriptor
-          ..[SingleSigVaultListItem.fieldSignerBsmsByAddressType] = newSignerBsmsMapByName
-          ..['derivationPath'] = updatedCoconutVault.derivationPath;
+          ..[SingleSigVaultListItem.fieldDescriptor] = derivedNewAccountVault['descriptor']
+          ..[SingleSigVaultListItem.fieldSignerBsmsByAddressType] = derivedNewAccountVault['signerBsmsMapByName']
+          ..['derivationPath'] = derivedNewAccountVault['derivationPath'];
 
     final updatedItem = await compute<Map<String, dynamic>, VaultListItemBase>(
       WalletIsolates.initializeWallet,
@@ -788,7 +781,7 @@ class WalletRepository {
 
     if (!_isSigningOnlyMode) {
       final privacyInfo = SingleSigWalletPrivacyInfo.fromAddressTypeMap(
-        descriptor: updatedCoconutVault.descriptor,
+        descriptor: derivedNewAccountVault['descriptor'],
         signerBsmsByAddressType: (updatedItem as SingleSigVaultListItem).signerBsmsByAddressType,
       );
       await _savePrivacyInfo(id, WalletType.singleSignature, privacyInfo);

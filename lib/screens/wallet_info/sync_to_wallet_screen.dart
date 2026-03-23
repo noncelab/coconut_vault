@@ -2,15 +2,14 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/wallet_info/sync_to_wallet_view_model.dart';
+import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/account_number_settings_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/passphrase_check_bottom_sheet.dart';
-import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
-import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/tooltip_description.dart';
@@ -105,8 +104,14 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   Widget _buildDerivationPathSection(BuildContext providerContext) {
     final isAccountEditEnabled = providerContext.watch<VisibilityProvider>().isAccountEditEnabled;
 
-    return Selector<WalletToSyncViewModel, ({String derivationPath, int currentAccount})>(
-      selector: (context, vm) => (derivationPath: vm.derivationPath, currentAccount: vm.currentAccountIndex),
+    return Selector<WalletProvider, ({String derivationPath, int currentAccount})>(
+      selector: (context, provider) {
+        final vault = provider.getVaultById(widget.id);
+        if (vault is! SingleSigVaultListItem) {
+          return (derivationPath: '', currentAccount: 0);
+        }
+        return (derivationPath: vault.derivationPath, currentAccount: vault.currentAccountIndex);
+      },
       builder: (context, data, child) {
         if (data.derivationPath.isEmpty) return const SizedBox.shrink();
 
@@ -141,15 +146,12 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   }
 
   Widget _buildQrSection() {
-    return Selector<WalletToSyncViewModel, ({QrData qrData, UrType urType})>(
-      selector: (context, vm) => (qrData: vm.qrData, urType: vm.urType),
-      builder: (context, selectedValue, child) {
+    return Consumer<WalletToSyncViewModel>(
+      builder: (context, vm, child) {
         return AdaptiveQrImage(
-          qrData: selectedValue.qrData.type == QrType.single ? selectedValue.qrData.data : null,
-          qrViewDataHandler:
-              selectedValue.qrData.type != QrType.single
-                  ? BcUrQrViewHandler(selectedValue.qrData.data, selectedValue.urType)
-                  : null,
+          key: ValueKey(vm.qrData.data),
+          qrData: vm.qrData.type == QrType.single ? vm.qrData.data : null,
+          qrViewDataHandler: vm.qrData.type != QrType.single ? BcUrQrViewHandler(vm.qrData.data, vm.urType) : null,
         );
       },
     );

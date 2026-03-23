@@ -264,13 +264,17 @@ class WalletProvider extends ChangeNotifier {
       await _walletRepository.updateSingleSigAccountVault(id, newAccountIndex, inputPassphrase: passphrase);
 
       _setVaultList(List.from(_walletRepository.vaultList));
-      notifyListeners();
+
+      Future.microtask(() {
+        if (!_isDisposed) notifyListeners();
+      });
     } catch (e) {
       Logger.error('[WalletProvider] updateSingleSigAccount error: $e');
       rethrow;
     } finally {
-      await Future.delayed(const Duration(milliseconds: 500));
-      _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+      });
     }
   }
 
@@ -512,8 +516,9 @@ class WalletProvider extends ChangeNotifier {
     } finally {
       // TEE 접근 완료 - inactive 상태 전환 허용
       // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
-      await Future.delayed(const Duration(milliseconds: 500));
-      _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+      });
     }
   }
 
@@ -525,8 +530,9 @@ class WalletProvider extends ChangeNotifier {
     } finally {
       // TEE 접근 완료 - inactive 상태 전환 허용
       // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
-      await Future.delayed(const Duration(milliseconds: 500));
-      _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+      });
     }
   }
 

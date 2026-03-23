@@ -200,4 +200,55 @@ class WalletIsolates {
       }
     }
   }
+
+  static Future<Map<String, dynamic>> deriveNewAccountVault(Map<String, dynamic> args) async {
+    setNetworkType();
+
+    final Uint8List mnemonic = args['mnemonic'];
+    final Uint8List? passphrase = args['passphrase'];
+    final String addressTypeName = args['addressTypeName'];
+    final int currentAccountIndex = args['currentAccountIndex'];
+    final int newAccountIndex = args['newAccountIndex'];
+    final String expectedMfp = args['expectedMfp'];
+    final List<String> addressTypesToUpdate = List<String>.from(args['addressTypesToUpdate']);
+
+    final AddressType addressType = AddressType.getAddressTypeFromName(addressTypeName);
+
+    try {
+      final verifyVault = SingleSignatureVault.fromMnemonic(
+        mnemonic,
+        addressType: addressType,
+        passphrase: passphrase,
+        accountIndex: currentAccountIndex,
+      );
+
+      if (verifyVault.keyStore.masterFingerprint.toUpperCase() != expectedMfp.toUpperCase()) {
+        throw Exception('Invalid passphrase');
+      }
+
+      final updatedCoconutVault = SingleSignatureVault.fromMnemonic(
+        mnemonic,
+        addressType: addressType,
+        passphrase: passphrase,
+        accountIndex: newAccountIndex,
+      );
+
+      final newSignerBsmsMapByName = {
+        for (final addrTypeName in addressTypesToUpdate)
+          addrTypeName:
+              "${updatedCoconutVault.getSignerBsms(AddressType.getAddressTypeFromName(addrTypeName), "").trimRight()}\n",
+      };
+
+      return {
+        'descriptor': updatedCoconutVault.descriptor,
+        'signerBsmsMapByName': newSignerBsmsMapByName,
+        'derivationPath': updatedCoconutVault.derivationPath,
+      };
+    } finally {
+      mnemonic.wipe();
+      if (passphrase != null) {
+        passphrase.wipe();
+      }
+    }
+  }
 }
