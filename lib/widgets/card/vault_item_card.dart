@@ -40,6 +40,7 @@ class VaultItemCard extends StatefulWidget {
 
 class _VaultItemCardState extends State<VaultItemCard> {
   bool _isItemTapped = false;
+  bool _isDerivationPathTapped = false;
   bool get _isMultisig => widget.vaultItem is MultisigVaultListItem;
 
   @override
@@ -185,19 +186,25 @@ class _VaultItemCardState extends State<VaultItemCard> {
         return (derivationPath: vault.derivationPath, currentAccount: vault.currentAccountIndex);
       },
       builder: (context, data, child) {
+        final textColor = _isDerivationPathTapped ? CoconutColors.gray500 : CoconutColors.gray700;
+        final iconColor = _isDerivationPathTapped ? CoconutColors.gray500 : CoconutColors.gray700;
+
         return GestureDetector(
+          onTapDown: isAccountEditEnabled ? (_) => setState(() => _isDerivationPathTapped = true) : null,
+          onTapCancel: isAccountEditEnabled ? () => setState(() => _isDerivationPathTapped = false) : null,
+          onTapUp: isAccountEditEnabled ? (_) => setState(() => _isDerivationPathTapped = false) : null,
           onTap: isAccountEditEnabled ? () => _handleAccountEditTap(data.currentAccount) : null,
           behavior: HitTestBehavior.opaque,
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(data.derivationPath, style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.gray700)),
+              Text(data.derivationPath, style: CoconutTypography.body2_14_Bold.setColor(textColor)),
               if (isAccountEditEnabled) ...[
                 const SizedBox(width: 4),
                 SvgPicture.asset(
                   'assets/svg/edit-outlined.svg',
                   width: 14,
-                  colorFilter: const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn),
+                  colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
                 ),
               ],
             ],

@@ -12,6 +12,7 @@ import 'package:coconut_vault/screens/settings/language_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/unit_bottm_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
@@ -348,6 +349,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     isOn: visibilityProvider.isPassphraseUseEnabled,
                     activeColor: CoconutColors.black,
                     onChanged: (isOn) async {
+                      vibrateExtraLight();
                       if (!isOn) {
                         await visibilityProvider.setPassphraseUseEnabled(isOn);
                         return;
@@ -364,6 +366,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               description: t.settings_screen.dialog.use_passphrase_description,
                               rightButtonText: t.settings_screen.dialog.use_passphrase_btn,
                               onTapRight: () async {
+                                vibrateLight();
                                 await context.read<VisibilityProvider>().setPassphraseUseEnabled(isOn);
                                 if (context.mounted) {
                                   Navigator.pop(context);
@@ -388,6 +391,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     isOn: visibilityProvider.isAccountEditEnabled,
                     activeColor: CoconutColors.black,
                     onChanged: (isOn) async {
+                      vibrateExtraLight();
                       if (context.mounted) {
                         showDialog(
                           context: context,
@@ -415,6 +419,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       ? t.settings_screen.dialog.change_account_btn
                                       : t.settings_screen.dialog.disable_change_account_btn,
                               onTapRight: () async {
+                                vibrateLight();
                                 await context.read<VisibilityProvider>().setChangeAccountEnabled(isOn);
                                 if (context.mounted) {
                                   Navigator.pop(context);

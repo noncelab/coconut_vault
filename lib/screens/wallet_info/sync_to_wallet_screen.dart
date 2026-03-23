@@ -31,6 +31,7 @@ class SyncToWalletScreen extends StatefulWidget {
 class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   late String _name;
   late bool _isMultisig;
+  bool _isDerivationPathTapped = false;
 
   @override
   void initState() {
@@ -115,7 +116,16 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
       builder: (context, data, child) {
         if (data.derivationPath.isEmpty) return const SizedBox.shrink();
 
+        final textColor =
+            _isDerivationPathTapped
+                ? CoconutColors.gray500
+                : (isAccountEditEnabled ? CoconutColors.gray900 : CoconutColors.gray700);
+        final iconColor = _isDerivationPathTapped ? CoconutColors.gray500 : CoconutColors.gray700;
+
         return GestureDetector(
+          onTapDown: isAccountEditEnabled ? (_) => setState(() => _isDerivationPathTapped = true) : null,
+          onTapCancel: isAccountEditEnabled ? () => setState(() => _isDerivationPathTapped = false) : null,
+          onTapUp: isAccountEditEnabled ? (_) => setState(() => _isDerivationPathTapped = false) : null,
           onTap: isAccountEditEnabled ? () => _handleAccountEditTap(providerContext, data.currentAccount) : null,
           behavior: HitTestBehavior.opaque,
           child: Padding(
@@ -123,18 +133,13 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  data.derivationPath,
-                  style: CoconutTypography.body2_14_Bold.copyWith(
-                    color: isAccountEditEnabled ? CoconutColors.gray900 : CoconutColors.gray700,
-                  ),
-                ),
+                Text(data.derivationPath, style: CoconutTypography.body2_14_Bold.copyWith(color: textColor)),
                 if (isAccountEditEnabled) ...[
                   const SizedBox(width: 4),
                   SvgPicture.asset(
                     'assets/svg/edit-outlined.svg',
                     width: 14,
-                    colorFilter: const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn),
+                    colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
                   ),
                 ],
               ],
