@@ -84,6 +84,7 @@ class WalletToSyncViewModel extends ChangeNotifier {
         pubkey33: coconutVault.keyStore.extendedPublicKey.publicKey,
         chainCode32: coconutVault.keyStore.extendedPublicKey.chainCode,
         coinType: NetworkType.currentNetworkType.isTestnet ? 1 : 0,
+        account: _currentAccountIndex,
       );
     } else if (vault.vaultType == WalletType.multiSignature) {
       final multisigListItem = vault as MultisigVaultListItem;

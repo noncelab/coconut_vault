@@ -31,6 +31,7 @@ class LegacyAccountDescriptor {
     required Uint8List pubkey33,
     required Uint8List chainCode32,
     required int coinType,
+    required int account,
   }) {
     final mfp = ConversionUtil.hexToInt(masterFingerprint); // 1: ..
     final parentFp = ConversionUtil.hexToInt(parentFingerprint); // 8: ...
@@ -70,7 +71,7 @@ class LegacyAccountDescriptor {
     enc.encodeBool(true);
     enc.encodeInteger(coinType);
     enc.encodeBool(true);
-    enc.encodeInteger(0);
+    enc.encodeInteger(account);
     enc.encodeBool(true);
 
     enc.encodeInteger(2);
