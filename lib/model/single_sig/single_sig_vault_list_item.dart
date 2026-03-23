@@ -5,6 +5,7 @@ import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:flutter/foundation.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'single_sig_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
@@ -111,13 +112,14 @@ class SingleSigVaultListItem extends VaultListItemBase {
 
         if (parts.length >= 4) {
           final accountPart = parts[3].replaceAll(RegExp(r'[^0-9]'), '');
-          return int.tryParse(accountPart) ?? 0;
+          return int.parse(accountPart);
         }
       }
+      throw const FormatException('Cannot find account index in descriptor');
     } catch (e) {
-      debugPrint('Failed to extract account index from descriptor: $e');
+      Logger.error('Failed to extract account index from descriptor: $e');
+      rethrow;
     }
-    return 0;
   }
 
   static Map<AddressType, String> _signerBsmsFromJson(Map<String, dynamic>? json) {

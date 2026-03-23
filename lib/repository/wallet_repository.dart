@@ -745,7 +745,14 @@ class WalletRepository {
     final index = _vaultList!.indexWhere((item) => item.id == id);
     if (index == -1) throw Exception('Vault not found');
 
-    final existingVault = _vaultList![index] as SingleSigVaultListItem;
+    final targetVault = _vaultList![index];
+    if (targetVault is! SingleSigVaultListItem) {
+      throw ArgumentError(
+        'Only SingleSigVaultListItem is supported for account update. Vault type is ${targetVault.vaultType}',
+      );
+    }
+
+    final existingVault = targetVault;
     final currentCoconutVault = existingVault.coconutVault as SingleSignatureVault;
 
     final parsed = await _decryptSecret(id);
@@ -758,7 +765,6 @@ class WalletRepository {
       'currentAccountIndex': currentCoconutVault.accountIndex,
       'newAccountIndex': newAccountIndex,
       'expectedMfp': currentCoconutVault.keyStore.masterFingerprint,
-      'addressTypesToUpdate': existingVault.signerBsmsByAddressType.keys.map((e) => e.name).toList(),
     });
 
     parsed.secret.wipe();
@@ -769,7 +775,9 @@ class WalletRepository {
     final rawJson =
         existingVault.toPublicJson()
           ..[SingleSigVaultListItem.fieldDescriptor] = derivedNewAccountVault['descriptor']
-          ..[SingleSigVaultListItem.fieldSignerBsmsByAddressType] = derivedNewAccountVault['signerBsmsMapByName']
+          ..[SingleSigVaultListItem.fieldSignerBsmsByAddressType] = existingVault.signerBsmsByAddressType.map(
+            (k, v) => MapEntry(k.name, v),
+          )
           ..['derivationPath'] = derivedNewAccountVault['derivationPath'];
 
     final updatedItem = await compute<Map<String, dynamic>, VaultListItemBase>(
@@ -782,7 +790,7 @@ class WalletRepository {
     if (!_isSigningOnlyMode) {
       final privacyInfo = SingleSigWalletPrivacyInfo.fromAddressTypeMap(
         descriptor: derivedNewAccountVault['descriptor'],
-        signerBsmsByAddressType: (updatedItem as SingleSigVaultListItem).signerBsmsByAddressType,
+        signerBsmsByAddressType: existingVault.signerBsmsByAddressType,
       );
       await _savePrivacyInfo(id, WalletType.singleSignature, privacyInfo);
     }

@@ -210,7 +210,6 @@ class WalletIsolates {
     final int currentAccountIndex = args['currentAccountIndex'];
     final int newAccountIndex = args['newAccountIndex'];
     final String expectedMfp = args['expectedMfp'];
-    final List<String> addressTypesToUpdate = List<String>.from(args['addressTypesToUpdate']);
 
     final AddressType addressType = AddressType.getAddressTypeFromName(addressTypeName);
 
@@ -233,17 +232,7 @@ class WalletIsolates {
         accountIndex: newAccountIndex,
       );
 
-      final newSignerBsmsMapByName = {
-        for (final addrTypeName in addressTypesToUpdate)
-          addrTypeName:
-              "${updatedCoconutVault.getSignerBsms(AddressType.getAddressTypeFromName(addrTypeName), "").trimRight()}\n",
-      };
-
-      return {
-        'descriptor': updatedCoconutVault.descriptor,
-        'signerBsmsMapByName': newSignerBsmsMapByName,
-        'derivationPath': updatedCoconutVault.derivationPath,
-      };
+      return {'descriptor': updatedCoconutVault.descriptor, 'derivationPath': updatedCoconutVault.derivationPath};
     } finally {
       mnemonic.wipe();
       if (passphrase != null) {
