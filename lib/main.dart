@@ -35,9 +35,11 @@ void main() async {
 
   /// AppLifecycleState 이벤트가 등록되기 전에 앱 상태가 inactive/background로 젼환되는 경우 (튜토리얼, 앱 사용 불가 화면)
   /// PrivacyScreen이 보여지지 않는 상황 때문에 ScreenProtector의 PrivacyScreen 기능도 사용합니다.
-  await ScreenProtector.protectDataLeakageWithImage(
-    'ScreenProtectImage${NetworkType.currentNetworkType.isTestnet ? "Regtest" : ""}',
-  ); // iOS에서만 동작
+  if (Platform.isIOS) {
+    await ScreenProtector.protectDataLeakageWithImage(
+      'ScreenProtectImage${NetworkType.currentNetworkType.isTestnet ? "Regtest" : ""}',
+    );
+  }
   //await ScreenProtector.protectDataLeakageOn(); // Android는 MainActivity.kt에서 네이티브 설정 완료
   if (!kDebugMode && Platform.isIOS) {
     await ScreenProtector.preventScreenshotOn(); // iOS and Android

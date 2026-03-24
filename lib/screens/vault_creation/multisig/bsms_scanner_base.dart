@@ -170,11 +170,16 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   }
 
   Widget _buildChild(BuildContext context) {
+    final tooltipTextSpan = TextSpan(
+      style: CoconutTypography.body2_14,
+      children: buildTooltipRichText(context, visibilityProvider),
+    );
+
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final Size layoutSize = constraints.biggest;
         // ScannerOverlay와 동일한 크기의 정사각형 스캔 영역 계산
-        final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context);
+        final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context, tooltipTextSpan: tooltipTextSpan);
         final Rect scanWindow = Rect.fromCenter(
           center: layoutSize.center(Offset.zero),
           width: scanAreaSize,
@@ -204,17 +209,12 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
                 return Center(child: Text(error.errorCode.message));
               },
             ),
-            const ScannerOverlay(),
-            _buildProgressOverlay(context),
+            ScannerOverlay(tooltipTextSpan: tooltipTextSpan),
+            _buildProgressOverlay(context, tooltipTextSpan),
 
             CustomTooltip.buildInfoTooltip(
               context,
-              richText: RichText(
-                text: TextSpan(
-                  style: CoconutTypography.body2_14,
-                  children: buildTooltipRichText(context, visibilityProvider),
-                ),
-              ),
+              richText: RichText(text: tooltipTextSpan),
               isBackgroundWhite: false,
               paddingTop: 20,
             ),
@@ -264,8 +264,8 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
     );
   }
 
-  Widget _buildProgressOverlay(BuildContext context) {
-    final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context);
+  Widget _buildProgressOverlay(BuildContext context, TextSpan tooltipTextSpan) {
+    final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context, tooltipTextSpan: tooltipTextSpan);
     final scanAreaTop = (MediaQuery.of(context).size.height - scanAreaSize) / 2;
     final scanAreaBottom = scanAreaTop + scanAreaSize;
 
