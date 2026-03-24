@@ -106,7 +106,7 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
             SizedBox(
               width: double.infinity,
               child: CoconutButton(
-                text: t.verify_passphrase_screen.start_verification,
+                text: t.confirm,
                 isActive: _isButtonActive,
                 onPressed: () => _verifyPassphrase(),
                 backgroundColor: CoconutColors.black,

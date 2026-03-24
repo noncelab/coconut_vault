@@ -745,14 +745,13 @@ class WalletRepository {
     final index = _vaultList!.indexWhere((item) => item.id == id);
     if (index == -1) throw Exception('Vault not found');
 
-    final targetVault = _vaultList![index];
-    if (targetVault is! SingleSigVaultListItem) {
+    final existingVault = _vaultList![index];
+    if (existingVault is! SingleSigVaultListItem) {
       throw ArgumentError(
-        'Only SingleSigVaultListItem is supported for account update. Vault type is ${targetVault.vaultType}',
+        'Only SingleSigVaultListItem is supported for account update. Vault type is ${existingVault.vaultType}',
       );
     }
 
-    final existingVault = targetVault;
     final currentCoconutVault = existingVault.coconutVault as SingleSignatureVault;
 
     final parsed = await _decryptSecret(id);

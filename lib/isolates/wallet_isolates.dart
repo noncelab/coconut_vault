@@ -214,14 +214,14 @@ class WalletIsolates {
     final AddressType addressType = AddressType.getAddressTypeFromName(addressTypeName);
 
     try {
-      final verifyVault = SingleSignatureVault.fromMnemonic(
+      final derivedVault = SingleSignatureVault.fromMnemonic(
         mnemonic,
         addressType: addressType,
         passphrase: passphrase,
         accountIndex: currentAccountIndex,
       );
 
-      if (verifyVault.keyStore.masterFingerprint.toUpperCase() != expectedMfp.toUpperCase()) {
+      if (derivedVault.keyStore.masterFingerprint.toUpperCase() != expectedMfp.toUpperCase()) {
         throw Exception('Invalid passphrase');
       }
 
