@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 const int kMaxAccountIndex = 0x7fffffff;
 
@@ -175,14 +178,39 @@ class _AccountEditBottomSheetState extends State<AccountEditBottomSheet> {
 
     try {
       await Future.wait([widget.onUpdate(value), Future.delayed(const Duration(milliseconds: 250))]);
-    } finally {
       if (mounted) {
         setState(() {
           _isSubmitting = false;
         });
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(); // close loading dialog
         await Future.delayed(const Duration(milliseconds: 50));
         Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+        Navigator.of(context).pop(); // close loading dialog
+        if (!mounted) return;
+        String title = t.exceptions.account_change_failed.title;
+        String description = e.toString();
+        if (e is SeedInvalidatedException) {
+          title = t.exceptions.seed_invalidated.title;
+          description = e.message;
+        }
+        showDialog(
+          context: context,
+          builder:
+              (context) => CoconutPopup(
+                languageCode: context.read<VisibilityProvider>().language,
+                title: title,
+                description: description,
+                onTapRight: () {
+                  Navigator.pop(context);
+                },
+              ),
+        );
       }
     }
   }

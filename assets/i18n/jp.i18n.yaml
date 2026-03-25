@@ -1052,6 +1052,8 @@ exceptions:
     title: "ウォレット使用不可"
     description: "保存されているウォレットはこれ以上使用できません。ウォレットを削除し、バックアップしておいたニーモニックで再度復元してください。"
   needs_multisig_setup: "$name で署名するには、まずマルチシグウォレットを追加してください。"
+  account_change_failed:
+    title: "アカウント変更失敗"
 
 tooltip:
   mfp: "ウォレットの固有値。\nマスターフィンガープリント(MFP)とも呼ばれます。"

@@ -1055,6 +1055,8 @@ exceptions:
     title: "Wallet Unavailable"
     description: "The saved wallet can no longer be used. Please delete the wallet and restore it using the backed-up mnemonic."
   needs_multisig_setup: "Please add a multisig wallet first in order to sign with $name."
+  account_change_failed:
+    title: "Failed to change account"
 
 tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."
