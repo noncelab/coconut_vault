@@ -774,7 +774,7 @@ bsms_paste_screen:
 
 # lib/screens/vault_detail
 address_list_screen:
-  title: "$name's Addresses"
+  title: "'s Addresses"
   address_index: "Address - $index"
 export_detail_screen:
   title: "Export Details"

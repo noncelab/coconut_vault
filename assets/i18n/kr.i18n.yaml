@@ -774,7 +774,7 @@ bsms_paste_screen:
 
 # lib/screens/vault_detail
 address_list_screen:
-  title: "$name의 주소"
+  title: "의 주소"
   address_index: "주소 - $index"
 export_detail_screen:
   title: "내보내기 상세 정보"

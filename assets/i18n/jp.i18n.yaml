@@ -771,7 +771,7 @@ bsms_paste_screen:
 
 # lib/screens/vault_detail
 address_list_screen:
-  title: "$nameのアドレス"
+  title: "のアドレス"
   address_index: "アドレス - $index"
 export_detail_screen:
   title: "エクスポート詳細"

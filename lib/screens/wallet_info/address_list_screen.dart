@@ -60,12 +60,10 @@ class _AddressListScreenState extends State<AddressListScreen> {
               customTitle: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    t.address_list_screen.title(
-                      name: viewModel.name.length > 9 ? '${viewModel.name.substring(0, 8)}...' : viewModel.name,
-                    ),
-                    style: CoconutTypography.heading4_18,
+                  Flexible(
+                    child: Text(viewModel.name, style: CoconutTypography.heading4_18, overflow: TextOverflow.ellipsis),
                   ),
+                  Text(t.address_list_screen.title, style: CoconutTypography.heading4_18),
                   if (!widget.isSpecificVault && viewModel.vaultCount > 1) ...[
                     CoconutLayout.spacing_50w,
                     const Icon(Icons.keyboard_arrow_down_sharp, color: CoconutColors.black, size: 16),
