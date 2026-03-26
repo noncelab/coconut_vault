@@ -287,20 +287,6 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     super.dispose();
   }
 
-  void _handleSpaceInput() {
-    if (!_isSuggestionWordsVisible) return;
-
-    final controllerIndex = _focusNodes.indexWhere((node) => node.hasFocus);
-    if (controllerIndex == -1) return;
-
-    _controllers[controllerIndex].replaceWithSuggestion(_controllers[controllerIndex].cursorOffset);
-    _hideSuggestionPanel();
-
-    if (_controllers[controllerIndex].text.isNotEmpty) {
-      _focusNextField();
-    }
-  }
-
   void _validateMnemonic({bool checkPrefixMatch = true}) {
     final List<bool> isMnemonicValid = List.generate(_wordCount, (index) => false);
 
@@ -434,20 +420,9 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     else {
       // 길이가 변경되었고 이전 텍스트가 유효한 니모닉인 경우
       if (word.length != prevLen && WalletUtility.isInMnemonicWordList(prevTextSnapshot)) {
-        // 4글자 도달 시 자동 적용 (상승 에지에서만)
-        if (prevLen < 4 &&
-            word.length == 4 &&
-            _controllers[controllerIndex].hasSuggestion &&
-            _suggestionWords.contains(word)) {
-          _prevTextsByIndex[controllerIndex] = word;
-          _previousCurrentWordLengths[controllerIndex] = word.length;
-          _updateSuggestions(word, controllerIndex);
-          _handleSpaceInput();
-        } else {
-          // 그 외의 경우는 초기화
-          _controllers[controllerIndex].text = word.length < prevLen ? '' : word[word.length - 1];
-          _controllers[controllerIndex].clearSuggestion();
-        }
+        // 기존에 유효한 단어가 있던 필드에 추가 입력이 들어오면 현재 입력만 유지합니다.
+        _controllers[controllerIndex].text = word.length < prevLen ? '' : word[word.length - 1];
+        _controllers[controllerIndex].clearSuggestion();
       }
     }
 
@@ -458,19 +433,6 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     if (word.length >= 2) {
       // 2글자 이상이면 추천 단어 업데이트
       _updateSuggestions(word, controllerIndex);
-
-      // 4글자 도달 시 자동 추천 적용 (추가 검증 포함)
-      if (prevLen < 4 &&
-          word.length == 4 &&
-          _controllers[controllerIndex].hasSuggestion &&
-          _controllers[controllerIndex].suggestionWord.length > 3 &&
-          word.length > 3 &&
-          word[3] == _controllers[controllerIndex].suggestionWord[3]) {
-        final suggestionWord = _controllers[controllerIndex].suggestionWord;
-        _prevTextsByIndex[controllerIndex] = suggestionWord;
-        _previousCurrentWordLengths[controllerIndex] = suggestionWord.length;
-        _applySuggestionWord(suggestionWord);
-      }
     } else {
       // 2글자 미만이면 추천 단어 숨기기
       setState(() {
@@ -667,7 +629,6 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   }
 
   void _handleOnEditComplete() {
-    _handleSpaceInput();
     _validateMnemonic(checkPrefixMatch: false);
   }
 
@@ -1102,10 +1063,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       }
 
       if (_controllers[index].hasSuggestion && _suggestionWords.isNotEmpty) {
-        _confirmSuggestionAndMoveToNext(index);
+        _removeSpaceAndMaintainCursor(text, index, insertPos);
         return true;
       } else {
-        _removeSpaceAndMoveToNext(text, index, insertPos);
+        _removeSpaceAndMaintainCursor(text, index, insertPos);
         return true;
       }
     }
@@ -1125,29 +1086,6 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       selection: TextSelection.collapsed(offset: insertPos),
       composing: TextRange.empty,
     );
-  }
-
-  void _confirmSuggestionAndMoveToNext(int index) {
-    _controllers[index].replaceWithSuggestion(_controllers[index].selection.baseOffset);
-    setState(() {
-      _isSuggestionWordsVisible = false;
-      _suggestionWords = [];
-      _controllers[index].clearSuggestion();
-    });
-    _focusNextField();
-  }
-
-  void _removeSpaceAndMoveToNext(String text, int index, int insertPos) {
-    final String without = text.substring(0, insertPos) + text.substring(insertPos + 1);
-    _controllers[index].value = _controllers[index].value.copyWith(
-      text: without,
-      selection: TextSelection.collapsed(offset: insertPos),
-      composing: TextRange.empty,
-    );
-    _validateMnemonic();
-    if (!_invalidMnemonicIndexes.contains(index)) {
-      _focusNextField();
-    }
   }
 
   void _convertToLowerCase(String text, int index) {
