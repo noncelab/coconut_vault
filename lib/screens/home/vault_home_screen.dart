@@ -213,6 +213,9 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     List<VaultListItemBase> wallets,
     bool isSigningOnlyMode,
   ) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final maxTextWidth = screenWidth - 160;
+
     return CoconutAppBar.buildHomeAppbar(
       context: context,
       leadingSvgAsset: Row(
@@ -222,13 +225,20 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
             height: 20,
           ),
           CoconutLayout.spacing_150w,
-          MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-            child: Text(
-              isSigningOnlyMode
-                  ? t.vault_mode_selection_screen.signing_only_mode
-                  : t.vault_mode_selection_screen.secure_storage_mode,
-              style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.gray800),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxTextWidth),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                child: Text(
+                  isSigningOnlyMode
+                      ? t.vault_mode_selection_screen.signing_only_mode
+                      : t.vault_mode_selection_screen.secure_storage_mode,
+                  style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.gray800),
+                ),
+              ),
             ),
           ),
         ],

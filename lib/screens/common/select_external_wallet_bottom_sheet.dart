@@ -54,17 +54,22 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
       body: SafeArea(
         child: Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: _buildWalletButtonRows(),
+            Positioned.fill(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(top: 16, bottom: 120),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: _buildWalletButtonRows(),
+                  ),
+                ),
               ),
             ),
             FixedBottomButton(
               text: t.complete,
-              showGradient: false,
+              showGradient: true,
               isActive: selectedIndex != _committedIndex,
               onButtonClicked: () {
                 if (selectedIndex == null || selectedIndex! >= widget.externalWalletButtonList.length) {
