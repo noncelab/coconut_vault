@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 import 'dart:convert';
 
@@ -40,6 +41,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   static const int _maxLines = 8;
   static const Duration _scrollDuration = Duration(milliseconds: 300);
   static const Duration _passphraseScrollDelay = Duration(milliseconds: 500);
+  static const double _maxSuggestionSectionHeight = 200;
+  static const double _defaultSuggestionSpacerHeight = 80;
 
   // Providers
   late WalletProvider _walletProvider;
@@ -67,11 +70,14 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   final TextEditingController _passphraseController = TextEditingController();
   final FocusNode _passphraseFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
+  final ScrollController _suggestionScrollController = ScrollController();
 
   // UI related
   final List<double> _scrollOffsets = [];
   final GlobalKey _mnemonicInputLineGlobalKey = GlobalKey();
+  final GlobalKey _suggestionButtonsGlobalKey = GlobalKey();
   Size _mnemonicInputLineSize = Size.zero;
+  double _suggestionSectionHeight = _maxSuggestionSectionHeight;
 
   @override
   void initState() {
@@ -180,6 +186,28 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     }
   }
 
+  double get _currentSuggestionSectionHeight {
+    return _isSuggestionWordsVisible && _shouldShowSuggestionWords()
+        ? _suggestionSectionHeight
+        : _defaultSuggestionSpacerHeight;
+  }
+
+  void _scheduleSuggestionSectionHeightMeasurement() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_shouldShowSuggestionWords()) return;
+
+      final renderBox = _suggestionButtonsGlobalKey.currentContext?.findRenderObject() as RenderBox?;
+      if (renderBox == null) return;
+
+      final nextHeight = math.min(renderBox.size.height, _maxSuggestionSectionHeight);
+      if ((_suggestionSectionHeight - nextHeight).abs() < 0.5) return;
+
+      setState(() {
+        _suggestionSectionHeight = nextHeight;
+      });
+    });
+  }
+
   bool _isCompleteMnemonicWord(String text) {
     return WalletUtility.isInMnemonicWordList(text.trim());
   }
@@ -284,6 +312,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     _disposeTextFields();
     _passphraseController.dispose();
     _passphraseFocusNode.dispose();
+    _suggestionScrollController.dispose();
     super.dispose();
   }
 
@@ -476,6 +505,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
           _controllers[controllerIndex].selection.baseOffset,
           _suggestionWords.first,
         );
+        _scheduleSuggestionSectionHeightMeasurement();
       }
     } catch (_) {}
   }
@@ -819,7 +849,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
               CoconutLayout.spacing_700h,
               _buildPassphraseToggle(),
               if (_usePassphrase) _buildPassphraseTextField(),
-              SizedBox(height: _isSuggestionWordsVisible && _shouldShowSuggestionWords() ? 200 : 80),
+              SizedBox(height: _currentSuggestionSectionHeight),
             ],
           ),
         ),
@@ -843,7 +873,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       child: Visibility(
         visible: _shouldShowSuggestionWords(),
         child: SizedBox(
-          height: 200,
+          height: _currentSuggestionSectionHeight,
           width: MediaQuery.of(context).size.width,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -858,9 +888,15 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
                       ),
                     ),
                     Positioned.fill(
-                      child: SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: _buildSuggestionButtons(),
+                      child: Scrollbar(
+                        controller: _suggestionScrollController,
+                        radius: const Radius.circular(12),
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          controller: _suggestionScrollController,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: _buildSuggestionButtons(),
+                        ),
                       ),
                     ),
                     Positioned(
@@ -914,6 +950,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
   Widget _buildSuggestionButtons() {
     return Container(
+      key: _suggestionButtonsGlobalKey,
       padding: const EdgeInsets.only(left: 16, right: 16),
       width: MediaQuery.of(context).size.width,
       child: Column(
