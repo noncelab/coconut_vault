@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 import 'dart:convert';
 
@@ -40,6 +41,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   static const int _maxLines = 8;
   static const Duration _scrollDuration = Duration(milliseconds: 300);
   static const Duration _passphraseScrollDelay = Duration(milliseconds: 500);
+  static const double _maxSuggestionSectionHeight = 200;
+  static const double _defaultSuggestionSpacerHeight = 80;
 
   // Providers
   late WalletProvider _walletProvider;
@@ -67,11 +70,14 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   final TextEditingController _passphraseController = TextEditingController();
   final FocusNode _passphraseFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
+  final ScrollController _suggestionScrollController = ScrollController();
 
   // UI related
   final List<double> _scrollOffsets = [];
   final GlobalKey _mnemonicInputLineGlobalKey = GlobalKey();
+  final GlobalKey _suggestionButtonsGlobalKey = GlobalKey();
   Size _mnemonicInputLineSize = Size.zero;
+  double _suggestionSectionHeight = _maxSuggestionSectionHeight;
 
   @override
   void initState() {
@@ -180,6 +186,28 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     }
   }
 
+  double get _currentSuggestionSectionHeight {
+    return _isSuggestionWordsVisible && _shouldShowSuggestionWords()
+        ? _suggestionSectionHeight
+        : _defaultSuggestionSpacerHeight;
+  }
+
+  void _scheduleSuggestionSectionHeightMeasurement() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_shouldShowSuggestionWords()) return;
+
+      final renderBox = _suggestionButtonsGlobalKey.currentContext?.findRenderObject() as RenderBox?;
+      if (renderBox == null) return;
+
+      final nextHeight = math.min(renderBox.size.height, _maxSuggestionSectionHeight);
+      if ((_suggestionSectionHeight - nextHeight).abs() < 0.5) return;
+
+      setState(() {
+        _suggestionSectionHeight = nextHeight;
+      });
+    });
+  }
+
   bool _isCompleteMnemonicWord(String text) {
     return WalletUtility.isInMnemonicWordList(text.trim());
   }
@@ -284,21 +312,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     _disposeTextFields();
     _passphraseController.dispose();
     _passphraseFocusNode.dispose();
+    _suggestionScrollController.dispose();
     super.dispose();
-  }
-
-  void _handleSpaceInput() {
-    if (!_isSuggestionWordsVisible) return;
-
-    final controllerIndex = _focusNodes.indexWhere((node) => node.hasFocus);
-    if (controllerIndex == -1) return;
-
-    _controllers[controllerIndex].replaceWithSuggestion(_controllers[controllerIndex].cursorOffset);
-    _hideSuggestionPanel();
-
-    if (_controllers[controllerIndex].text.isNotEmpty) {
-      _focusNextField();
-    }
   }
 
   void _validateMnemonic({bool checkPrefixMatch = true}) {
@@ -434,20 +449,9 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     else {
       // 길이가 변경되었고 이전 텍스트가 유효한 니모닉인 경우
       if (word.length != prevLen && WalletUtility.isInMnemonicWordList(prevTextSnapshot)) {
-        // 4글자 도달 시 자동 적용 (상승 에지에서만)
-        if (prevLen < 4 &&
-            word.length == 4 &&
-            _controllers[controllerIndex].hasSuggestion &&
-            _suggestionWords.contains(word)) {
-          _prevTextsByIndex[controllerIndex] = word;
-          _previousCurrentWordLengths[controllerIndex] = word.length;
-          _updateSuggestions(word, controllerIndex);
-          _handleSpaceInput();
-        } else {
-          // 그 외의 경우는 초기화
-          _controllers[controllerIndex].text = word.length < prevLen ? '' : word[word.length - 1];
-          _controllers[controllerIndex].clearSuggestion();
-        }
+        // 기존에 유효한 단어가 있던 필드에 추가 입력이 들어오면 현재 입력만 유지합니다.
+        _controllers[controllerIndex].text = word.length < prevLen ? '' : word[word.length - 1];
+        _controllers[controllerIndex].clearSuggestion();
       }
     }
 
@@ -458,19 +462,6 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     if (word.length >= 2) {
       // 2글자 이상이면 추천 단어 업데이트
       _updateSuggestions(word, controllerIndex);
-
-      // 4글자 도달 시 자동 추천 적용 (추가 검증 포함)
-      if (prevLen < 4 &&
-          word.length == 4 &&
-          _controllers[controllerIndex].hasSuggestion &&
-          _controllers[controllerIndex].suggestionWord.length > 3 &&
-          word.length > 3 &&
-          word[3] == _controllers[controllerIndex].suggestionWord[3]) {
-        final suggestionWord = _controllers[controllerIndex].suggestionWord;
-        _prevTextsByIndex[controllerIndex] = suggestionWord;
-        _previousCurrentWordLengths[controllerIndex] = suggestionWord.length;
-        _applySuggestionWord(suggestionWord);
-      }
     } else {
       // 2글자 미만이면 추천 단어 숨기기
       setState(() {
@@ -514,6 +505,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
           _controllers[controllerIndex].selection.baseOffset,
           _suggestionWords.first,
         );
+        _scheduleSuggestionSectionHeightMeasurement();
       }
     } catch (_) {}
   }
@@ -667,7 +659,6 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   }
 
   void _handleOnEditComplete() {
-    _handleSpaceInput();
     _validateMnemonic(checkPrefixMatch: false);
   }
 
@@ -858,7 +849,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
               CoconutLayout.spacing_700h,
               _buildPassphraseToggle(),
               if (_usePassphrase) _buildPassphraseTextField(),
-              SizedBox(height: _isSuggestionWordsVisible && _shouldShowSuggestionWords() ? 200 : 80),
+              SizedBox(height: _currentSuggestionSectionHeight),
             ],
           ),
         ),
@@ -882,7 +873,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       child: Visibility(
         visible: _shouldShowSuggestionWords(),
         child: SizedBox(
-          height: 200,
+          height: _currentSuggestionSectionHeight,
           width: MediaQuery.of(context).size.width,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -897,9 +888,15 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
                       ),
                     ),
                     Positioned.fill(
-                      child: SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: _buildSuggestionButtons(),
+                      child: Scrollbar(
+                        controller: _suggestionScrollController,
+                        radius: const Radius.circular(12),
+                        thumbVisibility: true,
+                        child: SingleChildScrollView(
+                          controller: _suggestionScrollController,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: _buildSuggestionButtons(),
+                        ),
                       ),
                     ),
                     Positioned(
@@ -953,6 +950,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
   Widget _buildSuggestionButtons() {
     return Container(
+      key: _suggestionButtonsGlobalKey,
       padding: const EdgeInsets.only(left: 16, right: 16),
       width: MediaQuery.of(context).size.width,
       child: Column(
@@ -1102,10 +1100,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       }
 
       if (_controllers[index].hasSuggestion && _suggestionWords.isNotEmpty) {
-        _confirmSuggestionAndMoveToNext(index);
+        _removeSpaceAndMaintainCursor(text, index, insertPos);
         return true;
       } else {
-        _removeSpaceAndMoveToNext(text, index, insertPos);
+        _removeSpaceAndMaintainCursor(text, index, insertPos);
         return true;
       }
     }
@@ -1125,29 +1123,6 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       selection: TextSelection.collapsed(offset: insertPos),
       composing: TextRange.empty,
     );
-  }
-
-  void _confirmSuggestionAndMoveToNext(int index) {
-    _controllers[index].replaceWithSuggestion(_controllers[index].selection.baseOffset);
-    setState(() {
-      _isSuggestionWordsVisible = false;
-      _suggestionWords = [];
-      _controllers[index].clearSuggestion();
-    });
-    _focusNextField();
-  }
-
-  void _removeSpaceAndMoveToNext(String text, int index, int insertPos) {
-    final String without = text.substring(0, insertPos) + text.substring(insertPos + 1);
-    _controllers[index].value = _controllers[index].value.copyWith(
-      text: without,
-      selection: TextSelection.collapsed(offset: insertPos),
-      composing: TextRange.empty,
-    );
-    _validateMnemonic();
-    if (!_invalidMnemonicIndexes.contains(index)) {
-      _focusNextField();
-    }
   }
 
   void _convertToLowerCase(String text, int index) {
