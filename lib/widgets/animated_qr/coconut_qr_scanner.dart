@@ -22,6 +22,7 @@ class CoconutQrScanner extends StatefulWidget {
   final Function(MobileScannerException)? onScannerInitError;
   final Color borderColor;
   final IQrScanDataHandler qrDataHandler;
+  final TextSpan? tooltipTextSpan;
 
   const CoconutQrScanner({
     super.key,
@@ -31,6 +32,7 @@ class CoconutQrScanner extends StatefulWidget {
     required this.qrDataHandler,
     this.borderColor = CoconutColors.white,
     this.onScannerInitError,
+    this.tooltipTextSpan,
   });
 
   @override
@@ -63,10 +65,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
       if (rect != null) {
         setState(() {
           scannerLoadingVerticalPos =
-              ((MediaQuery.of(context).size.width < 400 || MediaQuery.of(context).size.height < 400)
-                  ? 320.0
-                  : MediaQuery.of(context).size.width * 0.85) +
-              30;
+              ScannerOverlay.calculateScanAreaSize(context, tooltipTextSpan: widget.tooltipTextSpan) + 30;
         });
       } else {
         Logger.log('QRView position not available yet');
@@ -77,8 +76,8 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   @override
   void dispose() {
     _progressNotifier.dispose();
-    _controller?.removeListener(_onCameraStateChanged);
-    _controller?.dispose();
+    _controller.removeListener(_onCameraStateChanged);
+    _controller.dispose();
     if (_appLifecycleStateProvider.ignoredOperations.contains(AppLifecycleOperations.cameraAuthRequest)) {
       _appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
     }
@@ -91,7 +90,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   }
 
   void _onCameraStateChanged() {
-    if (_controller!.value.isInitialized) {
+    if (_controller.value.isInitialized) {
       _appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
     }
   }
@@ -183,7 +182,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
       builder: (BuildContext context, BoxConstraints constraints) {
         final Size layoutSize = constraints.biggest;
         // ScannerOverlay와 동일한 크기의 정사각형 스캔 영역 계산
-        final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context);
+        final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context, tooltipTextSpan: widget.tooltipTextSpan);
         final Rect scanWindow = Rect.fromCenter(
           center: layoutSize.center(Offset.zero),
           width: scanAreaSize,
@@ -213,7 +212,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
                 return Center(child: Text(error.errorCode.message));
               },
             ),
-            const ScannerOverlay(),
+            ScannerOverlay(tooltipTextSpan: widget.tooltipTextSpan),
             _buildProgressOverlay(context),
           ],
         );
@@ -235,7 +234,7 @@ class _CoconutQrScannerState extends State<CoconutQrScanner> with SingleTickerPr
   }
 
   Widget _buildProgressOverlay(BuildContext context) {
-    final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context);
+    final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context, tooltipTextSpan: widget.tooltipTextSpan);
     final scanAreaTop = (MediaQuery.of(context).size.height - scanAreaSize) / 2;
     final scanAreaBottom = scanAreaTop + scanAreaSize;
 

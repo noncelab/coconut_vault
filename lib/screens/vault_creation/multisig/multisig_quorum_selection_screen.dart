@@ -228,12 +228,15 @@ class _MultisigQuorumSelectionScreenState extends State<MultisigQuorumSelectionS
           ),
         ),
         Expanded(
-          child: CoconutStepper(
-            key: ValueKey('${key.toString()}_$_totalKeyCount'),
-            maxCount: maxCount,
-            onCount: onCount,
-            initialCount: initialCount,
-            minCount: minCount,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: CoconutStepper(
+              key: ValueKey('${key.toString()}_$_totalKeyCount'),
+              maxCount: maxCount,
+              onCount: onCount,
+              initialCount: initialCount,
+              minCount: minCount,
+            ),
           ),
         ),
         CoconutLayout.spacing_500w,

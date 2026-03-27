@@ -160,11 +160,12 @@ class PinInputScreenState extends State<PinInputScreen> {
           SafeArea(
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  if (widget.bottomTextButtonLabel != null) const SizedBox(height: 60),
+                  Flexible(flex: 1, child: SizedBox(height: widget.bottomTextButtonLabel != null ? 60 : 20)),
+
                   if (widget.title.isNotEmpty)
                     FittedBox(
                       fit: BoxFit.scaleDown,
@@ -174,7 +175,9 @@ class PinInputScreenState extends State<PinInputScreen> {
                         child: Text(widget.title, style: CoconutTypography.body1_16_Bold, textAlign: TextAlign.center),
                       ),
                     ),
-                  const SizedBox(height: 20),
+
+                  const Flexible(flex: 1, child: SizedBox(height: 20)),
+
                   if (widget.descriptionTextWidget != null) ...[
                     Align(alignment: Alignment.center, child: widget.descriptionTextWidget ?? const Text('')),
                     CoconutLayout.spacing_200h,
@@ -214,6 +217,7 @@ class PinInputScreenState extends State<PinInputScreen> {
                     ),
                   ),
                   Expanded(
+                    flex: 8,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -301,7 +305,7 @@ class PinInputScreenState extends State<PinInputScreen> {
     final String iconAsset = isFaceRecognition ? 'assets/svg/face-id.svg' : 'assets/svg/fingerprint.svg';
 
     return Padding(
-      padding: EdgeInsets.only(bottom: _hideBottomPadding ? keyboardHeight + 8 : 100, top: _hideBottomPadding ? 8 : 8),
+      padding: EdgeInsets.only(bottom: _hideBottomPadding ? 8.0 : 100.0, top: 8.0),
       child: GestureDetector(
         onTap: () {
           widget.onKeyTap(kBiometricIdentifier);

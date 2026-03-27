@@ -166,10 +166,13 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                             ),
                             CoconutLayout.spacing_300w,
                             Expanded(
-                              child: Text(
-                                words[index],
-                                style: CoconutTypography.body1_16,
-                                overflow: TextOverflow.visible,
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(words[index], style: CoconutTypography.body1_16, maxLines: 1),
+                                ),
                               ),
                             ),
                           ],
