@@ -792,13 +792,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         children: [
           SizedBox(
             height: MediaQuery.of(context).size.height,
-            child: Column(
-              children: [
-                CoconutLayout.spacing_400h,
-                _buildWordCountSelector(),
-                Expanded(child: _buildMnemonicInputSection()),
-              ],
-            ),
+            child: Column(children: [_buildWordCountSelector(), Expanded(child: _buildMnemonicInputSection())]),
           ),
           if (!_isSuggestionWordsVisible) _buildBottomButton(),
           if (_isSuggestionWordsVisible) _buildSuggestionSection(),

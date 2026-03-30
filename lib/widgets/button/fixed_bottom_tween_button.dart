@@ -92,8 +92,7 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                 ignoring: true,
                 child: Container(
                   padding:
-                      widget.gradientPadding ??
-                      EdgeInsets.only(left: 16, right: 16, bottom: 40, top: buttonHeight + 24),
+                      widget.gradientPadding ?? EdgeInsets.only(left: 16, right: 16, bottom: 40, top: buttonHeight),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
@@ -128,6 +127,7 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                         onPressed: () {
                           widget.leftButtonClicked();
                         },
+                        isActive: widget.isLeftButtonActive,
                         defaultColor: widget.leftButtonBackgroundColor,
                         pressedColor: getLighterColor(widget.leftButtonBackgroundColor),
                         disabledColor: CoconutColors.gray150,
@@ -154,6 +154,7 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                         onPressed: () {
                           widget.rightButtonClicked();
                         },
+                        isActive: widget.isRightButtonActive,
                         defaultColor: widget.rightButtonBackgroundColor,
                         pressedColor: getLighterColor(widget.rightButtonBackgroundColor),
                         disabledColor: CoconutColors.gray150,

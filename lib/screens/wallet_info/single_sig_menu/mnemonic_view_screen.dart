@@ -97,14 +97,29 @@ class _MnemonicViewScreen extends State<MnemonicViewScreen> with TickerProviderS
       backgroundColor: CoconutColors.white,
       appBar: CoconutAppBar.build(context: context, title: t.view_mnemonic, backgroundColor: CoconutColors.white),
       body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              controller: _scrollController,
-              child: MnemonicList(mnemonic: _mnemonic, isLoading: _isLoading),
-            ),
-            const WarningWidget(visible: true),
-          ],
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // 앱바·상태바 제외한 본문 높이 기준 10%를 상단 여백으로 고정
+            final bodyHeight = constraints.maxHeight;
+            final topPadding = bodyHeight * 0.1;
+            final contentMinHeight = bodyHeight - topPadding;
+
+            return Stack(
+              children: [
+                SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: topPadding),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: contentMinHeight),
+                      child: MnemonicList(mnemonic: _mnemonic, isLoading: _isLoading),
+                    ),
+                  ),
+                ),
+                const WarningWidget(visible: true),
+              ],
+            );
+          },
         ),
       ),
     );

@@ -67,8 +67,7 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
                 ignoring: true,
                 child: Container(
                   padding:
-                      widget.gradientPadding ??
-                      EdgeInsets.only(left: 16, right: 16, bottom: 40, top: buttonHeight + 24),
+                      widget.gradientPadding ?? EdgeInsets.only(left: 16, right: 16, bottom: 40, top: buttonHeight),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,

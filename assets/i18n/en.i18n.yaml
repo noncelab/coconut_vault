@@ -541,7 +541,7 @@ mnemonic_dice_roll_screen:
   enter_passphrase: "Enter passphrase"
 mnemonic_confirm_screen:
   title: "Final Confirmation"
-  description: "This information will be used to create a wallet"
+  description: "We'll create a wallet using this mnemonic"
   passphrase_character_total_count: " (Total $count chars)"
   warning:
     contains_space_character: "⚠︎ Contains space characters"
@@ -561,7 +561,7 @@ mnemonic_generate_screen:
   passphrase_not_matched: "Passphrase does not match"
   memorable_passphrase_guide: "A passphrase you'll never forget"
   passphrase_confirm_guide: "Confirm passphrase"
-  backup_guide: "Please backup mnemonic words in a safe place"
+  backup_guide: "Please backup your mnemonic in a safe place"
   backup_complete: "Backup Complete"
   warning: "Keep your passphrase safe and private"
   passphrase_warning: "$words may not be accepted by other wallets."
@@ -579,7 +579,7 @@ entropy_bits_bottom_sheet:
   select_option: "and verify your values."
   
 mnemonic_import_screen:
-  title: "Restore"
+  title: "Restore Wallet"
   enter_mnemonic_phrase: "Enter mnemonic phrase"
   put_spaces_between_words: "Put spaces between words"
   use_passphrase: "Use Passphrase"
@@ -591,7 +591,7 @@ mnemonic_import_screen:
   words_12: "12 words"
 
 mnemonic_view_screen:
-  security_guide: "Please check the mnemonic in a safe place"
+  security_guide: "Please review your mnemonic in a safe place"
   warning_title: "Mnemonic phrase is the key to your wallet"
   warning_guide: "If someone knows this word, they can take all your Bitcoin. Please check if there are any other people or cameras around you."
   warning_btn: "I understand"

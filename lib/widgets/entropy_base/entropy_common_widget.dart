@@ -326,7 +326,6 @@ class EntropyBottomButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FixedBottomTweenButton(
-      showGradient: false,
       leftButtonRatio: 0.35,
       leftButtonClicked: onLeftButtonPressed,
       rightButtonClicked: onRightButtonPressed,
