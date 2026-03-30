@@ -112,11 +112,13 @@ class PinInputScreenState extends State<PinInputScreen> {
 
   @override
   void dispose() {
-    super.dispose();
+    _keyboardSubscription.cancel();
+
     if (widget.characterFocusNode == null) {
       _characterFocusNode.dispose();
     }
     _characterController.dispose();
+    super.dispose();
   }
 
   void _togglePinType() {
@@ -134,6 +136,8 @@ class PinInputScreenState extends State<PinInputScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final keyboardBackgroundColor =
         Platform.isIOS
@@ -160,11 +164,11 @@ class PinInputScreenState extends State<PinInputScreen> {
           SafeArea(
             child: SizedBox(
               width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Flexible(flex: 1, child: SizedBox(height: widget.bottomTextButtonLabel != null ? 60 : 20)),
+                  if (widget.bottomTextButtonLabel != null) SizedBox(height: isKeyboardVisible ? 10 : 60),
 
                   if (widget.title.isNotEmpty)
                     FittedBox(
@@ -176,7 +180,7 @@ class PinInputScreenState extends State<PinInputScreen> {
                       ),
                     ),
 
-                  const Flexible(flex: 1, child: SizedBox(height: 20)),
+                  SizedBox(height: isKeyboardVisible ? 10 : 20),
 
                   if (widget.descriptionTextWidget != null) ...[
                     Align(alignment: Alignment.center, child: widget.descriptionTextWidget ?? const Text('')),
@@ -217,7 +221,6 @@ class PinInputScreenState extends State<PinInputScreen> {
                     ),
                   ),
                   Expanded(
-                    flex: 8,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -282,7 +285,7 @@ class PinInputScreenState extends State<PinInputScreen> {
       width: MediaQuery.of(context).size.width,
       child: Center(
         child: Padding(
-          padding: EdgeInsets.only(bottom: _hideBottomPadding ? 50 : 30, top: 8),
+          padding: EdgeInsets.only(bottom: _hideBottomPadding ? 16 : 30, top: 8),
           child: GestureDetector(
             onTap: () {
               widget.onPressedBottomTextButton?.call();
@@ -316,7 +319,7 @@ class PinInputScreenState extends State<PinInputScreen> {
           decoration: BoxDecoration(
             color:
                 MediaQuery.of(context).platformBrightness == Brightness.dark
-                    ? (Platform.isIOS ? CoconutColors.gray400 : CoconutColors.gray400)
+                    ? CoconutColors.gray400
                     : CoconutColors.white,
             border: Border.all(color: CoconutColors.gray350, width: 1),
             borderRadius: BorderRadius.circular(12),
