@@ -133,6 +133,7 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
                     color: CoconutColors.white,
                     child: Column(
                       children: [
+                        CoconutLayout.spacing_1000h,
                         MnemonicList(mnemonic: widget.scannedData),
                         CoconutLayout.spacing_600h,
                         Padding(padding: const EdgeInsets.symmetric(horizontal: 16.0), child: _buildPassphraseToggle()),
@@ -187,7 +188,9 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
       }
 
       if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
-        CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+        if (mounted) {
+          CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+        }
         return;
       }
       // INFO: secret, passphrase 복제해서 넣어줘야 뒤로가기로 화면 재진입 시 값 유지 가능
@@ -260,6 +263,7 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
           focusNode: _passphraseFocusNode,
           controller: _passphraseController,
           placeholderText: t.seed_qr_confirmation_screen.passphrase_text_field_placeholder,
+          padding: const EdgeInsets.all(16.0),
           onChanged: (_) {},
           maxLines: 1,
           isLengthVisible: false,

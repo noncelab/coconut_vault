@@ -52,6 +52,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
       if (widget.onFocusChanged != null) {
         widget.onFocusChanged!(_focusNode.hasFocus);
       }
+      setState(() {});
     });
   }
 
@@ -182,6 +183,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                     maxLines: 1,
                     controller: _controller,
                     focusNode: _focusNode,
+                    padding: const EdgeInsets.all(16.0),
                     suffix: IconButton(
                       highlightColor: CoconutColors.gray200,
                       iconSize: 14,
@@ -195,7 +197,10 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                           _controller.text.isNotEmpty
                               ? SvgPicture.asset(
                                 'assets/svg/text-field-clear.svg',
-                                colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                                colorFilter: ColorFilter.mode(
+                                  _focusNode.hasFocus ? CoconutColors.gray800 : CoconutColors.gray400,
+                                  BlendMode.srcIn,
+                                ),
                               )
                               : Container(),
                     ),
@@ -214,7 +219,12 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
         ),
         Padding(
           padding: const EdgeInsets.only(right: 16.0),
-          child: Text('${_name.length} / 20', style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray500)),
+          child: Text(
+            '${_name.length} / 20',
+            style: CoconutTypography.body3_12_Number.setColor(
+              _focusNode.hasFocus ? CoconutColors.gray800 : CoconutColors.gray500,
+            ),
+          ),
         ),
       ],
     );

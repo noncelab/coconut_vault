@@ -115,6 +115,7 @@ class _AccountEditBottomSheetState extends State<AccountEditBottomSheet> {
                     isError: isError,
                     suffix: _buildClearButton(isError),
                     errorText: t.bottom_sheet.account_settings.account_error_message,
+                    padding: const EdgeInsets.all(16.0),
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
