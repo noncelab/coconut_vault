@@ -92,6 +92,7 @@ class SingleButton extends StatelessWidget {
   Widget _buildButtonContent(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Row(
           children: [
@@ -125,7 +126,9 @@ class SingleButton extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: Text(
                     subtitle!,
-                    style: subtitleStyle ?? CoconutTypography.body3_12_Number.setColor(CoconutColors.gray600),
+                    style:
+                        subtitleStyle ??
+                        CoconutTypography.body3_12_Number.copyWith(color: CoconutColors.gray600, height: 1.2),
                   ),
                 ),
               ),
