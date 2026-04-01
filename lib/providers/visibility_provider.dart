@@ -30,10 +30,12 @@ class VisibilityProvider extends ChangeNotifier {
     final prefs = SharedPrefsRepository();
     _isSigningOnlyMode = isSigningOnlyMode;
     if (_isSigningOnlyMode) {
-      reset();
+      SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, 0);
+      _walletCount = 0;
+    } else {
+      _walletCount = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
     }
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
-    _walletCount = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
 
     _isPassphraseUseEnabled =
         isSigningOnlyMode ? true : (prefs.getBool(SharedPrefsKeys.kPassphraseUseEnabled) ?? false);
@@ -53,27 +55,21 @@ class VisibilityProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void reset() {
-    _walletCount = 0;
-    final prefs = SharedPrefsRepository();
-    prefs.setInt(SharedPrefsKeys.vaultListLength, 0);
-  }
-
   Future<void> setHasSeenGuide() async {
     _hasSeenGuide = true;
-    SharedPrefsRepository().setBool(SharedPrefsKeys.hasShownStartGuide, true);
+    await SharedPrefsRepository().setBool(SharedPrefsKeys.hasShownStartGuide, true);
     notifyListeners();
   }
 
   Future<void> setPassphraseUseEnabled(bool value) async {
     _isPassphraseUseEnabled = value;
-    SharedPrefsRepository().setBool(SharedPrefsKeys.kPassphraseUseEnabled, value);
+    await SharedPrefsRepository().setBool(SharedPrefsKeys.kPassphraseUseEnabled, value);
     notifyListeners();
   }
 
   Future<void> setChangeAccountEnabled(bool value) async {
     _isAccountEditEnabled = value;
-    SharedPrefsRepository().setBool(SharedPrefsKeys.kChangeAccountEnabled, value);
+    await SharedPrefsRepository().setBool(SharedPrefsKeys.kChangeAccountEnabled, value);
     notifyListeners();
   }
 
@@ -211,20 +207,20 @@ class VisibilityProvider extends ChangeNotifier {
 
   Future<void> changeIsBtcUnit(bool isBtcUnit) async {
     _isBtcUnit = isBtcUnit;
-    SharedPrefsRepository().setBool(SharedPrefsKeys.kIsBtcUnit, isBtcUnit);
+    await SharedPrefsRepository().setBool(SharedPrefsKeys.kIsBtcUnit, isBtcUnit);
     notifyListeners();
   }
 
-  void updateIsSigningOnlyMode(bool isSigningOnlyMode) {
+  Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {
     if (_isSigningOnlyMode == isSigningOnlyMode) return;
     if (isSigningOnlyMode) {
-      setPassphraseUseEnabled(true);
-      setChangeAccountEnabled(true);
-      SharedPrefsRepository().deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
+      await setPassphraseUseEnabled(true);
+      await setChangeAccountEnabled(true);
+      await SharedPrefsRepository().deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
     } else {
-      setPassphraseUseEnabled(false);
-      setChangeAccountEnabled(false);
-      SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, _walletCount);
+      await setPassphraseUseEnabled(false);
+      await setChangeAccountEnabled(false);
+      await SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, _walletCount);
     }
     _isSigningOnlyMode = isSigningOnlyMode;
   }

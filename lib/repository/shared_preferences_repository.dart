@@ -25,7 +25,7 @@ class SharedPrefsRepository {
     return _sharedPrefs.containsKey(key);
   }
 
-  Future deleteSharedPrefsWithKey(String key) async {
+  Future<void> deleteSharedPrefsWithKey(String key) async {
     await _sharedPrefs.remove(key);
   }
 

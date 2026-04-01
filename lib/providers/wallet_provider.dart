@@ -540,7 +540,7 @@ class WalletProvider extends ChangeNotifier {
     if (_isSigningOnlyMode == isSigningOnlyMode) return;
     _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedDecryption);
     await _walletRepository.updateIsSigningOnlyMode(isSigningOnlyMode);
-    _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+    await _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
     if (isSigningOnlyMode) {
       _setVaultList([]);
     }
