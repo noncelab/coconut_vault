@@ -205,7 +205,7 @@ class WalletRepository {
         rethrow;
       }
     }
-    _recordNextWalletId();
+    await _recordNextWalletId();
     return vaultListResult[0];
   }
 
@@ -370,7 +370,7 @@ class WalletRepository {
         rethrow;
       }
     }
-    _recordNextWalletId();
+    await _recordNextWalletId();
     return newMultisigVault;
   }
 
@@ -437,9 +437,9 @@ class WalletRepository {
     return _sharedPrefs.getInt(nextIdField) ?? 1;
   }
 
-  void _recordNextWalletId() {
+  Future<void> _recordNextWalletId() async {
     final int nextId = _getNextWalletId();
-    _sharedPrefs.setInt(nextIdField, nextId + 1);
+    await _sharedPrefs.setInt(nextIdField, nextId + 1);
   }
 
   Future<({Uint8List secret, Uint8List? passphrase})> _decryptSecret(int id, {bool autoAuth = true}) async {
@@ -681,7 +681,7 @@ class WalletRepository {
       Logger.error('--> ❌ FSS deleteAll 실패 ${e.toString()} ');
     }
     await _removePublicInfo();
-    _sharedPrefs.deleteSharedPrefsWithKey(nextIdField);
+    await _sharedPrefs.deleteSharedPrefsWithKey(nextIdField);
   }
 
   Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {

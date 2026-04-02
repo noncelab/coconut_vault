@@ -163,8 +163,8 @@ class AuthProvider extends ChangeNotifier {
       );
 
       if (isSaved) {
-        saveIsBiometricEnabled(authenticated);
-        _setHasAlreadyRequestedBioPermissionTrue();
+        await saveIsBiometricEnabled(authenticated);
+        await _setHasAlreadyRequestedBioPermissionTrue();
       }
     } on PlatformException catch (e) {
       Logger.log(e);
@@ -176,8 +176,8 @@ class AuthProvider extends ChangeNotifier {
       }
 
       if (isSaved) {
-        saveIsBiometricEnabled(false);
-        _setHasAlreadyRequestedBioPermissionTrue();
+        await saveIsBiometricEnabled(false);
+        await _setHasAlreadyRequestedBioPermissionTrue();
       }
     } finally {
       // INFO: 생체인증 종료 후 AppLifecycleEvent가 AppLifecycleState.resumed일 때 등록된 이벤트가 바로 호출되지 않게 하기 위한 지연
@@ -222,7 +222,7 @@ class AuthProvider extends ChangeNotifier {
     } finally {
       // dispose된 상태에서는 notifyListeners 호출하지 않음
       if (!_isDisposed) {
-        _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, _isBiometricEnabled);
+        await _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, _isBiometricEnabled);
         notifyListeners();
       }
     }
@@ -237,13 +237,13 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void verifyBiometric(BuildContext context) async {
+  Future<void> verifyBiometric(BuildContext context) async {
     bool isAuthenticated = await authenticateWithBiometrics(context: context);
     if (isAuthenticated) {
       if (onAuthenticationSuccess != null) {
         onAuthenticationSuccess!();
       }
-      resetAuthenticationState();
+      await resetAuthenticationState();
     }
   }
 
@@ -266,7 +266,7 @@ class AuthProvider extends ChangeNotifier {
     final savedPin = await _storageService.read(key: SecureStorageKeys.kVaultPin);
 
     if (savedPin == hashedInput) {
-      resetAuthenticationState();
+      await resetAuthenticationState();
       return true;
     }
 
@@ -282,15 +282,15 @@ class AuthProvider extends ChangeNotifier {
 
     if (_isBiometricEnabled && _isBiometricSupportedByDevice && !_isPinSet) {
       _isBiometricEnabled = true;
-      _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, true);
+      await _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, true);
     }
 
     String hashed = hashString(pin);
     await _storageService.write(key: SecureStorageKeys.kVaultPin, value: hashed);
     _isPinSet = true;
     _isPinCharacter = isCharacter;
-    _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, true);
-    _sharedPrefs.setBool(SharedPrefsKeys.isPinCharacter, isCharacter);
+    await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, true);
+    await _sharedPrefs.setBool(SharedPrefsKeys.isPinCharacter, isCharacter);
     notifyListeners();
   }
 
@@ -324,8 +324,8 @@ class AuthProvider extends ChangeNotifier {
   Future<void> resetPinData() async {
     await _storageService.delete(key: SecureStorageKeys.kVaultPin);
     _isPinSet = false;
-    _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
-    resetAuthenticationState();
+    await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
+    await resetAuthenticationState();
   }
 
   // TODO: 딜레이 발생 이유
@@ -363,7 +363,7 @@ class AuthProvider extends ChangeNotifier {
     if (_isDisposed) return;
 
     _currentAttemptInTurn++;
-    _setCurrentAttempt(_currentAttemptInTurn);
+    await _setCurrentAttempt(_currentAttemptInTurn);
 
     if (_currentAttemptInTurn == kMaxAttemptPerTurn) {
       _currentTurn++;
@@ -374,16 +374,16 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  void resetAuthenticationState() {
+  Future<void> resetAuthenticationState() async {
     if (_isDisposed) return;
 
     _currentAttemptInTurn = 0;
     _currentTurn = 0;
     _unlockAvailableAtInString = '';
 
-    _sharedPrefs.deleteSharedPrefsWithKey(unlockAvailableAtKey);
-    _sharedPrefs.deleteSharedPrefsWithKey(currentAttemptKey);
-    _sharedPrefs.deleteSharedPrefsWithKey(turnKey);
+    await _sharedPrefs.deleteSharedPrefsWithKey(unlockAvailableAtKey);
+    await _sharedPrefs.deleteSharedPrefsWithKey(currentAttemptKey);
+    await _sharedPrefs.deleteSharedPrefsWithKey(turnKey);
   }
 
   @override
