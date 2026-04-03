@@ -10,9 +10,11 @@ class SignIsolates {
     assert(dataList[1] is String);
     WalletIsolates.setNetworkType();
 
-    final keyStore = KeyStore.fromSeed(dataList[0] as Seed, AddressType.p2wpkh);
+    final seed = dataList[0] as Seed;
     final psbtBase64 = dataList[1] as String;
-    final coconutVault = SingleSignatureVault.fromKeyStore(keyStore);
+    final accountIndex = dataList.length > 2 ? dataList[2] as int : 0;
+    final keyStore = KeyStore.fromSeed(seed, AddressType.p2wpkh, accountIndex: accountIndex);
+    final coconutVault = SingleSignatureVault.fromKeyStore(keyStore, accountIndex: accountIndex);
     String signedPsbt = coconutVault.addSignatureToPsbt(psbtBase64);
     return signedPsbt;
   }

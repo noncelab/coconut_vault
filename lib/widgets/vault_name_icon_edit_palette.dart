@@ -30,6 +30,9 @@ class VaultNameIconEditPalette extends StatefulWidget {
   State<VaultNameIconEditPalette> createState() => _VaultNameIconEditPaletteState();
 }
 
+/// SliverPersistentHeader 고정 높이
+const double _kStickySelectedHeaderExtent = 92;
+
 class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
   late String _name;
   late int _selectedIconIndex;
@@ -49,6 +52,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
       if (widget.onFocusChanged != null) {
         widget.onFocusChanged!(_focusNode.hasFocus);
       }
+      setState(() {});
     });
   }
 
@@ -71,8 +75,14 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
             padding: const EdgeInsets.only(left: 10, right: 10),
             child: CustomScrollView(
               slivers: <Widget>[
-                SliverToBoxAdapter(child: Container(height: 10)),
-                SliverList(delegate: SliverChildListDelegate([_buildSelectedIconWithName()])),
+                SliverToBoxAdapter(child: Container(height: 12)),
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _VaultNameStickyHeaderDelegate(
+                    height: _kStickySelectedHeaderExtent,
+                    child: _buildSelectedIconWithName(),
+                  ),
+                ),
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 0.0),
                   sliver: SliverGrid(
@@ -173,6 +183,7 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                     maxLines: 1,
                     controller: _controller,
                     focusNode: _focusNode,
+                    padding: const EdgeInsets.all(16.0),
                     suffix: IconButton(
                       highlightColor: CoconutColors.gray200,
                       iconSize: 14,
@@ -186,7 +197,10 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                           _controller.text.isNotEmpty
                               ? SvgPicture.asset(
                                 'assets/svg/text-field-clear.svg',
-                                colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                                colorFilter: ColorFilter.mode(
+                                  _focusNode.hasFocus ? CoconutColors.gray800 : CoconutColors.gray400,
+                                  BlendMode.srcIn,
+                                ),
                               )
                               : Container(),
                     ),
@@ -205,7 +219,12 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
         ),
         Padding(
           padding: const EdgeInsets.only(right: 16.0),
-          child: Text('${_name.length} / 20', style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray500)),
+          child: Text(
+            '${_name.length} / 20',
+            style: CoconutTypography.body3_12_Number.setColor(
+              _focusNode.hasFocus ? CoconutColors.gray800 : CoconutColors.gray500,
+            ),
+          ),
         ),
       ],
     );
@@ -227,5 +246,34 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
 
   Color _getColorByIndex(int index) {
     return CoconutColors.colorPalette[index % CoconutColors.colorPalette.length];
+  }
+}
+
+class _VaultNameStickyHeaderDelegate extends SliverPersistentHeaderDelegate {
+  _VaultNameStickyHeaderDelegate({required this.height, required this.child});
+
+  final double height;
+  final Widget child;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    final bool stuck = shrinkOffset > 0 || overlapsContent;
+    return Material(
+      color: CoconutColors.white,
+      elevation: stuck ? 1 : 0,
+      shadowColor: CoconutColors.black.withValues(alpha: 0.08),
+      child: SizedBox(height: height, child: Align(alignment: Alignment.center, child: child)),
+    );
+  }
+
+  @override
+  bool shouldRebuild(covariant _VaultNameStickyHeaderDelegate oldDelegate) {
+    return oldDelegate.height != height || oldDelegate.child != child;
   }
 }

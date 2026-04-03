@@ -89,7 +89,6 @@ delete_one: "Delete One"
 name_wallet: "$name Wallet"
 one_sign_guide: "Click the button to sign"
 bitcoin_text: "$bitcoin BTC"
-sign_required: "Click the button to sign"
 sign_required_amount: 
   one: "$n signature required"
   other: "$n signatures required"
@@ -104,7 +103,6 @@ forgot_password: "Forgot password?"
 scan_qr_url_link: "Scan QR code with network-enabled device or visit the URL above"
 scan_qr_email_link: "Scan QR code with network-enabled device or send email to the address above"
 developer_option: "Developer Option"
-advanced_user: "Advanced User"
 
 extra_count: "+$count more"
 
@@ -130,7 +128,7 @@ connectivity_state:
   inactive: "Inactive"
 
 vault_home_screen:
-  view_all_wallets: "View My Wallets"
+  view_all_wallets: "View All Wallets"
   wallet_count: "$count Items"
   action_items:
     sign: "Sign"
@@ -279,6 +277,12 @@ psbt_confirmation_screen:
   guide: "Please verify that the information scanned from the wallet is correct."
   self_sending: "This is a transaction sending to my own wallet."
   warning: "⚠️ This may not be a psbt created with this wallet. Or it may be a transaction with no balance."
+  total_cost:
+    total: "Total $n"
+    sentence: " is required."
+  output_detail_title: "Output Details"
+  flow_input_title: "Input $index"
+  flow_output_title: "Output $index"
 psbt_scanner_screen:
   guide: "Please scan sending info created in wallet or multisig info from external vault."
   guide_import_psbt_0: "Please scan the QR code created via "
@@ -447,8 +451,10 @@ settings_screen:
   use_biometric: "Use Biometric"
   change_password: "Change Password"
   set_password: "Set Password"
-  advanced_user: "Advanced User"
+  advanced_user: "Advanced"
   use_passphrase: "Use Passphrase"
+  change_account: "Change Account"
+  change_account_description: "Change the account in m/84’/0’/account’"
   information: "Information"
   toast:
     no_enrolled_biometrics: "No biometrics are set up on this device"
@@ -457,8 +463,14 @@ settings_screen:
     need_biometrics_setting_desc: "Please check biometrics settings."
     btn_move_to_setting: "Go to Settings"
     use_passphrase_title: "Use Passphrase"
-    use_passphrase_description: "Using passphrase is like creating a new wallet. If used incorrectly, you may lose bitcoins forever."
+    use_passphrase_description: "Using a passphrase\nis like creating\nan entirely new wallet.\nIf used incorrectly,\nyou could lose your\nBitcoin forever."
     use_passphrase_btn: "I understand"
+    change_account_title: "Change Account Number"
+    disable_change_account_title: "Disable Account Number Change"
+    change_account_description: "Changing the account number\nwill display a different wallet.\nIf you forget the account number,\nit may be difficult to\nfind your Bitcoin."
+    disable_change_account_description: "If you turn off account number change,\nthe currently selected account number\nwill be saved as the final one.\n\nDo you want to continue?"
+    change_account_btn: "I understand"
+    disable_change_account_btn: "Confirm"
 
 # lib/screens/start_guide
 welcome_screen:
@@ -529,7 +541,7 @@ mnemonic_dice_roll_screen:
   enter_passphrase: "Enter passphrase"
 mnemonic_confirm_screen:
   title: "Final Confirmation"
-  description: "This information will be used to create a wallet"
+  description: "We'll create a wallet using this mnemonic"
   passphrase_character_total_count: " (Total $count chars)"
   warning:
     contains_space_character: "⚠︎ Contains space characters"
@@ -549,7 +561,7 @@ mnemonic_generate_screen:
   passphrase_not_matched: "Passphrase does not match"
   memorable_passphrase_guide: "A passphrase you'll never forget"
   passphrase_confirm_guide: "Confirm passphrase"
-  backup_guide: "Please backup mnemonic words in a safe place"
+  backup_guide: "Please backup your mnemonic in a safe place"
   backup_complete: "Backup Complete"
   warning: "Keep your passphrase safe and private"
   passphrase_warning: "$words may not be accepted by other wallets."
@@ -567,7 +579,7 @@ entropy_bits_bottom_sheet:
   select_option: "and verify your values."
   
 mnemonic_import_screen:
-  title: "Restore"
+  title: "Restore Wallet"
   enter_mnemonic_phrase: "Enter mnemonic phrase"
   put_spaces_between_words: "Put spaces between words"
   use_passphrase: "Use Passphrase"
@@ -579,7 +591,7 @@ mnemonic_import_screen:
   words_12: "12 words"
 
 mnemonic_view_screen:
-  security_guide: "Please check the mnemonic in a safe place"
+  security_guide: "Please review your mnemonic in a safe place"
   warning_title: "Mnemonic phrase is the key to your wallet"
   warning_guide: "If someone knows this word, they can take all your Bitcoin. Please check if there are any other people or cameras around you."
   warning_btn: "I understand"
@@ -762,7 +774,7 @@ bsms_paste_screen:
 
 # lib/screens/vault_detail
 address_list_screen:
-  title: "$name's Addresses"
+  title: "'s Addresses"
   address_index: "Address - $index"
 export_detail_screen:
   title: "Export Details"
@@ -860,7 +872,7 @@ vault_settings:
   used_in_multisig: "Used in multisig wallet"
   of: " of "
   nth: "$index"
-  key: "key "
+  key: "Key "
 
 verify_passphrase_screen:
   title: "Passphrase Verification"
@@ -894,6 +906,11 @@ bottom_sheet:
   ask_about_license: "[Vault] License Inquiry"
   mnemonic_backup: "Please backup\ngenerated mnemonic phrase."
   mnemonic_backup_and_confirm_passphrase: "Please backup generated mnemonic phrase\nand confirm passphrase."
+  account_settings:
+    title: "Set Account Number"
+    description: "Make sure to remember your account number."
+    placeholder: "Please enter the account number"
+    account_error_message: "Enter a value in the range 0 and 2,147,483,647."
 
 permission:
   biometric: 
@@ -1038,6 +1055,8 @@ exceptions:
     title: "Wallet Unavailable"
     description: "The saved wallet can no longer be used. Please delete the wallet and restore it using the backed-up mnemonic."
   needs_multisig_setup: "Please add a multisig wallet first in order to sign with $name."
+  account_change_failed:
+    title: "Failed to change account"
 
 tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."

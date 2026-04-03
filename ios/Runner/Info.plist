@@ -56,5 +56,12 @@
 	</array>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Debugging requires local network access to connect to the Dart VM service.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_dartVmService._tcp</string>
+		<string>_dartobservatory._tcp</string>
+	</array>
 </dict>
 </plist>

@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
@@ -204,7 +205,7 @@ class WalletRepository {
         rethrow;
       }
     }
-    _recordNextWalletId();
+    await _recordNextWalletId();
     return vaultListResult[0];
   }
 
@@ -369,7 +370,7 @@ class WalletRepository {
         rethrow;
       }
     }
-    _recordNextWalletId();
+    await _recordNextWalletId();
     return newMultisigVault;
   }
 
@@ -436,9 +437,9 @@ class WalletRepository {
     return _sharedPrefs.getInt(nextIdField) ?? 1;
   }
 
-  void _recordNextWalletId() {
+  Future<void> _recordNextWalletId() async {
     final int nextId = _getNextWalletId();
-    _sharedPrefs.setInt(nextIdField, nextId + 1);
+    await _sharedPrefs.setInt(nextIdField, nextId + 1);
   }
 
   Future<({Uint8List secret, Uint8List? passphrase})> _decryptSecret(int id, {bool autoAuth = true}) async {
@@ -680,7 +681,7 @@ class WalletRepository {
       Logger.error('--> ❌ FSS deleteAll 실패 ${e.toString()} ');
     }
     await _removePublicInfo();
-    _sharedPrefs.deleteSharedPrefsWithKey(nextIdField);
+    await _sharedPrefs.deleteSharedPrefsWithKey(nextIdField);
   }
 
   Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {
@@ -733,6 +734,64 @@ class WalletRepository {
       if (seed.passphrase.isEmpty) continue;
 
       await _saveSecretAndPassphraseEnabled(vault.id, seed.mnemonic, true);
+    }
+
+    await _savePublicInfo();
+  }
+
+  Future<void> updateSingleSigAccountVault(int id, int newAccountIndex, {Uint8List? inputPassphrase}) async {
+    if (_vaultList == null) throw Exception('vaultList is empty');
+
+    final index = _vaultList!.indexWhere((item) => item.id == id);
+    if (index == -1) throw Exception('Vault not found');
+
+    final existingVault = _vaultList![index];
+    if (existingVault is! SingleSigVaultListItem) {
+      throw ArgumentError(
+        'Only SingleSigVaultListItem is supported for account update. Vault type is ${existingVault.vaultType}',
+      );
+    }
+
+    final currentCoconutVault = existingVault.coconutVault as SingleSignatureVault;
+
+    final parsed = await _decryptSecret(id);
+    final passphrase = _isSigningOnlyMode ? parsed.passphrase : inputPassphrase;
+
+    final derivedNewAccountVault = await compute(WalletIsolates.deriveNewAccountVault, {
+      'mnemonic': parsed.secret,
+      'passphrase': passphrase,
+      'addressTypeName': currentCoconutVault.addressType.name,
+      'currentAccountIndex': currentCoconutVault.accountIndex,
+      'newAccountIndex': newAccountIndex,
+      'expectedMfp': currentCoconutVault.keyStore.masterFingerprint,
+    });
+
+    parsed.secret.wipe();
+    if (_isSigningOnlyMode && parsed.passphrase != null) {
+      parsed.passphrase!.wipe();
+    }
+
+    final rawJson =
+        existingVault.toPublicJson()
+          ..[SingleSigVaultListItem.fieldDescriptor] = derivedNewAccountVault['descriptor']
+          ..[SingleSigVaultListItem.fieldSignerBsmsByAddressType] = existingVault.signerBsmsByAddressType.map(
+            (k, v) => MapEntry(k.name, v),
+          )
+          ..['derivationPath'] = derivedNewAccountVault['derivationPath'];
+
+    final updatedItem = await compute<Map<String, dynamic>, VaultListItemBase>(
+      WalletIsolates.initializeWallet,
+      rawJson,
+    );
+
+    _vaultList![index] = updatedItem;
+
+    if (!_isSigningOnlyMode) {
+      final privacyInfo = SingleSigWalletPrivacyInfo.fromAddressTypeMap(
+        descriptor: derivedNewAccountVault['descriptor'],
+        signerBsmsByAddressType: existingVault.signerBsmsByAddressType,
+      );
+      await _savePrivacyInfo(id, WalletType.singleSignature, privacyInfo);
     }
 
     await _savePublicInfo();

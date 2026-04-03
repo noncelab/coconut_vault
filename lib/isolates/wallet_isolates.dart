@@ -200,4 +200,44 @@ class WalletIsolates {
       }
     }
   }
+
+  static Future<Map<String, dynamic>> deriveNewAccountVault(Map<String, dynamic> args) async {
+    setNetworkType();
+
+    final Uint8List mnemonic = args['mnemonic'];
+    final Uint8List? passphrase = args['passphrase'];
+    final String addressTypeName = args['addressTypeName'];
+    final int currentAccountIndex = args['currentAccountIndex'];
+    final int newAccountIndex = args['newAccountIndex'];
+    final String expectedMfp = args['expectedMfp'];
+
+    final AddressType addressType = AddressType.getAddressTypeFromName(addressTypeName);
+
+    try {
+      final derivedVault = SingleSignatureVault.fromMnemonic(
+        mnemonic,
+        addressType: addressType,
+        passphrase: passphrase,
+        accountIndex: currentAccountIndex,
+      );
+
+      if (derivedVault.keyStore.masterFingerprint.toUpperCase() != expectedMfp.toUpperCase()) {
+        throw Exception('Invalid passphrase');
+      }
+
+      final updatedCoconutVault = SingleSignatureVault.fromMnemonic(
+        mnemonic,
+        addressType: addressType,
+        passphrase: passphrase,
+        accountIndex: newAccountIndex,
+      );
+
+      return {'descriptor': updatedCoconutVault.descriptor, 'derivationPath': updatedCoconutVault.derivationPath};
+    } finally {
+      mnemonic.wipe();
+      if (passphrase != null) {
+        passphrase.wipe();
+      }
+    }
+  }
 }

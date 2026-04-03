@@ -44,6 +44,7 @@ class SingleButton extends StatelessWidget {
   final TextStyle? subtitleStyle;
   final bool enableShrinkAnim;
   final double animationEndValue;
+  final bool isDescriptionUnderTitle;
 
   const SingleButton({
     super.key,
@@ -58,6 +59,7 @@ class SingleButton extends StatelessWidget {
     this.animationEndValue = 0.95,
     this.subtitleStyle,
     this.titleStyle,
+    this.isDescriptionUnderTitle = false,
   });
 
   @override
@@ -90,15 +92,30 @@ class SingleButton extends StatelessWidget {
   Widget _buildButtonContent(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Row(
           children: [
             if (leftElement != null) ...{Container(child: leftElement), CoconutLayout.spacing_400w},
             Expanded(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(title, style: titleStyle ?? CoconutTypography.body2_14_Bold.setColor(CoconutColors.black)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      title,
+                      style: titleStyle ?? CoconutTypography.body2_14_Bold.setColor(CoconutColors.black),
+                    ),
+                  ),
+                  if (isDescriptionUnderTitle && description != null)
+                    MediaQuery(
+                      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                      child: Text(description!, style: CoconutTypography.caption_10.setColor(CoconutColors.gray600)),
+                    ),
+                ],
               ),
             ),
             if (subtitle != null) ...[
@@ -109,7 +126,9 @@ class SingleButton extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   child: Text(
                     subtitle!,
-                    style: subtitleStyle ?? CoconutTypography.body3_12_Number.setColor(CoconutColors.gray600),
+                    style:
+                        subtitleStyle ??
+                        CoconutTypography.body3_12_Number.copyWith(color: CoconutColors.gray600, height: 1.2),
                   ),
                 ),
               ),
@@ -117,10 +136,10 @@ class SingleButton extends StatelessWidget {
             rightElement ?? _rightArrow(),
           ],
         ),
-        if (description != null)
+        if (!isDescriptionUnderTitle && description != null)
           MediaQuery(
             data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-            child: Text(description!, style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray600)),
+            child: Text(description!, style: CoconutTypography.body3_12.setColor(CoconutColors.gray600)),
           ),
       ],
     );

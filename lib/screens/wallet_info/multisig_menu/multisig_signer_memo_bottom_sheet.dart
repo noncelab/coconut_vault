@@ -133,12 +133,7 @@ class _MultisigSignerNameBottomSheetState extends State<MultisigSignerNameBottom
                       ),
                     ],
                   ),
-                  FixedBottomButton(
-                    text: t.complete,
-                    onButtonClicked: _onComplete,
-                    isVisibleAboveKeyboard: false,
-                    bottomPadding: 16,
-                  ),
+                  FixedBottomButton(text: t.complete, onButtonClicked: _onComplete, isVisibleAboveKeyboard: false),
                 ],
               ),
             ),

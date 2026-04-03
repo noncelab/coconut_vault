@@ -72,20 +72,23 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
       ),
       child: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 40.0, right: 40.0, top: 32),
-            child: Container(
-              color: CoconutColors.white,
-              child: Column(
-                children: [
-                  CoconutLayout.spacing_200h,
-                  Text(
+          Container(
+            color: CoconutColors.white,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
                     widget.guideText.isEmpty ? t.mnemonic_generate_screen.backup_guide : widget.guideText,
                     style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.warningText),
                     textAlign: TextAlign.center,
                   ),
-                  CoconutLayout.spacing_400h,
-                  GridView.builder(
+                ),
+                CoconutLayout.spacing_600h,
+                Padding(
+                  padding: const EdgeInsets.only(left: 40.0, right: 40.0),
+                  child: GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -166,10 +169,13 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                             ),
                             CoconutLayout.spacing_300w,
                             Expanded(
-                              child: Text(
-                                words[index],
-                                style: CoconutTypography.body1_16,
-                                overflow: TextOverflow.visible,
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 8.0),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(words[index], style: CoconutTypography.body1_16, maxLines: 1),
+                                ),
                               ),
                             ),
                           ],
@@ -177,8 +183,8 @@ class _MnemonicListState extends State<MnemonicList> with TickerProviderStateMix
                       );
                     },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],

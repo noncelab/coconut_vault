@@ -51,13 +51,13 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
       context: context,
       ratio: 0.5,
       child: SelectSyncOptionBottomSheet(
-        onSyncOptionSelected: (format) {
+        onSyncOptionSelected: (SyncOption syncOption) {
           if (!context.mounted) return;
           Navigator.pop(context);
           Navigator.pushReplacementNamed(
             context,
             AppRoutes.syncToWallet,
-            arguments: {'id': walletId, 'syncOption': format},
+            arguments: {'id': walletId, 'syncOption': syncOption},
           );
         },
       ),

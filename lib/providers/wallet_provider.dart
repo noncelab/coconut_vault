@@ -258,6 +258,26 @@ class WalletProvider extends ChangeNotifier {
     return await _walletRepository.hasPassphrase(walletId);
   }
 
+  Future<void> updateSingleSigAccount(int id, int newAccountIndex, {Uint8List? passphrase}) async {
+    _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedDecryption);
+    try {
+      await _walletRepository.updateSingleSigAccountVault(id, newAccountIndex, inputPassphrase: passphrase);
+
+      _setVaultList(List.from(_walletRepository.vaultList));
+
+      Future.microtask(() {
+        if (!_isDisposed) notifyListeners();
+      });
+    } catch (e) {
+      Logger.error('[WalletProvider] updateSingleSigAccount error: $e');
+      rethrow;
+    } finally {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+      });
+    }
+  }
+
   Future<MultisigVaultListItem> importMultisigVault(MultisigImportDetail details, int walletId) async {
     _setAddVaultCompleted(false);
 
@@ -496,8 +516,9 @@ class WalletProvider extends ChangeNotifier {
     } finally {
       // TEE 접근 완료 - inactive 상태 전환 허용
       // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
-      await Future.delayed(const Duration(milliseconds: 500));
-      _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+      });
     }
   }
 
@@ -509,8 +530,9 @@ class WalletProvider extends ChangeNotifier {
     } finally {
       // TEE 접근 완료 - inactive 상태 전환 허용
       // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
-      await Future.delayed(const Duration(milliseconds: 500));
-      _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+      });
     }
   }
 
@@ -518,7 +540,7 @@ class WalletProvider extends ChangeNotifier {
     if (_isSigningOnlyMode == isSigningOnlyMode) return;
     _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedDecryption);
     await _walletRepository.updateIsSigningOnlyMode(isSigningOnlyMode);
-    _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+    await _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
     if (isSigningOnlyMode) {
       _setVaultList([]);
     }
@@ -560,6 +582,12 @@ class WalletProvider extends ChangeNotifier {
       count++;
     }
     return target;
+  }
+
+  Future<void> reloadRelatedToVault() async {
+    _isVaultListLoading = false;
+    _isVaultsLoaded = false;
+    await loadVaultList();
   }
 
   // 7) 오버라이드/생명주기

@@ -43,6 +43,27 @@ class MyBottomSheet {
     );
   }
 
+  static Future<T?> showBottomSheet_height<T>({
+    required BuildContext context,
+    required Widget child,
+    bool isDismissible = true,
+    bool enableDrag = true,
+    double heightRatio = 0.74,
+  }) async {
+    return await showModalBottomSheet<T>(
+      context: context,
+      builder: (context) {
+        return child;
+      },
+      backgroundColor: CoconutColors.white,
+      isDismissible: isDismissible,
+      isScrollControlled: true,
+      enableDrag: enableDrag,
+      useSafeArea: true,
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * heightRatio),
+    );
+  }
+
   static Future<T?> showBottomSheet_ratio<T>({
     required BuildContext context,
     required Widget child,

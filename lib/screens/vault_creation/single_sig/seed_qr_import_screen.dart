@@ -16,6 +16,7 @@ import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -113,7 +114,12 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
         backgroundColor: CoconutColors.white,
         actionButtonList: [
           IconButton(
-            icon: const Icon(CupertinoIcons.camera_rotate, size: 22),
+            icon: SvgPicture.asset(
+              'assets/svg/arrow-reload.svg',
+              width: 20,
+              height: 20,
+              colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+            ),
             color: CoconutColors.black,
             onPressed: () {
               controller?.flipCamera();

@@ -73,8 +73,6 @@ class _CoordinatorBsmsConfigScannerScreenState extends BsmsScannerBase<Coordinat
   @override
   bool get showBottomButton => _clipboardContentAvailable;
 
-  double get topMaskHeight => 0.0;
-
   @override
   String get appBarTitle => t.bsms_scanner_screen.import_multisig_wallet;
 

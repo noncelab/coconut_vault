@@ -16,13 +16,13 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 2.0.2+1
+version: 2.1.1+24
 app_versions:
-  ios_regtest: 4.0.2+1
-  ios_mainnet: 2.0.2+1
-  aos_regtest: 4.0.2+52
-  aos_mainnet: 2.0.2+17
-
+  ios_regtest: 4.1.1+1
+  ios_mainnet: 2.1.1+1
+  aos_regtest: 4.1.1+61
+  aos_mainnet: 2.1.1+25
+  
 environment:
   sdk: ">=3.7.0 <4.0.0"
 
@@ -75,7 +75,7 @@ dependencies:
   mobile_scanner: 7.0.1
   qr_code_scanner_plus: ^2.0.12
   decimal: ^3.0.2
-  coconut_design_system: 0.9.10
+  coconut_design_system: 0.9.14
   flutter_keyboard_visibility: ^6.0.0
   base32: ^2.2.0
   archive: ^4.0.7
@@ -119,10 +119,14 @@ flutter:
     - assets/png/splash_logo_regtest.png
     - assets/png/wallet_logo_regtest.png
     - assets/svg/wallet-icons/bank.svg
+    - assets/svg/wallet-icons/bitcoin-circle.svg
+    - assets/svg/wallet-icons/bitcoin.svg
     - assets/svg/wallet-icons/building.svg
     - assets/svg/wallet-icons/car.svg
     - assets/svg/wallet-icons/carrot.svg
     - assets/svg/wallet-icons/child-head.svg
+    - assets/svg/wallet-icons/coconut-drink.svg
+    - assets/svg/wallet-icons/coconut.svg
     - assets/svg/wallet-icons/couch.svg
     - assets/svg/wallet-icons/croissant.svg
     - assets/svg/wallet-icons/cursor-finger.svg
@@ -133,9 +137,15 @@ flutter:
     - assets/svg/wallet-icons/hamburger.svg
     - assets/svg/wallet-icons/hand-holding-heart.svg
     - assets/svg/wallet-icons/heart.svg
+    - assets/svg/wallet-icons/high-five.svg
     - assets/svg/wallet-icons/home-heart.svg
+    - assets/svg/wallet-icons/inheritance-1.svg
+    - assets/svg/wallet-icons/inheritance-2.svg
+    - assets/svg/wallet-icons/legacy-bitcoin.svg
+    - assets/svg/wallet-icons/legacy-heart.svg
     - assets/svg/wallet-icons/man-head.svg
     - assets/svg/wallet-icons/music.svg
+    - assets/svg/wallet-icons/palm-tree.svg
     - assets/svg/wallet-icons/paper-plane.svg
     - assets/svg/wallet-icons/paw.svg
     - assets/svg/wallet-icons/piggy-bank.svg
@@ -243,6 +253,7 @@ flutter:
     - assets/svg/coldcard.svg
     - assets/svg/krux.svg
     - assets/svg/log-out.svg
+    - assets/svg/arrow-reload.svg
 
   fonts:
     - family: SpaceGrotesk

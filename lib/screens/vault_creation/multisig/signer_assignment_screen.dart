@@ -207,6 +207,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                       showDragHandle: false,
                                                       context: context,
                                                       child: _buildSelectKeyOptionBottomSheet(i),
+                                                      ratio: 0.6,
                                                     );
                                                   },
                                                   defaultColor:
@@ -517,6 +518,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           selectedWalletType = HardwareWalletTypeExtension.fromDisplayName(walletButtons[index].name);
         },
       ),
+      ratio: 0.6,
     );
 
     if (selectedWalletType == null) return;

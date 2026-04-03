@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 
 class FixedBottomTweenButton extends StatefulWidget {
@@ -30,6 +31,8 @@ class FixedBottomTweenButton extends StatefulWidget {
     this.rightButtonBorderColor = CoconutColors.black,
     this.leftButtonTextColor = CoconutColors.black,
     this.rightButtonTextColor = CoconutColors.white,
+    this.leftButtonPressedBackgroundColor = CoconutColors.gray800,
+    this.rightButtonPressedBackgroundColor = CoconutColors.gray800,
     this.buttonSpacing = 8.0, // 두 버튼 사이의 간격
   });
 
@@ -53,6 +56,8 @@ class FixedBottomTweenButton extends StatefulWidget {
   final Color rightButtonBorderColor;
   final Color leftButtonTextColor;
   final Color rightButtonTextColor;
+  final Color leftButtonPressedBackgroundColor;
+  final Color rightButtonPressedBackgroundColor;
   final double buttonSpacing;
 
   @override
@@ -63,17 +68,16 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
   @override
   Widget build(BuildContext context) {
     double keyboardHeight = (widget.isVisibleAboveKeyboard ? MediaQuery.of(context).viewInsets.bottom : 0);
+    double buttonHeight =
+        widget.buttonHeight ??
+        (Platform.isAndroid
+            ? FixedBottomButton.fixedBottomButtonDefaultHeight
+            : FixedBottomButton.fixedBottomButtonDefaultHeight + 3);
 
     // 전체 너비에서 패딩과 버튼 간격을 제외한 실제 버튼 영역
     final totalWidth = MediaQuery.sizeOf(context).width - (widget.horizontalPadding * 2) - widget.buttonSpacing;
     final leftButtonWidth = totalWidth * widget.leftButtonRatio;
     final rightButtonWidth = totalWidth * (1 - widget.leftButtonRatio);
-
-    double buttonHeight =
-        widget.buttonHeight ??
-        (Platform.isAndroid
-            ? FixedBottomButton.fixedBottomButtonDefaultHeight
-            : FixedBottomButton.fixedBottomButtonDefaultHeight + 8);
 
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
@@ -87,13 +91,20 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
               child: IgnorePointer(
                 ignoring: true,
                 child: Container(
-                  padding: widget.gradientPadding ?? const EdgeInsets.only(left: 16, right: 16, bottom: 40, top: 150),
+                  padding:
+                      widget.gradientPadding ?? EdgeInsets.only(left: 16, right: 16, bottom: 40, top: buttonHeight),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [CoconutColors.gray100.withValues(alpha: 0.1), CoconutColors.white],
-                      stops: const [0.0, 1.0],
+                      colors: [
+                        CoconutColors.white.withValues(alpha: 0.1),
+                        CoconutColors.white.withValues(alpha: 0.3),
+                        CoconutColors.white.withValues(alpha: 0.6),
+                        CoconutColors.white.withValues(alpha: 0.8),
+                        CoconutColors.white,
+                      ],
+                      stops: const [0.03, 0.07, 0.1, 0.15, 0.23],
                     ),
                   ),
                 ),
@@ -112,42 +123,54 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                     // 왼쪽 버튼
                     SizedBox(
                       width: leftButtonWidth,
-                      child: CoconutButton(
+                      child: ShrinkAnimationButton(
                         onPressed: () {
                           widget.leftButtonClicked();
                         },
-                        disabledBackgroundColor: CoconutColors.gray150,
-                        disabledForegroundColor: CoconutColors.gray350,
                         isActive: widget.isLeftButtonActive,
-                        height: buttonHeight,
-                        backgroundColor: widget.leftButtonBackgroundColor,
-                        foregroundColor: widget.leftButtonTextColor,
-                        pressedTextColor: widget.leftButtonTextColor,
-                        borderColor: widget.leftButtonBorderColor,
-                        text: widget.leftText,
-                        textStyle: CoconutTypography.body1_16_Bold,
-                        pressedBackgroundColor: CoconutColors.gray200,
+                        defaultColor: widget.leftButtonBackgroundColor,
+                        pressedColor: getLighterColor(widget.leftButtonBackgroundColor),
+                        disabledColor: CoconutColors.gray150,
+                        borderRadius: 12,
+                        child: SizedBox(
+                          width: leftButtonWidth,
+                          height: buttonHeight,
+                          child: Center(
+                            child: Text(
+                              widget.leftText,
+                              style: CoconutTypography.body1_16_Bold.setColor(
+                                widget.isLeftButtonActive ? widget.leftButtonTextColor : CoconutColors.gray350,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     SizedBox(width: widget.buttonSpacing),
                     // 오른쪽 버튼
                     SizedBox(
                       width: rightButtonWidth,
-                      child: CoconutButton(
+                      child: ShrinkAnimationButton(
                         onPressed: () {
                           widget.rightButtonClicked();
                         },
-                        disabledBackgroundColor: CoconutColors.gray150,
-                        disabledForegroundColor: CoconutColors.gray350,
                         isActive: widget.isRightButtonActive,
-                        height: buttonHeight,
-                        backgroundColor: widget.rightButtonBackgroundColor,
-                        foregroundColor: widget.rightButtonTextColor,
-                        pressedTextColor: widget.rightButtonTextColor,
-                        borderColor: widget.rightButtonBorderColor,
-                        text: widget.rightText,
-                        textStyle: CoconutTypography.body1_16_Bold,
-                        pressedBackgroundColor: CoconutColors.gray200,
+                        defaultColor: widget.rightButtonBackgroundColor,
+                        pressedColor: getLighterColor(widget.rightButtonBackgroundColor),
+                        disabledColor: CoconutColors.gray150,
+                        borderRadius: 12,
+                        child: SizedBox(
+                          width: rightButtonWidth,
+                          height: buttonHeight,
+                          child: Center(
+                            child: Text(
+                              widget.rightText,
+                              style: CoconutTypography.body1_16_Bold.setColor(
+                                widget.isRightButtonActive ? widget.rightButtonTextColor : CoconutColors.gray350,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],

@@ -321,14 +321,14 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
 
             await walletProvider.updateIsSigningOnlyMode(false);
             await preferenceProvider.setVaultMode(VaultMode.secureStorage);
-            visibilityProvider.updateIsSigningOnlyMode(false);
+            await visibilityProvider.updateIsSigningOnlyMode(false);
 
             if (mounted) {
               setState(() {});
               _showModeChangeCompletePopup();
             }
           } catch (e) {
-            authProvider.resetPinData();
+            await authProvider.resetPinData();
 
             // preferenceProvider.setSigningModeEdgePanelPos(pos.$1!, pos.$2!);
             if (!mounted) return;
@@ -351,7 +351,7 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
 
           await walletProvider.updateIsSigningOnlyMode(true);
           await authProvider.setPinSet(false);
-          visibilityProvider.updateIsSigningOnlyMode(true);
+          await visibilityProvider.updateIsSigningOnlyMode(true);
           await preferenceProvider.setVaultMode(VaultMode.signingOnly);
 
           if (!mounted) return;
@@ -410,8 +410,8 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
       if (shouldProceed != true || !mounted) return false;
     }
 
-    context.read<PreferenceProvider>().setVaultMode(selectedMode);
-    context.read<VisibilityProvider>().updateIsSigningOnlyMode(isSigningOnlyMode);
+    await context.read<PreferenceProvider>().setVaultMode(selectedMode);
+    await context.read<VisibilityProvider>().updateIsSigningOnlyMode(isSigningOnlyMode);
 
     return true;
   }

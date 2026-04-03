@@ -89,7 +89,6 @@ delete_one: "1つ削除"
 name_wallet: "$nameウォレット"
 one_sign_guide: "ボタンを押して署名してください"
 bitcoin_text: "$bitcoin BTC"
-sign_required: "ボタンを押して署名してください"
 sign_required_amount:
   one: "$n個の署名が必要"
   other: "$n個の署名が必要"
@@ -104,7 +103,6 @@ forgot_password: "パスワードを忘れましたか？"
 scan_qr_url_link: "ネットワーク対応デバイスでQRコードをスキャンするか、上記URLにアクセスしてください"
 scan_qr_email_link: "ネットワーク対応デバイスでQRコードをスキャンするか、上記アドレスにメールを送信してください"
 developer_option: "開発者オプション"
-advanced_user: "上級ユーザー"
 
 extra_count: "+$count個追加"
 
@@ -130,7 +128,7 @@ connectivity_state:
   inactive: "非アクティブ"
 
 vault_home_screen:
-  view_all_wallets: "すべてのウォレット表示"
+  view_all_wallets: "ウォレットをすべて表示"
   wallet_count: "$count項目"
   action_items:
     sign: "署名"
@@ -139,7 +137,7 @@ vault_home_screen:
     import_multisig_wallet: "マルチシグ\nウォレットインポート"
     mnemonic_wordlist: "ニーモニック単語リスト"
   toast:
-    wallet_added_but_not_favorite: "ウォレットが追加されました。View All Wallets画面で確認してください。"
+    wallet_added_but_not_favorite: "ウォレットが追加されました。 「ウォレットをすべて表示」で確認してください。"
   secure_zone_checking: "セキュリティ領域にアクセスできるか確認しています。"
   secure_zone_check_failed: "セキュリティデータチェックに失敗しました"
 
@@ -280,6 +278,12 @@ psbt_confirmation_screen:
   guide: "ウォレットからスキャンした情報が正しいか確認してください。"
   self_sending: "これは自分のウォレットへの送金トランザクションです。"
   warning: "⚠️ このウォレットで作成されたPSBTではない可能性があります。または残高のないトランザクションの可能性があります。"
+  total_cost:
+    total: "合計$n"
+    sentence: "が必要です"
+  output_detail_title: "出力詳細を見る"
+  flow_input_title: "入力 $index"
+  flow_output_title: "出力 $index"
 psbt_scanner_screen:
   guide: "ウォレットから作成した送金情報または外部ボルトからのマルチシグ情報をスキャンしてください。"
   guide_import_psbt_0: "外部ボルトから "
@@ -449,6 +453,8 @@ settings_screen:
   set_password: "パスワード設定"
   advanced_user: "上級ユーザー"
   use_passphrase: "パスフレーズを使用"
+  change_account: "アカウント番号を変更する"
+  change_account_description: "m/84’/0’/account’ の account を変更します"
   information: "情報"
   toast:
     no_enrolled_biometrics: "生体認証が登録されていません"
@@ -456,9 +462,14 @@ settings_screen:
     need_biometrics_setting_title: "生体認証を使用"
     need_biometrics_setting_desc: "生体認証を設定してください。"
     btn_move_to_setting: "設定に移動"
-    use_passphrase_title: "パスフレーズを使用"
-    use_passphrase_description: "パスフレーズを使用すると、新しいウォレットを作成するのと同じです。誤って使用すると、ビットコインを永久に失う可能性があります。"
+    use_passphrase_description: "パスフレーズの使用は\n新しいウォレットを\n作成するのと同じです。\n誤って使用すると\nビットコインを\n永久に失う可能性があります。"
     use_passphrase_btn: "理解しました"
+    change_account_title: "アカウント番号の変更"
+    disable_change_account_title: "アカウント番号変更の無効化"
+    change_account_description: "アカウント番号を変更すると\n別のウォレットが表示されます。\nアカウント番号を忘れると\nビットコインを見つけるのが\n難しくなる可能性があります。"
+    disable_change_account_description: "アカウント番号の変更をオフにすると\n現在選択されているアカウント番号が\n最終的に保存されます。\n\nこのまま続行しますか？"
+    change_account_btn: "理解しました"
+    disable_change_account_btn: "確認"
 
 # lib/screens/start_guide
 welcome_screen:
@@ -760,7 +771,7 @@ bsms_paste_screen:
 
 # lib/screens/vault_detail
 address_list_screen:
-  title: "$nameのアドレス"
+  title: "のアドレス"
   address_index: "アドレス - $index"
 export_detail_screen:
   title: "エクスポート詳細"
@@ -857,8 +868,8 @@ vault_menu_screen:
 vault_settings:
   used_in_multisig: "マルチシグウォレットで使用中"
   of: " の "
-  nth: "$index"
-  key: " キー"
+  nth: "$index番目の"
+  key: "キー"
 
 verify_passphrase_screen:
   title: "パスフレーズ確認"
@@ -892,6 +903,11 @@ bottom_sheet:
   ask_about_license: "[ボルト] ライセンスお問い合わせ"
   mnemonic_backup: "生成されたニーモニックフレーズを\nバックアップしてください。"
   mnemonic_backup_and_confirm_passphrase: "生成されたニーモニックフレーズをバックアップし\nパスフレーズを確認してください。"
+  account_settings:
+    title: "アカウント番号の設定"
+    description: "必ずアカウント番号を覚えておいてください"
+    placeholder: "アカウント番号を入力してください"
+    account_error_message: "0〜2,147,483,647の範囲の値を入力してください。"
 
 permission:
   biometric: 
@@ -1036,6 +1052,8 @@ exceptions:
     title: "ウォレット使用不可"
     description: "保存されているウォレットはこれ以上使用できません。ウォレットを削除し、バックアップしておいたニーモニックで再度復元してください。"
   needs_multisig_setup: "$name で署名するには、まずマルチシグウォレットを追加してください。"
+  account_change_failed:
+    title: "アカウント変更失敗"
 
 tooltip:
   mfp: "ウォレットの固有値。\nマスターフィンガープリント(MFP)とも呼ばれます。"

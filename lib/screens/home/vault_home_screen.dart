@@ -57,7 +57,6 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       Provider.of<AuthProvider>(context, listen: false),
       Provider.of<WalletProvider>(context, listen: false),
       Provider.of<PreferenceProvider>(context, listen: false),
-      Provider.of<VisibilityProvider>(context, listen: false).walletCount,
     );
 
     _scrollController = ScrollController();
@@ -133,7 +132,6 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       Provider.of<AuthProvider>(context, listen: false),
       Provider.of<WalletProvider>(context, listen: false),
       Provider.of<PreferenceProvider>(context, listen: false),
-      Provider.of<VisibilityProvider>(context, listen: false).walletCount,
     );
     return _viewModel;
   }
@@ -215,6 +213,9 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     List<VaultListItemBase> wallets,
     bool isSigningOnlyMode,
   ) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final maxTextWidth = screenWidth - 160;
+
     return CoconutAppBar.buildHomeAppbar(
       context: context,
       leadingSvgAsset: Row(
@@ -224,13 +225,20 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
             height: 20,
           ),
           CoconutLayout.spacing_150w,
-          MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-            child: Text(
-              isSigningOnlyMode
-                  ? t.vault_mode_selection_screen.signing_only_mode
-                  : t.vault_mode_selection_screen.secure_storage_mode,
-              style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.gray800),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxTextWidth),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                child: Text(
+                  isSigningOnlyMode
+                      ? t.vault_mode_selection_screen.signing_only_mode
+                      : t.vault_mode_selection_screen.secure_storage_mode,
+                  style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.gray800),
+                ),
+              ),
             ),
           ),
         ],
@@ -608,10 +616,10 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       context: context,
       ratio: 0.5,
       child: SelectSyncOptionBottomSheet(
-        onSyncOptionSelected: (format) {
+        onSyncOptionSelected: (SyncOption syncOption) {
           if (!context.mounted) return;
           Navigator.popUntil(context, (route) => route.isFirst);
-          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': format});
+          Navigator.pushNamed(context, AppRoutes.syncToWallet, arguments: {'id': walletId, 'syncOption': syncOption});
         },
       ),
     );

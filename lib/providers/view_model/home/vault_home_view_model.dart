@@ -10,9 +10,8 @@ class VaultHomeViewModel extends ChangeNotifier {
   late final AuthProvider _authProvider;
   late final WalletProvider _walletProvider;
   late final PreferenceProvider _preferenceProvider;
-  late final int _initialVaultCount;
 
-  VaultHomeViewModel(this._authProvider, this._walletProvider, this._preferenceProvider, this._initialVaultCount) {
+  VaultHomeViewModel(this._authProvider, this._walletProvider, this._preferenceProvider) {
     _walletProvider.addListener(_onWalletProviderUpdate);
     _walletProvider.vaultListNotifier.addListener(_onVaultListChanged);
     _favoriteVaultIds = _preferenceProvider.favoriteVaultIds;
@@ -21,7 +20,6 @@ class VaultHomeViewModel extends ChangeNotifier {
 
   List<int> _favoriteVaultIds = [];
 
-  int get initialVaultCount => _initialVaultCount;
   bool get isPinSet => _authProvider.isPinSet;
   bool get isVaultInitialized => false;
   bool get isVaultsLoaded => _walletProvider.isVaultsLoaded;

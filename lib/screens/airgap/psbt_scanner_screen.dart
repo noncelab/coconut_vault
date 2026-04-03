@@ -16,10 +16,10 @@ import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_sca
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
@@ -356,6 +356,8 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final tooltipTextSpan = TextSpan(style: CoconutTypography.body2_14, children: _getGuideTextSpan());
+
     return CustomLoadingOverlay(
       child: Scaffold(
         appBar: CoconutAppBar.build(
@@ -364,7 +366,12 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
           backgroundColor: CoconutColors.white,
           actionButtonList: [
             IconButton(
-              icon: const Icon(CupertinoIcons.camera_rotate, size: 22),
+              icon: SvgPicture.asset(
+                'assets/svg/arrow-reload.svg',
+                width: 20,
+                height: 20,
+                colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+              ),
               color: CoconutColors.black,
               onPressed: () {
                 controller?.switchCamera();
@@ -383,11 +390,12 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
                   onFailed: onFailedScanning,
                   onScannerInitError: _onScannerInitError,
                   qrDataHandler: _scanDataHandler,
+                  tooltipTextSpan: tooltipTextSpan,
                 ),
               ),
               CustomTooltip.buildInfoTooltip(
                 context,
-                richText: RichText(text: TextSpan(style: CoconutTypography.body2_14, children: _getGuideTextSpan())),
+                richText: RichText(text: tooltipTextSpan),
                 isBackgroundWhite: false,
                 paddingTop: 20,
               ),
