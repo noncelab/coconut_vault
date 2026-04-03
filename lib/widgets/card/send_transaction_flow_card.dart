@@ -288,7 +288,7 @@ class _SendTransactionFlowCardState extends State<SendTransactionFlowCard> with 
       );
     }
 
-    nodes.add(_FlowNode(type: _FlowNodeType.fee, title: '수수료', amount: widget.fee));
+    nodes.add(_FlowNode(type: _FlowNodeType.fee, title: t.fee, amount: widget.fee));
 
     if (hasChange) {
       nodes.add(

@@ -74,6 +74,7 @@ external_wallet: "External Wallet"
 recipient: "Recipient"
 send_amount: "Send Amount"
 estimated_fee: "Estimated Fee"
+fee: "Fee"
 total_amount: "Total Amount"
 key_list: "Key List"
 
