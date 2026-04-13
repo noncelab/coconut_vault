@@ -253,7 +253,7 @@ flutter:
     - assets/svg/jade.svg
     - assets/svg/coldcard.svg
     - assets/svg/krux.svg
-    - assets/svg/log-out.svg
+    - assets/svg/leave.svg
     - assets/svg/arrow-reload.svg
 
   fonts:

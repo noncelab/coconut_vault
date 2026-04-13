@@ -316,6 +316,7 @@ signed_transaction_qr_screen:
   guide_single_sig: "'$nameウォレット'で作成した送信情報の署名が完了しました。下記のQRコードをウォレットでスキャンしてください。"
 single_sig_sign_screen:
   text: "これは既に署名済みのトランザクションです"
+  creating_qr_code: "QRコードを生成します"
 signer_qr_bottom_sheet:
   title: "$nameにトランザクションをエクスポート"
   vault_text1: "番鍵が保管されているボルトから"
