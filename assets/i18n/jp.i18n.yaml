@@ -74,6 +74,7 @@ external_wallet: "外部ウォレット"
 recipient: "受取人"
 send_amount: "送金額"
 estimated_fee: "推定手数料"
+fee: "手数料"
 total_amount: "合計金額"
 key_list: "キーリスト"
 

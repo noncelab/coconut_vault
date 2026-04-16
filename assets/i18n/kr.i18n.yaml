@@ -74,6 +74,7 @@ external_wallet: "외부 지갑"
 recipient: "보낼 주소"
 send_amount: "보낼 수량"
 estimated_fee: "예상 수수료"
+fee: "수수료"
 total_amount: "총 소요 수량"
 key_list: "키 목록"
 
