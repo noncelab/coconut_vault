@@ -272,9 +272,10 @@ class WalletProvider extends ChangeNotifier {
       Logger.error('[WalletProvider] updateSingleSigAccount error: $e');
       rethrow;
     } finally {
-      Future.delayed(const Duration(milliseconds: 500), () {
-        _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
-      });
+      _lifecycleProvider.endOperation(
+        AppLifecycleOperations.hwBasedDecryption,
+        delay: const Duration(milliseconds: 500),
+      );
     }
   }
 
@@ -516,9 +517,10 @@ class WalletProvider extends ChangeNotifier {
     } finally {
       // TEE 접근 완료 - inactive 상태 전환 허용
       // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
-      Future.delayed(const Duration(milliseconds: 500), () {
-        _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
-      });
+      _lifecycleProvider.endOperation(
+        AppLifecycleOperations.hwBasedDecryption,
+        delay: const Duration(milliseconds: 500),
+      );
     }
   }
 
@@ -530,9 +532,10 @@ class WalletProvider extends ChangeNotifier {
     } finally {
       // TEE 접근 완료 - inactive 상태 전환 허용
       // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
-      Future.delayed(const Duration(milliseconds: 500), () {
-        _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
-      });
+      _lifecycleProvider.endOperation(
+        AppLifecycleOperations.hwBasedDecryption,
+        delay: const Duration(milliseconds: 500),
+      );
     }
   }
 
@@ -540,7 +543,7 @@ class WalletProvider extends ChangeNotifier {
     if (_isSigningOnlyMode == isSigningOnlyMode) return;
     _lifecycleProvider.startOperation(AppLifecycleOperations.hwBasedDecryption);
     await _walletRepository.updateIsSigningOnlyMode(isSigningOnlyMode);
-    await _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
+    _lifecycleProvider.endOperation(AppLifecycleOperations.hwBasedDecryption);
     if (isSigningOnlyMode) {
       _setVaultList([]);
     }

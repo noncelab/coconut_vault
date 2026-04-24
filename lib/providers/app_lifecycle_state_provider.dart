@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'dart:async';
 
 class AppLifecycleOperations {
   // 생체인증 관련
@@ -38,6 +39,9 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
   final Set<String> _ignoredOperations = <String>{};
   Set<String> get ignoredOperations => Set.unmodifiable(_ignoredOperations);
 
+  // Manages timers that delay the finalization of completed tasks.
+  final Map<String, Timer> _operationTimers = {};
+
   // 특정 작업이 진행 중인지 확인
   bool isOperationInProgress(String operationId) => _ignoredOperations.contains(operationId);
 
@@ -46,6 +50,13 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
 
   // 작업 시작 (inactive 상태 전환 무시)
   void startOperation(String operationId, {bool ignoreNotify = false}) {
+    // Cancel any existing completion timer to prevent race conditions
+    if (_operationTimers.containsKey(operationId)) {
+      _operationTimers[operationId]?.cancel();
+      _operationTimers.remove(operationId);
+      Logger.log('AppLifecycle: 작업 재시작 (기존 완료 대기 취소) - $operationId');
+    }
+
     _ignoredOperations.add(operationId);
     Logger.log('AppLifecycle: 작업 시작 - $operationId (총 ${_ignoredOperations.length}개)');
     if (ignoreNotify) return;
@@ -53,15 +64,23 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
   }
 
   // 작업 완료
-  Future<void> endOperation(String operationId) async {
-    await Future.delayed(const Duration(milliseconds: 1000));
-    _ignoredOperations.remove(operationId);
-    Logger.log('AppLifecycle: 작업 완료 - $operationId (총 ${_ignoredOperations.length}개)');
-    notifyListeners();
+  void endOperation(String operationId, {Duration delay = const Duration(milliseconds: 1000)}) {
+    _operationTimers[operationId]?.cancel();
+
+    _operationTimers[operationId] = Timer(delay, () {
+      _ignoredOperations.remove(operationId);
+      _operationTimers.remove(operationId);
+      Logger.log('AppLifecycle: 작업 완료 - $operationId (총 ${_ignoredOperations.length}개)');
+      notifyListeners();
+    });
   }
 
   // 모든 작업 완료
   void endAllOperations() {
+    for (var timer in _operationTimers.values) {
+      timer.cancel();
+    }
+    _operationTimers.clear();
     _ignoredOperations.clear();
     Logger.log('AppLifecycle: 모든 작업 완료');
     notifyListeners();
@@ -131,12 +150,20 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
   @override
   void dispose() {
     _isDisposed = true;
+    for (var timer in _operationTimers.values) {
+      timer.cancel();
+    }
+    _operationTimers.clear();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   void disposeWhenVaultReset() {
     _isDisposed = true;
+    for (var timer in _operationTimers.values) {
+      timer.cancel();
+    }
+    _operationTimers.clear();
     WidgetsBinding.instance.removeObserver(this);
   }
 }
