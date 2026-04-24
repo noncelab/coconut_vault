@@ -141,8 +141,6 @@ class AuthProvider extends ChangeNotifier {
     bool authenticated = false;
     _lifecycleProvider.startOperation(AppLifecycleOperations.biometricAuthentication);
     try {
-      notifyListeners();
-
       authenticated = await _auth.authenticate(
         localizedReason:
             isSaved
@@ -165,6 +163,7 @@ class AuthProvider extends ChangeNotifier {
       /// 거절하면 _auth.getAvailableBiometrics() 결과는 빈 배열이 반환되므로 직접 수정
       if (Platform.isIOS && !authenticated && e.code == 'NotAvailable' && !_hasAlreadyRequestedBioPermission) {
         _availableBiometrics = [];
+        notifyListeners();
       }
 
       if (isSaved) {
@@ -176,7 +175,6 @@ class AuthProvider extends ChangeNotifier {
         AppLifecycleOperations.biometricAuthentication,
         delay: const Duration(milliseconds: 3000),
       );
-      notifyListeners();
     }
     return authenticated;
   }
