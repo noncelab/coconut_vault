@@ -274,7 +274,7 @@ class WalletProvider extends ChangeNotifier {
     } finally {
       _lifecycleProvider.endOperation(
         AppLifecycleOperations.hwBasedDecryption,
-        delay: const Duration(milliseconds: 500),
+        delay: const Duration(milliseconds: 1500),
       );
     }
   }
@@ -519,7 +519,7 @@ class WalletProvider extends ChangeNotifier {
       // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
       _lifecycleProvider.endOperation(
         AppLifecycleOperations.hwBasedDecryption,
-        delay: const Duration(milliseconds: 500),
+        delay: const Duration(milliseconds: 1500),
       );
     }
   }
@@ -534,7 +534,7 @@ class WalletProvider extends ChangeNotifier {
       // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
       _lifecycleProvider.endOperation(
         AppLifecycleOperations.hwBasedDecryption,
-        delay: const Duration(milliseconds: 500),
+        delay: const Duration(milliseconds: 1500),
       );
     }
   }

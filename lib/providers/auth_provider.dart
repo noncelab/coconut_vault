@@ -174,7 +174,7 @@ class AuthProvider extends ChangeNotifier {
     } finally {
       _lifecycleProvider.endOperation(
         AppLifecycleOperations.biometricAuthentication,
-        delay: const Duration(milliseconds: 2000),
+        delay: const Duration(milliseconds: 3000),
       );
       notifyListeners();
     }
