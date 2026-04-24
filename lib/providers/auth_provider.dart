@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
@@ -101,13 +100,7 @@ class AuthProvider extends ChangeNotifier {
   /// 생체인증 성공했는지 여부 반환
   Future<bool> isBiometricsAuthValid({bool isSaved = false}) async {
     if (!isBiometricEnabled) return false;
-
-    _lifecycleProvider.startOperation(AppLifecycleOperations.biometricAuthentication);
-    try {
-      return await authenticateWithBiometrics(isSaved: isSaved);
-    } finally {
-      _lifecycleProvider.endOperation(AppLifecycleOperations.biometricAuthentication);
-    }
+    return await authenticateWithBiometrics(isSaved: isSaved);
   }
 
   /// 주의: secure zone의 decrypt 직전 사용. 아이폰이거나 생체인증이 켜져 있는 경우 생체인증을 진행하지 않음.
@@ -147,9 +140,6 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> authenticateWithBiometrics({BuildContext? context, bool isSaved = false}) async {
     bool authenticated = false;
     _lifecycleProvider.startOperation(AppLifecycleOperations.biometricAuthentication);
-
-    notifyListeners();
-
     try {
       authenticated = await _auth.authenticate(
         localizedReason:
@@ -173,6 +163,7 @@ class AuthProvider extends ChangeNotifier {
       /// 거절하면 _auth.getAvailableBiometrics() 결과는 빈 배열이 반환되므로 직접 수정
       if (Platform.isIOS && !authenticated && e.code == 'NotAvailable' && !_hasAlreadyRequestedBioPermission) {
         _availableBiometrics = [];
+        notifyListeners();
       }
 
       if (isSaved) {
@@ -180,11 +171,10 @@ class AuthProvider extends ChangeNotifier {
         await _setHasAlreadyRequestedBioPermissionTrue();
       }
     } finally {
-      // INFO: 생체인증 종료 후 AppLifecycleEvent가 AppLifecycleState.resumed일 때 등록된 이벤트가 바로 호출되지 않게 하기 위한 지연
-      Future.delayed(const Duration(milliseconds: 2000), () {
-        _lifecycleProvider.endOperation(AppLifecycleOperations.biometricAuthentication);
-        notifyListeners();
-      });
+      _lifecycleProvider.endOperation(
+        AppLifecycleOperations.biometricAuthentication,
+        delay: const Duration(milliseconds: 3000),
+      );
     }
     return authenticated;
   }
