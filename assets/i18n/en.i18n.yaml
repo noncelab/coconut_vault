@@ -315,6 +315,7 @@ signed_transaction_qr_screen:
   guide_single_sig: "Signing completed for the transaction created in '$name wallet'. Please scan the QR code below with the wallet."
 single_sig_sign_screen:
   text: "This is an already signed transaction"
+  creating_qr_code: "Creating QR code"
 signer_qr_bottom_sheet:
   title: "Export to $name"
   at_hww: "on $hwwType."

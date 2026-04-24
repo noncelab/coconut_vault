@@ -475,7 +475,10 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                       height: 40,
                       width: 40,
                       child: IconButton(
-                        icon: SvgPicture.asset('assets/svg/log-out.svg'),
+                        icon: SvgPicture.asset(
+                          'assets/svg/leave.svg',
+                          colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+                        ),
                         highlightColor: CoconutColors.gray200,
                         onPressed: () {
                           showDialog(
@@ -497,7 +500,6 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                                 ),
                           );
                         },
-                        color: CoconutColors.white,
                       ),
                     ),
                   ],

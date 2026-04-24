@@ -80,9 +80,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
           // 편집모드에서 모든 볼트를 다 삭제했을 때 홈화면으로 자동 전환
           if (vaultListItem.isEmpty) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.popUntil(context, (route) {
-                return route.settings.name == '/';
-              });
+              Navigator.popUntil(context, (route) => route.isFirst);
             });
           }
 
