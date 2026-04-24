@@ -75,12 +75,17 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
     });
   }
 
-  // 모든 작업 완료
-  void endAllOperations() {
+  // Terminate all active timers and clear the registry
+  void _clearAllTimers() {
     for (var timer in _operationRemovalTimers.values) {
       timer.cancel();
     }
     _operationRemovalTimers.clear();
+  }
+
+  // Finalize all operations and reset state
+  void endAllOperations() {
+    _clearAllTimers();
     _ignoredOperations.clear();
     Logger.log('AppLifecycle: 모든 작업 완료');
     notifyListeners();
@@ -150,20 +155,14 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
   @override
   void dispose() {
     _isDisposed = true;
-    for (var timer in _operationRemovalTimers.values) {
-      timer.cancel();
-    }
-    _operationRemovalTimers.clear();
+    _clearAllTimers();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   void disposeWhenVaultReset() {
     _isDisposed = true;
-    for (var timer in _operationRemovalTimers.values) {
-      timer.cancel();
-    }
-    _operationRemovalTimers.clear();
+    _clearAllTimers();
     WidgetsBinding.instance.removeObserver(this);
   }
 }
