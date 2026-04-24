@@ -67,6 +67,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   List<int> _previousCurrentWordLengths = [];
   // 각 인덱스별 이전 텍스트 스냅샷 (이전 상태 기준 검증용)
   final Map<int, String> _prevTextsByIndex = {};
+  // 포커스를 잃었다가 다시 돌아온 완성 단어 필드에서만 다음 입력 초기화 로직을 적용
+  final Set<int> _resetOnNextEditAfterRefocus = <int>{};
   final TextEditingController _passphraseController = TextEditingController();
   final FocusNode _passphraseFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
@@ -142,6 +144,12 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
   void _handleFieldLostFocus(int index) {
     _controllers[index].clearSuggestion();
+
+    if (_isCompleteMnemonicWord(_controllers[index].text)) {
+      _resetOnNextEditAfterRefocus.add(index);
+    } else {
+      _resetOnNextEditAfterRefocus.remove(index);
+    }
 
     if (!_focusNodes.any((node) => node.hasFocus)) {
       _hideSuggestionPanel();
@@ -287,6 +295,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     _isSuggestionWordsVisible = false;
     _isDropdownVisible = false;
     _invalidMnemonicIndexes = [];
+    _prevTextsByIndex.clear();
+    _resetOnNextEditAfterRefocus.clear();
   }
 
   void _initListeners() {
@@ -308,6 +318,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     _suggestionWords = [];
     _invalidMnemonicIndexes = [];
     _wordCount = _defaultWordCount;
+    _prevTextsByIndex.clear();
+    _resetOnNextEditAfterRefocus.clear();
 
     _disposeTextFields();
     _passphraseController.dispose();
@@ -448,7 +460,9 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     // 올바른 니모닉으로 판별된 경우의 입력 처리
     else {
       // 길이가 변경되었고 이전 텍스트가 유효한 니모닉인 경우
-      if (word.length != prevLen && WalletUtility.isInMnemonicWordList(prevTextSnapshot)) {
+      if (word.length != prevLen &&
+          _resetOnNextEditAfterRefocus.contains(controllerIndex) &&
+          WalletUtility.isInMnemonicWordList(prevTextSnapshot)) {
         // 기존에 유효한 단어가 있던 필드에 추가 입력이 들어오면 현재 입력만 유지합니다.
         _controllers[controllerIndex].text = word.length < prevLen ? '' : word[word.length - 1];
         _controllers[controllerIndex].clearSuggestion();
@@ -476,6 +490,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     // 길이가 변경되었으면 invalid 목록에서 제거 (유효한 입력으로 간주)
     if (word.length != prevLen) {
       _invalidMnemonicIndexes.remove(controllerIndex);
+      _resetOnNextEditAfterRefocus.remove(controllerIndex);
     }
   }
 
