@@ -40,7 +40,7 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
   Set<String> get ignoredOperations => Set.unmodifiable(_ignoredOperations);
 
   // Manages timers that delay the finalization of completed tasks.
-  final Map<String, Timer> _operationTimers = {};
+  final Map<String, Timer> _operationRemovalTimers = {};
 
   // 특정 작업이 진행 중인지 확인
   bool isOperationInProgress(String operationId) => _ignoredOperations.contains(operationId);
@@ -51,9 +51,9 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
   // 작업 시작 (inactive 상태 전환 무시)
   void startOperation(String operationId, {bool ignoreNotify = false}) {
     // Cancel any existing completion timer to prevent race conditions
-    if (_operationTimers.containsKey(operationId)) {
-      _operationTimers[operationId]?.cancel();
-      _operationTimers.remove(operationId);
+    if (_operationRemovalTimers.containsKey(operationId)) {
+      _operationRemovalTimers[operationId]?.cancel();
+      _operationRemovalTimers.remove(operationId);
       Logger.log('AppLifecycle: 작업 재시작 (기존 완료 대기 취소) - $operationId');
     }
 
@@ -65,11 +65,11 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
 
   // 작업 완료
   void endOperation(String operationId, {Duration delay = const Duration(milliseconds: 1000)}) {
-    _operationTimers[operationId]?.cancel();
+    _operationRemovalTimers[operationId]?.cancel();
 
-    _operationTimers[operationId] = Timer(delay, () {
+    _operationRemovalTimers[operationId] = Timer(delay, () {
       _ignoredOperations.remove(operationId);
-      _operationTimers.remove(operationId);
+      _operationRemovalTimers.remove(operationId);
       Logger.log('AppLifecycle: 작업 완료 - $operationId (총 ${_ignoredOperations.length}개)');
       notifyListeners();
     });
@@ -77,10 +77,10 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
 
   // 모든 작업 완료
   void endAllOperations() {
-    for (var timer in _operationTimers.values) {
+    for (var timer in _operationRemovalTimers.values) {
       timer.cancel();
     }
-    _operationTimers.clear();
+    _operationRemovalTimers.clear();
     _ignoredOperations.clear();
     Logger.log('AppLifecycle: 모든 작업 완료');
     notifyListeners();
@@ -150,20 +150,20 @@ class AppLifecycleStateProvider extends ChangeNotifier with WidgetsBindingObserv
   @override
   void dispose() {
     _isDisposed = true;
-    for (var timer in _operationTimers.values) {
+    for (var timer in _operationRemovalTimers.values) {
       timer.cancel();
     }
-    _operationTimers.clear();
+    _operationRemovalTimers.clear();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   void disposeWhenVaultReset() {
     _isDisposed = true;
-    for (var timer in _operationTimers.values) {
+    for (var timer in _operationRemovalTimers.values) {
       timer.cancel();
     }
-    _operationTimers.clear();
+    _operationRemovalTimers.clear();
     WidgetsBinding.instance.removeObserver(this);
   }
 }
