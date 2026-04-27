@@ -170,7 +170,7 @@ class _JailBreakDetectionScreenState extends State<JailBreakDetectionScreen> {
         } catch (_) {
           // igrore
         }
-        final result = await SecureZoneManager().deleteStoredData(
+        final result = await SecureZoneManager().deleteStoredVaultData(
           context.read<AuthProvider>(),
           walletProvider,
           context.read<VisibilityProvider>(),

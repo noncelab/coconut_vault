@@ -223,7 +223,7 @@ class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScree
         } catch (_) {
           // igrore
         }
-        final result = await SecureZoneManager().deleteStoredData(
+        final result = await SecureZoneManager().deleteStoredVaultData(
           context.read<AuthProvider>(),
           walletProvider,
           context.read<VisibilityProvider>(),

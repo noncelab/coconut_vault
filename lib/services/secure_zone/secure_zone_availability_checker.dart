@@ -54,40 +54,14 @@ class SecureZoneManager {
   }
 
   /// 보안 영역 접근 불가 시 저장된 데이터 초기화
-  Future<bool> deleteStoredData(
+  Future<bool> deleteStoredVaultData(
     AuthProvider authProvider,
     WalletProvider? walletProvider,
     VisibilityProvider visibilityProvider,
     PreferenceProvider preferenceProvider,
   ) async {
     try {
-      // Keep some data to restore
-      final hasSeenGuide = SharedPrefsRepository().getBool(SharedPrefsKeys.hasShownStartGuide) == true;
-      final selectedVaultMode = SharedPrefsRepository().getString(SharedPrefsKeys.kVaultMode);
-      final language = SharedPrefsRepository().getString(SharedPrefsKeys.kLanguage);
-      final isBtcUnit = SharedPrefsRepository().getBool(SharedPrefsKeys.kIsBtcUnit);
-      final isPassphraseUseEnabled = SharedPrefsRepository().getBool(SharedPrefsKeys.kPassphraseUseEnabled);
-
-      await SharedPrefsRepository().clearSharedPref();
-      await SecureStorageRepository().deleteAll();
-      await authProvider.resetPinData();
-
-      // Restore some data
-      if (hasSeenGuide) {
-        await SharedPrefsRepository().setBool(SharedPrefsKeys.hasShownStartGuide, true);
-      }
-      if (selectedVaultMode != '') {
-        await SharedPrefsRepository().setString(SharedPrefsKeys.kVaultMode, selectedVaultMode);
-      }
-      if (language != '') {
-        await SharedPrefsRepository().setString(SharedPrefsKeys.kLanguage, language);
-      }
-      if (isBtcUnit != null) {
-        await SharedPrefsRepository().setBool(SharedPrefsKeys.kIsBtcUnit, isBtcUnit);
-      }
-      if (isPassphraseUseEnabled != null) {
-        await SharedPrefsRepository().setBool(SharedPrefsKeys.kPassphraseUseEnabled, isPassphraseUseEnabled);
-      }
+      await authProvider.resetAllVaultData(preferenceProvider);
 
       await walletProvider?.reloadRelatedToVault();
       visibilityProvider.reloadRelatedToVault();
