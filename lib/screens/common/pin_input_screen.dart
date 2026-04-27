@@ -172,8 +172,10 @@ class PinInputScreenState extends State<PinInputScreen> {
   }
 
   List<Widget> _buildInputContent(bool isKeyboardVisible) {
+    final bool isSmallScreen = MediaQuery.of(context).size.height < 650;
+
     return [
-      if (widget.bottomTextButtonLabel != null) SizedBox(height: isKeyboardVisible ? 10 : 60),
+      if (widget.bottomTextButtonLabel != null) SizedBox(height: isKeyboardVisible ? 10 : (isSmallScreen ? 20 : 60)),
       if (widget.title.isNotEmpty)
         FittedBox(
           fit: BoxFit.scaleDown,
@@ -183,7 +185,7 @@ class PinInputScreenState extends State<PinInputScreen> {
             child: Text(widget.title, style: CoconutTypography.body1_16_Bold, textAlign: TextAlign.center),
           ),
         ),
-      SizedBox(height: isKeyboardVisible ? 10 : 20),
+      SizedBox(height: isKeyboardVisible ? 10 : (isSmallScreen ? 10 : 20)),
       if (widget.descriptionTextWidget != null) ...[
         Align(alignment: Alignment.center, child: widget.descriptionTextWidget ?? const Text('')),
         CoconutLayout.spacing_200h,
@@ -224,35 +226,46 @@ class PinInputScreenState extends State<PinInputScreen> {
 
   Widget _buildKeypadArea(bool isBiometricEnabled) {
     return Expanded(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (_pinType != PinType.character) ...[
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: GridView.count(
-                crossAxisCount: 3,
-                childAspectRatio: MediaQuery.of(context).size.width > 600 ? 2.5 : 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children:
-                    widget.pinShuffleNumbers.map((key) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: KeyButton(keyValue: key, onKeyTap: widget.onKeyTap, disabled: widget.disabled),
-                      );
-                    }).toList(),
-              ),
-            ),
-            if (widget.bottomTextButtonLabel != null) _buildBottomTextButton(),
-          ] else ...[
-            if (widget.bottomTextButtonLabel != null) ...[
-              _buildBottomTextButton(),
-              if (isBiometricEnabled && _characterFocusNode.hasFocus) _buildBiometricsContainer(context),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          double screenWidth = MediaQuery.of(context).size.width;
+          double bottomButtonHeight = widget.bottomTextButtonLabel != null ? 60.0 : 0.0;
+          double availableKeypadHeight = constraints.maxHeight - bottomButtonHeight;
+
+          double minAspectRatio = (4 * (screenWidth / 3)) / (availableKeypadHeight > 0 ? availableKeypadHeight : 1);
+          double childAspectRatio = screenWidth > 600 ? 2.5 : (minAspectRatio > 2.0 ? minAspectRatio + 0.1 : 2.0);
+
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (_pinType != PinType.character) ...[
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: GridView.count(
+                    crossAxisCount: 3,
+                    childAspectRatio: childAspectRatio,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children:
+                        widget.pinShuffleNumbers.map((key) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: KeyButton(keyValue: key, onKeyTap: widget.onKeyTap, disabled: widget.disabled),
+                          );
+                        }).toList(),
+                  ),
+                ),
+                if (widget.bottomTextButtonLabel != null) _buildBottomTextButton(),
+              ] else ...[
+                if (widget.bottomTextButtonLabel != null) ...[
+                  _buildBottomTextButton(),
+                  if (isBiometricEnabled && _characterFocusNode.hasFocus) _buildBiometricsContainer(context),
+                ],
+              ],
             ],
-          ],
-        ],
+          );
+        },
       ),
     );
   }
