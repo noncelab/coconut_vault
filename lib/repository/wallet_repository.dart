@@ -254,6 +254,7 @@ class WalletRepository {
   }
 
   Future<void> _removePublicInfo() async {
+    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
     await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultListField);
   }
 

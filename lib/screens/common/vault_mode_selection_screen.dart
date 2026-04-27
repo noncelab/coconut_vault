@@ -155,9 +155,6 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                   return FixedBottomButton(
                     isActive: isConnectivitySafe && isModeSelected && !_isConvertingMode,
                     onButtonClicked: () async {
-                      debugPrint(
-                        'selectedVaultMode: ${await SecureStorageRepository().read(key: SecureStorageKeys.kVaultPin)}',
-                      );
                       if (widget.onComplete != null) {
                         // 앱 최초 실행 시 widget.onComplete != null
 
@@ -356,7 +353,7 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
             final authProvider = context.read<AuthProvider>();
 
             await walletProvider.updateIsSigningOnlyMode(true);
-            await authProvider.setPinSet(false);
+            await authProvider.setIsPinSet(false);
             await visibilityProvider.updateIsSigningOnlyMode(true);
             await preferenceProvider.setVaultMode(VaultMode.signingOnly);
 

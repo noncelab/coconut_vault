@@ -307,7 +307,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       _isLastChanceToTry = false;
       _errorMessage = t.errors.pin_max_attempts_exceeded_error;
     });
-    _authProvider.resetData(context.read<PreferenceProvider>());
+    _authProvider.resetAllVaultData(context.read<PreferenceProvider>());
     widget.onPermanentlyLocked?.call();
   }
 
@@ -338,7 +338,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   }
 
   Future<void> _reset() async {
-    await _authProvider.resetPin(context.read<PreferenceProvider>());
+    await _authProvider.resetAllVaultData(context.read<PreferenceProvider>());
 
     if (mounted) {
       Navigator.of(context).pop();

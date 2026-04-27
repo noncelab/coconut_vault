@@ -284,31 +284,25 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 비밀번호 초기화
-  Future<void> resetPin(PreferenceProvider preferenceProvider) async {
-    if (_isDisposed) return;
-
-    await resetData(preferenceProvider);
-    resetAuthenticationState();
-  }
-
-  Future<void> setPinSet(bool value) async {
+  Future<void> setIsPinSet(bool value) async {
     _isPinSet = value;
     await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, value);
     notifyListeners();
   }
 
-  Future<void> resetData(PreferenceProvider preferenceProvider) async {
+  Future<void> resetAllVaultData(PreferenceProvider preferenceProvider) async {
+    if (_isDisposed) return;
+
     final WalletRepository walletRepository = WalletRepository();
     await walletRepository.resetAll();
 
-    _isBiometricEnabled = false;
-    _isPinSet = false;
     await _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
+    _isBiometricEnabled = false;
     await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
-    await _storageService.delete(key: SecureStorageKeys.kVaultPin);
-    await _sharedPrefs.setInt(SharedPrefsKeys.vaultListLength, 0);
+    _isPinSet = false;
+    await _storageService.delete(key: SecureStorageKeys.kVaultPin); // walletRepo.resetAll에서 이미 모든 SecureStorage를 삭제함
     await preferenceProvider.resetVaultOrderAndFavorites();
+    await resetAuthenticationState();
   }
 
   Future<void> resetPinData() async {
