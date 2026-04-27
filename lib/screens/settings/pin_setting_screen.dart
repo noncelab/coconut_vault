@@ -30,6 +30,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
   late String pinConfirm;
   late String errorMessage;
   PinType _currentPinType = PinType.number;
+  double? _frozenBottomInset;
+  bool _isProcessing = false;
 
   late AuthProvider _authProvider;
   late List<String> _shuffledPinNumbers;
@@ -51,6 +53,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
   void returnToBackSequence(String message, {bool isError = false, bool firstSequence = false}) async {
     setState(() {
       errorMessage = message;
+      _frozenBottomInset = null;
+      _isProcessing = false;
       pinConfirm = '';
 
       _shuffledPinNumbers = _authProvider.getShuffledNumberList(isPinSettingContext: true);
@@ -147,7 +151,11 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
 
     setState(() {
       errorMessage = '';
+      _frozenBottomInset = MediaQuery.of(context).viewInsets.bottom;
+      _isProcessing = true;
     });
+
+    FocusScope.of(context).unfocus();
 
     // 생체 인증 사용 여부 확인
     bool isPinSet = SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
@@ -299,7 +307,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       );
     }
 
-    return PinInputScreen(
+    Widget screen = PinInputScreen(
+      disabled: _isProcessing,
       canChangePinType: true,
       title: step == 0 ? t.pin_setting_screen.new_password : t.pin_setting_screen.enter_again,
       descriptionTextWidget: Text.rich(
@@ -325,5 +334,16 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       },
       step: step,
     );
+
+    if (_frozenBottomInset != null) {
+      screen = MediaQuery(
+        data: MediaQuery.of(
+          context,
+        ).copyWith(viewInsets: MediaQuery.of(context).viewInsets.copyWith(bottom: _frozenBottomInset)),
+        child: screen,
+      );
+    }
+
+    return screen;
   }
 }
