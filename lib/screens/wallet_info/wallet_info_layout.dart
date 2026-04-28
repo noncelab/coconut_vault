@@ -26,7 +26,6 @@ import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/icon/vault_icon.dart';
-import 'package:coconut_vault/widgets/wallet_info/wallet_info_item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';

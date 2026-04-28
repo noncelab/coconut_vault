@@ -1,0 +1,23 @@
+class TimelineStepIndicator extends StateFulWidget {
+  final List<TimelineStepItem> timelineStepItemList;
+
+  const TimelineStepIndicator({super.key, required this.onSelected});
+
+  @override
+  State<TimelineStepIndicator> createState() => _TimelineStepIndicatorState();
+}
+
+class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
+
+}
+
+class TimelineStepItem {
+  final String title;
+  final String description;
+  final TimelineStepStatus status;
+  final bool isLast;
+}
+
+enum TimelineStepStatus{
+  completed, current, upcoming,
+}
