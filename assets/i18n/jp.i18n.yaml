@@ -523,6 +523,10 @@ welcome_screen:
   developer_option: "開発者オプション"
 
 # lib/screens/vault_creation
+taproot:
+  parent_creation_screen:
+    title: "親ウォレットを作成"
+    taproot_inheritance_wallet: "Taproot相続ウォレット"
 mnemonic_coin_flip_screen:
   title: "ニーモニック作成"
   guide: "コインを投げて出た面を選択してください"
@@ -608,6 +612,7 @@ select_vault_type_screen:
   title: "ウォレット追加"
   single_sig: "1つのニーモニックフレーズを保存するシングル署名ウォレット"
   multisig: "指定された数の署名が必要なウォレット"
+  taproot: "必要な時に備えて相続条件を準備するウォレット"
   empty_key: "現在のボルトに利用可能なキーがありません"
   loading_keys: "ボルトに保存されたキーを読み込み中"
 vault_creation_options_screen:

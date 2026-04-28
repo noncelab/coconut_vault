@@ -524,6 +524,10 @@ welcome_screen:
   developer_option: "Developer Option"
 
 # lib/screens/vault_creation
+taproot:
+  parent_creation_screen:
+    title: "Create Parent Wallet"
+    taproot_inheritance_wallet: "Taproot Inheritance Wallet"
 mnemonic_coin_flip_screen:
   title: "Mnemonic Generation"
   guide: "Please select the side that came out after flipping the coin"
@@ -609,6 +613,7 @@ select_vault_type_screen:
   title: "Add Wallet"
   single_sig: "Single signature wallet storing one mnemonic phrase"
   multisig: "Wallet requiring specified number of signatures"
+  taproot: "A wallet that prepares inheritance conditions for when they are needed"
   empty_key: "No keys available in current vault"
   loading_keys: "Loading keys stored in vault"
 vault_creation_options_screen:

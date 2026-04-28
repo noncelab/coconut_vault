@@ -18,7 +18,11 @@ class VaultTypeSelectionScreen extends StatefulWidget {
 class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
   String? nextPath;
   bool _showLoading = false;
-  List<String> routesOptions = [AppRoutes.vaultCreationOptions, AppRoutes.multisigCreationOptions];
+  List<String> routesOptions = [
+    AppRoutes.vaultCreationOptions,
+    AppRoutes.multisigCreationOptions,
+    AppRoutes.taprootCreationOptions,
+  ];
   late final WalletProvider _walletProvider;
 
   @override
@@ -56,6 +60,10 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
     Navigator.pushNamed(context, routesOptions[1]);
   }
 
+  void onTapTaprootWallet() {
+    Navigator.pushNamed(context, routesOptions[2]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<WalletProvider>(
@@ -77,6 +85,13 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                     ),
                     CoconutLayout.spacing_300h,
                     _buildOption(t.multisig_wallet, t.select_vault_type_screen.multisig, onTapMultisigWallet, true),
+                    CoconutLayout.spacing_300h,
+                    _buildOption(
+                      t.taproot.parent_creation_screen.taproot_inheritance_wallet,
+                      t.select_vault_type_screen.taproot,
+                      onTapTaprootWallet,
+                      true,
+                    ),
                   ],
                 ),
                 Visibility(
