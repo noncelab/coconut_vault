@@ -137,13 +137,6 @@ class PinInputScreenState extends State<PinInputScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
-
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final keyboardBackgroundColor =
-        Platform.isIOS
-            ? (isDarkMode ? const Color(0x00000082) : const Color(0xFFCED2D9))
-            : (isDarkMode ? CoconutColors.gray400 : CoconutColors.gray150);
-
     final isBiometricEnabled = Provider.of<AuthProvider>(context, listen: false).isBiometricEnabled;
 
     return Scaffold(
@@ -167,116 +160,134 @@ class PinInputScreenState extends State<PinInputScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  if (widget.bottomTextButtonLabel != null) SizedBox(height: isKeyboardVisible ? 10 : 60),
-
-                  if (widget.title.isNotEmpty)
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.center,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(widget.title, style: CoconutTypography.body1_16_Bold, textAlign: TextAlign.center),
-                      ),
-                    ),
-
-                  SizedBox(height: isKeyboardVisible ? 10 : 20),
-
-                  if (widget.descriptionTextWidget != null) ...[
-                    Align(alignment: Alignment.center, child: widget.descriptionTextWidget ?? const Text('')),
-                    CoconutLayout.spacing_200h,
-                  ],
-                  SizedBox(
-                    height: 56,
-                    child: _pinType == PinType.number ? _buildNumberInput() : _buildCharacterInput(),
-                  ),
-                  if (widget.canChangePinType && widget.step == 0)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 12),
-                      child: SizedBox(
-                        height: 40,
-                        child: PinTypeToggleButton(isActive: true, currentPinType: _pinType, onToggle: _togglePinType),
-                      ),
-                    ),
-                  Visibility(
-                    visible: widget.errorMessage.isNotEmpty,
-                    maintainSize: true,
-                    maintainAnimation: true,
-                    maintainState: true,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Text(
-                        widget.errorMessage,
-                        style: CoconutTypography.body1_16.setColor(CoconutColors.warningText),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  Visibility(
-                    visible: widget.lastChance,
-                    child: Text(
-                      widget.lastChanceMessage ?? '',
-                      style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.warningText),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        if (_pinType != PinType.character) ...[
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: GridView.count(
-                              crossAxisCount: 3,
-                              childAspectRatio:
-                                  MediaQuery.of(context).size.width > 600
-                                      ? 2.5 // 폴드 펼친화면에서는 버튼 사이즈 줄여서 공간 확보
-                                      : 2,
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              children:
-                                  widget.pinShuffleNumbers.map((key) {
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                                      child: KeyButton(
-                                        keyValue: key,
-                                        onKeyTap: widget.onKeyTap,
-                                        disabled: widget.disabled,
-                                      ),
-                                    );
-                                  }).toList(),
-                            ),
-                          ),
-                          if (widget.bottomTextButtonLabel != null) ...[_buildBottomTextButton()],
-                        ] else ...[
-                          if (widget.bottomTextButtonLabel != null) ...[
-                            _buildBottomTextButton(),
-                            if (isBiometricEnabled && _characterFocusNode.hasFocus) ...[
-                              Container(
-                                color: keyboardBackgroundColor,
-                                width: MediaQuery.of(context).size.width,
-                                child: Align(alignment: Alignment.center, child: _buildBiometricsButton(context)),
-                              ),
-                            ],
-                          ],
-                        ],
-                      ],
-                    ),
-                  ),
-                ],
+                children: [..._buildInputContent(isKeyboardVisible), _buildKeypadArea(isBiometricEnabled)],
               ),
             ),
           ),
-          // 로딩 오버레이
-          if (widget.isLoading)
-            Container(
-              color: CoconutColors.white.withValues(alpha: 0.5),
-              child: const Center(child: CoconutCircularIndicator()),
-            ),
+
+          if (widget.isLoading) _buildLoadingOverlay(),
         ],
       ),
+    );
+  }
+
+  List<Widget> _buildInputContent(bool isKeyboardVisible) {
+    final bool isSmallScreen = MediaQuery.of(context).size.height < 650;
+
+    return [
+      if (widget.bottomTextButtonLabel != null) SizedBox(height: isKeyboardVisible ? 10 : (isSmallScreen ? 20 : 60)),
+      if (widget.title.isNotEmpty)
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(widget.title, style: CoconutTypography.body1_16_Bold, textAlign: TextAlign.center),
+          ),
+        ),
+      SizedBox(height: isKeyboardVisible ? 10 : (isSmallScreen ? 10 : 20)),
+      if (widget.descriptionTextWidget != null) ...[
+        Align(alignment: Alignment.center, child: widget.descriptionTextWidget ?? const Text('')),
+        CoconutLayout.spacing_200h,
+      ],
+      SizedBox(height: 56, child: _pinType == PinType.number ? _buildNumberInput() : _buildCharacterInput()),
+      if (widget.canChangePinType && widget.step == 0)
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: SizedBox(
+            height: 40,
+            child: PinTypeToggleButton(isActive: true, currentPinType: _pinType, onToggle: _togglePinType),
+          ),
+        ),
+      Visibility(
+        visible: widget.errorMessage.isNotEmpty,
+        maintainSize: true,
+        maintainAnimation: true,
+        maintainState: true,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 16),
+          child: Text(
+            widget.errorMessage,
+            style: CoconutTypography.body1_16.setColor(CoconutColors.warningText),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+      Visibility(
+        visible: widget.lastChance,
+        child: Text(
+          widget.lastChanceMessage ?? '',
+          style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.warningText),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    ];
+  }
+
+  Widget _buildKeypadArea(bool isBiometricEnabled) {
+    return Expanded(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          double screenWidth = MediaQuery.of(context).size.width;
+          double bottomButtonHeight = widget.bottomTextButtonLabel != null ? 60.0 : 0.0;
+          double availableKeypadHeight = constraints.maxHeight - bottomButtonHeight;
+
+          double minAspectRatio = (4 * (screenWidth / 3)) / (availableKeypadHeight > 0 ? availableKeypadHeight : 1);
+          double childAspectRatio = screenWidth > 600 ? 2.5 : (minAspectRatio > 2.0 ? minAspectRatio + 0.1 : 2.0);
+
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (_pinType != PinType.character) ...[
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: GridView.count(
+                    crossAxisCount: 3,
+                    childAspectRatio: childAspectRatio,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children:
+                        widget.pinShuffleNumbers.map((key) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: KeyButton(keyValue: key, onKeyTap: widget.onKeyTap, disabled: widget.disabled),
+                          );
+                        }).toList(),
+                  ),
+                ),
+                if (widget.bottomTextButtonLabel != null) _buildBottomTextButton(),
+              ] else ...[
+                if (widget.bottomTextButtonLabel != null) ...[
+                  _buildBottomTextButton(),
+                  if (isBiometricEnabled && _characterFocusNode.hasFocus) _buildBiometricsContainer(context),
+                ],
+              ],
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBiometricsContainer(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final keyboardBackgroundColor =
+        Platform.isIOS
+            ? (isDarkMode ? const Color(0x00000082) : const Color(0xFFCED2D9))
+            : (isDarkMode ? CoconutColors.gray400 : CoconutColors.gray150);
+
+    return Container(
+      color: keyboardBackgroundColor,
+      width: MediaQuery.of(context).size.width,
+      child: Align(alignment: Alignment.center, child: _buildBiometricsButton(context)),
+    );
+  }
+
+  Widget _buildLoadingOverlay() {
+    return Container(
+      color: CoconutColors.white.withValues(alpha: 0.5),
+      child: const Center(child: CoconutCircularIndicator()),
     );
   }
 
@@ -324,7 +335,14 @@ class PinInputScreenState extends State<PinInputScreen> {
             border: Border.all(color: CoconutColors.gray350, width: 1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Center(child: SvgPicture.asset(iconAsset, width: 24, height: 24, color: CoconutColors.gray800)),
+          child: Center(
+            child: SvgPicture.asset(
+              iconAsset,
+              width: 24,
+              height: 24,
+              colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
+            ),
+          ),
         ),
       ),
     );
@@ -334,17 +352,10 @@ class PinInputScreenState extends State<PinInputScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        PinBox(isSet: widget.pin.isNotEmpty, disabled: widget.disabled),
-        CoconutLayout.spacing_200w,
-        PinBox(isSet: widget.pin.length > 1, disabled: widget.disabled),
-        CoconutLayout.spacing_200w,
-        PinBox(isSet: widget.pin.length > 2, disabled: widget.disabled),
-        CoconutLayout.spacing_200w,
-        PinBox(isSet: widget.pin.length > 3, disabled: widget.disabled),
-        CoconutLayout.spacing_200w,
-        PinBox(isSet: widget.pin.length > 4, disabled: widget.disabled),
-        CoconutLayout.spacing_200w,
-        PinBox(isSet: widget.pin.length > 5, disabled: widget.disabled),
+        for (int i = 0; i < 6; i++) ...[
+          PinBox(isSet: widget.pin.length > i, disabled: widget.disabled),
+          if (i < 5) CoconutLayout.spacing_200w,
+        ],
       ],
     );
   }
