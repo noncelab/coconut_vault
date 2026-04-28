@@ -7,6 +7,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_creation_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
+import 'package:coconut_vault/widgets/indicator/step_indicator.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -128,7 +129,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   }
 
   Widget buildStepIndicator() {
-    return EntropyStepIndicator(
+    return StepIndicator(
       usePassphrase: _walletCreationProvider.passphrase?.isNotEmpty ?? false,
       step: step,
       onStepSelected: (selectedStep) {
