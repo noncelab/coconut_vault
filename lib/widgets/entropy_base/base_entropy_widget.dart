@@ -12,6 +12,7 @@ import 'package:coconut_vault/utils/conversion_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
+import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -398,11 +399,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
   }
 
   Widget _buildProgressBar() {
-    return EntropyProgressBar(
-      visible: step == 0,
-      total: widget.wordsCount == 12 ? 128 : 256,
-      current: currentBits.length,
-    );
+    return TopProgressBar(visible: step == 0, total: widget.wordsCount == 12 ? 128 : 256, current: currentBits.length);
   }
 
   void showConfirmResetDialog() {
