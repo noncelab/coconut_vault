@@ -255,6 +255,9 @@ flutter:
     - assets/svg/krux.svg
     - assets/svg/leave.svg
     - assets/svg/arrow-reload.svg
+    - assets/png/single-key.png
+    - assets/png/multi-keys.png
+    - assets/png/coin.png
 
   fonts:
     - family: SpaceGrotesk
