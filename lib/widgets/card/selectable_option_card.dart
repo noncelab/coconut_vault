@@ -1,11 +1,14 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/fixed_text_scale.dart';
 import 'package:flutter/material.dart';
 
-class SelectableOptionCard extends StatefulWidget {
+class SelectableOptionCard extends StatelessWidget {
   final String title;
   final String? description;
-  final String pngAssetPath;
+  final String bottomAssetPath;
+  final double? imageScale;
+  final bool isSelected;
   final VoidCallback onTap;
   final double width;
   final double height;
@@ -14,38 +17,42 @@ class SelectableOptionCard extends StatefulWidget {
     super.key,
     required this.title,
     this.description,
-    required this.pngAssetPath,
+    required this.bottomAssetPath,
+    this.imageScale,
+    required this.isSelected,
     required this.onTap,
     this.width = double.infinity,
     required this.height,
   });
 
   @override
-  State<SelectableOptionCard> createState() => _SelectableOptionCardState();
-}
-
-class _SelectableOptionCardState extends State<SelectableOptionCard> {
-  bool _isPressed = false;
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) => setState(() => _isPressed = false),
-      onTapCancel: () => setState(() => _isPressed = false),
-      onTap: widget.onTap,
-      child: Container(
-        width: widget.width,
-        height: widget.height,
-        decoration: BoxDecoration(
-          color: _isPressed ? CoconutColors.gray150 : CoconutColors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: _isPressed ? CoconutColors.gray800 : CoconutColors.gray200, width: 1.0),
-        ),
+    return ShrinkAnimationButton(
+      onPressed: onTap,
+      defaultColor: CoconutColors.white,
+      pressedColor: CoconutColors.gray150,
+      borderRadius: 20,
+      border: Border.all(color: Colors.transparent, width: 0.0),
+      child: SizedBox(
+        width: width,
+        height: height,
         child: Stack(
           alignment: Alignment.topLeft,
           children: [
-            Positioned(bottom: 12, right: 12, child: Image.asset(widget.pngAssetPath)),
+            Positioned.fill(
+              child: IgnorePointer(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isSelected ? CoconutColors.gray800 : CoconutColors.gray200,
+                      width: isSelected ? 1.5 : 1.0,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(bottom: 12, right: 12, child: Image.asset(bottomAssetPath, scale: imageScale)),
             Positioned(
               top: 20,
               left: 20,
@@ -55,10 +62,10 @@ class _SelectableOptionCardState extends State<SelectableOptionCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(widget.title, style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black)),
-                    if (widget.description != null) ...[
+                    Text(title, style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black)),
+                    if (description != null) ...[
                       CoconutLayout.spacing_50h,
-                      Text(widget.description!, style: CoconutTypography.body3_12.setColor(CoconutColors.black)),
+                      Text(description!, style: CoconutTypography.body3_12.setColor(CoconutColors.black)),
                     ],
                   ],
                 ),
