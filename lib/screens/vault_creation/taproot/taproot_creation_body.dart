@@ -161,14 +161,17 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
       return const SizedBox.shrink();
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 70),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (_displayedIsError) ...[_buildAnimatedErrorIcon(text), const SizedBox(height: 10)],
-          _buildAnimatedTitleText(text),
-        ],
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 70),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_displayedIsError) ...[_buildAnimatedErrorIcon(text), const SizedBox(height: 10)],
+            _buildAnimatedTitleText(text),
+          ],
+        ),
       ),
     );
   }
