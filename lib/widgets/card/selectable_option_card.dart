@@ -45,6 +45,7 @@ class _SelectableOptionCardState extends State<SelectableOptionCard> {
         child: Stack(
           alignment: Alignment.topLeft,
           children: [
+            Positioned(bottom: 12, right: 12, child: Image.asset(widget.pngAssetPath)),
             Positioned(
               top: 20,
               left: 20,
@@ -63,7 +64,6 @@ class _SelectableOptionCardState extends State<SelectableOptionCard> {
                 ),
               ),
             ),
-            Positioned(bottom: 12, right: 12, child: Image.asset(widget.pngAssetPath)),
           ],
         ),
       ),
