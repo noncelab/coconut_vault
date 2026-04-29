@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/view_model/home/vault_list_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/services/wallet/wallet_service.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/home/vault_item_setting_bottom_sheet.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -365,7 +366,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       isPrimaryWallet: isFirstItem,
       isEditMode: isEditMode,
       isFavorite: isFavorite,
-      isStarVisible: isFavorite || _viewModel.tempFavoriteVaultIds.length < kMaxStarLength, // 즐겨찾기 제한 만큼 설정
+      isStarVisible: isFavorite || _viewModel.tempFavoriteVaultIds.length < kMaxFavoriteWallets, // 즐겨찾기 제한 만큼 설정
       onTapStar: (pair) {
         // pair: (bool isFavorite, int walletId)
 
