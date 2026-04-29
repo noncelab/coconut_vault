@@ -15,7 +15,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   static const int _totalStep = 100;
   int _currentStep = 1;
 
-  String get _titleText => '\n테스트용 타이틀\n입니다. ($_currentStep / $_totalStep)\n';
+  List<TextSpan> get _titleLines => [
+    const TextSpan(text: '테스트용 타이틀'),
+    TextSpan(text: '입니다. ($_currentStep / $_totalStep)'),
+  ];
 
   void _onNextPressed() {
     if (_currentStep >= _totalStep) {
@@ -39,7 +42,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       body: SafeArea(
         child: Stack(
           children: [
-            TaprootCreationBody(onBottomButtonPressed: _onNextPressed, titleText: _titleText),
+            TaprootCreationBody(onBottomButtonPressed: _onNextPressed, titleLines: _titleLines),
             TopProgressBar(visible: true, total: _totalStep, current: _currentStep),
           ],
         ),

@@ -6,17 +6,17 @@ import 'package:flutter/material.dart';
 
 class TaprootCreationBody extends StatefulWidget {
   final VoidCallback? onBottomButtonPressed;
-  final Widget? subWidget;
+  final Widget? fixedBottomSubWidget;
   final String? bottomButtonText;
-  final String? titleText;
+  final List<TextSpan> titleLines;
   final bool isError;
 
   const TaprootCreationBody({
     super.key,
     this.onBottomButtonPressed,
-    this.subWidget,
+    this.fixedBottomSubWidget,
     this.bottomButtonText,
-    this.titleText,
+    this.titleLines = const [],
     this.isError = false,
   });
 
@@ -28,20 +28,22 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   static const Duration _contentFadeOutDuration = Duration(milliseconds: 180);
   static const Duration _contentFadeInDuration = Duration(milliseconds: 520);
   static const Duration _headerLineFadeInDuration = Duration(milliseconds: 700);
-  static const Duration _headerLineFadeOutDuration = Duration(milliseconds: 180);
+  static const Duration _headerLineFadeOutDuration = Duration(
+    milliseconds: 180,
+  );
   static const Duration _headerInitialDelay = Duration(milliseconds: 200);
   static const Duration _fadeOutDelay = Duration(milliseconds: 300);
 
   bool _isContentVisible = true;
   bool _isContentTransitioning = false;
   bool _isHeaderFadingOut = false;
-  late String? _displayedTitleText;
+  late List<TextSpan> _displayedTitleLines;
   late bool _displayedIsError;
 
   @override
   void initState() {
     super.initState();
-    _displayedTitleText = widget.titleText;
+    _displayedTitleLines = widget.titleLines;
     _displayedIsError = widget.isError;
   }
 
@@ -52,8 +54,9 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
       return;
     }
 
-    if (oldWidget.titleText != widget.titleText || oldWidget.isError != widget.isError) {
-      _displayedTitleText = widget.titleText;
+    if (oldWidget.titleLines != widget.titleLines ||
+        oldWidget.isError != widget.isError) {
+      _displayedTitleLines = widget.titleLines;
       _displayedIsError = widget.isError;
     }
   }
@@ -95,7 +98,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     }
 
     setState(() {
-      _displayedTitleText = widget.titleText;
+      _displayedTitleLines = widget.titleLines;
       _displayedIsError = widget.isError;
       _isHeaderFadingOut = false;
       _isContentVisible = true;
@@ -112,15 +115,20 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   }
 
   Duration get _fadeOutWaitDuration {
-    final lines = _displayedTitleText?.split('\n').length ?? 0;
+    final lines = _displayedTitleLines.length;
     final headerDuration = _headerLineFadeOutDuration * lines;
-    return headerDuration > _contentFadeOutDuration ? headerDuration : _contentFadeOutDuration;
+    return headerDuration > _contentFadeOutDuration
+        ? headerDuration
+        : _contentFadeOutDuration;
   }
 
   Duration get _fadeInWaitDuration {
-    final lines = _displayedTitleText?.split('\n').length ?? 0;
-    final headerDuration = _headerInitialDelay + (_headerLineFadeInDuration * lines);
-    return headerDuration > _contentFadeInDuration ? headerDuration : _contentFadeInDuration;
+    final lines = _displayedTitleLines.length;
+    final headerDuration =
+        _headerInitialDelay + (_headerLineFadeInDuration * lines);
+    return headerDuration > _contentFadeInDuration
+        ? headerDuration
+        : _contentFadeInDuration;
   }
 
   @override
@@ -136,9 +144,14 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
                 _buildAnimatedHeader(),
                 AnimatedOpacity(
                   opacity: _isContentVisible ? 1 : 0,
-                  duration: _isContentVisible ? _contentFadeInDuration : _contentFadeOutDuration,
+                  duration:
+                      _isContentVisible
+                          ? _contentFadeInDuration
+                          : _contentFadeOutDuration,
                   curve: _isContentVisible ? Curves.easeOut : Curves.easeIn,
-                  child: const SingleChildScrollView(child: Center(child: Text('내용 들어가는 곳'))),
+                  child: const SingleChildScrollView(
+                    child: Center(child: Text('내용 들어가는 곳')),
+                  ),
                 ),
               ],
             ),
@@ -149,27 +162,33 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
             onButtonClicked: _onBottomButtonPressed,
             text: widget.bottomButtonText ?? t.next,
             showGradient: false,
-            subWidget: widget.subWidget,
+            subWidget: widget.fixedBottomSubWidget,
           ),
       ],
     );
   }
 
   Widget _buildAnimatedHeader() {
-    final text = _displayedTitleText;
-    if (text == null || text.isEmpty) {
+    final lines = _displayedTitleLines;
+    if (lines.isEmpty) {
       return const SizedBox.shrink();
     }
 
+    final titleKey = _titleKeyForLines(lines);
     return MediaQuery(
-      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+      data: MediaQuery.of(
+        context,
+      ).copyWith(textScaler: const TextScaler.linear(1.0)),
       child: Padding(
         padding: const EdgeInsets.only(top: 70),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (_displayedIsError) ...[_buildAnimatedErrorIcon(text), const SizedBox(height: 10)],
-            _buildAnimatedTitleText(text),
+            if (_displayedIsError) ...[
+              _buildAnimatedErrorIcon(titleKey),
+              const SizedBox(height: 10),
+            ],
+            _buildAnimatedTitleText(lines, titleKey),
           ],
         ),
       ),
@@ -177,7 +196,11 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   }
 
   Widget _buildAnimatedErrorIcon(String text) {
-    const icon = Icon(Icons.warning_amber_rounded, color: CoconutColors.warningText, size: 28);
+    const icon = Icon(
+      Icons.warning_amber_rounded,
+      color: CoconutColors.warningText,
+      size: 28,
+    );
 
     if (_isHeaderFadingOut) {
       return icon.fadeOutAnimation(
@@ -193,8 +216,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     );
   }
 
-  Widget _buildAnimatedTitleText(String text) {
-    final lines = text.split('\n');
+  Widget _buildAnimatedTitleText(List<TextSpan> lines, String titleKey) {
     final textStyle = CoconutTypography.heading4_18_Bold.setColor(
       _displayedIsError ? CoconutColors.warningText : CoconutColors.black,
     );
@@ -202,15 +224,26 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        for (int index = 0; index < lines.length; index++) _buildAnimatedTitleLine(lines[index], index, textStyle),
+        for (int index = 0; index < lines.length; index++)
+          _buildAnimatedTitleLine(lines[index], index, textStyle, titleKey),
       ],
     );
   }
 
-  Widget _buildAnimatedTitleLine(String line, int index, TextStyle textStyle) {
+  Widget _buildAnimatedTitleLine(
+    TextSpan line,
+    int index,
+    TextStyle defaultTextStyle,
+    String titleKey,
+  ) {
+    final text = line.toPlainText();
+    final textStyle = defaultTextStyle.merge(line.style);
+
     if (_isHeaderFadingOut) {
-      return line.characterFadeOutAnimation(
-        key: ValueKey('taproot-creation-header-text-out-$index-$_displayedTitleText-$_displayedIsError'),
+      return text.characterFadeOutAnimation(
+        key: ValueKey(
+          'taproot-creation-header-text-out-$index-$titleKey-$_displayedIsError',
+        ),
         textStyle: textStyle,
         textAlign: TextAlign.center,
         duration: _headerLineFadeOutDuration,
@@ -219,13 +252,19 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
       );
     }
 
-    return line.characterFadeInAnimation(
-      key: ValueKey('taproot-creation-header-text-in-$index-$_displayedTitleText-$_displayedIsError'),
+    return text.characterFadeInAnimation(
+      key: ValueKey(
+        'taproot-creation-header-text-in-$index-$titleKey-$_displayedIsError',
+      ),
       textStyle: textStyle,
       textAlign: TextAlign.center,
       duration: _headerLineFadeInDuration,
       delay: _headerInitialDelay + (_headerLineFadeInDuration * index),
       slideDirection: CoconutCharacterFadeSlideDirection.slideDown,
     );
+  }
+
+  String _titleKeyForLines(List<TextSpan> lines) {
+    return lines.map((line) => line.toPlainText()).join('|');
   }
 }
