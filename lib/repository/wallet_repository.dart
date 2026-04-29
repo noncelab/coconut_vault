@@ -179,19 +179,26 @@ class WalletRepository {
     _linkNewSinglesigVaultToMultisigVaults(vaultListResult.first);
     _vaultList!.add(vaultListResult[0]);
     try {
-      await _strategy.persistSinglesigAdd(
-        id: nextId,
-        secret: wallet.mnemonic!,
-        passphrase: wallet.passphrase,
-        item: vaultListResult[0],
+      await _strategy.mutate(
+        execute:
+            (ops) => ops.persistSinglesigAdd(
+              id: nextId,
+              secret: wallet.mnemonic!,
+              passphrase: wallet.passphrase,
+              item: vaultListResult[0],
+            ),
+        snapshot: () => _vaultList!,
       );
-      await _strategy.savePublicVaultList(_vaultList!);
     } catch (error) {
       _vaultList!.removeLast();
       _unlinkSinglesigVaultFromMultisigVaults(vaultListResult.first.id);
-      // Idempotent cleanup: if persistSinglesigAdd already rolled back internally this is a no-op,
-      // if savePublicVaultList failed this removes the wallet data from disk.
-      await _strategy.deleteWalletData(nextId, WalletType.singleSignature);
+      // Idempotent cleanup: if persistSinglesigAdd already rolled back internally the disk delete
+      // is a no-op; if the public list save failed this removes the orphaned wallet data.
+      // Either way the trailing public list save inside mutate re-syncs disk with the reverted memory.
+      await _strategy.mutate(
+        execute: (ops) => ops.deleteWalletData(nextId, WalletType.singleSignature),
+        snapshot: () => _vaultList!,
+      );
       rethrow;
     }
     await _recordNextWalletId();
@@ -211,11 +218,6 @@ class WalletRepository {
       return MultisigWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
     }
     throw "Unsupported wallet type";
-  }
-
-  Future<void> _removePublicInfo() async {
-    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
-    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultListField);
   }
 
   void _linkNewSinglesigVaultToMultisigVaults(SingleSigVaultListItem singlesigItem) {
@@ -296,12 +298,17 @@ class WalletRepository {
     _linkNewMultisigVaultToSingleSigVaults(wallet.signers!, nextId);
     _vaultList!.add(newMultisigVault);
     try {
-      await _strategy.persistMultisigAdd(id: nextId, item: newMultisigVault);
-      await _strategy.savePublicVaultList(_vaultList!);
+      await _strategy.mutate(
+        execute: (ops) => ops.persistMultisigAdd(id: nextId, item: newMultisigVault),
+        snapshot: () => _vaultList!,
+      );
     } catch (error) {
       _vaultList!.removeLast();
       _unlinkMultisigVaultFromSingleSigVaults(nextId);
-      await _strategy.deleteWalletData(nextId, WalletType.multiSignature);
+      await _strategy.mutate(
+        execute: (ops) => ops.deleteWalletData(nextId, WalletType.multiSignature),
+        snapshot: () => _vaultList!,
+      );
       rethrow;
     }
     await _recordNextWalletId();
@@ -450,8 +457,7 @@ class WalletRepository {
     }
     _vaultList!.removeAt(index);
 
-    await _strategy.deleteWalletData(id, vaultType);
-    await _strategy.savePublicVaultList(_vaultList!);
+    await _strategy.mutate(execute: (ops) => ops.deleteWalletData(id, vaultType), snapshot: () => _vaultList!);
 
     return true;
   }
@@ -462,11 +468,16 @@ class WalletRepository {
       throw '[wallet_list_manager/deleteWallets]: vaultList is empty';
     }
 
-    for (var vault in _vaultList!) {
-      await _strategy.deleteWalletData(vault.id, vault.vaultType);
-    }
+    final toDelete = List.of(_vaultList!);
     _vaultList!.clear();
-    await _strategy.savePublicVaultList(_vaultList!);
+    await _strategy.mutate(
+      execute: (ops) async {
+        for (final vault in toDelete) {
+          await ops.deleteWalletData(vault.id, vault.vaultType);
+        }
+      },
+      snapshot: () => _vaultList!,
+    );
   }
 
   Future<bool> updateWallet(int id, String newName, int colorIndex, int iconIndex) async {
@@ -561,7 +572,8 @@ class WalletRepository {
     } on PlatformException catch (e) {
       Logger.error('--> ❌ FSS deleteAll 실패 ${e.toString()} ');
     }
-    await _removePublicInfo();
+    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
+    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultListField);
     await _sharedPrefs.deleteSharedPrefsWithKey(nextIdField);
   }
 
@@ -584,23 +596,26 @@ class WalletRepository {
     }
 
     final secureStrategy = SecureStorageStrategy();
-    for (final vault in _vaultList!) {
-      if (vault is MultisigVaultListItem) {
-        await secureStrategy.persistMultisigAdd(id: vault.id, item: vault);
-        continue;
-      }
+    await secureStrategy.mutate(
+      execute: (ops) async {
+        for (final vault in _vaultList!) {
+          if (vault is MultisigVaultListItem) {
+            await ops.persistMultisigAdd(id: vault.id, item: vault);
+            continue;
+          }
 
-      final singleSigWallet = vault as SingleSigVaultListItem;
-      final Seed seed = await getSeedInSigningOnlyMode(vault.id);
-      await secureStrategy.persistSinglesigAdd(
-        id: vault.id,
-        secret: seed.mnemonic,
-        passphrase: seed.passphrase.isEmpty ? null : seed.passphrase,
-        item: singleSigWallet,
-      );
-    }
-
-    await secureStrategy.savePublicVaultList(_vaultList!);
+          final singleSigWallet = vault as SingleSigVaultListItem;
+          final Seed seed = await getSeedInSigningOnlyMode(vault.id);
+          await ops.persistSinglesigAdd(
+            id: vault.id,
+            secret: seed.mnemonic,
+            passphrase: seed.passphrase.isEmpty ? null : seed.passphrase,
+            item: singleSigWallet,
+          );
+        }
+      },
+      snapshot: () => _vaultList!,
+    );
   }
 
   Future<void> updateSingleSigAccountVault(int id, int newAccountIndex, {Uint8List? inputPassphrase}) async {

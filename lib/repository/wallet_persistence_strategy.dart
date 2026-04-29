@@ -26,9 +26,10 @@ class WalletStorageKeys {
 
 /// Persistence behavior that differs between secure-storage mode and signing-only mode.
 ///
-/// Exposes ONLY wallet-level atomic operations (add/delete/updatePrivacy) to outside callers.
-/// The granular secret/privacy writes are library-private so they cannot be invoked individually,
-/// preventing the developer mistake of forgetting to keep the two storage backends in sync.
+/// Wallet-list mutations MUST go through [mutate], which guarantees the public vault list is
+/// persisted exactly once after the body succeeds. This makes it impossible to forget the
+/// `savePublicVaultList` call and naturally batches multiple writes (e.g., bulk delete) into
+/// a single public-list save.
 abstract class WalletPersistenceStrategy {
   bool get isSigningOnlyMode;
 
@@ -37,6 +38,33 @@ abstract class WalletPersistenceStrategy {
 
   Future<bool> hasPassphrase(int walletId);
 
+  /// Single entry point for any mutation that affects the wallet list.
+  ///
+  /// [execute] performs writes through [WalletWriteOps]. When it returns successfully,
+  /// the public vault list is persisted exactly once using the result of [snapshot] (lazily
+  /// evaluated so it observes mutations made inside [execute]).
+  ///
+  /// If [execute] throws, [snapshot] is NOT called and no public list save occurs; callers are
+  /// responsible for reverting in-memory state and (if needed) calling [mutate] again to clean
+  /// up partial disk writes.
+  Future<T> mutate<T>({
+    required Future<T> Function(WalletWriteOps ops) execute,
+    required List<VaultListItemBase> Function() snapshot,
+  });
+
+  /// Update privacy info for an existing singlesig wallet (e.g., after account derivation change).
+  /// Caller is responsible for following up with [savePublicVaultList] if the public json changed.
+  Future<void> updateSinglesigPrivacy(int id, SingleSigVaultListItem item);
+
+  /// Persist the public vault list snapshot. No-op in signing-only mode by policy.
+  Future<void> savePublicVaultList(List<VaultListItemBase> items);
+}
+
+/// Wallet-level write operations available inside a [WalletPersistenceStrategy.mutate] body.
+///
+/// Implementations are library-private and can only be obtained via [WalletPersistenceStrategy.mutate],
+/// which guarantees the public vault list save runs after the body.
+abstract class WalletWriteOps {
   /// Atomically persist a new singlesig wallet (secret + privacy info).
   /// On a partial failure, rolls back internally before rethrowing.
   Future<void> persistSinglesigAdd({
@@ -51,12 +79,6 @@ abstract class WalletPersistenceStrategy {
 
   /// Remove all data for the wallet (secret if singlesig + privacy info). Idempotent.
   Future<void> deleteWalletData(int id, WalletType type);
-
-  /// Update privacy info for an existing singlesig wallet (e.g., after account derivation change).
-  Future<void> updateSinglesigPrivacy(int id, SingleSigVaultListItem item);
-
-  /// Persist the public vault list snapshot. No-op in signing-only mode by policy.
-  Future<void> savePublicVaultList(List<VaultListItemBase> items);
 }
 
 /// Persistence behavior used when the user runs in normal (secure-storage) mode.
@@ -79,32 +101,13 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
   }
 
   @override
-  Future<void> persistSinglesigAdd({
-    required int id,
-    required Uint8List secret,
-    Uint8List? passphrase,
-    required SingleSigVaultListItem item,
+  Future<T> mutate<T>({
+    required Future<T> Function(WalletWriteOps ops) execute,
+    required List<VaultListItemBase> Function() snapshot,
   }) async {
-    await _saveSinglesigSecret(id, secret, passphrase);
-    try {
-      await _saveSinglesigPrivacy(id, item);
-    } catch (_) {
-      await _deleteSinglesigSecret(id);
-      rethrow;
-    }
-  }
-
-  @override
-  Future<void> persistMultisigAdd({required int id, required MultisigVaultListItem item}) async {
-    await _saveMultisigPrivacy(id, item);
-  }
-
-  @override
-  Future<void> deleteWalletData(int id, WalletType type) async {
-    if (type == WalletType.singleSignature) {
-      await _deleteSinglesigSecret(id);
-    }
-    await _deletePrivacyInfo(id, type);
+    final result = await execute(_SecureStorageOps(this));
+    await savePublicVaultList(snapshot());
+    return result;
   }
 
   @override
@@ -183,6 +186,41 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
   }
 }
 
+/// Library-private write-ops impl bound to a [SecureStorageStrategy].
+class _SecureStorageOps implements WalletWriteOps {
+  final SecureStorageStrategy _s;
+  _SecureStorageOps(this._s);
+
+  @override
+  Future<void> persistSinglesigAdd({
+    required int id,
+    required Uint8List secret,
+    Uint8List? passphrase,
+    required SingleSigVaultListItem item,
+  }) async {
+    await _s._saveSinglesigSecret(id, secret, passphrase);
+    try {
+      await _s._saveSinglesigPrivacy(id, item);
+    } catch (_) {
+      await _s._deleteSinglesigSecret(id);
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> persistMultisigAdd({required int id, required MultisigVaultListItem item}) async {
+    await _s._saveMultisigPrivacy(id, item);
+  }
+
+  @override
+  Future<void> deleteWalletData(int id, WalletType type) async {
+    if (type == WalletType.singleSignature) {
+      await _s._deleteSinglesigSecret(id);
+    }
+    await _s._deletePrivacyInfo(id, type);
+  }
+}
+
 /// Persistence behavior used in signing-only mode.
 ///
 /// Public/privacy info is intentionally not persisted; the secret payload carries the passphrase
@@ -205,27 +243,13 @@ class SigningOnlyStrategy implements WalletPersistenceStrategy {
   }
 
   @override
-  Future<void> persistSinglesigAdd({
-    required int id,
-    required Uint8List secret,
-    Uint8List? passphrase,
-    required SingleSigVaultListItem item,
+  Future<T> mutate<T>({
+    required Future<T> Function(WalletWriteOps ops) execute,
+    required List<VaultListItemBase> Function() snapshot,
   }) async {
-    // Privacy info is not persisted in signing-only mode; only the secret matters.
-    await _saveSinglesigSecret(id, secret, passphrase);
-  }
-
-  @override
-  Future<void> persistMultisigAdd({required int id, required MultisigVaultListItem item}) async {
-    // No-op: privacy info is not persisted in signing-only mode.
-  }
-
-  @override
-  Future<void> deleteWalletData(int id, WalletType type) async {
-    if (type == WalletType.singleSignature) {
-      await _deleteSinglesigSecret(id);
-    }
-    // Privacy info was never persisted; nothing to delete.
+    final result = await execute(_SigningOnlyOps(this));
+    await savePublicVaultList(snapshot()); // no-op, kept for API symmetry
+    return result;
   }
 
   @override
@@ -252,5 +276,35 @@ class SigningOnlyStrategy implements WalletPersistenceStrategy {
     final keyString = WalletStorageKeys.walletKey(walletId, WalletType.singleSignature);
     await _storageService.delete(key: keyString);
     await _secureZoneRepository.deleteKey(alias: keyString);
+  }
+}
+
+/// Library-private write-ops impl bound to a [SigningOnlyStrategy].
+class _SigningOnlyOps implements WalletWriteOps {
+  final SigningOnlyStrategy _s;
+  _SigningOnlyOps(this._s);
+
+  @override
+  Future<void> persistSinglesigAdd({
+    required int id,
+    required Uint8List secret,
+    Uint8List? passphrase,
+    required SingleSigVaultListItem item,
+  }) async {
+    // Privacy info is not persisted in signing-only mode; only the secret matters.
+    await _s._saveSinglesigSecret(id, secret, passphrase);
+  }
+
+  @override
+  Future<void> persistMultisigAdd({required int id, required MultisigVaultListItem item}) async {
+    // No-op: privacy info is not persisted in signing-only mode.
+  }
+
+  @override
+  Future<void> deleteWalletData(int id, WalletType type) async {
+    if (type == WalletType.singleSignature) {
+      await _s._deleteSinglesigSecret(id);
+    }
+    // Privacy info was never persisted; nothing to delete.
   }
 }
