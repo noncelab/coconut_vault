@@ -166,17 +166,16 @@ class WalletRepository {
   }
 
   Future<SingleSigVaultListItem> addSinglesigWallet(SingleSigWalletCreateDto wallet) async {
-    if (_vaultList == null) {
-      await _loadVaultList();
-    }
+    final vaults = await _ensureLoaded();
+    final linker = WalletLinker(vaults);
 
     final int nextId = _getNextWalletId();
     wallet.id = nextId;
     final Map<String, dynamic> vaultData = wallet.toJson();
     List<SingleSigVaultListItem> vaultListResult = await compute(WalletIsolates.addVault, vaultData);
 
-    _linker.linkNewSinglesigWallet(vaultListResult.first);
-    _vaultList!.add(vaultListResult[0]);
+    linker.linkNewSinglesigWallet(vaultListResult.first);
+    vaults.add(vaultListResult[0]);
     try {
       await _strategy.mutate(
         execute:
@@ -186,17 +185,17 @@ class WalletRepository {
               passphrase: wallet.passphrase,
               item: vaultListResult[0],
             ),
-        snapshot: () => _vaultList!,
+        snapshot: () => vaults,
       );
     } catch (error) {
-      _vaultList!.removeLast();
-      _linker.unlinkSinglesigWallet(vaultListResult.first.id);
+      vaults.removeLast();
+      linker.unlinkSinglesigWallet(vaultListResult.first.id);
       // Idempotent cleanup: if persistSinglesigAdd already rolled back internally the disk delete
       // is a no-op; if the public list save failed this removes the orphaned wallet data.
       // Either way the trailing public list save inside mutate re-syncs disk with the reverted memory.
       await _strategy.mutate(
         execute: (ops) => ops.deleteWalletData(nextId, WalletType.singleSignature),
-        snapshot: () => _vaultList!,
+        snapshot: () => vaults,
       );
       rethrow;
     }
@@ -219,39 +218,55 @@ class WalletRepository {
     throw "Unsupported wallet type";
   }
 
-  WalletLinker get _linker => WalletLinker(_vaultList!);
+  /// Ensures the vault list is loaded, lazy-loading on first access.
+  /// Use in entry-point write methods that can be called before any explicit load.
+  Future<List<VaultListItemBase>> _ensureLoaded() async {
+    if (_vaultList == null) {
+      await _loadVaultList();
+    }
+    return _vaultList!;
+  }
+
+  /// Asserts the vault list has already been loaded.
+  /// Use in methods whose preconditions guarantee a prior load.
+  List<VaultListItemBase> _requireLoaded() {
+    final list = _vaultList;
+    if (list == null) {
+      throw StateError('WalletRepository: vault list has not been loaded yet');
+    }
+    return list;
+  }
 
   Future<MultisigVaultListItem> addMultisigWallet(
     MultisigWallet wallet, {
     bool shouldAttachInnerVaultMetadata = false,
   }) async {
-    if (_vaultList == null) {
-      await _loadVaultList();
-    }
+    final vaults = await _ensureLoaded();
+    final linker = WalletLinker(vaults);
 
     final int nextId = _getNextWalletId();
     wallet.id = nextId;
     if (shouldAttachInnerVaultMetadata) {
       for (final signer in wallet.signers!) {
-        _linker.attachInnerWalletMetadata(signer);
+        linker.attachInnerWalletMetadata(signer);
       }
     }
     final Map<String, dynamic> data = wallet.toJson();
     MultisigVaultListItem newMultisigVault = await compute(WalletIsolates.addMultisigVault, data);
     Logger.logLongString('${newMultisigVault.toJson()}');
-    _linker.linkNewMultisigWallet(nextId, wallet.signers!);
-    _vaultList!.add(newMultisigVault);
+    linker.linkNewMultisigWallet(nextId, wallet.signers!);
+    vaults.add(newMultisigVault);
     try {
       await _strategy.mutate(
         execute: (ops) => ops.persistMultisigAdd(id: nextId, item: newMultisigVault),
-        snapshot: () => _vaultList!,
+        snapshot: () => vaults,
       );
     } catch (error) {
-      _vaultList!.removeLast();
-      _linker.unlinkMultisigWallet(nextId);
+      vaults.removeLast();
+      linker.unlinkMultisigWallet(nextId);
       await _strategy.mutate(
         execute: (ops) => ops.deleteWalletData(nextId, WalletType.multiSignature),
-        snapshot: () => _vaultList!,
+        snapshot: () => vaults,
       );
       rethrow;
     }
@@ -308,51 +323,45 @@ class WalletRepository {
   }
 
   Future<bool> deleteWallet(int id) async {
-    if (_vaultList == null) {
-      throw '[wallet_list_manager/deleteWallet]: vaultList is empty';
-    }
+    final vaults = _requireLoaded();
 
-    final index = _vaultList!.indexWhere((item) => item.id == id);
+    final index = vaults.indexWhere((item) => item.id == id);
     if (index == -1) {
       // 이미 삭제되었거나 존재하지 않음
       return false;
     }
-    final vault = _vaultList![index];
+    final vault = vaults[index];
     final vaultType = vault.vaultType;
-    _linker.unlinkOnDelete(vault);
-    _vaultList!.removeAt(index);
+    WalletLinker(vaults).unlinkOnDelete(vault);
+    vaults.removeAt(index);
 
-    await _strategy.mutate(execute: (ops) => ops.deleteWalletData(id, vaultType), snapshot: () => _vaultList!);
+    await _strategy.mutate(execute: (ops) => ops.deleteWalletData(id, vaultType), snapshot: () => vaults);
 
     return true;
   }
 
   Future<void> deleteWallets() async {
-    debugPrint('_vaultList: ${_vaultList?.length}');
-    if (_vaultList == null) {
-      throw '[wallet_list_manager/deleteWallets]: vaultList is empty';
-    }
+    final vaults = _requireLoaded();
 
-    final toDelete = List.of(_vaultList!);
-    _vaultList!.clear();
+    final toDelete = List.of(vaults);
+    vaults.clear();
     await _strategy.mutate(
       execute: (ops) async {
         for (final vault in toDelete) {
           await ops.deleteWalletData(vault.id, vault.vaultType);
         }
       },
-      snapshot: () => _vaultList!,
+      snapshot: () => vaults,
     );
   }
 
   Future<bool> updateWallet(int id, String newName, int colorIndex, int iconIndex) async {
-    if (_vaultList == null) {
-      throw Exception('[wallet_list_manager/updateWallet]: vaultList is empty');
-    }
+    final vaults = _requireLoaded();
 
-    final index = _vaultList!.indexWhere((item) => item.id == id);
-    if (_vaultList![index].vaultType == WalletType.singleSignature) {
-      SingleSigVaultListItem singleSigVault = _vaultList![index] as SingleSigVaultListItem;
+    final index = vaults.indexWhere((item) => item.id == id);
+    final target = vaults[index];
+    if (target.vaultType == WalletType.singleSignature) {
+      SingleSigVaultListItem singleSigVault = target as SingleSigVaultListItem;
       Map<int, int>? linkedMultisigInfo = singleSigVault.linkedMultisigInfo;
       // 연결된 MultisigVaultListItem의 signers 객체도 UI 업데이트가 필요
       if (linkedMultisigInfo != null && linkedMultisigInfo.isNotEmpty) {
@@ -369,16 +378,16 @@ class WalletRepository {
       singleSigVault.name = newName;
       singleSigVault.colorIndex = colorIndex;
       singleSigVault.iconIndex = iconIndex;
-    } else if (_vaultList![index].vaultType == WalletType.multiSignature) {
-      MultisigVaultListItem ssv = _vaultList![index] as MultisigVaultListItem;
+    } else if (target.vaultType == WalletType.multiSignature) {
+      MultisigVaultListItem ssv = target as MultisigVaultListItem;
       ssv.name = newName;
       ssv.colorIndex = colorIndex;
       ssv.iconIndex = iconIndex;
     } else {
-      throw '[wallet_list_manager/updateWallet]: _vaultList[$index] has wrong type: ${_vaultList![index].vaultType}';
+      throw '[wallet_list_manager/updateWallet]: _vaultList[$index] has wrong type: ${target.vaultType}';
     }
 
-    await _strategy.savePublicVaultList(_vaultList!);
+    await _strategy.savePublicVaultList(vaults);
     return true;
   }
 
@@ -391,11 +400,12 @@ class WalletRepository {
   }
 
   Future<MultisigVaultListItem> updateExternalSignerMemo(int walletId, int signerIndex, String? newMemo) async {
+    final vaults = _requireLoaded();
     var wallet = getVaultById(walletId);
     assert(wallet != null);
     (wallet as MultisigVaultListItem).signers[signerIndex].memo = newMemo;
 
-    await _strategy.savePublicVaultList(_vaultList!);
+    await _strategy.savePublicVaultList(vaults);
     return wallet;
   }
 
@@ -404,11 +414,12 @@ class WalletRepository {
     int signerIndex,
     HardwareWalletType newSignerSource,
   ) async {
+    final vaults = _requireLoaded();
     var wallet = getVaultById(walletId);
     assert(wallet != null);
     (wallet as MultisigVaultListItem).signers[signerIndex].signerSource = newSignerSource;
 
-    await _strategy.savePublicVaultList(_vaultList!);
+    await _strategy.savePublicVaultList(vaults);
     return wallet;
   }
 
@@ -484,12 +495,12 @@ class WalletRepository {
   }
 
   Future<void> updateSingleSigAccountVault(int id, int newAccountIndex, {Uint8List? inputPassphrase}) async {
-    if (_vaultList == null) throw Exception('vaultList is empty');
+    final vaults = _requireLoaded();
 
-    final index = _vaultList!.indexWhere((item) => item.id == id);
+    final index = vaults.indexWhere((item) => item.id == id);
     if (index == -1) throw Exception('Vault not found');
 
-    final existingVault = _vaultList![index];
+    final existingVault = vaults[index];
     if (existingVault is! SingleSigVaultListItem) {
       throw ArgumentError(
         'Only SingleSigVaultListItem is supported for account update. Vault type is ${existingVault.vaultType}',
@@ -528,10 +539,10 @@ class WalletRepository {
       rawJson,
     );
 
-    _vaultList![index] = updatedItem;
+    vaults[index] = updatedItem;
 
     await _strategy.updateSinglesigPrivacy(id, updatedItem as SingleSigVaultListItem);
-    await _strategy.savePublicVaultList(_vaultList!);
+    await _strategy.savePublicVaultList(vaults);
   }
 
   void dispose() {
