@@ -22,10 +22,9 @@ import 'package:coconut_vault/repository/model/wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/secure_zone_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/repository/wallet_linker.dart';
 import 'package:coconut_vault/repository/wallet_persistence_strategy.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_payload_codec.dart';
-import 'package:coconut_vault/utils/bip/signer_bsms.dart';
-import 'package:coconut_vault/utils/coconut/extended_pubkey_utils.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/print_util.dart';
 import 'package:flutter/foundation.dart';
@@ -67,7 +66,7 @@ class WalletRepository {
     jsonArrayString = _sharedPrefs.getString(SharedPrefsKeys.kVaultListField);
     int? savedDataSchemeVersion = _getSavedDataSchemeVersion();
 
-    //printLongString('--> $jsonArrayString');
+    printLongString('--> $jsonArrayString');
     if (jsonArrayString.isEmpty || jsonArrayString == '[]') {
       _vaultList = [];
 
@@ -176,7 +175,7 @@ class WalletRepository {
     final Map<String, dynamic> vaultData = wallet.toJson();
     List<SingleSigVaultListItem> vaultListResult = await compute(WalletIsolates.addVault, vaultData);
 
-    _linkNewSinglesigVaultToMultisigVaults(vaultListResult.first);
+    _linker.linkNewSinglesigWallet(vaultListResult.first);
     _vaultList!.add(vaultListResult[0]);
     try {
       await _strategy.mutate(
@@ -191,7 +190,7 @@ class WalletRepository {
       );
     } catch (error) {
       _vaultList!.removeLast();
-      _unlinkSinglesigVaultFromMultisigVaults(vaultListResult.first.id);
+      _linker.unlinkSinglesigWallet(vaultListResult.first.id);
       // Idempotent cleanup: if persistSinglesigAdd already rolled back internally the disk delete
       // is a no-op; if the public list save failed this removes the orphaned wallet data.
       // Either way the trailing public list save inside mutate re-syncs disk with the reverted memory.
@@ -220,61 +219,7 @@ class WalletRepository {
     throw "Unsupported wallet type";
   }
 
-  void _linkNewSinglesigVaultToMultisigVaults(SingleSigVaultListItem singlesigItem) {
-    outerLoop:
-    for (int i = 0; i < _vaultList!.length; i++) {
-      VaultListItemBase vault = _vaultList![i];
-      // 싱글 시그는 스킵
-      if (vault.vaultType == WalletType.singleSignature) continue;
-
-      List<MultisigSigner> signers = (vault as MultisigVaultListItem).signers;
-      // 멀티 시그만 판단
-      String expectedMfp = (singlesigItem.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
-
-      // singlesigItem의 p2wsh용 derivationPath 가져오기 (BSMS에서)
-      final bsms = Bsms.parseSigner(singlesigItem.signerBsmsByAddressType[AddressType.p2wsh]!);
-      String expectedDerivationPath = bsms.signer!.path;
-      String expectedXpub = bsms.signer!.extendedPublicKey.serialize(toXpub: true);
-      for (int j = 0; j < signers.length; j++) {
-        String signerMfp = signers[j].keyStore.masterFingerprint;
-        String signerDerivationPath = signers[j].getSignerDerivationPath();
-        String signerXpub = Bsms.parseSigner(signers[j].signerBsms!).signer!.extendedPublicKey.serialize(toXpub: true);
-        // masterFingerprint와 derivationPath 모두 일치해야 함
-        if (signerMfp.toUpperCase() == expectedMfp.toUpperCase() &&
-            signerDerivationPath == expectedDerivationPath &&
-            signerXpub == expectedXpub) {
-          // 다중 서명 지갑에서 signer로 사용되고 있는 mfp와 새로 추가된 볼트의 mfp가 같으면 정보를 변경
-          // 멀티시그 지갑 정보 변경
-          (_vaultList![i] as MultisigVaultListItem).signers[j].linkInternalWallet(singlesigItem);
-          // 싱글시그 지갑 정보 변경
-          Map<int, int> linkedMultisigInfo = {vault.id: j};
-          if (singlesigItem.linkedMultisigInfo == null) {
-            singlesigItem.linkedMultisigInfo = linkedMultisigInfo;
-          } else {
-            singlesigItem.linkedMultisigInfo!.addAll(linkedMultisigInfo);
-          }
-          continue outerLoop; // 같은 singlesig가 하나의 multisig 지갑에 2번 이상 signer로 등록될 수 없으므로
-        }
-      }
-    }
-  }
-
-  void _unlinkSinglesigVaultFromMultisigVaults(int singleSigWalletId) {
-    outerLoop:
-    for (int i = 0; i < _vaultList!.length; i++) {
-      VaultListItemBase vault = _vaultList![i];
-      // 싱글 시그는 스킵
-      if (vault.vaultType == WalletType.singleSignature) continue;
-
-      List<MultisigSigner> signers = (vault as MultisigVaultListItem).signers;
-      for (int j = 0; j < signers.length; j++) {
-        if (signers[j].innerVaultId == singleSigWalletId) {
-          signers[j].unlinkInternalWallet();
-          continue outerLoop;
-        }
-      }
-    }
-  }
+  WalletLinker get _linker => WalletLinker(_vaultList!);
 
   Future<MultisigVaultListItem> addMultisigWallet(
     MultisigWallet wallet, {
@@ -288,14 +233,13 @@ class WalletRepository {
     wallet.id = nextId;
     if (shouldAttachInnerVaultMetadata) {
       for (final signer in wallet.signers!) {
-        _attachInnerVaultMetadata(multisigSigner: signer);
+        _linker.attachInnerWalletMetadata(signer);
       }
     }
     final Map<String, dynamic> data = wallet.toJson();
     MultisigVaultListItem newMultisigVault = await compute(WalletIsolates.addMultisigVault, data);
     Logger.logLongString('${newMultisigVault.toJson()}');
-    // update SinglesigVaultListItem multsig key map
-    _linkNewMultisigVaultToSingleSigVaults(wallet.signers!, nextId);
+    _linker.linkNewMultisigWallet(nextId, wallet.signers!);
     _vaultList!.add(newMultisigVault);
     try {
       await _strategy.mutate(
@@ -304,7 +248,7 @@ class WalletRepository {
       );
     } catch (error) {
       _vaultList!.removeLast();
-      _unlinkMultisigVaultFromSingleSigVaults(nextId);
+      _linker.unlinkMultisigWallet(nextId);
       await _strategy.mutate(
         execute: (ops) => ops.deleteWalletData(nextId, WalletType.multiSignature),
         snapshot: () => _vaultList!,
@@ -313,65 +257,6 @@ class WalletRepository {
     }
     await _recordNextWalletId();
     return newMultisigVault;
-  }
-
-  void _attachInnerVaultMetadata({required MultisigSigner multisigSigner}) {
-    assert(_vaultList != null);
-    assert(multisigSigner.signerBsms != null && multisigSigner.signerBsms!.isNotEmpty);
-
-    final parsedInputBsms = SignerBsms.parse(multisigSigner.signerBsms!);
-    final inputKey = parsedInputBsms.extendedKey;
-
-    final vaultIndex = _vaultList!.indexWhere((element) {
-      if (element is! SingleSigVaultListItem) return false;
-
-      final String rawBsmsString = element.getSignerBsmsByAddressType(AddressType.p2wsh, withLabel: false);
-
-      try {
-        final targetBsmsObj = SignerBsms.parse(rawBsmsString);
-        final targetKey = targetBsmsObj.extendedKey;
-
-        return isEquivalentExtendedPubKey(inputKey, targetKey);
-      } catch (e) {
-        return false;
-      }
-    });
-
-    if (vaultIndex == -1) return;
-
-    final vault = _vaultList![vaultIndex];
-    multisigSigner.innerVaultId = vault.id;
-    multisigSigner.name = vault.name;
-    multisigSigner.colorIndex = vault.colorIndex;
-    multisigSigner.iconIndex = vault.iconIndex;
-  }
-
-  /// 멀티시그 지갑이 추가될 때 (생성 또는 복사) 사용된 싱글시그 지갑들의 linkedMultisigInfo를 업데이트 합니다.
-  void _linkNewMultisigVaultToSingleSigVaults(List<MultisigSigner> signers, int newWalletId) {
-    // for SinglesigVaultListItem multsig key map update
-    for (int i = 0; i < signers.length; i++) {
-      var signer = signers[i];
-      if (signers[i].innerVaultId == null) continue;
-      SingleSigVaultListItem ssv =
-          _vaultList!.firstWhere((element) => element.id == signer.innerVaultId!) as SingleSigVaultListItem;
-
-      var keyMap = {newWalletId: i};
-      if (ssv.linkedMultisigInfo != null) {
-        ssv.linkedMultisigInfo!.addAll(keyMap);
-      } else {
-        ssv.linkedMultisigInfo = keyMap;
-      }
-    }
-  }
-
-  void _unlinkMultisigVaultFromSingleSigVaults(int multisigWalletId) {
-    for (int i = 0; i < _vaultList!.length; i++) {
-      VaultListItemBase vault = _vaultList![i];
-      // 싱글 시그는 스킵
-      if (vault.vaultType == WalletType.multiSignature) continue;
-      SingleSigVaultListItem ssv = _vaultList![i] as SingleSigVaultListItem;
-      ssv.linkedMultisigInfo?.remove(multisigWalletId);
-    }
   }
 
   int _getNextWalletId() {
@@ -434,27 +319,7 @@ class WalletRepository {
     }
     final vault = _vaultList![index];
     final vaultType = vault.vaultType;
-    if (vaultType == WalletType.singleSignature) {
-      final single = vault as SingleSigVaultListItem;
-      if (single.linkedMultisigInfo?.isNotEmpty == true) {
-        for (var entry in single.linkedMultisigInfo!.entries) {
-          final multisig = getVaultById(entry.key) as MultisigVaultListItem;
-          multisig.signers[entry.value].unlinkInternalWallet();
-          assert(multisig.signers[entry.value].signerBsms != null);
-        }
-      }
-    }
-    if (vaultType == WalletType.multiSignature) {
-      final multi = vault as MultisigVaultListItem;
-      for (var signer in multi.signers) {
-        if (signer.innerVaultId != null) {
-          final ssv = getVaultById(signer.innerVaultId!);
-          if (ssv is SingleSigVaultListItem) {
-            ssv.linkedMultisigInfo?.remove(id);
-          }
-        }
-      }
-    }
+    _linker.unlinkOnDelete(vault);
     _vaultList!.removeAt(index);
 
     await _strategy.mutate(execute: (ops) => ops.deleteWalletData(id, vaultType), snapshot: () => _vaultList!);
