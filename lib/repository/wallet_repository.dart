@@ -22,10 +22,10 @@ import 'package:coconut_vault/repository/model/wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/secure_zone_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/repository/wallet_persistence_strategy.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_payload_codec.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:coconut_vault/utils/coconut/extended_pubkey_utils.dart';
-import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/print_util.dart';
 import 'package:flutter/foundation.dart';
@@ -43,12 +43,14 @@ class WalletRepository {
 
   List<VaultListItemBase>? _vaultList;
   late bool _isSigningOnlyMode;
+  late WalletPersistenceStrategy _strategy;
   get vaultList => _vaultList;
 
   Completer<void>? _walletLoadCancelToken;
 
   WalletRepository({bool isSigningOnlyMode = false}) {
     _isSigningOnlyMode = isSigningOnlyMode;
+    _strategy = isSigningOnlyMode ? SigningOnlyStrategy() : SecureStorageStrategy();
   }
 
   int? _getSavedDataSchemeVersion() {
@@ -77,14 +79,17 @@ class WalletRepository {
 
     int previousDataSchemeVersion = savedDataSchemeVersion ?? 1;
     if (previousDataSchemeVersion < currentDataSchemeVersion) {
+      // Invariant: signing-only mode never persists a vault list, so we can't reach here in that mode.
+      assert(!_isSigningOnlyMode, 'migration must not run in signing-only mode');
       Logger.log('✅ 마이그레이션 시작: $savedDataSchemeVersion to $currentDataSchemeVersion');
       printLongString('--> jsonArrayString: $jsonArrayString');
+      final migrationStrategy = SecureStorageStrategy();
       await DataSchemaMigrationRunner.runDataSchemaMigrations(
         previousDataSchemeVersion,
         currentDataSchemeVersion,
         jsonDecode(jsonArrayString),
         _sharedPrefs,
-        _savePrivacyInfo,
+        migrationStrategy.writePrivacyInfo,
         _walletLoadCancelToken,
       );
       await updateDataSchemeVersion(currentDataSchemeVersion);
@@ -171,58 +176,30 @@ class WalletRepository {
     final Map<String, dynamic> vaultData = wallet.toJson();
     List<SingleSigVaultListItem> vaultListResult = await compute(WalletIsolates.addVault, vaultData);
 
-    if (!_isSigningOnlyMode) {
-      // 안전 저장 모드
-      await _saveSecretAndPassphraseEnabled(
-        nextId,
-        wallet.mnemonic!,
-        wallet.passphrase != null && wallet.passphrase!.isNotEmpty,
-      );
-    } else {
-      // 서명 전용 모드
-      await _saveSecretWithPassphrase(nextId, wallet.mnemonic!, wallet.passphrase);
-    }
-
     _linkNewSinglesigVaultToMultisigVaults(vaultListResult.first);
     _vaultList!.add(vaultListResult[0]);
-    // 안전 저장 모드일 때만 저장
-    if (!_isSigningOnlyMode) {
-      try {
-        await _savePrivacyInfo(
-          nextId,
-          WalletType.singleSignature,
-          SingleSigWalletPrivacyInfo.fromAddressTypeMap(
-            descriptor: vaultListResult[0].descriptor,
-            signerBsmsByAddressType: vaultListResult[0].signerBsmsByAddressType,
-          ),
-        );
-        await _savePublicInfo();
-      } catch (error) {
-        _vaultList!.removeLast();
-        _unlinkSinglesigVaultFromMultisigVaults(vaultListResult.first.id);
-        await _deletePrivacyInfo(nextId, WalletType.singleSignature);
-        await _deleteSingleSigSecureData(nextId);
-        rethrow;
-      }
+    try {
+      await _strategy.persistSinglesigAdd(
+        id: nextId,
+        secret: wallet.mnemonic!,
+        passphrase: wallet.passphrase,
+        item: vaultListResult[0],
+      );
+      await _strategy.savePublicVaultList(_vaultList!);
+    } catch (error) {
+      _vaultList!.removeLast();
+      _unlinkSinglesigVaultFromMultisigVaults(vaultListResult.first.id);
+      // Idempotent cleanup: if persistSinglesigAdd already rolled back internally this is a no-op,
+      // if savePublicVaultList failed this removes the wallet data from disk.
+      await _strategy.deleteWalletData(nextId, WalletType.singleSignature);
+      rethrow;
     }
     await _recordNextWalletId();
     return vaultListResult[0];
   }
 
-  String _createWalletKeyString(int id, WalletType type) {
-    return hashString("${id.toString()} - ${type.name}");
-  }
-
-  String _createPassphraseEnabledKeyString(String walletKeyString) {
-    return hashString("$walletKeyString - passphraseEnabled");
-  }
-
-  String _createPrivacyInfoKey(String walletKeyString) {
-    return "privacy_${hashString(walletKeyString)}";
-  }
-
   Future<WalletPrivacyInfo> _getPrivacyInfo(int id, WalletType walletType) async {
-    final key = _createPrivacyInfoKey(_createWalletKeyString(id, walletType));
+    final key = WalletStorageKeys.privacyInfoKey(WalletStorageKeys.walletKey(id, walletType));
     final String? privacyInfoString = await _storageService.read(key: key);
     if (privacyInfoString == null) {
       throw "Privacy data cannot be found";
@@ -236,36 +213,9 @@ class WalletRepository {
     throw "Unsupported wallet type";
   }
 
-  Future<void> _savePublicInfo() async {
-    if (_vaultList == null) return;
-
-    final jsonString = jsonEncode(_vaultList!.map((item) => item.toPublicJson()).toList());
-    printLongString("--> 저장: $jsonString");
-    assert(
-      !jsonString.contains(SingleSigVaultListItem.fieldDescriptor) &&
-          !jsonString.contains(SingleSigVaultListItem.fieldSignerBsmsByAddressType) &&
-          !jsonString.contains(MultisigVaultListItem.fieldCoordinatorBsms) &&
-          !jsonString.contains(MultisigSigner.fieldSignerBsms) &&
-          !jsonString.contains(MultisigSigner.fieldKeyStore),
-    );
-
-    //printLongString("--> 저장: $jsonString");
-    await _sharedPrefs.setString(SharedPrefsKeys.kVaultListField, jsonString);
-  }
-
   Future<void> _removePublicInfo() async {
     await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
     await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultListField);
-  }
-
-  Future<void> _savePrivacyInfo(int id, WalletType walletType, WalletPrivacyInfo privacyInfo) async {
-    final walletKeyString = _createWalletKeyString(id, walletType);
-    await _storageService.write(key: _createPrivacyInfoKey(walletKeyString), value: jsonEncode(privacyInfo.toJson()));
-  }
-
-  Future<void> _deletePrivacyInfo(int id, WalletType walletType) async {
-    final walletKeyString = _createWalletKeyString(id, walletType);
-    await _storageService.delete(key: _createPrivacyInfoKey(walletKeyString));
   }
 
   void _linkNewSinglesigVaultToMultisigVaults(SingleSigVaultListItem singlesigItem) {
@@ -345,31 +295,14 @@ class WalletRepository {
     // update SinglesigVaultListItem multsig key map
     _linkNewMultisigVaultToSingleSigVaults(wallet.signers!, nextId);
     _vaultList!.add(newMultisigVault);
-    // 안전 저장 모드일 때만 public info 저장
-    if (!_isSigningOnlyMode) {
-      try {
-        final signersPrivacyInfo =
-            wallet.signers!
-                .map(
-                  (signer) =>
-                      SignerPrivacyInfo(signerBsms: signer.signerBsms!, keyStoreToJson: signer.keyStore.toJson()),
-                )
-                .toList();
-        await _savePrivacyInfo(
-          nextId,
-          WalletType.multiSignature,
-          MultisigWalletPrivacyInfo(
-            coordinatorBsms: newMultisigVault.coordinatorBsms,
-            signersPrivacyInfo: signersPrivacyInfo,
-          ),
-        );
-        await _savePublicInfo();
-      } catch (error) {
-        _vaultList!.removeLast();
-        _unlinkMultisigVaultFromSingleSigVaults(nextId);
-        await _deletePrivacyInfo(nextId, WalletType.multiSignature);
-        rethrow;
-      }
+    try {
+      await _strategy.persistMultisigAdd(id: nextId, item: newMultisigVault);
+      await _strategy.savePublicVaultList(_vaultList!);
+    } catch (error) {
+      _vaultList!.removeLast();
+      _unlinkMultisigVaultFromSingleSigVaults(nextId);
+      await _strategy.deleteWalletData(nextId, WalletType.multiSignature);
+      rethrow;
     }
     await _recordNextWalletId();
     return newMultisigVault;
@@ -444,7 +377,7 @@ class WalletRepository {
   }
 
   Future<({Uint8List secret, Uint8List? passphrase})> _decryptSecret(int id, {bool autoAuth = true}) async {
-    final key = _createWalletKeyString(id, WalletType.singleSignature);
+    final key = WalletStorageKeys.walletKey(id, WalletType.singleSignature);
     final combinedBase64 = await _storageService.read(key: key);
     if (combinedBase64 == null && Platform.isIOS) {
       throw SeedInvalidatedException();
@@ -478,51 +411,8 @@ class WalletRepository {
     return Seed.fromMnemonic(secret, passphrase: passphrase);
   }
 
-  Future<void> _saveSecretWithPassphrase(int walletId, Uint8List secret, Uint8List? passphrase) async {
-    assert(_isSigningOnlyMode);
-    String keyString = _createWalletKeyString(walletId, WalletType.singleSignature);
-    await _secureZoneRepository.generateKey(alias: keyString, userAuthRequired: true);
-    Uint8List plainText = SecureZonePayloadCodec.buildPlaintext(
-      secret: secret,
-      // 서명 전용 모드에서만 passphrase 저장
-      passphrase: passphrase,
-    );
-    EncryptResult result = await _secureZoneRepository.encrypt(alias: keyString, plaintext: plainText);
-    await _storageService.write(key: keyString, value: result.toCombinedBase64());
-  }
-
-  Future<void> _saveSecretAndPassphraseEnabled(int walletId, Uint8List secret, bool hasPassphrase) async {
-    String keyString = _createWalletKeyString(walletId, WalletType.singleSignature);
-    await _secureZoneRepository.generateKey(alias: keyString, userAuthRequired: true);
-    Uint8List plainText = SecureZonePayloadCodec.buildPlaintext(
-      secret: secret,
-      // 서명 전용 모드에서만 passphrase 저장
-      passphrase: null,
-    );
-    EncryptResult result = await _secureZoneRepository.encrypt(alias: keyString, plaintext: plainText);
-    // 반환된 암호문이랑 iv를 _storageService에 저장한다.
-    await _storageService.write(key: keyString, value: result.toCombinedBase64());
-    String passphraseEnabledKeyString = _createPassphraseEnabledKeyString(keyString);
-    await _storageService.write(key: passphraseEnabledKeyString, value: hasPassphrase ? "true" : "false");
-  }
-
-  Future<void> _deleteSingleSigSecureData(int walletId) async {
-    String keyString = _createWalletKeyString(walletId, WalletType.singleSignature);
-    await _storageService.delete(key: keyString);
-    await _secureZoneRepository.deleteKey(alias: keyString);
-
-    if (!_isSigningOnlyMode) {
-      // 안전 저장 모드
-      String passphraseEnabledKeyString = _createPassphraseEnabledKeyString(keyString);
-      await _storageService.delete(key: passphraseEnabledKeyString);
-    }
-  }
-
   Future<bool> hasPassphrase(int walletId) async {
-    assert(!_isSigningOnlyMode);
-    String keyString = _createWalletKeyString(walletId, WalletType.singleSignature);
-    String passphraseEnabledKeyString = _createPassphraseEnabledKeyString(keyString);
-    return await _storageService.read(key: passphraseEnabledKeyString) == "true";
+    return _strategy.hasPassphrase(walletId);
   }
 
   Future<bool> deleteWallet(int id) async {
@@ -560,13 +450,8 @@ class WalletRepository {
     }
     _vaultList!.removeAt(index);
 
-    if (vaultType == WalletType.singleSignature) {
-      _deleteSingleSigSecureData(id);
-    }
-    if (!_isSigningOnlyMode) {
-      _deletePrivacyInfo(id, vaultType);
-    }
-    await _savePublicInfo();
+    await _strategy.deleteWalletData(id, vaultType);
+    await _strategy.savePublicVaultList(_vaultList!);
 
     return true;
   }
@@ -578,15 +463,10 @@ class WalletRepository {
     }
 
     for (var vault in _vaultList!) {
-      if (vault.vaultType == WalletType.singleSignature) {
-        _deleteSingleSigSecureData(vault.id);
-      }
-      if (!_isSigningOnlyMode) {
-        _deletePrivacyInfo(vault.id, vault.vaultType);
-      }
+      await _strategy.deleteWalletData(vault.id, vault.vaultType);
     }
     _vaultList!.clear();
-    await _savePublicInfo();
+    await _strategy.savePublicVaultList(_vaultList!);
   }
 
   Future<bool> updateWallet(int id, String newName, int colorIndex, int iconIndex) async {
@@ -622,7 +502,7 @@ class WalletRepository {
       throw '[wallet_list_manager/updateWallet]: _vaultList[$index] has wrong type: ${_vaultList![index].vaultType}';
     }
 
-    await _savePublicInfo();
+    await _strategy.savePublicVaultList(_vaultList!);
     return true;
   }
 
@@ -639,7 +519,7 @@ class WalletRepository {
     assert(wallet != null);
     (wallet as MultisigVaultListItem).signers[signerIndex].memo = newMemo;
 
-    await _savePublicInfo();
+    await _strategy.savePublicVaultList(_vaultList!);
     return wallet;
   }
 
@@ -652,7 +532,7 @@ class WalletRepository {
     assert(wallet != null);
     (wallet as MultisigVaultListItem).signers[signerIndex].signerSource = newSignerSource;
 
-    await _savePublicInfo();
+    await _strategy.savePublicVaultList(_vaultList!);
     return wallet;
   }
 
@@ -664,7 +544,7 @@ class WalletRepository {
               _vaultList!
                   .map((e) {
                     if (e.vaultType == WalletType.multiSignature) return null;
-                    return _createWalletKeyString(e.id, WalletType.singleSignature);
+                    return WalletStorageKeys.walletKey(e.id, WalletType.singleSignature);
                   })
                   .whereType<String>()
                   .toList(),
@@ -689,8 +569,10 @@ class WalletRepository {
     if (_isSigningOnlyMode == isSigningOnlyMode) return;
     if (!isSigningOnlyMode) {
       await _changeToSecureStorageMode();
+      _strategy = SecureStorageStrategy();
     } else {
       await resetAll();
+      _strategy = SigningOnlyStrategy();
     }
     _isSigningOnlyMode = isSigningOnlyMode;
   }
@@ -701,43 +583,24 @@ class WalletRepository {
       return;
     }
 
+    final secureStrategy = SecureStorageStrategy();
     for (final vault in _vaultList!) {
-      if (vault.vaultType == WalletType.multiSignature) {
-        final multisigWallet = vault as MultisigVaultListItem;
-        final signersPrivacyInfo =
-            multisigWallet.signers
-                .map(
-                  (signer) =>
-                      SignerPrivacyInfo(signerBsms: signer.signerBsms!, keyStoreToJson: signer.keyStore.toJson()),
-                )
-                .toList();
-        await _savePrivacyInfo(
-          vault.id,
-          WalletType.multiSignature,
-          MultisigWalletPrivacyInfo(
-            coordinatorBsms: multisigWallet.coordinatorBsms,
-            signersPrivacyInfo: signersPrivacyInfo,
-          ),
-        );
+      if (vault is MultisigVaultListItem) {
+        await secureStrategy.persistMultisigAdd(id: vault.id, item: vault);
         continue;
       }
 
       final singleSigWallet = vault as SingleSigVaultListItem;
-      await _savePrivacyInfo(
-        vault.id,
-        WalletType.singleSignature,
-        SingleSigWalletPrivacyInfo.fromAddressTypeMap(
-          descriptor: singleSigWallet.descriptor,
-          signerBsmsByAddressType: singleSigWallet.signerBsmsByAddressType,
-        ),
-      );
       final Seed seed = await getSeedInSigningOnlyMode(vault.id);
-      if (seed.passphrase.isEmpty) continue;
-
-      await _saveSecretAndPassphraseEnabled(vault.id, seed.mnemonic, true);
+      await secureStrategy.persistSinglesigAdd(
+        id: vault.id,
+        secret: seed.mnemonic,
+        passphrase: seed.passphrase.isEmpty ? null : seed.passphrase,
+        item: singleSigWallet,
+      );
     }
 
-    await _savePublicInfo();
+    await secureStrategy.savePublicVaultList(_vaultList!);
   }
 
   Future<void> updateSingleSigAccountVault(int id, int newAccountIndex, {Uint8List? inputPassphrase}) async {
@@ -756,7 +619,7 @@ class WalletRepository {
     final currentCoconutVault = existingVault.coconutVault as SingleSignatureVault;
 
     final parsed = await _decryptSecret(id);
-    final passphrase = _isSigningOnlyMode ? parsed.passphrase : inputPassphrase;
+    final passphrase = _strategy.passphraseStoredWithSecret ? parsed.passphrase : inputPassphrase;
 
     final derivedNewAccountVault = await compute(WalletIsolates.deriveNewAccountVault, {
       'mnemonic': parsed.secret,
@@ -768,7 +631,7 @@ class WalletRepository {
     });
 
     parsed.secret.wipe();
-    if (_isSigningOnlyMode && parsed.passphrase != null) {
+    if (_strategy.passphraseStoredWithSecret && parsed.passphrase != null) {
       parsed.passphrase!.wipe();
     }
 
@@ -787,15 +650,8 @@ class WalletRepository {
 
     _vaultList![index] = updatedItem;
 
-    if (!_isSigningOnlyMode) {
-      final privacyInfo = SingleSigWalletPrivacyInfo.fromAddressTypeMap(
-        descriptor: derivedNewAccountVault['descriptor'],
-        signerBsmsByAddressType: existingVault.signerBsmsByAddressType,
-      );
-      await _savePrivacyInfo(id, WalletType.singleSignature, privacyInfo);
-    }
-
-    await _savePublicInfo();
+    await _strategy.updateSinglesigPrivacy(id, updatedItem as SingleSigVaultListItem);
+    await _strategy.savePublicVaultList(_vaultList!);
   }
 
   void dispose() {

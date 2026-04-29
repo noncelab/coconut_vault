@@ -152,7 +152,7 @@ class WalletProvider extends ChangeNotifier {
     }
   }
 
-  /// "내부 지갑"과 xpub이 일치하는 경우에만 잘못된 MFP 수정 가능ㄴ
+  /// "내부 지갑"과 xpub이 일치하는 경우에만 잘못된 MFP 수정 가능
   List<MultisigSigner> _getMfpSanitizedSigners(List<MultisigSigner> signers) {
     if (_vaultList.isEmpty) return signers;
 
