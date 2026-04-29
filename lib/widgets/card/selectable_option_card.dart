@@ -2,11 +2,10 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/widgets/fixed_text_scale.dart';
 import 'package:flutter/material.dart';
 
-class SelectableOptionCard extends StatelessWidget {
+class SelectableOptionCard extends StatefulWidget {
   final String title;
   final String? description;
-  final String svgAssetPath;
-  final bool isSelected;
+  final String pngAssetPath;
   final VoidCallback onTap;
   final double width;
   final double height;
@@ -15,27 +14,33 @@ class SelectableOptionCard extends StatelessWidget {
     super.key,
     required this.title,
     this.description,
-    required this.svgAssetPath,
-    required this.isSelected,
+    required this.pngAssetPath,
     required this.onTap,
     this.width = double.infinity,
     required this.height,
   });
 
   @override
+  State<SelectableOptionCard> createState() => _SelectableOptionCardState();
+}
+
+class _SelectableOptionCardState extends State<SelectableOptionCard> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      onTap: widget.onTap,
       child: Container(
-        width: width,
-        height: height,
+        width: widget.width,
+        height: widget.height,
         decoration: BoxDecoration(
-          color: isSelected ? CoconutColors.gray150 : CoconutColors.white,
+          color: _isPressed ? CoconutColors.gray150 : CoconutColors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? CoconutColors.gray800 : CoconutColors.gray200,
-            width: isSelected ? 1.0 : 1.0,
-          ),
+          border: Border.all(color: _isPressed ? CoconutColors.gray800 : CoconutColors.gray200, width: 1.0),
         ),
         child: Stack(
           alignment: Alignment.topLeft,
@@ -49,16 +54,16 @@ class SelectableOptionCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(title, style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black)),
-                    if (description != null) ...[
-                      const SizedBox(height: 2),
-                      Text(description!, style: CoconutTypography.body3_12.setColor(CoconutColors.black)),
+                    Text(widget.title, style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black)),
+                    if (widget.description != null) ...[
+                      CoconutLayout.spacing_50h,
+                      Text(widget.description!, style: CoconutTypography.body3_12.setColor(CoconutColors.black)),
                     ],
                   ],
                 ),
               ),
             ),
-            Positioned(bottom: 12, right: 12, child: Image.asset(svgAssetPath)),
+            Positioned(bottom: 12, right: 12, child: Image.asset(widget.pngAssetPath)),
           ],
         ),
       ),

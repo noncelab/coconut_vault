@@ -10,8 +10,6 @@ class WidgetTestScreen extends StatefulWidget {
 }
 
 class _WidgetTestScreenState extends State<WidgetTestScreen> {
-  int _selectedIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,13 +27,10 @@ class _WidgetTestScreenState extends State<WidgetTestScreen> {
                   child: SelectableOptionCard(
                     title: '옵션 1 (설명 있음)',
                     description: '이것은 첫 번째 옵션에 대한 설명입니다. 내용이 길어질 경우 어떻게 보이는지 확인합니다.',
-                    svgAssetPath: 'assets/png/single-key.png',
-                    isSelected: _selectedIndex == 0,
+                    pngAssetPath: 'assets/png/single-key.png',
                     height: 195,
                     onTap: () {
-                      setState(() {
-                        _selectedIndex = 0;
-                      });
+                      setState(() {});
                     },
                   ),
                 ),
@@ -44,13 +39,10 @@ class _WidgetTestScreenState extends State<WidgetTestScreen> {
                   child: SelectableOptionCard(
                     title: '옵션 2 (설명 있음)',
                     description: '두 번째 옵션입니다.',
-                    svgAssetPath: 'assets/png/multi-keys.png',
-                    isSelected: _selectedIndex == 1,
+                    pngAssetPath: 'assets/png/multi-keys.png',
                     height: 195,
                     onTap: () {
-                      setState(() {
-                        _selectedIndex = 1;
-                      });
+                      setState(() {});
                     },
                   ),
                 ),
@@ -63,13 +55,10 @@ class _WidgetTestScreenState extends State<WidgetTestScreen> {
                 Expanded(
                   child: SelectableOptionCard(
                     title: '옵션 3 (설명 없음)',
-                    svgAssetPath: 'assets/png/coin.png',
-                    isSelected: _selectedIndex == 2,
+                    pngAssetPath: 'assets/png/coin.png',
                     height: 118,
                     onTap: () {
-                      setState(() {
-                        _selectedIndex = 2;
-                      });
+                      setState(() {});
                     },
                   ),
                 ),
