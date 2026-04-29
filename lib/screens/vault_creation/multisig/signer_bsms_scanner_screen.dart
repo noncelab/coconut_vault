@@ -3,8 +3,8 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
+import 'package:coconut_vault/core/wallet/wallet_validator.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/bsms_scanner_base.dart';
 import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
@@ -12,7 +12,6 @@ import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/signer_bsms_qr_data_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:provider/provider.dart';
 
 // 멀티시그 서명 지갑 생성 시 HWW으로부터
 // Signer bsms 및 descriptor 정보를 스캔합니다.
@@ -137,7 +136,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
 
     try {
       signerBsms = SignerBsms.parse(scanResult);
-      Provider.of<WalletProvider>(context, listen: false).validateSignerDerivationPath(signerBsms.derivationPath);
+      WalletValidator.validateSignerDerivationPath(signerBsms.derivationPath);
     } catch (e) {
       _handleScanFailure(e.toString());
       return;
