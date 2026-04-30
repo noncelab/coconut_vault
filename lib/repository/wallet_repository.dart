@@ -24,6 +24,7 @@ import 'package:coconut_vault/repository/secure_zone_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/repository/wallet_linker.dart';
 import 'package:coconut_vault/repository/wallet_persistence_strategy.dart';
+import 'package:coconut_vault/repository/wallet_storage_cleaner.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_payload_codec.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/print_util.dart';
@@ -33,7 +34,6 @@ import 'package:flutter/services.dart';
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletRepository {
   static const int currentDataSchemeVersion = 2;
-  static String nextIdField = 'nextId';
   static String vaultTypeField = VaultListItemBase.vaultTypeField;
 
   final SecureStorageRepository _storageService = SecureStorageRepository();
@@ -275,12 +275,12 @@ class WalletRepository {
   }
 
   int _getNextWalletId() {
-    return _sharedPrefs.getInt(nextIdField) ?? 1;
+    return _sharedPrefs.getInt(SharedPrefsKeys.kNextIdField) ?? 1;
   }
 
   Future<void> _recordNextWalletId() async {
     final int nextId = _getNextWalletId();
-    await _sharedPrefs.setInt(nextIdField, nextId + 1);
+    await _sharedPrefs.setInt(SharedPrefsKeys.kNextIdField, nextId + 1);
   }
 
   Future<({Uint8List secret, Uint8List? passphrase})> _decryptSecret(int id, {bool autoAuth = true}) async {
@@ -340,6 +340,7 @@ class WalletRepository {
     return true;
   }
 
+  /// 서명 전용 모드 - 모든 지갑 삭제
   Future<void> deleteWallets() async {
     final vaults = _requireLoaded();
 
@@ -424,33 +425,7 @@ class WalletRepository {
   }
 
   Future<void> resetAll() async {
-    if (_vaultList != null && _vaultList!.isNotEmpty) {
-      try {
-        await _secureZoneRepository.deleteKeys(
-          aliasList:
-              _vaultList!
-                  .map((e) {
-                    if (e.vaultType == WalletType.multiSignature) return null;
-                    return WalletStorageKeys.walletKey(e.id, WalletType.singleSignature);
-                  })
-                  .whereType<String>()
-                  .toList(),
-        );
-      } on PlatformException catch (e) {
-        Logger.error('--> ❌ SZR deleteAll 실패 ${e.toString()} ');
-      }
-    }
-
-    _vaultList?.clear();
-
-    try {
-      await _storageService.deleteAll();
-    } on PlatformException catch (e) {
-      Logger.error('--> ❌ FSS deleteAll 실패 ${e.toString()} ');
-    }
-    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
-    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultListField);
-    await _sharedPrefs.deleteSharedPrefsWithKey(nextIdField);
+    await WalletStorageCleaner.clearAll(wallets: _vaultList);
   }
 
   Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {
@@ -459,7 +434,7 @@ class WalletRepository {
       await _changeToSecureStorageMode();
       _strategy = SecureStorageStrategy();
     } else {
-      await resetAll();
+      await deleteWallets();
       _strategy = SigningOnlyStrategy();
     }
     _isSigningOnlyMode = isSigningOnlyMode;

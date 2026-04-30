@@ -4,7 +4,7 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
+import 'package:coconut_vault/usecases/reset_credentials_and_wallets_usecase.dart';
 import 'package:coconut_vault/utils/device_secure_checker.dart' as device_secure_checker;
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
@@ -221,15 +221,23 @@ class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScree
         try {
           walletProvider = context.read<WalletProvider>();
         } catch (_) {
-          // igrore
+          // ignore
         }
-        final result = await SecureZoneManager().deleteStoredVaultData(
-          context.read<AuthProvider>(),
-          walletProvider,
-          context.read<VisibilityProvider>(),
-          context.read<PreferenceProvider>(),
-        );
-        if (mounted && result) {
+        final visibilityProvider = context.read<VisibilityProvider>();
+        final preferenceProvider = context.read<PreferenceProvider>();
+        try {
+          await ResetCredentialsAndWalletsUsecase.execute(
+            walletProvider: walletProvider,
+            authProvider: context.read<AuthProvider>(),
+            preferenceProvider: preferenceProvider,
+          );
+          await walletProvider?.reloadRelatedToVault();
+          visibilityProvider.reloadRelatedToVault();
+          preferenceProvider.reloadRelatedToVault();
+        } catch (_) {
+          break;
+        }
+        if (mounted) {
           widget.onComplete();
         }
         break;

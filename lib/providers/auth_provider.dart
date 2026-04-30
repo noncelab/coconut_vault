@@ -290,19 +290,16 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> resetAllVaultData(PreferenceProvider preferenceProvider) async {
+  Future<void> resetCredentials() async {
     if (_isDisposed) return;
-
-    final WalletRepository walletRepository = WalletRepository();
-    await walletRepository.resetAll();
 
     await _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
     _isBiometricEnabled = false;
     await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
     _isPinSet = false;
-    await _storageService.delete(key: SecureStorageKeys.kVaultPin); // walletRepo.resetAll에서 이미 모든 SecureStorage를 삭제함
-    await preferenceProvider.resetVaultOrderAndFavorites();
+    await _storageService.delete(key: SecureStorageKeys.kVaultPin);
     await resetAuthenticationState();
+    notifyListeners();
   }
 
   Future<void> resetPinData() async {
@@ -310,6 +307,7 @@ class AuthProvider extends ChangeNotifier {
     _isPinSet = false;
     await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
     await resetAuthenticationState();
+    notifyListeners();
   }
 
   // TODO: 딜레이 발생 이유

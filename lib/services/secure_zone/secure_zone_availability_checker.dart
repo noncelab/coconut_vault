@@ -4,9 +4,6 @@ import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
-import 'package:coconut_vault/providers/auth_provider.dart';
-import 'package:coconut_vault/providers/preference_provider.dart';
-import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -50,25 +47,6 @@ class SecureZoneManager {
         return true;
       }
       rethrow;
-    }
-  }
-
-  /// 보안 영역 접근 불가 시 저장된 데이터 초기화
-  Future<bool> deleteStoredVaultData(
-    AuthProvider authProvider,
-    WalletProvider? walletProvider,
-    VisibilityProvider visibilityProvider,
-    PreferenceProvider preferenceProvider,
-  ) async {
-    try {
-      await authProvider.resetAllVaultData(preferenceProvider);
-
-      await walletProvider?.reloadRelatedToVault();
-      visibilityProvider.reloadRelatedToVault();
-      preferenceProvider.reloadRelatedToVault();
-      return true;
-    } catch (e) {
-      return false;
     }
   }
 }

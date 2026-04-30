@@ -192,6 +192,15 @@ class WalletService {
     await _visibility.saveWalletCount(vaultSnapshot.length);
   }
 
+  /// 인메모리 vault list와 모든 영속 데이터(SZR / FSS / SharedPrefs)를 정리합니다.
+  ///
+  /// repository가 정상 로드된 상태에서만 사용. repository 미준비 상태(앱 초기화 실패 등)에서는
+  /// `WalletStorageCleaner.clearAll()`을 직접 호출하세요.
+  Future<void> reset() async {
+    await _repo.resetAll();
+    await _visibility.saveWalletCount(0);
+  }
+
   // ---- load ----
 
   /// 지갑 리스트를 스트리밍으로 로드. 각 지갑이 복원될 때마다 [onWallet] 호출.

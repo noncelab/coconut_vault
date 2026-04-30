@@ -6,7 +6,7 @@ import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
-import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
+import 'package:coconut_vault/usecases/reset_credentials_and_wallets_usecase.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -168,15 +168,23 @@ class _JailBreakDetectionScreenState extends State<JailBreakDetectionScreen> {
         try {
           walletProvider = context.read<WalletProvider>();
         } catch (_) {
-          // igrore
+          // ignore
         }
-        final result = await SecureZoneManager().deleteStoredVaultData(
-          context.read<AuthProvider>(),
-          walletProvider,
-          context.read<VisibilityProvider>(),
-          context.read<PreferenceProvider>(),
-        );
-        if (!mounted || !result) return;
+        final visibilityProvider = context.read<VisibilityProvider>();
+        final preferenceProvider = context.read<PreferenceProvider>();
+        try {
+          await ResetCredentialsAndWalletsUsecase.execute(
+            walletProvider: walletProvider,
+            authProvider: context.read<AuthProvider>(),
+            preferenceProvider: preferenceProvider,
+          );
+          await walletProvider?.reloadRelatedToVault();
+          visibilityProvider.reloadRelatedToVault();
+          preferenceProvider.reloadRelatedToVault();
+        } catch (_) {
+          return;
+        }
+        if (!mounted) return;
         widget.onReset?.call();
       },
       text: t.jail_break_detection_screen.delete_data,

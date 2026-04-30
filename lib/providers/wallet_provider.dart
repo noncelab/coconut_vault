@@ -31,7 +31,7 @@ class WalletProvider extends ChangeNotifier {
     _service = WalletService(repo: repo, query: _query, pref: preference, lifecycle: lifecycle, visibility: visibility);
 
     if (_isSigningOnlyMode) {
-      repo.resetAll();
+      _service.reset();
     }
     vaultListNotifier = ValueNotifier(_vaultList);
   }
@@ -169,6 +169,13 @@ class WalletProvider extends ChangeNotifier {
 
   Future<void> deleteAllWallets() async {
     await _service.deleteAllWallets();
+    _setVaultList(_service.vaultSnapshot);
+    notifyListeners();
+  }
+
+  /// 모든 wallet 데이터(인메모리 + 영속)를 정리합니다.
+  Future<void> reset() async {
+    await _service.reset();
     _setVaultList(_service.vaultSnapshot);
     notifyListeners();
   }

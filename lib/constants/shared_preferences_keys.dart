@@ -30,6 +30,7 @@ class SharedPrefsKeys {
   // 볼트 목록
   static const String vaultListLength = "VAULT_LIST_LENGTH";
   static const String kVaultListField = "VAULT_LIST";
+  static const String kNextIdField = "nextId";
   static const String kVaultOrder = "VAULT_ORDER"; // 볼트 순서
   static const String kFavoriteVaultIds = "FAVORITE_VAULT_IDS"; // 즐겨찾기된 볼트 목록
 
