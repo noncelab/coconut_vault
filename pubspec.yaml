@@ -175,6 +175,7 @@ flutter:
     - assets/lottie/loading-gray.json
     - assets/lottie/pin-locked-success.json
     - assets/lottie/toggle-switch.json
+    - assets/lottie/dot-ripple-twice.json
     - assets/png/pow-logo.png
     - assets/jpg/pow-full-logo.jpg
     - assets/jpg/x-logo.jpg

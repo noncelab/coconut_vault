@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 class TaprootCreationBody extends StatefulWidget {
   final VoidCallback? onBottomButtonPressed;
+  final Widget child;
   final Widget? fixedBottomSubWidget;
   final String? bottomButtonText;
   final List<TextSpan> titleLines;
@@ -13,10 +14,11 @@ class TaprootCreationBody extends StatefulWidget {
 
   const TaprootCreationBody({
     super.key,
+    required this.titleLines,
+    required this.child,
     this.onBottomButtonPressed,
     this.fixedBottomSubWidget,
     this.bottomButtonText,
-    this.titleLines = const [],
     this.isError = false,
   });
 
@@ -28,9 +30,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   static const Duration _contentFadeOutDuration = Duration(milliseconds: 180);
   static const Duration _contentFadeInDuration = Duration(milliseconds: 520);
   static const Duration _headerLineFadeInDuration = Duration(milliseconds: 700);
-  static const Duration _headerLineFadeOutDuration = Duration(
-    milliseconds: 180,
-  );
+  static const Duration _headerLineFadeOutDuration = Duration(milliseconds: 180);
   static const Duration _headerInitialDelay = Duration(milliseconds: 200);
   static const Duration _fadeOutDelay = Duration(milliseconds: 300);
 
@@ -54,8 +54,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
       return;
     }
 
-    if (oldWidget.titleLines != widget.titleLines ||
-        oldWidget.isError != widget.isError) {
+    if (oldWidget.titleLines != widget.titleLines || oldWidget.isError != widget.isError) {
       _displayedTitleLines = widget.titleLines;
       _displayedIsError = widget.isError;
     }
@@ -117,18 +116,13 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   Duration get _fadeOutWaitDuration {
     final lines = _displayedTitleLines.length;
     final headerDuration = _headerLineFadeOutDuration * lines;
-    return headerDuration > _contentFadeOutDuration
-        ? headerDuration
-        : _contentFadeOutDuration;
+    return headerDuration > _contentFadeOutDuration ? headerDuration : _contentFadeOutDuration;
   }
 
   Duration get _fadeInWaitDuration {
     final lines = _displayedTitleLines.length;
-    final headerDuration =
-        _headerInitialDelay + (_headerLineFadeInDuration * lines);
-    return headerDuration > _contentFadeInDuration
-        ? headerDuration
-        : _contentFadeInDuration;
+    final headerDuration = _headerInitialDelay + (_headerLineFadeInDuration * lines);
+    return headerDuration > _contentFadeInDuration ? headerDuration : _contentFadeInDuration;
   }
 
   @override
@@ -144,14 +138,9 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
                 _buildAnimatedHeader(),
                 AnimatedOpacity(
                   opacity: _isContentVisible ? 1 : 0,
-                  duration:
-                      _isContentVisible
-                          ? _contentFadeInDuration
-                          : _contentFadeOutDuration,
+                  duration: _isContentVisible ? _contentFadeInDuration : _contentFadeOutDuration,
                   curve: _isContentVisible ? Curves.easeOut : Curves.easeIn,
-                  child: const SingleChildScrollView(
-                    child: Center(child: Text('내용 들어가는 곳')),
-                  ),
+                  child: SingleChildScrollView(child: widget.child),
                 ),
               ],
             ),
@@ -176,18 +165,13 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
 
     final titleKey = _titleKeyForLines(lines);
     return MediaQuery(
-      data: MediaQuery.of(
-        context,
-      ).copyWith(textScaler: const TextScaler.linear(1.0)),
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
       child: Padding(
         padding: const EdgeInsets.only(top: 70),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (_displayedIsError) ...[
-              _buildAnimatedErrorIcon(titleKey),
-              const SizedBox(height: 10),
-            ],
+            if (_displayedIsError) ...[_buildAnimatedErrorIcon(titleKey), const SizedBox(height: 10)],
             _buildAnimatedTitleText(lines, titleKey),
           ],
         ),
@@ -196,11 +180,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   }
 
   Widget _buildAnimatedErrorIcon(String text) {
-    const icon = Icon(
-      Icons.warning_amber_rounded,
-      color: CoconutColors.warningText,
-      size: 28,
-    );
+    const icon = Icon(Icons.warning_amber_rounded, color: CoconutColors.warningText, size: 28);
 
     if (_isHeaderFadingOut) {
       return icon.fadeOutAnimation(
@@ -230,20 +210,13 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     );
   }
 
-  Widget _buildAnimatedTitleLine(
-    TextSpan line,
-    int index,
-    TextStyle defaultTextStyle,
-    String titleKey,
-  ) {
+  Widget _buildAnimatedTitleLine(TextSpan line, int index, TextStyle defaultTextStyle, String titleKey) {
     final text = line.toPlainText();
     final textStyle = defaultTextStyle.merge(line.style);
 
     if (_isHeaderFadingOut) {
       return text.characterFadeOutAnimation(
-        key: ValueKey(
-          'taproot-creation-header-text-out-$index-$titleKey-$_displayedIsError',
-        ),
+        key: ValueKey('taproot-creation-header-text-out-$index-$titleKey-$_displayedIsError'),
         textStyle: textStyle,
         textAlign: TextAlign.center,
         duration: _headerLineFadeOutDuration,
@@ -253,9 +226,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     }
 
     return text.characterFadeInAnimation(
-      key: ValueKey(
-        'taproot-creation-header-text-in-$index-$titleKey-$_displayedIsError',
-      ),
+      key: ValueKey('taproot-creation-header-text-in-$index-$titleKey-$_displayedIsError'),
       textStyle: textStyle,
       textAlign: TextAlign.center,
       duration: _headerLineFadeInDuration,
