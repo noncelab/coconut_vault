@@ -85,23 +85,23 @@ class _MultisigSignerNameBottomSheetState extends State<MultisigSignerNameBottom
                               maxLines: 1,
                               controller: _controller,
                               focusNode: _focusNode,
-                              suffix: IconButton(
-                                highlightColor: CoconutColors.gray200,
-                                iconSize: 14,
-                                padding: EdgeInsets.zero,
-                                onPressed: () {
-                                  setState(() {
-                                    _controller.text = '';
-                                  });
-                                },
-                                icon:
-                                    _controller.text.isNotEmpty
-                                        ? SvgPicture.asset(
+                              suffix:
+                                  _controller.text.isNotEmpty
+                                      ? IconButton(
+                                        highlightColor: CoconutColors.gray200,
+                                        iconSize: 14,
+                                        padding: EdgeInsets.zero,
+                                        onPressed: () {
+                                          setState(() {
+                                            _controller.text = '';
+                                          });
+                                        },
+                                        icon: SvgPicture.asset(
                                           'assets/svg/text-field-clear.svg',
                                           colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
-                                        )
-                                        : Container(),
-                              ),
+                                        ),
+                                      )
+                                      : null,
                               onChanged: (text) {
                                 setState(() {
                                   _memo = text;
