@@ -167,12 +167,6 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> deleteAllWallets() async {
-    await _service.deleteAllWallets();
-    _setVaultList(_service.vaultSnapshot);
-    notifyListeners();
-  }
-
   /// 모든 wallet 데이터(인메모리 + 영속)를 정리합니다.
   Future<void> reset() async {
     await _service.reset();

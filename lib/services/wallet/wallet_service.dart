@@ -187,11 +187,6 @@ class WalletService {
     return true;
   }
 
-  Future<void> deleteAllWallets() async {
-    await _repo.deleteWallets();
-    await _visibility.saveWalletCount(vaultSnapshot.length);
-  }
-
   /// 인메모리 vault list와 모든 영속 데이터(SZR / FSS / SharedPrefs)를 정리합니다.
   ///
   /// repository가 정상 로드된 상태에서만 사용. repository 미준비 상태(앱 초기화 실패 등)에서는

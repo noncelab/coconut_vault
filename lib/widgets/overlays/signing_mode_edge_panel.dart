@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/usecases/reset_credentials_and_wallets_usecase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -411,8 +413,11 @@ class _SigningModeEdgePanelState extends State<SigningModeEdgePanel> with Single
             },
             onTapRight: () async {
               Navigator.pop(dialogContext);
-              await walletProvider.deleteAllWallets();
-              await context.read<PreferenceProvider>().resetVaultOrderAndFavorites();
+              await ResetCredentialsAndWalletsUsecase.execute(
+                authProvider: context.read<AuthProvider>(),
+                walletProvider: context.read<WalletProvider>(),
+                preferenceProvider: context.read<PreferenceProvider>(),
+              );
               widget.onResetCompleted();
             },
           ),
