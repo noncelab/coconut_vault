@@ -30,6 +30,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
   late String pinConfirm;
   late String errorMessage;
   PinType _currentPinType = PinType.number;
+  double? _frozenBottomInset;
+  bool _isProcessing = false;
 
   late AuthProvider _authProvider;
   late List<String> _shuffledPinNumbers;
@@ -51,6 +53,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
   void returnToBackSequence(String message, {bool isError = false, bool firstSequence = false}) async {
     setState(() {
       errorMessage = message;
+      _frozenBottomInset = null;
+      _isProcessing = false;
       pinConfirm = '';
 
       _shuffledPinNumbers = _authProvider.getShuffledNumberList(isPinSettingContext: true);
@@ -62,9 +66,9 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
 
     if (isError) {
       vibrateMedium();
-      return;
+    } else {
+      vibrateLightDouble();
     }
-    vibrateLightDouble();
   }
 
   Future<bool> _comparePin(String input) async {
@@ -113,12 +117,14 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
   void _proceedToNextStep() async {
     try {
       bool isAlreadyUsingPin = await _comparePin(pin);
+      if (!mounted) return;
 
       if (isAlreadyUsingPin) {
         returnToBackSequence(t.errors.duplicate_pin_error, firstSequence: true);
         return;
       }
     } catch (error) {
+      if (!mounted) return;
       returnToBackSequence(t.errors.pin_processing_error, isError: true);
       return;
     }
@@ -135,19 +141,24 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
   /// 비밀번호 최초 설정 시 생체 인증 사용 여부 확인
   Future<void> _finalizePinSetup() async {
     if (pin != pinConfirm) {
-      errorMessage = t.errors.pin_incorrect_error;
-      pinConfirm = '';
-      if (_currentPinType == PinType.number) {
-        _shuffledPinNumbers = _authProvider.getShuffledNumberList(isPinSettingContext: true);
-      }
-      setState(() {});
+      setState(() {
+        errorMessage = t.errors.pin_incorrect_error;
+        pinConfirm = '';
+        if (_currentPinType == PinType.number) {
+          _shuffledPinNumbers = _authProvider.getShuffledNumberList(isPinSettingContext: true);
+        }
+      });
       vibrateLightDouble();
       return;
     }
 
     setState(() {
       errorMessage = '';
+      _frozenBottomInset = MediaQuery.of(context).viewInsets.bottom;
+      _isProcessing = true;
     });
+
+    FocusScope.of(context).unfocus();
 
     // 생체 인증 사용 여부 확인
     bool isPinSet = SharedPrefsRepository().getBool(SharedPrefsKeys.isPinEnabled) ?? false;
@@ -156,10 +167,13 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
         _authProvider.availableBiometrics.isNotEmpty &&
         mounted) {
       final useBiometrics = await _authProvider.authenticateWithBiometrics(context: context, isSaved: true);
+      if (!mounted) return;
       if (!useBiometrics) {
         await _noticeTEEUseBiometrics();
       }
     }
+
+    if (!mounted) return;
 
     // 비밀번호 저장 후 화면 이동
     await _savePin();
@@ -185,39 +199,30 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
   }
 
   // 숫자 모드 PIN 입력 처리
-  void _onKeyTapNumber(String value) async {
-    if (step == 0) {
-      if (value == kDeleteBtnIdentifier) {
-        if (pin.isNotEmpty) {
-          setState(() {
-            pin = pin.substring(0, pin.length - 1);
-          });
-        }
-      } else if (pin.length < kExpectedPinLength) {
-        setState(() {
-          pin += value;
-        });
-        vibrateExtraLight();
-      }
+  void _onKeyTapNumber(String value) {
+    String currentPin = step == 0 ? pin : pinConfirm;
 
-      if (pin.length == kExpectedPinLength) {
+    if (value == kDeleteBtnIdentifier) {
+      if (currentPin.isNotEmpty) {
+        currentPin = currentPin.substring(0, currentPin.length - 1);
+      }
+    } else if (currentPin.length < kExpectedPinLength) {
+      currentPin += value;
+      vibrateExtraLight();
+    }
+
+    setState(() {
+      if (step == 0) {
+        pin = currentPin;
+      } else {
+        pinConfirm = currentPin;
+      }
+    });
+
+    if (currentPin.length == kExpectedPinLength) {
+      if (step == 0) {
         _proceedToNextStep();
-      }
-    } else {
-      if (value == kDeleteBtnIdentifier) {
-        if (pinConfirm.isNotEmpty) {
-          setState(() {
-            pinConfirm = pinConfirm.substring(0, pinConfirm.length - 1);
-          });
-        }
-      } else if (pinConfirm.length < kExpectedPinLength) {
-        setState(() {
-          pinConfirm += value;
-          vibrateExtraLight();
-        });
-      }
-
-      if (pinConfirm.length == kExpectedPinLength) {
+      } else {
         _finalizePinSetup();
       }
     }
@@ -299,7 +304,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       );
     }
 
-    return PinInputScreen(
+    Widget screen = PinInputScreen(
+      disabled: _isProcessing,
       canChangePinType: true,
       title: step == 0 ? t.pin_setting_screen.new_password : t.pin_setting_screen.enter_again,
       descriptionTextWidget: Text.rich(
@@ -325,5 +331,16 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       },
       step: step,
     );
+
+    if (_frozenBottomInset != null) {
+      screen = MediaQuery(
+        data: MediaQuery.of(
+          context,
+        ).copyWith(viewInsets: MediaQuery.of(context).viewInsets.copyWith(bottom: _frozenBottomInset)),
+        child: screen,
+      );
+    }
+
+    return screen;
   }
 }
