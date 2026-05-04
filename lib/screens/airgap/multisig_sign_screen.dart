@@ -26,7 +26,7 @@ import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
-import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
+import 'package:coconut_vault/widgets/button/assignable_pill_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
@@ -677,7 +677,22 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               final isSignerApproved = _viewModel.signersApproved[index];
               var hwwType = _viewModel.getSignerHwwType(index);
 
-              return ShrinkAnimationButton(
+              final iconPath =
+                  isSignerApproved
+                      ? 'assets/svg/check-circle-green.svg'
+                      : _getHardwareWalletIconPath(hwwType, isInnerWallet, iconIndex: iconIndex);
+              final buttonText =
+                  '${isInnerWallet ? nameText : signer.keyStore.masterFingerprint} - ${isSignerApproved
+                      ? t.sign_completion
+                      : isInnerWallet
+                      ? t.sign
+                      : t.add_sign}';
+
+              return AssignablePillButton(
+                isApproved: isSignerApproved,
+                iconPath: iconPath,
+                text: buttonText,
+                activeColor: const Color(0xFF88C125),
                 onPressed: () async {
                   if (isSignerApproved) {
                     return;
@@ -721,56 +736,6 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                       return;
                   }
                 },
-                defaultColor: isSignerApproved ? const Color(0xFF88C125).withAlpha(16) : CoconutColors.white,
-                pressedColor: isSignerApproved ? const Color(0xFF88C125).withAlpha(70) : CoconutColors.gray150,
-                borderRadius: 100,
-                borderWidth: 1,
-                border: Border.all(color: isSignerApproved ? const Color(0xFF88C125) : CoconutColors.gray200, width: 1),
-                child: Container(
-                  width: MediaQuery.sizeOf(context).width * 0.9,
-                  height: 72,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        transitionBuilder: (Widget child, Animation<double> animation) {
-                          return ScaleTransition(
-                            scale: animation,
-                            child: FadeTransition(opacity: animation, child: child),
-                          );
-                        },
-                        child: SvgPicture.asset(
-                          isSignerApproved
-                              ? 'assets/svg/check-circle-green.svg'
-                              : _getHardwareWalletIconPath(hwwType, isInnerWallet, iconIndex: iconIndex),
-                          width: 24.0,
-                          colorFilter:
-                              isSignerApproved ? null : const ColorFilter.mode(CoconutColors.gray300, BlendMode.srcIn),
-                          key: ValueKey<bool>(isSignerApproved),
-                        ),
-                      ),
-                      CoconutLayout.spacing_300w,
-                      Flexible(
-                        child: MediaQuery(
-                          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-                          child: Text(
-                            '${isInnerWallet ? nameText : signer.keyStore.masterFingerprint} - ${isSignerApproved
-                                ? t.sign_completion
-                                : isInnerWallet
-                                ? t.sign
-                                : t.add_sign}',
-                            style: CoconutTypography.body1_16,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               );
             },
           ),

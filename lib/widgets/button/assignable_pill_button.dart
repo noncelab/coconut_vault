@@ -1,2 +1,71 @@
-class AssignablePillButton {}
-// multisig_sign_screen의 _buildSignerList()에서도 유사한 UI를 사용하고 있어, 통합하는 것이 좋을 것 같음.
+import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
+class AssignablePillButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  final bool isApproved;
+  final String iconPath;
+  final String text;
+  final Color activeColor;
+
+  const AssignablePillButton({
+    super.key,
+    required this.onPressed,
+    required this.isApproved,
+    required this.iconPath,
+    required this.text,
+    required this.activeColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ShrinkAnimationButton(
+      onPressed: onPressed,
+      defaultColor: isApproved ? activeColor.withAlpha(16) : CoconutColors.white,
+      pressedColor: isApproved ? activeColor.withAlpha(70) : CoconutColors.gray150,
+      borderRadius: 100,
+      borderWidth: 1,
+      border: Border.all(color: isApproved ? activeColor : CoconutColors.gray200, width: 1),
+      child: Container(
+        width: MediaQuery.sizeOf(context).width * 0.9,
+        height: 72,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (Widget child, Animation<double> animation) {
+                return ScaleTransition(scale: animation, child: FadeTransition(opacity: animation, child: child));
+              },
+              child: SvgPicture.asset(
+                iconPath,
+                width: 24.0,
+                colorFilter:
+                    isApproved
+                        ? ColorFilter.mode(activeColor, BlendMode.srcIn)
+                        : const ColorFilter.mode(CoconutColors.gray300, BlendMode.srcIn),
+                key: ValueKey<bool>(isApproved),
+              ),
+            ),
+            CoconutLayout.spacing_300w,
+            Flexible(
+              child: MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                child: Text(
+                  text,
+                  style: CoconutTypography.body1_16,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
