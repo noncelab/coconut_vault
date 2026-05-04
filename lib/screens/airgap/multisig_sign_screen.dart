@@ -681,6 +681,23 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   isSignerApproved
                       ? 'assets/svg/check-circle-green.svg'
                       : _getHardwareWalletIconPath(hwwType, isInnerWallet, iconIndex: iconIndex);
+
+              final iconColorFilter =
+                  isSignerApproved ? null : const ColorFilter.mode(CoconutColors.gray300, BlendMode.srcIn);
+
+              final iconWidget = AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return ScaleTransition(scale: animation, child: FadeTransition(opacity: animation, child: child));
+                },
+                child: SvgPicture.asset(
+                  iconPath,
+                  width: 24.0,
+                  colorFilter: iconColorFilter,
+                  key: ValueKey<bool>(isSignerApproved),
+                ),
+              );
+
               final buttonText =
                   '${isInnerWallet ? nameText : signer.keyStore.masterFingerprint} - ${isSignerApproved
                       ? t.sign_completion
@@ -690,7 +707,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
 
               return AssignablePillButton(
                 isApproved: isSignerApproved,
-                iconPath: iconPath,
+                iconWidget: iconWidget,
                 text: buttonText,
                 activeColor: const Color(0xFF88C125),
                 onPressed: () async {

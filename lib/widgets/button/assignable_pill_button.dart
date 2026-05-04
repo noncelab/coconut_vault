@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 class AssignablePillButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool isApproved;
-  final String iconPath;
+  final Widget? iconWidget;
   final String text;
   final Color activeColor;
 
@@ -14,7 +14,7 @@ class AssignablePillButton extends StatelessWidget {
     super.key,
     required this.onPressed,
     required this.isApproved,
-    required this.iconPath,
+    this.iconWidget,
     required this.text,
     required this.activeColor,
   });
@@ -35,22 +35,7 @@ class AssignablePillButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                return ScaleTransition(scale: animation, child: FadeTransition(opacity: animation, child: child));
-              },
-              child: SvgPicture.asset(
-                iconPath,
-                width: 24.0,
-                colorFilter:
-                    isApproved
-                        ? ColorFilter.mode(activeColor, BlendMode.srcIn)
-                        : const ColorFilter.mode(CoconutColors.gray300, BlendMode.srcIn),
-                key: ValueKey<bool>(isApproved),
-              ),
-            ),
-            CoconutLayout.spacing_300w,
+            if (iconWidget != null) ...[iconWidget!, CoconutLayout.spacing_300w],
             Flexible(
               child: MediaQuery(
                 data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
