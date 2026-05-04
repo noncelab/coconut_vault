@@ -42,6 +42,9 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
             item: _itemWithDisplayStatus(index),
             nextItemStatus:
                 index == widget.timelineStepItemList.length - 1 ? null : _itemWithDisplayStatus(index + 1).status,
+            originalStatus: widget.timelineStepItemList[index].status,
+            nextOriginalStatus:
+                index == widget.timelineStepItemList.length - 1 ? null : widget.timelineStepItemList[index + 1].status,
             isLast: index == widget.timelineStepItemList.length - 1,
             isConnectorAnimating: _animatingConnectorIndex == index,
             onCurrentAnimationCompleted: () => _completeCurrentStep(index),
@@ -82,8 +85,7 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
     final nextIndex = completedIndex + 1;
     setState(() {
       _completedUntilIndex = completedIndex;
-      if (nextIndex >= widget.timelineStepItemList.length ||
-          widget.timelineStepItemList[nextIndex].status == TimelineStepStatus.future) {
+      if (nextIndex >= widget.timelineStepItemList.length) {
         _currentIndex = null;
         return;
       }
@@ -126,6 +128,8 @@ class _TimelineStepTile extends StatelessWidget {
 
   final TimelineStepItem item;
   final TimelineStepStatus? nextItemStatus;
+  final TimelineStepStatus originalStatus;
+  final TimelineStepStatus? nextOriginalStatus;
   final bool isLast;
   final bool isConnectorAnimating;
   final VoidCallback onCurrentAnimationCompleted;
@@ -134,6 +138,8 @@ class _TimelineStepTile extends StatelessWidget {
   const _TimelineStepTile({
     required this.item,
     required this.nextItemStatus,
+    required this.originalStatus,
+    required this.nextOriginalStatus,
     required this.isLast,
     required this.isConnectorAnimating,
     required this.onCurrentAnimationCompleted,
@@ -161,6 +167,8 @@ class _TimelineStepTile extends StatelessWidget {
                   child: _TimelineConnector(
                     status: item.status,
                     nextItemStatus: nextItemStatus,
+                    originalStatus: originalStatus,
+                    nextOriginalStatus: nextOriginalStatus,
                     isAnimating: isConnectorAnimating,
                     onAnimationCompleted: onConnectorAnimationCompleted,
                   ),
@@ -361,20 +369,24 @@ class _TimelineCurrentLottieState extends State<_TimelineCurrentLottie> with Sin
 class _TimelineConnector extends StatelessWidget {
   final TimelineStepStatus status;
   final TimelineStepStatus? nextItemStatus;
+  final TimelineStepStatus originalStatus;
+  final TimelineStepStatus? nextOriginalStatus;
   final bool isAnimating;
   final VoidCallback onAnimationCompleted;
 
   const _TimelineConnector({
     required this.status,
     required this.nextItemStatus,
+    required this.originalStatus,
+    required this.nextOriginalStatus,
     required this.isAnimating,
     required this.onAnimationCompleted,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isDashed = status == TimelineStepStatus.future || nextItemStatus == TimelineStepStatus.future;
-    final isCompleted = status == TimelineStepStatus.completed && nextItemStatus != TimelineStepStatus.future;
+    final isDashed = originalStatus == TimelineStepStatus.future || nextOriginalStatus == TimelineStepStatus.future;
+    final isCompleted = status == TimelineStepStatus.completed;
 
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0, end: isAnimating || isCompleted ? 1 : 0),
@@ -434,7 +446,13 @@ class _TimelineConnectorPainter extends CustomPainter {
           ..color = progressColor
           ..strokeWidth = 1
           ..strokeCap = StrokeCap.round;
-    canvas.drawLine(Offset(centerX, 0), Offset(centerX, size.height * progress.clamp(0, 1)), progressPaint);
+    final progressHeight = size.height * progress.clamp(0, 1);
+    if (!isDashed) {
+      canvas.drawLine(Offset(centerX, 0), Offset(centerX, progressHeight), progressPaint);
+      return;
+    }
+
+    _drawDashedLine(canvas, progressPaint, centerX, progressHeight);
   }
 
   void _drawDashedLine(Canvas canvas, Paint paint, double centerX, double height) {
@@ -442,7 +460,8 @@ class _TimelineConnectorPainter extends CustomPainter {
     const dashSpace = 6.0;
     double startY = 0;
     while (startY < height) {
-      canvas.drawLine(Offset(centerX, startY), Offset(centerX, startY + dashHeight), paint);
+      final endY = startY + dashHeight > height ? height : startY + dashHeight;
+      canvas.drawLine(Offset(centerX, startY), Offset(centerX, endY), paint);
       startY += dashHeight + dashSpace;
     }
   }
