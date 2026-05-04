@@ -19,7 +19,9 @@ class MyBottomSheet {
       isScrollControlled: true,
       enableDrag: enableDrag,
       useSafeArea: true,
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.9,
+      ),
     );
   }
 
@@ -39,7 +41,9 @@ class MyBottomSheet {
       isScrollControlled: true,
       enableDrag: enableDrag,
       useSafeArea: true,
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.95),
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.95,
+      ),
     );
   }
 
@@ -60,7 +64,9 @@ class MyBottomSheet {
       isScrollControlled: true,
       enableDrag: enableDrag,
       useSafeArea: true,
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * heightRatio),
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * heightRatio,
+      ),
     );
   }
 
@@ -76,7 +82,10 @@ class MyBottomSheet {
       context: context,
       builder: (context) {
         return ClipRRect(
-          borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -88,12 +97,17 @@ class MyBottomSheet {
                     child: Container(
                       width: 55,
                       height: 4,
-                      decoration: BoxDecoration(color: CoconutColors.gray400, borderRadius: BorderRadius.circular(4)),
+                      decoration: BoxDecoration(
+                        color: CoconutColors.gray400,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                     ),
                   ),
                 ),
               Padding(
-                padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height * ratio,
                   width: MediaQuery.of(context).size.width,
@@ -121,16 +135,26 @@ class MyBottomSheet {
     bool enableDrag = true,
     bool isCloseButton = false,
     bool showDragHandle = false,
-    EdgeInsetsGeometry titlePadding = const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+    EdgeInsetsGeometry titlePadding = const EdgeInsets.symmetric(
+      vertical: 20,
+      horizontal: 20,
+    ),
   }) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(24.0), topRight: Radius.circular(24.0)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24.0),
+          topRight: Radius.circular(24.0),
+        ),
       ),
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 20),
+        return AnimatedPadding(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+          ),
           child: Wrap(
             children: <Widget>[
               if (showDragHandle)
@@ -141,7 +165,10 @@ class MyBottomSheet {
                     child: Container(
                       width: 55,
                       height: 4,
-                      decoration: BoxDecoration(color: CoconutColors.gray400, borderRadius: BorderRadius.circular(4)),
+                      decoration: BoxDecoration(
+                        color: CoconutColors.gray400,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
                     ),
                   ),
                 ),
@@ -163,7 +190,10 @@ class MyBottomSheet {
                         color: Colors.transparent,
                         child:
                             isCloseButton
-                                ? const Icon(Icons.close_rounded, color: CoconutColors.black)
+                                ? const Icon(
+                                  Icons.close_rounded,
+                                  color: CoconutColors.black,
+                                )
                                 : Container(width: 16),
                       ),
                     ),
@@ -174,7 +204,10 @@ class MyBottomSheet {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Container(padding: const EdgeInsets.all(4), child: Container(width: 16)),
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      child: Container(width: 24),
+                    ),
                   ],
                 ),
               ),
@@ -216,7 +249,8 @@ class MyBottomSheet {
     bool hideAppBar = false,
   }) async {
     var adjustedMinChildSize = minChildSize;
-    if (maxHeight >= adjustedMinChildSize) adjustedMinChildSize = maxHeight + 0.0001;
+    if (maxHeight >= adjustedMinChildSize)
+      adjustedMinChildSize = maxHeight + 0.0001;
     return showModalBottomSheet<T>(
       context: context,
       builder: (context) {
@@ -229,7 +263,10 @@ class MyBottomSheet {
           controller: controller,
           builder: (_, controller) {
             return ClipRRect(
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
               child: Column(
                 children: [
                   if (topWidget && isButtonActiveNotifier != null)
@@ -245,26 +282,34 @@ class MyBottomSheet {
                               onBackPressed: () => Navigator.pop(context),
                               actionButtonList: [
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                  ),
                                   child: GestureDetector(
                                     onTap:
                                         isButtonActiveNotifier.value
                                             ? () {
-                                              if (onTopWidgetButtonClicked != null) {
+                                              if (onTopWidgetButtonClicked !=
+                                                  null) {
                                                 onTopWidgetButtonClicked();
                                               }
                                               Navigator.pop(context);
                                             }
                                             : null,
                                     child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12.0,
+                                      ),
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(16.0),
+                                        borderRadius: BorderRadius.circular(
+                                          16.0,
+                                        ),
                                         border: Border.all(
                                           color:
                                               isButtonActiveNotifier.value
                                                   ? Colors.transparent
-                                                  : CoconutColors.black.withValues(alpha: 0.06),
+                                                  : CoconutColors.black
+                                                      .withValues(alpha: 0.06),
                                         ),
                                         color:
                                             isButtonActiveNotifier.value
@@ -274,17 +319,25 @@ class MyBottomSheet {
                                       child: Center(
                                         child: Text(
                                           t.select,
-                                          style: CoconutTypography.body2_14.merge(
-                                            TextStyle(
-                                              fontSize: 11,
-                                              color:
-                                                  isButtonActiveNotifier.value
-                                                      ? Colors.white
-                                                      : CoconutColors.black.withValues(alpha: 0.3),
-                                              fontWeight:
-                                                  isButtonActiveNotifier.value ? FontWeight.bold : FontWeight.normal,
-                                            ),
-                                          ),
+                                          style: CoconutTypography.body2_14
+                                              .merge(
+                                                TextStyle(
+                                                  fontSize: 11,
+                                                  color:
+                                                      isButtonActiveNotifier
+                                                              .value
+                                                          ? Colors.white
+                                                          : CoconutColors.black
+                                                              .withValues(
+                                                                alpha: 0.3,
+                                                              ),
+                                                  fontWeight:
+                                                      isButtonActiveNotifier
+                                                              .value
+                                                          ? FontWeight.bold
+                                                          : FontWeight.normal,
+                                                ),
+                                              ),
                                         ),
                                       ),
                                     ),
@@ -334,7 +387,9 @@ class MyBottomSheet {
       isScrollControlled: isScrollControlled,
       enableDrag: enableDrag,
       useSafeArea: useSafeArea,
-      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height),
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height,
+      ),
     );
   }
 
@@ -352,10 +407,15 @@ class MyBottomSheet {
     bool isAnimating = false;
 
     // initialChildSize가 지정되지 않은 경우에만 자동 계산
-    final calculatedInitialSize = initialChildSize ?? (minChildSize <= 0.95 ? minChildSize + 0.05 : minChildSize);
+    final calculatedInitialSize =
+        initialChildSize ??
+        (minChildSize <= 0.95 ? minChildSize + 0.05 : minChildSize);
 
     // initialChildSize가 maxChildSize를 초과하지 않도록 보장
-    final finalInitialSize = calculatedInitialSize > maxChildSize ? maxChildSize : calculatedInitialSize;
+    final finalInitialSize =
+        calculatedInitialSize > maxChildSize
+            ? maxChildSize
+            : calculatedInitialSize;
 
     return showModalBottomSheet<T>(
       context: context,
@@ -373,11 +433,17 @@ class MyBottomSheet {
               if (isAnimating) return;
               final extent = draggableController.size;
               final targetExtent =
-                  (extent - minChildSize).abs() < (extent - maxChildSize).abs() ? minChildSize + 0.01 : maxChildSize;
+                  (extent - minChildSize).abs() < (extent - maxChildSize).abs()
+                      ? minChildSize + 0.01
+                      : maxChildSize;
 
               isAnimating = true;
               draggableController
-                  .animateTo(targetExtent, duration: const Duration(milliseconds: 50), curve: Curves.easeOut)
+                  .animateTo(
+                    targetExtent,
+                    duration: const Duration(milliseconds: 50),
+                    curve: Curves.easeOut,
+                  )
                   .whenComplete(() {
                     isAnimating = false;
                   });
@@ -397,8 +463,12 @@ class MyBottomSheet {
                     GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onVerticalDragUpdate: (details) {
-                        final delta = -details.primaryDelta! / MediaQuery.of(context).size.height;
-                        draggableController.jumpTo(draggableController.size + delta);
+                        final delta =
+                            -details.primaryDelta! /
+                            MediaQuery.of(context).size.height;
+                        draggableController.jumpTo(
+                          draggableController.size + delta,
+                        );
                       },
                       onVerticalDragEnd: (details) {
                         handleDrag();
@@ -425,8 +495,12 @@ class MyBottomSheet {
                     GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onVerticalDragUpdate: (details) {
-                        final delta = -details.primaryDelta! / MediaQuery.of(context).size.height;
-                        draggableController.jumpTo(draggableController.size + delta);
+                        final delta =
+                            -details.primaryDelta! /
+                            MediaQuery.of(context).size.height;
+                        draggableController.jumpTo(
+                          draggableController.size + delta,
+                        );
                       },
                       onVerticalDragEnd: (details) {
                         handleDrag();
@@ -446,7 +520,9 @@ class MyBottomSheet {
                           height: kToolbarHeight,
                           subLabel: Text(
                             subLabel ?? '',
-                            style: CoconutTypography.body3_12.setColor(CoconutColors.black.withValues(alpha: 0.7)),
+                            style: CoconutTypography.body3_12.setColor(
+                              CoconutColors.black.withValues(alpha: 0.7),
+                            ),
                           ),
                           showSubLabel: subLabel != null,
                           isBottom: true,
@@ -460,7 +536,9 @@ class MyBottomSheet {
                         topRight: Radius.circular(24),
                       ),
                       child: Padding(
-                        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                        padding: EdgeInsets.only(
+                          bottom: MediaQuery.of(context).viewInsets.bottom,
+                        ),
                         child: childBuilder(scrollController),
                       ),
                     ),

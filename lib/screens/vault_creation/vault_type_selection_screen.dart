@@ -2,6 +2,9 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/widgets/bottom_sheet.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
@@ -92,6 +95,81 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                       onTapTaprootWallet,
                       true,
                     ),
+                    CoconutLayout.spacing_300h,
+                    _buildOption('Date Picker', '바텀시트로 DatePicker를 띄웁니다. (테스트용)', () {
+                      DateTime? selectedDate;
+                      var selectedTime = TimeOfDay.now();
+                      MyBottomSheet.showBottomSheet(
+                        title: '날짜 선택',
+                        context: context,
+                        isCloseButton: true,
+                        child: StatefulBuilder(
+                          builder: (context, setBottomSheetState) {
+                            const bottomButtonAreaHeight =
+                                FixedBottomButton.fixedBottomButtonDefaultHeight +
+                                FixedBottomButton.fixedBottomButtonDefaultBottomPadding +
+                                40;
+                            final bottomSheetBodyHeight = (MediaQuery.sizeOf(context).height -
+                                    MediaQuery.viewInsetsOf(context).bottom -
+                                    300)
+                                .clamp(360.0, 600.0);
+                            return MediaQuery(
+                              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                              child: SafeArea(
+                                child: SizedBox(
+                                  height: bottomSheetBodyHeight,
+                                  child: Column(
+                                    children: [
+                                      Expanded(
+                                        child: SingleChildScrollView(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                            children: [
+                                              Container(
+                                                width: double.infinity,
+                                                padding: const EdgeInsets.symmetric(horizontal: 28),
+                                                child: CoconutDatePicker(
+                                                  onDateChanged: (d) {
+                                                    Logger.log(d.toIso8601String());
+                                                    selectedDate = d;
+                                                  },
+                                                  firstDate: DateTime(2009, 01, 03),
+                                                  lastDate: DateTime(2100, 12, 31),
+                                                  showTimeSelector: true,
+                                                  selectedTime: selectedTime,
+                                                  onTimeChanged: (time) {
+                                                    setBottomSheetState(() {
+                                                      selectedTime = time;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: bottomButtonAreaHeight,
+                                        child: FixedBottomButton(
+                                          isVisibleAboveKeyboard: false,
+                                          bottomPadding: 0,
+                                          onButtonClicked: () {
+                                            Logger.log(
+                                              'Selected date: ${selectedDate?.toIso8601String() ?? 'None'}, time: ${selectedTime.format(context)}',
+                                            );
+                                          },
+                                          text: '다음',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    }, true),
                   ],
                 ),
                 Visibility(
