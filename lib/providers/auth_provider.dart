@@ -284,31 +284,22 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 비밀번호 초기화
-  Future<void> resetPin(PreferenceProvider preferenceProvider) async {
-    if (_isDisposed) return;
-
-    await resetData(preferenceProvider);
-    resetAuthenticationState();
-  }
-
-  Future<void> setPinSet(bool value) async {
+  Future<void> setIsPinSet(bool value) async {
     _isPinSet = value;
     await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, value);
     notifyListeners();
   }
 
-  Future<void> resetData(PreferenceProvider preferenceProvider) async {
-    final WalletRepository walletRepository = WalletRepository();
-    await walletRepository.resetAll();
+  Future<void> resetCredentials() async {
+    if (_isDisposed) return;
 
-    _isBiometricEnabled = false;
-    _isPinSet = false;
     await _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
+    _isBiometricEnabled = false;
     await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
+    _isPinSet = false;
     await _storageService.delete(key: SecureStorageKeys.kVaultPin);
-    await _sharedPrefs.setInt(SharedPrefsKeys.vaultListLength, 0);
-    await preferenceProvider.resetVaultOrderAndFavorites();
+    await resetAuthenticationState();
+    notifyListeners();
   }
 
   Future<void> resetPinData() async {
@@ -316,6 +307,7 @@ class AuthProvider extends ChangeNotifier {
     _isPinSet = false;
     await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
     await resetAuthenticationState();
+    notifyListeners();
   }
 
   // TODO: 딜레이 발생 이유

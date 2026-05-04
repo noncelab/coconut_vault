@@ -8,6 +8,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/usecases/reset_credentials_and_wallets_usecase.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
@@ -310,16 +311,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     return timeComponents.join(' ');
   }
 
-  void _handlePermanentLockout() {
-    setState(() {
-      _isLastChanceToTry = false;
-      _errorMessage = t.errors.pin_max_attempts_exceeded_error;
-      _isPinInputLocked = true;
-    });
-    _authProvider.resetData(context.read<PreferenceProvider>());
-    widget.onPermanentlyLocked?.call();
-  }
-
   void _showResetDialog() {
     showDialog(
       context: context,
@@ -347,12 +338,31 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   }
 
   Future<void> _reset() async {
-    await _authProvider.resetPin(context.read<PreferenceProvider>());
+    // PinCheckScreen은 appLaunch 플로우에서 사용되어 WalletProvider가 아직 트리에 없으므로 walletProvider 전달하지 않음.
+    await ResetCredentialsAndWalletsUsecase.execute(
+      authProvider: _authProvider,
+      preferenceProvider: context.read<PreferenceProvider>(),
+    );
 
     if (mounted) {
       Navigator.of(context).pop();
     }
     widget.onReset?.call();
+  }
+
+  Future<void> _handlePermanentLockout() async {
+    setState(() {
+      _isLastChanceToTry = false;
+      _errorMessage = t.errors.pin_max_attempts_exceeded_error;
+      _isPinInputLocked = true;
+    });
+    // PinCheckScreen은 appLaunch 플로우에서 사용되어 WalletProvider가 아직 트리에 없으므로 walletProvider 전달하지 않음.
+    await ResetCredentialsAndWalletsUsecase.execute(
+      authProvider: _authProvider,
+      preferenceProvider: context.read<PreferenceProvider>(),
+    );
+
+    widget.onPermanentlyLocked?.call();
   }
 
   @override
