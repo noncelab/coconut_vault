@@ -91,7 +91,7 @@ class _WidgetTestScreenState extends State<WidgetTestScreen> {
             ),
             const SizedBox(height: 16),
             AssignablePillButton(
-              width: double.infinity,
+              width: MediaQuery.sizeOf(context).width * 0.9,
               isAssigned: _isPillApproved,
               iconWidget: Container(
                 key: ValueKey<bool>(_isPillApproved),
@@ -111,7 +111,7 @@ class _WidgetTestScreenState extends State<WidgetTestScreen> {
             ),
             const SizedBox(height: 16),
             AssignablePillButton(
-              width: double.infinity,
+              width: MediaQuery.sizeOf(context).width * 0.9,
               isAssigned: _isPill2Approved,
               text: '부모 지갑 - MFPXXXXX',
               activeColor: CoconutColors.purple,
@@ -123,7 +123,7 @@ class _WidgetTestScreenState extends State<WidgetTestScreen> {
             ),
             const SizedBox(height: 16),
             AssignablePillButton(
-              width: double.infinity,
+              width: MediaQuery.sizeOf(context).width * 0.9,
               isAssigned: _isPill3Approved,
               text: '부모 지갑 - MFPXXXXX',
               activeColor: CoconutColors.purple,

@@ -706,6 +706,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                       : t.add_sign}';
 
               return AssignablePillButton(
+                width: MediaQuery.sizeOf(context).width * 0.9,
                 isAssigned: isSignerApproved,
                 iconWidget: iconWidget,
                 text: buttonText,
