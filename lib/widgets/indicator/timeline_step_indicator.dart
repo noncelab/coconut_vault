@@ -188,7 +188,7 @@ class _TimelineStepTile extends StatelessWidget {
                   ),
                 ),
               ),
-              CoconutLayout.spacing_200h,
+              CoconutLayout.spacing_100h,
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOutCubic,
