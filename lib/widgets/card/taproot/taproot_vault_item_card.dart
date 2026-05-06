@@ -19,10 +19,8 @@ class TaprootVaultItemCard extends StatefulWidget {
 class _TaprootVaultItemCardState extends State<TaprootVaultItemCard> {
   @override
   Widget build(BuildContext context) {
-    bool isParent = true;
-    if (widget.vaultItem is TaprootVaultListItem) {
-      isParent = (widget.vaultItem as TaprootVaultListItem).isParent;
-    }
+    assert(widget.vaultItem is TaprootVaultListItem, 'vaultItem must be of type TaprootVaultListItem');
+    final bool isParent = (widget.vaultItem as TaprootVaultListItem).isParent;
 
     String descriptionText = isParent ? t.taproot_vault_detail_screen.cosigner : t.taproot_vault_detail_screen.heir;
 
