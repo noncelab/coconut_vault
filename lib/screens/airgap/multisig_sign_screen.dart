@@ -706,7 +706,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                       : t.add_sign}';
 
               return AssignablePillButton(
-                isApproved: isSignerApproved,
+                isAssigned: isSignerApproved,
                 iconWidget: iconWidget,
                 text: buttonText,
                 activeColor: const Color(0xFF88C125),
