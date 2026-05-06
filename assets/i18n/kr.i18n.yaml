@@ -858,6 +858,9 @@ sync_to_wallet_screen:
       guide2_1: "Import Wallet"
       guide3_1: "Scan or import a file"
     common: "아래 QR 코드를 스캔해 주세요."
+taproot_vault_detail_screen:
+  cosigner: "나는 이 지갑의 공동 서명자예요. 다른 공동 서명자와 함께 서명해야 자산을 사용할 수 있어요."
+  heir: "나는 이 지갑의 상속자예요. 정해진 시점이 지나면 자산을 사용할 수 있어요."
 
 vault_menu_screen:
   export_wallet: "지갑 내보내기"

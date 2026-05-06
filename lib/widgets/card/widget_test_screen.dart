@@ -1,5 +1,8 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
+import 'package:coconut_vault/widgets/card/taproot/taproot_vault_item_card.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:flutter/material.dart';
 
 class WidgetTestScreen extends StatefulWidget {
@@ -11,6 +14,7 @@ class WidgetTestScreen extends StatefulWidget {
 
 class _WidgetTestScreenState extends State<WidgetTestScreen> {
   int _selectedIndex = -1;
+  late final _MockTaprootVaultListItem _mockVaultItem = _MockTaprootVaultListItem();
 
   @override
   Widget build(BuildContext context) {
@@ -80,9 +84,24 @@ class _WidgetTestScreenState extends State<WidgetTestScreen> {
                 const Expanded(child: SizedBox()),
               ],
             ),
+            const SizedBox(height: 32),
+            TaprootVaultItemCard(vaultItem: _mockVaultItem, showTaprootWalletInfo: true),
           ],
         ),
       ),
     );
   }
+}
+
+class _MockTaprootVaultListItem extends TaprootVaultListItem {
+  _MockTaprootVaultListItem()
+    : super(
+        id: 1,
+        name: 'Name',
+        colorIndex: 0,
+        iconIndex: 0,
+        vaultType: WalletType.values.first,
+        createdAt: DateTime.now(),
+        isParent: true,
+      );
 }
