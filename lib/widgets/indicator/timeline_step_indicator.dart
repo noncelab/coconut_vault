@@ -120,9 +120,9 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
 
 class _TimelineStepTile extends StatelessWidget {
   static const double _indicatorColumnWidth = 48;
-  static const double _nodeSize = 9;
-  static const double _currentNodeOuterSize = 24;
-  static const double _lineHeight = 90;
+  static const double _nodeSize = 14;
+  static const double _currentNodeOuterSize = 34;
+  static const double _lineHeight = 50;
 
   final TimelineStepItem item;
   final TimelineStepStatus originalStatus;
