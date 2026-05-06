@@ -154,7 +154,6 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         );
       }
 
-      assert(_walletProvider.isAddVaultCompleted);
       assert(vault != null);
       _walletCreationProvider.resetAll();
 

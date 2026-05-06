@@ -13,6 +13,15 @@ enum WalletType {
         return AddressType.p2wsh;
     }
   }
+
+  /// `WalletType.<value>.name` 문자열로부터 enum 값을 얻습니다.
+  /// 매칭되는 값이 없으면 null을 반환합니다.
+  static WalletType? fromName(String name) {
+    for (final type in WalletType.values) {
+      if (type.name == name) return type;
+    }
+    return null;
+  }
 }
 
 enum MultisigCategory { lossTolerant, balanced, highSecurity, highestSecurity }

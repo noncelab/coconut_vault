@@ -338,7 +338,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         );
       case AppEntryFlow.vaultHome:
         return VaultHomeScreen(
-          onAllWalletDeleted: () {
+          onSigningModeReset: () {
             _updateEntryFlow(AppEntryFlow.vaultResetCompleted);
           },
           onSecureZoneUnaccessible: () {
