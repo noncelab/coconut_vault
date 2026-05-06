@@ -215,7 +215,7 @@ class _TimelineStepTile extends StatelessWidget {
         item.status == TimelineStepStatus.current || item.status == TimelineStepStatus.completed
             ? CoconutColors.gray500
             : CoconutColors.gray200;
-    return CoconutTypography.body2_14.setColor(color);
+    return CoconutTypography.body3_12.setColor(color);
   }
 }
 
