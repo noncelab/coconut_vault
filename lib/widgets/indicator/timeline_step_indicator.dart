@@ -40,8 +40,6 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
         for (int index = 0; index < widget.timelineStepItemList.length; index++)
           _TimelineStepTile(
             item: _itemWithDisplayStatus(index),
-            nextItemStatus:
-                index == widget.timelineStepItemList.length - 1 ? null : _itemWithDisplayStatus(index + 1).status,
             originalStatus: widget.timelineStepItemList[index].status,
             nextOriginalStatus:
                 index == widget.timelineStepItemList.length - 1 ? null : widget.timelineStepItemList[index + 1].status,
@@ -127,7 +125,6 @@ class _TimelineStepTile extends StatelessWidget {
   static const double _lineHeight = 90;
 
   final TimelineStepItem item;
-  final TimelineStepStatus? nextItemStatus;
   final TimelineStepStatus originalStatus;
   final TimelineStepStatus? nextOriginalStatus;
   final bool isLast;
@@ -137,7 +134,6 @@ class _TimelineStepTile extends StatelessWidget {
 
   const _TimelineStepTile({
     required this.item,
-    required this.nextItemStatus,
     required this.originalStatus,
     required this.nextOriginalStatus,
     required this.isLast,
@@ -166,7 +162,6 @@ class _TimelineStepTile extends StatelessWidget {
                   height: _lineHeight,
                   child: _TimelineConnector(
                     status: item.status,
-                    nextItemStatus: nextItemStatus,
                     originalStatus: originalStatus,
                     nextOriginalStatus: nextOriginalStatus,
                     isAnimating: isConnectorAnimating,
@@ -368,7 +363,6 @@ class _TimelineCurrentLottieState extends State<_TimelineCurrentLottie> with Sin
 
 class _TimelineConnector extends StatelessWidget {
   final TimelineStepStatus status;
-  final TimelineStepStatus? nextItemStatus;
   final TimelineStepStatus originalStatus;
   final TimelineStepStatus? nextOriginalStatus;
   final bool isAnimating;
@@ -376,7 +370,6 @@ class _TimelineConnector extends StatelessWidget {
 
   const _TimelineConnector({
     required this.status,
-    required this.nextItemStatus,
     required this.originalStatus,
     required this.nextOriginalStatus,
     required this.isAnimating,
