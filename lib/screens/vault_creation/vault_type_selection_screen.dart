@@ -2,6 +2,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/widgets/box/info_box.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
@@ -91,6 +92,13 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                       t.select_vault_type_screen.taproot,
                       onTapTaprootWallet,
                       true,
+                    ),
+                    CoconutLayout.spacing_300h,
+                    InfoBox(
+                      infoList: [
+                        MapEntry(t.wallet_type, t.taproot.taproot_single_sig_wallet),
+                        MapEntry(t.mfp, '00000000'),
+                      ],
                     ),
                   ],
                 ),
