@@ -531,6 +531,12 @@ taproot:
   parent_creation_screen:
     title: "親ウォレットを作成"
     taproot_inheritance_wallet: "Taproot相続ウォレット"
+    created_parent_wallet: "親ウォレットを作成しました"
+    set_child_wallet: "子ウォレットが設定されました"
+    set_child_period: "子ウォレットの使用開始時期が設定されました"
+    avtive_child_wallet: "子ウォレットが有効になります"
+    singlesig_wallet_with_mfp: "シングルシグウォレット | MFP: $mfp"
+    taproot_wallet_with_mfp: "Taprootウォレット | MFP: $mfp"
 mnemonic_coin_flip_screen:
   title: "ニーモニック作成"
   guide: "コインを投げて出た面を選択してください"

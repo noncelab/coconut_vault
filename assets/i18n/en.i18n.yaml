@@ -532,6 +532,12 @@ taproot:
   parent_creation_screen:
     title: "Create Parent Wallet"
     taproot_inheritance_wallet: "Taproot Inheritance Wallet"
+    created_parent_wallet: "Parent wallet has been created"
+    set_child_wallet: "Child wallet has been set"
+    set_child_period: "Child wallet usage time has been set"
+    avtive_child_wallet: "Child wallet will be activated"
+    singlesig_wallet_with_mfp: "Single-sig Wallet | MFP: $mfp"
+    taproot_wallet_with_mfp: "Taproot Wallet | MFP: $mfp"
 mnemonic_coin_flip_screen:
   title: "Mnemonic Generation"
   guide: "Please select the side that came out after flipping the coin"
