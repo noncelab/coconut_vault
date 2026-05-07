@@ -13,7 +13,7 @@ class TaprootParticipantCard extends StatelessWidget {
   final bool hasSingleParent;
   final bool hasBackgroundColor;
   final bool showRoleWidget;
-  final String walletName;
+  final String? walletName;
   final String mfp;
   final String derivationPath;
   final int? locktime;
@@ -27,7 +27,7 @@ class TaprootParticipantCard extends StatelessWidget {
     this.hasSingleParent = false,
     this.hasBackgroundColor = true,
     this.showRoleWidget = true,
-    required this.walletName,
+    this.walletName,
     required this.mfp,
     required this.derivationPath,
     this.locktime,
@@ -75,7 +75,7 @@ class TaprootParticipantCard extends StatelessWidget {
                     if (locktime != null) ...[
                       Text('$locktime', style: CoconutTypography.body3_12),
                     ] else ...[
-                      Text(walletName, style: CoconutTypography.body3_12_Bold),
+                      Text(walletName ?? '', style: CoconutTypography.body3_12_Bold),
                     ],
                     CoconutLayout.spacing_100w,
                     _rightIcon ?? Container(),
