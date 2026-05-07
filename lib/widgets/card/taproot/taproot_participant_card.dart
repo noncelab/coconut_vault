@@ -11,6 +11,8 @@ class TaprootParticipantCard extends StatelessWidget {
   final bool isMine;
   final bool isValid;
   final bool hasSingleParent;
+  final bool hasBackgroundColor;
+  final bool showRoleWidget;
   final String walletName;
   final String mfp;
   final String derivationPath;
@@ -23,6 +25,8 @@ class TaprootParticipantCard extends StatelessWidget {
     this.isMine = false,
     this.isValid = true,
     this.hasSingleParent = false,
+    this.hasBackgroundColor = true,
+    this.showRoleWidget = true,
     required this.walletName,
     required this.mfp,
     required this.derivationPath,
@@ -81,7 +85,7 @@ class TaprootParticipantCard extends StatelessWidget {
               ],
             ),
           ),
-          _roleWidget(style),
+          if (showRoleWidget) _roleWidget(style),
         ],
       ),
     );
@@ -99,8 +103,8 @@ class TaprootParticipantCard extends StatelessWidget {
     }
     if (!isValid) {
       return _TaprootParticipantCardStyle(
-        background: CoconutColors.hotPink.withValues(alpha: 0.06),
-        border: CoconutColors.hotPink.withValues(alpha: 0.5),
+        background: hasBackgroundColor ? CoconutColors.hotPink.withValues(alpha: 0.06) : CoconutColors.white,
+        border: hasBackgroundColor ? CoconutColors.hotPink.withValues(alpha: 0.5) : CoconutColors.gray300,
         roleBackgroundColor: CoconutColors.hotPink.withValues(alpha: 0.06),
         roleTextColor: CoconutColors.hotPink,
         iconAssetPath: _iconAssetPath,
@@ -108,16 +112,16 @@ class TaprootParticipantCard extends StatelessWidget {
     }
     if (role == TaprootParticipantRole.parent) {
       return _TaprootParticipantCardStyle(
-        background: CoconutColors.purple.withValues(alpha: 0.08),
-        border: CoconutColors.purple.withValues(alpha: 0.5),
+        background: hasBackgroundColor ? CoconutColors.purple.withValues(alpha: 0.08) : CoconutColors.white,
+        border: hasBackgroundColor ? CoconutColors.purple.withValues(alpha: 0.5) : CoconutColors.gray300,
         roleBackgroundColor: CoconutColors.purple,
         roleTextColor: CoconutColors.white,
         iconAssetPath: _iconAssetPath,
       );
     }
     return _TaprootParticipantCardStyle(
-      background: CoconutColors.sky.withValues(alpha: 0.08),
-      border: CoconutColors.sky.withValues(alpha: 0.5),
+      background: hasBackgroundColor ? CoconutColors.sky.withValues(alpha: 0.08) : CoconutColors.white,
+      border: hasBackgroundColor ? CoconutColors.sky.withValues(alpha: 0.5) : CoconutColors.gray300,
       roleBackgroundColor: CoconutColors.sky,
       roleTextColor: CoconutColors.white,
 
