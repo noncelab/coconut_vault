@@ -534,6 +534,12 @@ taproot:
   setup_summary_card:
     signer_configuration: "署名者構成"
     inheritance_condition: "相続条件"
+  participant_card:
+    me: "自分"
+    signer: "署名者"
+    co_signer: "共同署名者"
+    beneficiary: "条件付き署名者"
+    locktime_after: "${dateTime}以降"
 mnemonic_coin_flip_screen:
   title: "ニーモニック作成"
   guide: "コインを投げて出た面を選択してください"

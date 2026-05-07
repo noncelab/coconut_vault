@@ -21,10 +21,10 @@ class TaprootWidgetTestScreen extends StatelessWidget {
               TaprootParticipantCard(
                 role: TaprootParticipantRole.parent,
                 isMine: true,
+                hasBackgroundColor: true,
                 walletName: 'Test Wallet1',
                 mfp: '12345678',
                 derivationPath: "m/86'/0'/0'",
-                locktime: 12345678,
                 onTap: () => print('Parent card tapped'),
               ),
               CoconutLayout.spacing_300h,
@@ -41,7 +41,9 @@ class TaprootWidgetTestScreen extends StatelessWidget {
               const TaprootParticipantCard(
                 role: TaprootParticipantRole.child,
                 isMine: true,
+                hasBackgroundColor: true,
                 walletName: 'Test Wallet3',
+                locktime: 1778147360,
                 mfp: '11111111',
                 derivationPath: "m/86'/0'/2'",
               ),
@@ -88,6 +90,7 @@ class TaprootWidgetTestScreen extends StatelessWidget {
               const TaprootParticipantCard(
                 role: TaprootParticipantRole.parent,
                 isMine: true,
+                hasBackgroundColor: true,
                 isValid: false,
                 walletName: 'Test Wallet7',
                 mfp: '55555555',
@@ -114,6 +117,7 @@ class TaprootWidgetTestScreen extends StatelessWidget {
               const TaprootParticipantCard(
                 role: TaprootParticipantRole.parent,
                 isMine: true,
+                hasBackgroundColor: true,
                 hasSingleParent: true,
                 isValid: false,
                 walletName: 'Test Wallet9',

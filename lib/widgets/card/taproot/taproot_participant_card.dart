@@ -1,7 +1,9 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 
 enum TaprootParticipantRole { parent, child }
 
@@ -11,7 +13,9 @@ class TaprootParticipantCard extends StatelessWidget {
   final bool isMine;
   final bool isValid;
   final bool hasSingleParent;
-  final String walletName;
+  final bool hasBackgroundColor;
+  final bool showRoleWidget;
+  final String? walletName;
   final String mfp;
   final String derivationPath;
   final int? locktime;
@@ -23,7 +27,9 @@ class TaprootParticipantCard extends StatelessWidget {
     this.isMine = false,
     this.isValid = true,
     this.hasSingleParent = false,
-    required this.walletName,
+    this.hasBackgroundColor = false,
+    this.showRoleWidget = true,
+    this.walletName,
     required this.mfp,
     required this.derivationPath,
     this.locktime,
@@ -67,36 +73,29 @@ class TaprootParticipantCard extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // TODO: locktime이 있는지 여부에 따라 다르게 보여줘야 함
                     if (locktime != null) ...[
-                      Text('$locktime', style: CoconutTypography.body3_12),
+                      Text(_formattedLocktime, style: CoconutTypography.body3_12),
                     ] else ...[
-                      Text(walletName, style: CoconutTypography.body3_12_Bold),
+                      Text(walletName ?? '', style: CoconutTypography.body3_12_Bold),
                     ],
                     CoconutLayout.spacing_100w,
-                    _rightIcon ?? Container(),
+                    if (_lockStatusIcon != null) _lockStatusIcon!,
                   ],
                 ),
                 Text('$mfp · $derivationPath', style: CoconutTypography.caption_10.setColor(CoconutColors.gray600)),
               ],
             ),
           ),
-          _roleWidget(style),
+          if (showRoleWidget) _roleLabel(style),
         ],
       ),
     );
   }
 
   _TaprootParticipantCardStyle get _style {
-    if (!isMine) {
-      return _TaprootParticipantCardStyle(
-        background: CoconutColors.white,
-        border: CoconutColors.gray300,
-        roleBackgroundColor: CoconutColors.gray100,
-        roleTextColor: CoconutColors.gray700,
-        iconAssetPath: _iconAssetPath,
-      );
-    }
+    // 1. isValid가 false 인 경우 우선적으로 error 스타일 적용
+    // 2. isMine 여부는 roleLabel에만 영향을 주도록 변경 (카드 전체 스타일에는 영향 X)
+    // 3. hasBackgroundColor이 true인 경우에만 배경색과 테두리 색상이 적용
     if (!isValid) {
       return _TaprootParticipantCardStyle(
         background: CoconutColors.hotPink.withValues(alpha: 0.06),
@@ -106,21 +105,34 @@ class TaprootParticipantCard extends StatelessWidget {
         iconAssetPath: _iconAssetPath,
       );
     }
+    if (!hasBackgroundColor || (!isMine && role != TaprootParticipantRole.child)) {
+      return _neutralStyle;
+    }
+
     if (role == TaprootParticipantRole.parent) {
       return _TaprootParticipantCardStyle(
-        background: CoconutColors.purple.withValues(alpha: 0.08),
-        border: CoconutColors.purple.withValues(alpha: 0.5),
+        background: hasBackgroundColor ? CoconutColors.purple.withValues(alpha: 0.08) : CoconutColors.white,
+        border: hasBackgroundColor ? CoconutColors.purple.withValues(alpha: 0.5) : CoconutColors.gray300,
         roleBackgroundColor: CoconutColors.purple,
         roleTextColor: CoconutColors.white,
         iconAssetPath: _iconAssetPath,
       );
     }
     return _TaprootParticipantCardStyle(
-      background: CoconutColors.sky.withValues(alpha: 0.08),
-      border: CoconutColors.sky.withValues(alpha: 0.5),
+      background: hasBackgroundColor ? CoconutColors.sky.withValues(alpha: 0.08) : CoconutColors.white,
+      border: hasBackgroundColor ? CoconutColors.sky.withValues(alpha: 0.5) : CoconutColors.gray300,
       roleBackgroundColor: CoconutColors.sky,
       roleTextColor: CoconutColors.white,
+      iconAssetPath: _iconAssetPath,
+    );
+  }
 
+  _TaprootParticipantCardStyle get _neutralStyle {
+    return _TaprootParticipantCardStyle(
+      background: CoconutColors.white,
+      border: CoconutColors.gray300,
+      roleBackgroundColor: CoconutColors.gray100,
+      roleTextColor: CoconutColors.gray700,
       iconAssetPath: _iconAssetPath,
     );
   }
@@ -132,18 +144,21 @@ class TaprootParticipantCard extends StatelessWidget {
     };
   }
 
-  SvgPicture? get _rightIcon {
-    if (role == TaprootParticipantRole.child && isMine) {
-      if (isValid) {
-        // isValid를 locktime이 지났는지 판단하는 기준으로 변경해야함
-        return SvgPicture.asset('assets/svg/unlock.svg', width: 16, height: 16);
-      }
-      return SvgPicture.asset('assets/svg/lock.svg', width: 16, height: 16);
+  SvgPicture? get _lockStatusIcon {
+    if (role == TaprootParticipantRole.parent) return null;
+
+    if (locktime != null && !_isAvailable) {
+      return SvgPicture.asset(
+        'assets/svg/lock.svg',
+        width: 16,
+        height: 16,
+        colorFilter: const ColorFilter.mode(CoconutColors.sky, BlendMode.srcIn),
+      );
     }
     return null;
   }
 
-  Widget _roleWidget(_TaprootParticipantCardStyle style) {
+  Widget _roleLabel(_TaprootParticipantCardStyle style) {
     final text = _roleText;
 
     return Container(
@@ -159,12 +174,41 @@ class TaprootParticipantCard extends StatelessWidget {
 
   String get _roleText {
     if (isMine) {
-      return isValid ? '나' : '공동 서명자';
+      return isValid ? t.taproot.participant_card.me : t.taproot.participant_card.co_signer;
     }
     if (role == TaprootParticipantRole.child) {
-      return '조건부 서명자';
+      return t.taproot.participant_card.beneficiary;
     }
-    return hasSingleParent ? '서명자' : '공동 서명자';
+    return hasSingleParent ? t.taproot.participant_card.signer : t.taproot.participant_card.co_signer;
+  }
+
+  bool get _isAvailable {
+    final locktime = this.locktime;
+    if (locktime == null) {
+      return isValid;
+    }
+
+    final locktimeDate = DateTime.fromMillisecondsSinceEpoch(_toMilliseconds(locktime));
+    return DateTime.now().isAfter(locktimeDate);
+  }
+
+  String get _formattedLocktime {
+    final locktime = this.locktime;
+    if (locktime == null) {
+      return '';
+    }
+
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(_toMilliseconds(locktime));
+    final formattedDateTime = DateFormat('yyyy.MM.dd HH:mm').format(dateTime);
+
+    return t.taproot.participant_card.locktime_after(dateTime: formattedDateTime);
+  }
+
+  int _toMilliseconds(int locktime) {
+    if (locktime >= 1000000000000) {
+      return locktime;
+    }
+    return locktime * 1000;
   }
 }
 

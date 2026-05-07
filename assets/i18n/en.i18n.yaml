@@ -535,6 +535,12 @@ taproot:
   setup_summary_card:
     signer_configuration: "Signer Configuration"
     inheritance_condition: "Inheritance Condition"
+  participant_card:
+    me: "Me"
+    signer: "Signer"
+    co_signer: "Co-signer"
+    beneficiary: "Beneficiary"
+    locktime_after: "After ${dateTime}"
 mnemonic_coin_flip_screen:
   title: "Mnemonic Generation"
   guide: "Please select the side that came out after flipping the coin"
