@@ -34,23 +34,31 @@ class TaprootSetupSummaryCard extends StatelessWidget {
   }
 
   Widget _buildContent() {
-    if (taprootSetupSummaryCardType == TaprootSetupSummaryCardType.card) {
-      return _buildCardTypeLayout();
-    }
-    if (taprootSetupSummaryCardType == TaprootSetupSummaryCardType.tree) {
-      return _buildTreeTypeLayout();
-    }
-    return _buildColumnTypeLayout();
-  }
-
-  Widget _buildCardTypeLayout() {
-    return Column(children: itemList);
-  }
-
-  Widget _buildTreeTypeLayout() {
     final signerItems = itemList.where((item) => item.locktime == null).toList();
     final inheritanceItems = itemList.where((item) => item.locktime != null).toList();
 
+    if (taprootSetupSummaryCardType == TaprootSetupSummaryCardType.card) {
+      return _buildCardTypeLayout(signerItems, inheritanceItems);
+    }
+    if (taprootSetupSummaryCardType == TaprootSetupSummaryCardType.tree) {
+      return _buildTreeTypeLayout(signerItems, inheritanceItems);
+    }
+    return _buildColumnTypeLayout(signerItems, inheritanceItems);
+  }
+
+  Widget _buildCardTypeLayout(List<TaprootParticipantCard> signerItems, List<TaprootParticipantCard> inheritanceItems) {
+    return Container(
+      decoration: BoxDecoration(
+        color: CoconutColors.white,
+        border: Border.all(color: CoconutColors.gray200, width: 1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      padding: const EdgeInsets.all(20),
+      child: _buildColumnTypeLayout(signerItems, inheritanceItems),
+    );
+  }
+
+  Widget _buildTreeTypeLayout(List<TaprootParticipantCard> signerItems, List<TaprootParticipantCard> inheritanceItems) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -58,10 +66,40 @@ class TaprootSetupSummaryCard extends StatelessWidget {
         _SummarySection(
           title: t.taproot.setup_summary_card.signer_configuration,
           isLastSection: inheritanceItems.isEmpty,
+          showGuideLine: true,
           children: signerItems,
         ),
         if (inheritanceItems.isNotEmpty) ...[
-          const _GuideSpacer(height: _sectionSpacing),
+          const _GuideSpacer(height: _sectionSpacing, showGuideLine: true),
+          _SummarySection(
+            title: t.taproot.setup_summary_card.inheritance_condition,
+            isLastSection: true,
+            showGuideLine: true,
+            children: inheritanceItems,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildColumnTypeLayout(
+    List<TaprootParticipantCard> signerItems,
+    List<TaprootParticipantCard> inheritanceItems,
+  ) {
+    return Column(
+      children: [
+        _SummarySection(
+          title: t.taproot.setup_summary_card.signer_configuration,
+          isLastSection: inheritanceItems.isEmpty,
+          children: signerItems,
+        ),
+        CoconutLayout.spacing_400h,
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Divider(height: 1, color: CoconutColors.gray200),
+        ),
+        if (inheritanceItems.isNotEmpty) ...[
+          CoconutLayout.spacing_400h,
           _SummarySection(
             title: t.taproot.setup_summary_card.inheritance_condition,
             isLastSection: true,
@@ -71,23 +109,19 @@ class TaprootSetupSummaryCard extends StatelessWidget {
       ],
     );
   }
-
-  Widget _buildColumnTypeLayout() {
-    return Container();
-  }
 }
 
 class _GuideContentRow extends StatelessWidget {
   final Widget child;
+  final bool showGuideLine;
   final bool showBranch;
   final bool isLastGuideRow;
-  final bool showLockIcon;
 
   const _GuideContentRow({
     required this.child,
+    this.showGuideLine = false,
     this.showBranch = false,
     this.isLastGuideRow = false,
-    this.showLockIcon = false,
   });
 
   @override
@@ -96,28 +130,19 @@ class _GuideContentRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
-            width: TaprootSetupSummaryCard._sectionIndent,
-            child: CustomPaint(
-              painter: _GuideRailPainter(
-                showBranch: showBranch,
-                drawBottom: !isLastGuideRow,
-                isRoundedEnd: isLastGuideRow,
+          if (showBranch)
+            SizedBox(
+              width: TaprootSetupSummaryCard._sectionIndent,
+              child: CustomPaint(
+                painter: _GuideRailPainter(
+                  showGuideLine: showGuideLine,
+                  showBranch: showBranch,
+                  drawBottom: !isLastGuideRow,
+                  isRoundedEnd: isLastGuideRow,
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(child: child),
-                if (showLockIcon) ...[
-                  const SizedBox(width: 4),
-                  SvgPicture.asset('assets/svg/lock.svg', width: 16, height: 16),
-                ],
-              ],
-            ),
-          ),
+          Expanded(child: child),
         ],
       ),
     );
@@ -128,8 +153,14 @@ class _SummarySection extends StatelessWidget {
   final String title;
   final List<TaprootParticipantCard> children;
   final bool isLastSection;
+  final bool showGuideLine;
 
-  const _SummarySection({required this.title, required this.children, this.isLastSection = false});
+  const _SummarySection({
+    required this.title,
+    required this.children,
+    this.isLastSection = false,
+    this.showGuideLine = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -137,14 +168,15 @@ class _SummarySection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _GuideContentRow(
-          showLockIcon: _areAllLocktimesPast,
+          showGuideLine: showGuideLine,
           child: Text(title, style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.gray600)),
         ),
-        const _GuideSpacer(height: TaprootSetupSummaryCard._sectionTitleSpacing),
+        _GuideSpacer(height: TaprootSetupSummaryCard._sectionTitleSpacing, showGuideLine: showGuideLine),
         for (int index = 0; index < children.length; index++) ...[
-          if (index > 0) const _GuideSpacer(height: TaprootSetupSummaryCard._cardSpacing),
+          if (index > 0) _GuideSpacer(height: TaprootSetupSummaryCard._cardSpacing, showGuideLine: showGuideLine),
           _GuideContentRow(
-            showBranch: true,
+            showGuideLine: showGuideLine,
+            showBranch: showGuideLine,
             isLastGuideRow: isLastSection && index == children.length - 1,
             child: children[index],
           ),
@@ -152,42 +184,26 @@ class _SummarySection extends StatelessWidget {
       ],
     );
   }
-
-  bool get _areAllLocktimesPast {
-    return children.isNotEmpty && children.every((child) => _isPastLocktime(child.locktime));
-  }
-
-  bool _isPastLocktime(int? locktime) {
-    if (locktime == null) {
-      return false;
-    }
-
-    final locktimeDate = DateTime.fromMillisecondsSinceEpoch(_toMilliseconds(locktime));
-    return locktimeDate.isBefore(DateTime.now());
-  }
-
-  int _toMilliseconds(int locktime) {
-    if (locktime >= 1000000000000) {
-      return locktime;
-    }
-    return locktime * 1000;
-  }
 }
 
 class _GuideSpacer extends StatelessWidget {
   final double height;
+  final bool showGuideLine;
 
-  const _GuideSpacer({required this.height});
+  const _GuideSpacer({required this.height, this.showGuideLine = false});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: height,
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(width: TaprootSetupSummaryCard._sectionIndent, child: CustomPaint(painter: _GuideRailPainter())),
-          Expanded(child: SizedBox()),
+          SizedBox(
+            width: TaprootSetupSummaryCard._sectionIndent,
+            child: CustomPaint(painter: _GuideRailPainter(showGuideLine: showGuideLine)),
+          ),
+          const Expanded(child: SizedBox()),
         ],
       ),
     );
@@ -197,14 +213,24 @@ class _GuideSpacer extends StatelessWidget {
 class _GuideRailPainter extends CustomPainter {
   static const double _cornerRadius = 14;
 
+  final bool showGuideLine;
   final bool showBranch;
   final bool drawBottom;
   final bool isRoundedEnd;
 
-  const _GuideRailPainter({this.showBranch = false, this.drawBottom = true, this.isRoundedEnd = false});
+  const _GuideRailPainter({
+    this.showGuideLine = false,
+    this.showBranch = false,
+    this.drawBottom = true,
+    this.isRoundedEnd = false,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (!showGuideLine) {
+      return;
+    }
+
     final paint =
         Paint()
           ..color = CoconutColors.gray200
@@ -236,7 +262,8 @@ class _GuideRailPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _GuideRailPainter oldDelegate) {
-    return oldDelegate.showBranch != showBranch ||
+    return oldDelegate.showGuideLine != showGuideLine ||
+        oldDelegate.showBranch != showBranch ||
         oldDelegate.drawBottom != drawBottom ||
         oldDelegate.isRoundedEnd != isRoundedEnd;
   }

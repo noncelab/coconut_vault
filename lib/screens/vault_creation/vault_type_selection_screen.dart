@@ -104,7 +104,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                         MaterialPageRoute(
                           builder:
                               (context) => const TaprootSetupSummaryCard(
-                                taprootSetupSummaryCardType: TaprootSetupSummaryCardType.tree,
+                                taprootSetupSummaryCardType: TaprootSetupSummaryCardType.column,
                                 itemList: [
                                   TaprootParticipantCard(
                                     role: TaprootParticipantRole.parent,
