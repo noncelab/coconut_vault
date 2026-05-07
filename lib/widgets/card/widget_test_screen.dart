@@ -1,6 +1,8 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/widgets/button/assignable_pill_button.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
+import 'package:coconut_vault/widgets/card/taproot/taproot_vault_item_card.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:flutter/material.dart';
 
 class WidgetTestScreen extends StatefulWidget {
@@ -12,14 +14,12 @@ class WidgetTestScreen extends StatefulWidget {
 
 class _WidgetTestScreenState extends State<WidgetTestScreen> {
   int _selectedIndex = -1;
-  bool _isPillApproved = false;
-  bool _isPill2Approved = false;
-  bool _isPill3Approved = false;
+  late final _MockTaprootVaultListItem _mockVaultItem = _MockTaprootVaultListItem();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CoconutAppBar.build(context: context, title: 'Widget Test Screen'),
+      appBar: CoconutAppBar.build(context: context, title: 'SelectableOptionCard Test'),
       backgroundColor: CoconutColors.gray100,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -85,57 +85,23 @@ class _WidgetTestScreenState extends State<WidgetTestScreen> {
               ],
             ),
             const SizedBox(height: 32),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text('AssignablePillButton', style: CoconutTypography.body1_16_Bold),
-            ),
-            const SizedBox(height: 16),
-            AssignablePillButton(
-              width: MediaQuery.sizeOf(context).width * 0.9,
-              isAssigned: _isPillApproved,
-              iconWidget: Container(
-                key: ValueKey<bool>(_isPillApproved),
-                width: 21,
-                height: 21,
-                decoration: BoxDecoration(color: CoconutColors.purple, borderRadius: BorderRadius.circular(4)),
-                alignment: Alignment.center,
-                child: Text('나', style: CoconutTypography.body3_12.setColor(CoconutColors.white)),
-              ),
-              text: '부모 지갑 - MFPXXXXX',
-              activeColor: CoconutColors.purple,
-              onPressed: () {
-                setState(() {
-                  _isPillApproved = !_isPillApproved;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            AssignablePillButton(
-              width: MediaQuery.sizeOf(context).width * 0.9,
-              isAssigned: _isPill2Approved,
-              text: '부모 지갑 - MFPXXXXX',
-              activeColor: CoconutColors.purple,
-              onPressed: () {
-                setState(() {
-                  _isPill2Approved = !_isPill2Approved;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            AssignablePillButton(
-              width: MediaQuery.sizeOf(context).width * 0.9,
-              isAssigned: _isPill3Approved,
-              text: '부모 지갑 - MFPXXXXX',
-              activeColor: CoconutColors.purple,
-              onPressed: () {
-                setState(() {
-                  _isPill3Approved = !_isPill3Approved;
-                });
-              },
-            ),
+            TaprootVaultItemCard(vaultItem: _mockVaultItem, showTaprootWalletInfo: true),
           ],
         ),
       ),
     );
   }
+}
+
+class _MockTaprootVaultListItem extends TaprootVaultListItem {
+  _MockTaprootVaultListItem()
+    : super(
+        id: 1,
+        name: 'Name',
+        colorIndex: 0,
+        iconIndex: 0,
+        vaultType: WalletType.values.first,
+        createdAt: DateTime.now(),
+        isParent: true,
+      );
 }
