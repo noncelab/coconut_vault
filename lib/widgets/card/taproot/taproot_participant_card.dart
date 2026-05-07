@@ -27,7 +27,7 @@ class TaprootParticipantCard extends StatelessWidget {
     this.isMine = false,
     this.isValid = true,
     this.hasSingleParent = false,
-    this.hasBackgroundColor = true,
+    this.hasBackgroundColor = false,
     this.showRoleWidget = true,
     this.walletName,
     required this.mfp,
@@ -93,24 +93,22 @@ class TaprootParticipantCard extends StatelessWidget {
   }
 
   _TaprootParticipantCardStyle get _style {
-    if (!isMine) {
-      return _TaprootParticipantCardStyle(
-        background: CoconutColors.white,
-        border: CoconutColors.gray300,
-        roleBackgroundColor: CoconutColors.gray100,
-        roleTextColor: CoconutColors.gray700,
-        iconAssetPath: _iconAssetPath,
-      );
-    }
+    // 1. isValid가 false 인 경우 우선적으로 error 스타일 적용
+    // 2. isMine 여부는 roleLabel에만 영향을 주도록 변경 (카드 전체 스타일에는 영향 X)
+    // 3. hasBackgroundColor이 true인 경우에만 배경색과 테두리 색상이 적용
     if (!isValid) {
       return _TaprootParticipantCardStyle(
-        background: hasBackgroundColor ? CoconutColors.hotPink.withValues(alpha: 0.06) : CoconutColors.white,
-        border: hasBackgroundColor ? CoconutColors.hotPink.withValues(alpha: 0.5) : CoconutColors.gray300,
+        background: CoconutColors.hotPink.withValues(alpha: 0.06),
+        border: CoconutColors.hotPink.withValues(alpha: 0.5),
         roleBackgroundColor: CoconutColors.hotPink.withValues(alpha: 0.06),
         roleTextColor: CoconutColors.hotPink,
         iconAssetPath: _iconAssetPath,
       );
     }
+    if (!hasBackgroundColor || (!isMine && role != TaprootParticipantRole.child)) {
+      return _neutralStyle;
+    }
+
     if (role == TaprootParticipantRole.parent) {
       return _TaprootParticipantCardStyle(
         background: hasBackgroundColor ? CoconutColors.purple.withValues(alpha: 0.08) : CoconutColors.white,
@@ -130,6 +128,16 @@ class TaprootParticipantCard extends StatelessWidget {
     );
   }
 
+  _TaprootParticipantCardStyle get _neutralStyle {
+    return _TaprootParticipantCardStyle(
+      background: CoconutColors.white,
+      border: CoconutColors.gray300,
+      roleBackgroundColor: CoconutColors.gray100,
+      roleTextColor: CoconutColors.gray700,
+      iconAssetPath: _iconAssetPath,
+    );
+  }
+
   String get _iconAssetPath {
     return switch (role) {
       TaprootParticipantRole.parent => 'assets/svg/parent.svg',
@@ -138,7 +146,7 @@ class TaprootParticipantCard extends StatelessWidget {
   }
 
   SvgPicture? get _rightIcon {
-    if (role == TaprootParticipantRole.child && isMine) {
+    if (role == TaprootParticipantRole.child) {
       // isValid를 locktime이 지났는지 판단하는 기준으로 변경해야함
       if (!isValid) {
         return SvgPicture.asset(
