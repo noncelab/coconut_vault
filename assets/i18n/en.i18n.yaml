@@ -532,6 +532,11 @@ taproot:
   parent_creation_screen:
     title: "Create Parent Wallet"
     taproot_inheritance_wallet: "Taproot Inheritance Wallet"
+  participant_card:
+    me: "Me"
+    signer: "Signer"
+    co_signer: "Co-signer"
+    beneficiary: "Beneficiary"
 mnemonic_coin_flip_screen:
   title: "Mnemonic Generation"
   guide: "Please select the side that came out after flipping the coin"

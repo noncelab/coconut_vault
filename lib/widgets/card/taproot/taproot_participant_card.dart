@@ -1,4 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -167,12 +168,12 @@ class TaprootParticipantCard extends StatelessWidget {
 
   String get _roleText {
     if (isMine) {
-      return isValid ? '나' : '공동 서명자';
+      return isValid ? t.taproot.participant_card.me : t.taproot.participant_card.co_signer;
     }
     if (role == TaprootParticipantRole.child) {
-      return '조건부 서명자';
+      return t.taproot.participant_card.beneficiary;
     }
-    return hasSingleParent ? '서명자' : '공동 서명자';
+    return hasSingleParent ? t.taproot.participant_card.signer : t.taproot.participant_card.co_signer;
   }
 }
 
