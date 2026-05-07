@@ -531,6 +531,9 @@ taproot:
   parent_creation_screen:
     title: "親ウォレットを作成"
     taproot_inheritance_wallet: "Taproot相続ウォレット"
+  setup_summary_card:
+    signer_configuration: "署名者構成"
+    inheritance_condition: "相続条件"
 mnemonic_coin_flip_screen:
   title: "ニーモニック作成"
   guide: "コインを投げて出た面を選択してください"
