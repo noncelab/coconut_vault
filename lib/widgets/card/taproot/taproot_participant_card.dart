@@ -79,7 +79,7 @@ class TaprootParticipantCard extends StatelessWidget {
                       Text(walletName ?? '', style: CoconutTypography.body3_12_Bold),
                     ],
                     CoconutLayout.spacing_100w,
-                    if (_rightIcon != null) _rightIcon!,
+                    if (_lockStatusIcon != null) _lockStatusIcon!,
                   ],
                 ),
                 Text('$mfp · $derivationPath', style: CoconutTypography.caption_10.setColor(CoconutColors.gray600)),
@@ -123,7 +123,6 @@ class TaprootParticipantCard extends StatelessWidget {
       border: hasBackgroundColor ? CoconutColors.sky.withValues(alpha: 0.5) : CoconutColors.gray300,
       roleBackgroundColor: CoconutColors.sky,
       roleTextColor: CoconutColors.white,
-
       iconAssetPath: _iconAssetPath,
     );
   }
@@ -145,17 +144,16 @@ class TaprootParticipantCard extends StatelessWidget {
     };
   }
 
-  SvgPicture? get _rightIcon {
-    if (role == TaprootParticipantRole.child) {
-      // isValid를 locktime이 지났는지 판단하는 기준으로 변경해야함
-      if (!isValid) {
-        return SvgPicture.asset(
-          'assets/svg/lock.svg',
-          width: 16,
-          height: 16,
-          colorFilter: const ColorFilter.mode(CoconutColors.sky, BlendMode.srcIn),
-        );
-      }
+  SvgPicture? get _lockStatusIcon {
+    if (role == TaprootParticipantRole.parent) return null;
+
+    if (locktime != null && !_isAvailable) {
+      return SvgPicture.asset(
+        'assets/svg/lock.svg',
+        width: 16,
+        height: 16,
+        colorFilter: const ColorFilter.mode(CoconutColors.sky, BlendMode.srcIn),
+      );
     }
     return null;
   }
@@ -182,6 +180,16 @@ class TaprootParticipantCard extends StatelessWidget {
       return t.taproot.participant_card.beneficiary;
     }
     return hasSingleParent ? t.taproot.participant_card.signer : t.taproot.participant_card.co_signer;
+  }
+
+  bool get _isAvailable {
+    final locktime = this.locktime;
+    if (locktime == null) {
+      return isValid;
+    }
+
+    final locktimeDate = DateTime.fromMillisecondsSinceEpoch(_toMilliseconds(locktime));
+    return DateTime.now().isAfter(locktimeDate);
   }
 
   String get _formattedLocktime {
