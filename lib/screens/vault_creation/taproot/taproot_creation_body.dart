@@ -167,11 +167,21 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
       child: Padding(
-        padding: const EdgeInsets.only(top: 70),
+        padding: const EdgeInsets.only(top: 56),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (_displayedIsError) ...[_buildAnimatedErrorIcon(titleKey), const SizedBox(height: 10)],
+            SizedBox(
+              height: 34,
+              child:
+                  _displayedIsError
+                      ? Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [_buildAnimatedErrorIcon(titleKey)],
+                      )
+                      : null,
+            ),
             _buildAnimatedTitleText(lines, titleKey),
           ],
         ),
@@ -197,7 +207,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   }
 
   Widget _buildAnimatedTitleText(List<TextSpan> lines, String titleKey) {
-    final textStyle = CoconutTypography.heading4_18_Bold.setColor(
+    final textStyle = CoconutTypography.heading3_21_Bold.setColor(
       _displayedIsError ? CoconutColors.warningText : CoconutColors.black,
     );
 
