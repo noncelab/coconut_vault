@@ -1,4 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -10,6 +11,7 @@ class TaprootParticipantCard extends StatelessWidget {
   final bool isMine;
   final bool isValid;
   final bool hasSingleParent;
+  final VoidCallback? onTap;
 
   const TaprootParticipantCard({
     super.key,
@@ -17,11 +19,21 @@ class TaprootParticipantCard extends StatelessWidget {
     this.isMine = false,
     this.isValid = true,
     this.hasSingleParent = false,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (onTap != null) {
+      return ShrinkAnimationButton(child: _buildCardContainer(), onPressed: () => onTap!);
+    }
+
+    return _buildCardContainer();
+  }
+
+  Widget _buildCardContainer() {
     final style = _style;
+
     return Container(
       decoration: BoxDecoration(
         color: style.background,
