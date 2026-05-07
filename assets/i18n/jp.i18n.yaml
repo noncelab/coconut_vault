@@ -111,8 +111,6 @@ edit: "編集"
 
 descriptor: "ディスクリプタ"
 precautions: "注意事項"
-wallet_type: "ウォレットの種類"
-mfp: "MFP"
 
 watch_only_options:
   title: "ウォッチオンリーウォレット選択"
@@ -526,11 +524,15 @@ welcome_screen:
 
 # lib/screens/vault_creation
 taproot:
-  taproot_single_sig_wallet: "Taprootシングルシグウォレット"
-  taproot_multisig_wallet: "Taprootマルチシグウォレット"
   parent_creation_screen:
     title: "親ウォレットを作成"
     taproot_inheritance_wallet: "Taproot相続ウォレット"
+    created_parent_wallet: "親ウォレットを作成しました"
+    set_child_wallet: "子ウォレットが設定されました"
+    set_child_period: "子ウォレットの使用開始時期が設定されました"
+    avtive_child_wallet: "子ウォレットが有効になります"
+    singlesig_wallet_with_mfp: "シングルシグウォレット | MFP: $mfp"
+    taproot_wallet_with_mfp: "Taprootウォレット | MFP: $mfp"
 mnemonic_coin_flip_screen:
   title: "ニーモニック作成"
   guide: "コインを投げて出た面を選択してください"
@@ -857,6 +859,10 @@ sync_to_wallet_screen:
       guide2_1: "Import Wallet"
       guide3_1: "QRコードまたはファイルをスキャン"
     common: "下記のQRコードをスキャンしてください。"
+taproot_vault_detail_screen:
+  cosigner: "私はこのウォレットの共同署名者です。他の共同署名者と一緒に署名することで、資産を使用できます。"
+  heir: "私はこのウォレットの相続人です。指定された期間が経過すると、資産を使用できるようになります。"
+
 vault_menu_screen:
   export_wallet: "ウォレットエクスポート"
   view_xpub: "XPub表示"
