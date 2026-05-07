@@ -22,11 +22,12 @@ class _TaprootVaultItemCardState extends State<TaprootVaultItemCard> {
     assert(widget.vaultItem is TaprootVaultListItem, 'vaultItem must be of type TaprootVaultListItem');
     final bool isParent = (widget.vaultItem as TaprootVaultListItem).isParent;
 
+    //TODO: 지갑 종류에 따라 텍스트가 더 추가될 수 있음.
     String descriptionText = isParent ? t.taproot_vault_detail_screen.cosigner : t.taproot_vault_detail_screen.heir;
 
     List<Color> baseGradientColors = [
-      const Color(0xFF8CD5FF).withValues(alpha: 0.2),
-      const Color(0xFF7775FF).withValues(alpha: 0.2),
+      CoconutColors.lightSky.withValues(alpha: 0.2),
+      CoconutColors.periwinkle.withValues(alpha: 0.2),
     ];
 
     return Container(
@@ -40,7 +41,7 @@ class _TaprootVaultItemCardState extends State<TaprootVaultItemCard> {
         ),
       ),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
