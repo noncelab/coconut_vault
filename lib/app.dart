@@ -8,7 +8,8 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
-import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -402,6 +403,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         ),
         if (_appEntryFlow == AppEntryFlow.vaultHome) ...[
           Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
+          Provider<TaprootWalletCreationProvider>(create: (_) => TaprootWalletCreationProvider()),
           Provider<SignProvider>(create: (_) => SignProvider()),
           ChangeNotifierProvider.value(
             value: _ensureWalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider),
