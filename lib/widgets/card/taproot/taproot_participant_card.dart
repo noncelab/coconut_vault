@@ -11,6 +11,10 @@ class TaprootParticipantCard extends StatelessWidget {
   final bool isMine;
   final bool isValid;
   final bool hasSingleParent;
+  final String walletName;
+  final String mfp;
+  final String derivationPath;
+  final int? locktime;
   final VoidCallback? onTap;
 
   const TaprootParticipantCard({
@@ -19,6 +23,10 @@ class TaprootParticipantCard extends StatelessWidget {
     this.isMine = false,
     this.isValid = true,
     this.hasSingleParent = false,
+    required this.walletName,
+    required this.mfp,
+    required this.derivationPath,
+    this.locktime,
     this.onTap,
   });
 
@@ -60,16 +68,16 @@ class TaprootParticipantCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // TODO: locktime이 있는지 여부에 따라 다르게 보여줘야 함
-                    // if(locktime != null) ...[
-                    //   Text('$locktime', style: CoconutTypography.body3_12),
-                    // ],
-                    // else...[
-                    Text('assadsada', style: CoconutTypography.body3_12_Bold),
+                    if (locktime != null) ...[
+                      Text('$locktime', style: CoconutTypography.body3_12),
+                    ] else ...[
+                      Text(walletName, style: CoconutTypography.body3_12_Bold),
+                    ],
                     CoconutLayout.spacing_100w,
                     _rightIcon ?? Container(),
                   ],
                 ),
-                Text('00000000 · m/86’/0’/0’', style: CoconutTypography.caption_10.setColor(CoconutColors.gray600)),
+                Text('$mfp · $derivationPath', style: CoconutTypography.caption_10.setColor(CoconutColors.gray600)),
               ],
             ),
           ),
