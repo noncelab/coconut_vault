@@ -49,6 +49,7 @@ class _WidgetTestScreenState extends State<WidgetTestScreen> {
                   imageScale: 4.0,
                   isSelected: _selectedIndex == 1,
                   height: 195,
+                  isDisabled: true,
                   onTap: () {
                     setState(() {
                       _selectedIndex = 1;
