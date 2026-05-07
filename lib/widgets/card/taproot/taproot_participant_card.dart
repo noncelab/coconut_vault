@@ -138,11 +138,15 @@ class TaprootParticipantCard extends StatelessWidget {
 
   SvgPicture? get _rightIcon {
     if (role == TaprootParticipantRole.child && isMine) {
-      if (isValid) {
-        // isValid를 locktime이 지났는지 판단하는 기준으로 변경해야함
-        return SvgPicture.asset('assets/svg/unlock.svg', width: 16, height: 16);
-      }
-      return SvgPicture.asset('assets/svg/lock.svg', width: 16, height: 16);
+      // isValid를 locktime이 지났는지 판단하는 기준으로 변경해야함
+      // if (isValid) {
+      return SvgPicture.asset(
+        'assets/svg/lock.svg',
+        width: 16,
+        height: 16,
+        colorFilter: const ColorFilter.mode(CoconutColors.sky, BlendMode.srcIn),
+      );
+      // }
     }
     return null;
   }
