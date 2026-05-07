@@ -537,6 +537,7 @@ taproot:
     signer: "Signer"
     co_signer: "Co-signer"
     beneficiary: "Beneficiary"
+    locktime_after: "After ${dateTime}"
 mnemonic_coin_flip_screen:
   title: "Mnemonic Generation"
   guide: "Please select the side that came out after flipping the coin"

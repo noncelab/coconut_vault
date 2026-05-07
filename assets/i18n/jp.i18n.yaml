@@ -536,6 +536,7 @@ taproot:
     signer: "署名者"
     co_signer: "共同署名者"
     beneficiary: "条件付き署名者"
+    locktime_after: "${dateTime}以降"
 mnemonic_coin_flip_screen:
   title: "ニーモニック作成"
   guide: "コインを投げて出た面を選択してください"

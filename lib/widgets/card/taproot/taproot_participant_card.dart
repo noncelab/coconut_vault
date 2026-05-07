@@ -3,6 +3,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 
 enum TaprootParticipantRole { parent, child }
 
@@ -72,9 +73,8 @@ class TaprootParticipantCard extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // TODO: locktime이 있는지 여부에 따라 다르게 보여줘야 함
                     if (locktime != null) ...[
-                      Text('$locktime', style: CoconutTypography.body3_12),
+                      Text(_formattedLocktime, style: CoconutTypography.body3_12),
                     ] else ...[
                       Text(walletName ?? '', style: CoconutTypography.body3_12_Bold),
                     ],
@@ -174,6 +174,25 @@ class TaprootParticipantCard extends StatelessWidget {
       return t.taproot.participant_card.beneficiary;
     }
     return hasSingleParent ? t.taproot.participant_card.signer : t.taproot.participant_card.co_signer;
+  }
+
+  String get _formattedLocktime {
+    final locktime = this.locktime;
+    if (locktime == null) {
+      return '';
+    }
+
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(_toMilliseconds(locktime));
+    final formattedDateTime = DateFormat('yyyy.MM.dd HH:mm').format(dateTime);
+
+    return t.taproot.participant_card.locktime_after(dateTime: formattedDateTime);
+  }
+
+  int _toMilliseconds(int locktime) {
+    if (locktime >= 1000000000000) {
+      return locktime;
+    }
+    return locktime * 1000;
   }
 }
 

@@ -24,7 +24,7 @@ class TaprootWidgetTestScreen extends StatelessWidget {
                 walletName: 'Test Wallet1',
                 mfp: '12345678',
                 derivationPath: "m/86'/0'/0'",
-                locktime: 12345678,
+                locktime: 1778143900,
                 onTap: () => print('Parent card tapped'),
               ),
               CoconutLayout.spacing_300h,
