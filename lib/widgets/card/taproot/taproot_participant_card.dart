@@ -78,14 +78,14 @@ class TaprootParticipantCard extends StatelessWidget {
                       Text(walletName ?? '', style: CoconutTypography.body3_12_Bold),
                     ],
                     CoconutLayout.spacing_100w,
-                    _rightIcon ?? Container(),
+                    if (_rightIcon != null) _rightIcon!,
                   ],
                 ),
                 Text('$mfp · $derivationPath', style: CoconutTypography.caption_10.setColor(CoconutColors.gray600)),
               ],
             ),
           ),
-          if (showRoleWidget) _roleWidget(style),
+          if (showRoleWidget) _roleLabel(style),
         ],
       ),
     );
@@ -139,19 +139,19 @@ class TaprootParticipantCard extends StatelessWidget {
   SvgPicture? get _rightIcon {
     if (role == TaprootParticipantRole.child && isMine) {
       // isValid를 locktime이 지났는지 판단하는 기준으로 변경해야함
-      // if (isValid) {
-      return SvgPicture.asset(
-        'assets/svg/lock.svg',
-        width: 16,
-        height: 16,
-        colorFilter: const ColorFilter.mode(CoconutColors.sky, BlendMode.srcIn),
-      );
-      // }
+      if (!isValid) {
+        return SvgPicture.asset(
+          'assets/svg/lock.svg',
+          width: 16,
+          height: 16,
+          colorFilter: const ColorFilter.mode(CoconutColors.sky, BlendMode.srcIn),
+        );
+      }
     }
     return null;
   }
 
-  Widget _roleWidget(_TaprootParticipantCardStyle style) {
+  Widget _roleLabel(_TaprootParticipantCardStyle style) {
     final text = _roleText;
 
     return Container(
