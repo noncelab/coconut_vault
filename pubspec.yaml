@@ -175,6 +175,9 @@ flutter:
     - assets/svg/plus.svg
     - assets/svg/check.svg
     - assets/svg/arrow-circle-down.svg
+    - assets/svg/lock.svg
+    - assets/svg/parent.svg
+    - assets/svg/child.svg
     - assets/lottie/loading-gray.json
     - assets/lottie/pin-locked-success.json
     - assets/lottie/toggle-switch.json

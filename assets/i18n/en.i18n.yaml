@@ -534,6 +534,12 @@ taproot:
     avtive_child_wallet: "Child wallet will be activated"
     singlesig_wallet_with_mfp: "Single-sig Wallet | MFP: $mfp"
     taproot_wallet_with_mfp: "Taproot Wallet | MFP: $mfp"
+  participant_card:
+    me: "Me"
+    signer: "Signer"
+    co_signer: "Co-signer"
+    beneficiary: "Beneficiary"
+    locktime_after: "After ${dateTime}"
 mnemonic_coin_flip_screen:
   title: "Mnemonic Generation"
   guide: "Please select the side that came out after flipping the coin"

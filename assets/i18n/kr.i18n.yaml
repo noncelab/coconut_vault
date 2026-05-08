@@ -535,6 +535,12 @@ taproot:
     avtive_child_wallet: "자식 지갑이 활성화 돼요"
     singlesig_wallet_with_mfp: "단일 서명 지갑 | MFP: $mfp"
     taproot_wallet_with_mfp: "탭루트 지갑 | MFP: $mfp"
+  participant_card:
+    me: "나"
+    signer: "서명자"
+    co_signer: "공동 서명자"
+    beneficiary: "조건부 서명자"
+    locktime_after: "${dateTime} 이후"
 mnemonic_coin_flip_screen:
   title: "니모닉 문구 만들기"
   guide: "동전을 던진 후 나온 면을 선택해 주세요"
