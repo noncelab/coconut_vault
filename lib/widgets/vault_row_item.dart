@@ -23,7 +23,6 @@ class VaultRowItem extends StatefulWidget {
     this.entryPoint,
     this.isSelectable = false,
     this.onSelected,
-    this.isPressed = false,
     this.isStarVisible = false,
     this.isFavorite = false,
     this.isPrimaryWallet,
@@ -35,12 +34,12 @@ class VaultRowItem extends StatefulWidget {
     this.isNextIconVisible = true,
     this.isKeyBorderVisible = false,
     this.isSelected = false,
+    this.isSelectedBorderVisible = false,
   });
 
   final VaultListItemBase vault;
   final bool isSelectable;
   final VoidCallback? onSelected;
-  final bool isPressed;
   final bool isStarVisible;
   final bool isFavorite;
   final bool? isPrimaryWallet;
@@ -53,6 +52,7 @@ class VaultRowItem extends StatefulWidget {
   final bool isNextIconVisible;
   final bool isKeyBorderVisible;
   final bool isSelected;
+  final bool isSelectedBorderVisible;
 
   /// 스켈레톤 UI를 반환하는 static 메서드
   static Widget buildSkeleton() {
@@ -124,8 +124,6 @@ class VaultRowItem extends StatefulWidget {
 }
 
 class _VaultRowItemState extends State<VaultRowItem> {
-  bool isPressing = false;
-
   bool _isMultiSig = false;
   String _subtitleText = '';
   bool _isUsedToMultiSig = false;
@@ -185,6 +183,8 @@ class _VaultRowItemState extends State<VaultRowItem> {
       borderGradientColors:
           widget.isKeyBorderVisible
               ? [CoconutColors.black.withValues(alpha: 0.08), CoconutColors.black.withValues(alpha: 0.08)]
+              : (widget.isSelected && widget.isSelectedBorderVisible)
+              ? [CoconutColors.gray800, CoconutColors.gray800]
               : null,
       borderWidth: 1,
       borderRadius: 8,
