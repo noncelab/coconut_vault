@@ -4,22 +4,15 @@ import 'package:flutter/material.dart';
 class MyToast {
   static Widget getToastWidget(String content) {
     Widget toast = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25.0),
-        color: CoconutColors.gray400,
-        boxShadow: [
-          BoxShadow(
-            color: CoconutColors.gray400.withValues(alpha: 0.7),
-            spreadRadius: 2,
-            blurRadius: 15,
-            offset: const Offset(-2, 2),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(12.0),
+        color: CoconutColors.gray900,
+        border: Border.all(color: CoconutColors.gray700, width: 1.0),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [Text(content, style: CoconutTypography.body2_14.setColor(CoconutColors.black))],
+        children: [Text(content, style: CoconutTypography.body2_14.setColor(CoconutColors.gray100))],
       ),
     );
 
