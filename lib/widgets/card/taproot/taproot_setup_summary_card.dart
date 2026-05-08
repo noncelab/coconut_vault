@@ -28,7 +28,7 @@ class TaprootSetupSummaryCard extends StatelessWidget {
         context: context,
         backgroundColor: CoconutColors.white,
       ),
-      body: SingleChildScrollView(child: _buildContent()),
+      body: SingleChildScrollView(clipBehavior: Clip.none, child: _buildContent()),
     );
   }
 
@@ -46,14 +46,25 @@ class TaprootSetupSummaryCard extends StatelessWidget {
   }
 
   Widget _buildCardTypeLayout(List<TaprootParticipantCard> signerItems, List<TaprootParticipantCard> inheritanceItems) {
-    return Container(
-      decoration: BoxDecoration(
-        color: CoconutColors.white,
-        border: Border.all(color: CoconutColors.gray200, width: 1),
-        borderRadius: BorderRadius.circular(20),
+    return Padding(
+      padding: const EdgeInsets.all(6),
+      child: Container(
+        decoration: BoxDecoration(
+          color: CoconutColors.white,
+          border: Border.all(color: CoconutColors.gray200, width: 1),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: CoconutColors.black.withValues(alpha: 0.02),
+              offset: const Offset(2, 2),
+              blurRadius: 4,
+              spreadRadius: 6,
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(20),
+        child: _buildColumnTypeLayout(signerItems, inheritanceItems),
       ),
-      padding: const EdgeInsets.all(20),
-      child: _buildColumnTypeLayout(signerItems, inheritanceItems),
     );
   }
 
