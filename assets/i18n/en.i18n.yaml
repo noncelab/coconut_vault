@@ -534,6 +534,9 @@ taproot:
     avtive_child_wallet: "Child wallet will be activated"
     singlesig_wallet_with_mfp: "Single-sig Wallet | MFP: $mfp"
     taproot_wallet_with_mfp: "Taproot Wallet | MFP: $mfp"
+  setup_summary_card:
+    signer_configuration: "Signer Configuration"
+    inheritance_condition: "Inheritance Condition"
   participant_card:
     me: "Me"
     signer: "Signer"

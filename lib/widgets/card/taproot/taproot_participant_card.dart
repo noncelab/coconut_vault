@@ -63,6 +63,7 @@ class TaprootParticipantCard extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border.all(color: CoconutColors.gray200, width: 1),
               borderRadius: BorderRadius.circular(8),
+              color: CoconutColors.white,
             ),
             padding: const EdgeInsets.all(5),
             child: SvgPicture.asset(style.iconAssetPath, width: 16, height: 16),
@@ -132,7 +133,7 @@ class TaprootParticipantCard extends StatelessWidget {
   _TaprootParticipantCardStyle get _neutralStyle {
     return _TaprootParticipantCardStyle(
       background: CoconutColors.white,
-      border: CoconutColors.gray300,
+      border: CoconutColors.gray200,
       roleBackgroundColor: CoconutColors.gray100,
       roleTextColor: CoconutColors.gray700,
       iconAssetPath: _iconAssetPath,

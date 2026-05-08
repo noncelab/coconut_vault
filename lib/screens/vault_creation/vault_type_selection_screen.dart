@@ -3,6 +3,8 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
+import 'package:coconut_vault/widgets/card/taproot/taproot_participant_card.dart';
+import 'package:coconut_vault/widgets/card/taproot/taproot_setup_summary_card.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -92,6 +94,109 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                       onTapTaprootWallet,
                       true,
                     ),
+                    CoconutLayout.spacing_300h,
+                    _buildOption(
+                      '테스트 화면',
+                      'participant card Taproot 관련 위젯 테스트용 화면입니다.',
+                      () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => const TaprootSetupSummaryCard(
+                                taprootSetupSummaryCardType: TaprootSetupSummaryCardType.column,
+                                itemList: [
+                                  TaprootParticipantCard(
+                                    role: TaprootParticipantRole.parent,
+                                    isMine: true,
+                                    walletName: 'Test Wallet1',
+                                    mfp: '12345678',
+                                    derivationPath: "m/86'/0'/0'",
+                                    locktime: 12345678,
+                                    onTap: null,
+                                  ),
+                                  TaprootParticipantCard(
+                                    role: TaprootParticipantRole.parent,
+                                    isMine: false,
+                                    walletName: 'Test Wallet2',
+                                    mfp: '87654321',
+                                    derivationPath: "m/86'/0'/1'",
+                                    locktime: 87654321,
+                                    onTap: null,
+                                  ),
+                                  TaprootParticipantCard(
+                                    role: TaprootParticipantRole.child,
+                                    isMine: true,
+                                    walletName: 'Test Wallet3',
+                                    mfp: '11111111',
+                                    derivationPath: "m/86'/0'/2'",
+                                    onTap: null,
+                                  ),
+                                  TaprootParticipantCard(
+                                    role: TaprootParticipantRole.child,
+                                    isMine: false,
+                                    walletName: 'Test Wallet4',
+                                    mfp: '22222222',
+                                    derivationPath: "m/86'/0'/3'",
+                                    locktime: 22222222,
+                                    onTap: null,
+                                  ),
+                                  TaprootParticipantCard(
+                                    role: TaprootParticipantRole.parent,
+                                    isMine: false,
+                                    hasSingleParent: true,
+                                    walletName: 'Test Wallet5',
+                                    mfp: '33333333',
+                                    derivationPath: "m/86'/0'/4'",
+                                  ),
+                                  TaprootParticipantCard(
+                                    role: TaprootParticipantRole.child,
+                                    isMine: false,
+                                    hasSingleParent: true,
+                                    walletName: 'Test Wallet6',
+                                    mfp: '44444444',
+                                    derivationPath: "m/86'/0'/5'",
+                                  ),
+                                  TaprootParticipantCard(
+                                    role: TaprootParticipantRole.parent,
+                                    isMine: true,
+                                    isValid: false,
+                                    walletName: 'Test Wallet7',
+                                    mfp: '55555555',
+                                    derivationPath: "m/86'/0'/6'",
+                                  ),
+                                  TaprootParticipantCard(
+                                    role: TaprootParticipantRole.child,
+                                    isMine: false,
+                                    isValid: false,
+                                    walletName: 'Test Wallet8',
+                                    mfp: '66666666',
+                                    derivationPath: "m/86'/0'/7'",
+                                  ),
+                                  TaprootParticipantCard(
+                                    role: TaprootParticipantRole.parent,
+                                    isMine: true,
+                                    hasSingleParent: true,
+                                    isValid: false,
+                                    walletName: 'Test Wallet9',
+                                    mfp: '77777777',
+                                    derivationPath: "m/86'/0'/8'",
+                                  ),
+                                  TaprootParticipantCard(
+                                    role: TaprootParticipantRole.child,
+                                    isMine: false,
+                                    hasSingleParent: true,
+                                    isValid: false,
+                                    walletName: 'Test Wallet10',
+                                    mfp: '88888888',
+                                    derivationPath: "m/86'/0'/9'",
+                                  ),
+                                ],
+                              ),
+                        ),
+                      ),
+                      true,
+                    ),
+                    CoconutLayout.spacing_300h,
                   ],
                 ),
                 Visibility(

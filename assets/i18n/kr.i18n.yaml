@@ -535,6 +535,9 @@ taproot:
     avtive_child_wallet: "자식 지갑이 활성화 돼요"
     singlesig_wallet_with_mfp: "단일 서명 지갑 | MFP: $mfp"
     taproot_wallet_with_mfp: "탭루트 지갑 | MFP: $mfp"
+  setup_summary_card:
+    signer_configuration: "서명자 구성"
+    inheritance_condition: "상속 조건"
   participant_card:
     me: "나"
     signer: "서명자"
