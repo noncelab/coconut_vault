@@ -2,7 +2,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/vault_creation/taproot/taproot_widget_test_screen.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_participant_card.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_setup_summary_card.dart';
