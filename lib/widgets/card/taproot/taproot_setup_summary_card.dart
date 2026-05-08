@@ -93,10 +93,7 @@ class TaprootSetupSummaryCard extends StatelessWidget {
           children: signerItems,
         ),
         CoconutLayout.spacing_400h,
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10),
-          child: Divider(height: 1, color: CoconutColors.gray200),
-        ),
+        const Divider(height: 1, color: CoconutColors.gray200),
         if (inheritanceItems.isNotEmpty) ...[
           CoconutLayout.spacing_400h,
           _SummarySection(
@@ -129,7 +126,7 @@ class _GuideContentRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (showBranch)
+          if (showGuideLine || showBranch)
             SizedBox(
               width: TaprootSetupSummaryCard._sectionIndent,
               child: CustomPaint(
@@ -226,7 +223,7 @@ class _GuideRailPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (!showGuideLine) {
+    if (!showGuideLine && !showBranch) {
       return;
     }
 
@@ -252,7 +249,9 @@ class _GuideRailPainter extends CustomPainter {
       return;
     }
 
-    canvas.drawLine(const Offset(lineX, 0), Offset(lineX, drawBottom ? size.height : centerY), paint);
+    if (showGuideLine) {
+      canvas.drawLine(const Offset(lineX, 0), Offset(lineX, drawBottom ? size.height : centerY), paint);
+    }
 
     if (showBranch) {
       canvas.drawLine(Offset(lineX, centerY), Offset(branchEndX, centerY), paint);
