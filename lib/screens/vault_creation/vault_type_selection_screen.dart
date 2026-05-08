@@ -2,7 +2,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/vault_creation/taproot/taproot_widget_test_screen.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:flutter/material.dart';
@@ -93,17 +92,6 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                       onTapTaprootWallet,
                       true,
                     ),
-                    CoconutLayout.spacing_300h,
-                    _buildOption(
-                      '테스트 화면',
-                      'participant card Taproot 관련 위젯 테스트용 화면입니다.',
-                      () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const TaprootWidgetTestScreen()),
-                      ),
-                      true,
-                    ),
-                    CoconutLayout.spacing_300h,
                   ],
                 ),
                 Visibility(

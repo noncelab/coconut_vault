@@ -111,8 +111,6 @@ edit: "Edit"
 
 descriptor: "Descriptor"
 precautions: "Precautions"
-wallet_type: "Wallet Type"
-mfp: "MFP"
 
 watch_only_options:
   title: "Select Watch-Only Wallet"
@@ -527,11 +525,15 @@ welcome_screen:
 
 # lib/screens/vault_creation
 taproot:
-  taproot_single_sig_wallet: "Taproot Single-sig Wallet"
-  taproot_multisig_wallet: "Taproot Multisig Wallet"
   parent_creation_screen:
     title: "Create Parent Wallet"
     taproot_inheritance_wallet: "Taproot Inheritance Wallet"
+    created_parent_wallet: "Parent wallet has been created"
+    set_child_wallet: "Child wallet has been set"
+    set_child_period: "Child wallet usage time has been set"
+    avtive_child_wallet: "Child wallet will be activated"
+    singlesig_wallet_with_mfp: "Single-sig Wallet | MFP: $mfp"
+    taproot_wallet_with_mfp: "Taproot Wallet | MFP: $mfp"
   participant_card:
     me: "Me"
     signer: "Signer"
@@ -866,6 +868,10 @@ sync_to_wallet_screen:
       guide2_1: "Import Wallet"
       guide3_1: "Scan or import a file"
     common: "Scan the QR code below."
+taproot_vault_detail_screen:
+  cosigner: "I am a cosigner of this wallet. I must sign along with other cosigners to spend the assets."
+  heir: "I am the heir to this wallet. I can access the assets after the preset timelock expires."
+
 vault_menu_screen:
   export_wallet: "Export Wallet"
   view_xpub: "View Extended Public Key"

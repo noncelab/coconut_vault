@@ -112,9 +112,6 @@ edit: "편집"
 descriptor: "디스크립터"
 precautions: "주의 사항"
 
-wallet_type: "지갑 종류"
-mfp: "MFP"
-
 watch_only_options:
   title: "보기 전용 앱 선택"
   coconut_wallet: "코코넛 월렛"
@@ -529,18 +526,21 @@ welcome_screen:
 
 # lib/screens/vault_creation
 taproot:
-  taproot_single_sig_wallet: "탭루트 단일 서명 지갑"
-  taproot_multisig_wallet: "탭루트 다중 서명 지갑"
   parent_creation_screen:
     title: "부모 지갑 만들기"
     taproot_inheritance_wallet: "탭루트 상속 지갑"
+    created_parent_wallet: "부모 지갑을 생성했어요"
+    set_child_wallet: "자식 지갑이 설정되었어요"
+    set_child_period: "자식 지갑의 사용 시점이 설정되었어요"
+    avtive_child_wallet: "자식 지갑이 활성화 돼요"
+    singlesig_wallet_with_mfp: "단일 서명 지갑 | MFP: $mfp"
+    taproot_wallet_with_mfp: "탭루트 지갑 | MFP: $mfp"
   participant_card:
     me: "나"
     signer: "서명자"
     co_signer: "공동 서명자"
     beneficiary: "조건부 서명자"
     locktime_after: "${dateTime} 이후"
-
 mnemonic_coin_flip_screen:
   title: "니모닉 문구 만들기"
   guide: "동전을 던진 후 나온 면을 선택해 주세요"
@@ -870,6 +870,9 @@ sync_to_wallet_screen:
       guide2_1: "Import Wallet"
       guide3_1: "Scan or import a file"
     common: "아래 QR 코드를 스캔해 주세요."
+taproot_vault_detail_screen:
+  cosigner: "나는 이 지갑의 공동 서명자예요. 다른 공동 서명자와 함께 서명해야 자산을 사용할 수 있어요."
+  heir: "나는 이 지갑의 상속자예요. 정해진 시점이 지나면 자산을 사용할 수 있어요."
 
 vault_menu_screen:
   export_wallet: "지갑 내보내기"
