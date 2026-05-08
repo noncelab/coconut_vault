@@ -21,18 +21,6 @@ class TaprootSetupSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CoconutColors.white,
-      appBar: CoconutAppBar.build(
-        title: 'TaprootSetupSummaryCard',
-        context: context,
-        backgroundColor: CoconutColors.white,
-      ),
-      body: SingleChildScrollView(clipBehavior: Clip.none, child: _buildContent()),
-    );
-  }
-
-  Widget _buildContent() {
     final signerItems = itemList.where((item) => item.locktime == null).toList();
     final inheritanceItems = itemList.where((item) => item.locktime != null).toList();
 
