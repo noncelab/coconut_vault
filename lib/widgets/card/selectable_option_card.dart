@@ -12,6 +12,7 @@ class SelectableOptionCard extends StatelessWidget {
   final VoidCallback onTap;
   final double width;
   final double height;
+  final bool isDisabled;
 
   const SelectableOptionCard({
     super.key,
@@ -23,6 +24,7 @@ class SelectableOptionCard extends StatelessWidget {
     required this.onTap,
     this.width = double.infinity,
     required this.height,
+    this.isDisabled = false,
   });
 
   @override
@@ -33,6 +35,7 @@ class SelectableOptionCard extends StatelessWidget {
       pressedColor: CoconutColors.gray150,
       borderRadius: 20,
       border: Border.all(color: Colors.transparent, width: 0.0),
+      isActive: isDisabled ? false : true,
       child: SizedBox(
         width: width,
         height: height,
@@ -71,6 +74,15 @@ class SelectableOptionCard extends StatelessWidget {
                 ),
               ),
             ),
+            if (isDisabled)
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: CoconutColors.gray150.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

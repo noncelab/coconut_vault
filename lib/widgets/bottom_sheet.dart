@@ -129,8 +129,10 @@ class MyBottomSheet {
         borderRadius: BorderRadius.only(topLeft: Radius.circular(24.0), topRight: Radius.circular(24.0)),
       ),
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 20),
+        return AnimatedPadding(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 20),
           child: Wrap(
             children: <Widget>[
               if (showDragHandle)
@@ -174,7 +176,7 @@ class MyBottomSheet {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Container(padding: const EdgeInsets.all(4), child: Container(width: 16)),
+                    Container(padding: const EdgeInsets.all(4), child: Container(width: 24)),
                   ],
                 ),
               ),
