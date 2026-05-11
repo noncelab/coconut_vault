@@ -173,9 +173,16 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
     });
   }
 
-  void _onVerificationSuccess() {
+  void _onVerificationSuccess() async {
     if (widget.isTaprootChild) {
-      Navigator.pop(context, true);
+      final result = await Navigator.pushNamed(
+        context,
+        AppRoutes.mnemonicConfirmation,
+        arguments: {'calledFrom': AppRoutes.mnemonicVerify, 'isTaprootChild': widget.isTaprootChild},
+      );
+      if (result == true && mounted) {
+        Navigator.pop(context, true);
+      }
     } else {
       Navigator.pushReplacementNamed(
         context,

@@ -576,7 +576,13 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               ),
                             ),
                         AppRoutes.mnemonicDiceRoll:
-                            (context) => const MnemonicDiceRollScreen(entropyType: EntropyType.manual),
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => MnemonicDiceRollScreen(
+                                entropyType: EntropyType.manual,
+                                isTaprootChild: args['isTaprootChild'] ?? false,
+                              ),
+                            ),
                         AppRoutes.appInfo: (context) => const AppInfoScreen(),
                         AppRoutes.taprootCreationOptions: (context) => const TaprootCreationOptionScreen(),
                         AppRoutes.taprootParentCreation: (context) => const ParentCreationScreen(),

@@ -230,13 +230,25 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
           }
           return;
         } else if (_selectedChildCreationIndex == 1) {
-          Navigator.pushNamed(
+          final passedCheck = await Navigator.pushNamed(
             context,
             AppRoutes.securitySelfCheck,
             arguments: () {
-              Navigator.pushReplacementNamed(context, AppRoutes.mnemonicDiceRoll);
+              Navigator.pop(context, true);
             },
           );
+          if (passedCheck == true) {
+            final result = await Navigator.pushNamed(
+              context,
+              AppRoutes.mnemonicDiceRoll,
+              arguments: {'isTaprootChild': true},
+            );
+            if (result == true) {
+              setState(() {
+                _currentStep += 1;
+              });
+            }
+          }
           return;
         } else if (_selectedChildCreationIndex == 2) {
           Navigator.pushNamed(
