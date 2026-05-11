@@ -265,6 +265,8 @@ flutter:
     - assets/png/single-key.png
     - assets/png/multi-keys.png
     - assets/png/coin.png
+    - assets/png/hand-bitcoin.png
+    - assets/png/hanging-phone.png
 
   fonts:
     - family: SpaceGrotesk

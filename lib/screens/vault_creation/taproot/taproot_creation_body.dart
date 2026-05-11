@@ -5,11 +5,15 @@ import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 
 class TaprootCreationBody extends StatefulWidget {
+  static const Duration defaultBottomButtonFadeOutDelay = Duration(milliseconds: 100);
+
   final VoidCallback? onBottomButtonPressed;
+  final VoidCallback? onBeforeBottomButtonFadeOut;
   final Widget child;
   final Widget? fixedBottomSubWidget;
   final String? bottomButtonText;
   final List<TextSpan> titleLines;
+  final Duration bottomButtonFadeOutDelay;
   final bool isError;
 
   const TaprootCreationBody({
@@ -17,8 +21,10 @@ class TaprootCreationBody extends StatefulWidget {
     required this.titleLines,
     required this.child,
     this.onBottomButtonPressed,
+    this.onBeforeBottomButtonFadeOut,
     this.fixedBottomSubWidget,
     this.bottomButtonText,
+    this.bottomButtonFadeOutDelay = defaultBottomButtonFadeOutDelay,
     this.isError = false,
   });
 
@@ -27,12 +33,11 @@ class TaprootCreationBody extends StatefulWidget {
 }
 
 class _TaprootCreationBodyState extends State<TaprootCreationBody> {
+  static const Duration _contentFadeInDuration = Duration(milliseconds: 1500);
   static const Duration _contentFadeOutDuration = Duration(milliseconds: 180);
-  static const Duration _contentFadeInDuration = Duration(milliseconds: 520);
   static const Duration _headerLineFadeInDuration = Duration(milliseconds: 700);
   static const Duration _headerLineFadeOutDuration = Duration(milliseconds: 180);
   static const Duration _headerInitialDelay = Duration(milliseconds: 200);
-  static const Duration _fadeOutDelay = Duration(milliseconds: 300);
 
   bool _isContentVisible = true;
   bool _isContentTransitioning = false;
@@ -74,7 +79,9 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
       _isContentTransitioning = true;
     });
 
-    await Future<void>.delayed(_fadeOutDelay);
+    widget.onBeforeBottomButtonFadeOut?.call();
+
+    await Future<void>.delayed(widget.bottomButtonFadeOutDelay);
     if (!mounted) {
       return;
     }
