@@ -103,7 +103,7 @@ class _ShrinkAnimationButtonState extends State<ShrinkAnimationButton> with Sing
         scale: widget.isActive ? _animation : const AlwaysStoppedAnimation(1.0),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(widget.borderRadius + 2),
+            borderRadius: BorderRadius.circular(widget.borderRadius + widget.borderWidth),
             gradient:
                 widget.borderGradientColors != null
                     ? LinearGradient(
