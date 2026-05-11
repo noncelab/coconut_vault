@@ -333,7 +333,6 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
         _getVaultRowItem(
           Key(vault.id.toString()),
           vault,
-          isLastItem,
           isFirstItem,
           isEditMode,
           isFavorite,
@@ -351,7 +350,6 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
   Widget _getVaultRowItem(
     Key key,
     VaultListItemBase vault,
-    bool isLastItem,
     bool isFirstItem,
     bool isEditMode,
     bool isFavorite, {
@@ -362,7 +360,6 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
     return VaultRowItem(
       key: key,
       vault: vault,
-      isLastItem: isLastItem,
       isPrimaryWallet: isFirstItem,
       isEditMode: isEditMode,
       isFavorite: isFavorite,

@@ -23,18 +23,17 @@ class VaultRowItem extends StatefulWidget {
     this.entryPoint,
     this.isSelectable = false,
     this.onSelected,
+    this.isSelected = false,
+    this.isSelectedBorderVisible = false,
     this.isStarVisible = false,
     this.isFavorite = false,
     this.isPrimaryWallet,
     this.isEditMode = false,
-    this.isLastItem,
     this.onTapStar,
     this.onLongPressed,
     this.index,
     this.isNextIconVisible = true,
     this.isKeyBorderVisible = false,
-    this.isSelected = false,
-    this.isSelectedBorderVisible = false,
   });
 
   final VaultListItemBase vault;
@@ -44,7 +43,6 @@ class VaultRowItem extends StatefulWidget {
   final bool isFavorite;
   final bool? isPrimaryWallet;
   final bool isEditMode;
-  final bool? isLastItem;
   final ValueChanged<(bool, int)>? onTapStar;
   final String? entryPoint;
   final VoidCallback? onLongPressed;
@@ -129,11 +127,6 @@ class _VaultRowItemState extends State<VaultRowItem> {
   bool _isUsedToMultiSig = false;
   List<MultisigSigner>? _multiSigners;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
   void _updateVault() {
     _isMultiSig = false;
     _subtitleText = '';
@@ -216,6 +209,35 @@ class _VaultRowItemState extends State<VaultRowItem> {
     );
   }
 
+  Widget _buildDragHandle(int index) {
+    return ReorderableDragStartListener(
+      index: index,
+      child: GestureDetector(
+        child: Padding(padding: const EdgeInsets.only(right: 8), child: SvgPicture.asset('assets/svg/hamburger.svg')),
+      ),
+    );
+  }
+
+  Widget _buildTrailingWidget(int? index) {
+    if (widget.isNextIconVisible) {
+      if (widget.isEditMode) {
+        return _buildDragHandle(index!);
+      }
+      return SvgPicture.asset('assets/svg/chevron-right.svg', width: 6, height: 10);
+    }
+    if (widget.isSelectable) {
+      return Icon(
+        Icons.check_rounded,
+        size: 24,
+        color: CoconutColors.black.withValues(alpha: widget.isSelected ? 1 : 0.1),
+      );
+    }
+    if (widget.isEditMode) {
+      return _buildDragHandle(index!);
+    }
+    return const SizedBox.shrink();
+  }
+
   Widget _buildVaultContainerWidget({ValueChanged<(bool, int)>? onTapStar, int? index}) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: widget.isEditMode ? 8 : 20, vertical: 12),
@@ -295,35 +317,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
               ),
             ),
             CoconutLayout.spacing_200w,
-            widget.isNextIconVisible
-                ? widget.isEditMode
-                    ? ReorderableDragStartListener(
-                      index: index!,
-                      child: GestureDetector(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: SvgPicture.asset('assets/svg/hamburger.svg'),
-                        ),
-                      ),
-                    )
-                    : SvgPicture.asset('assets/svg/chevron-right.svg', width: 6, height: 10)
-                : widget.isSelectable
-                ? Icon(
-                  Icons.check_rounded,
-                  size: 24,
-                  color: CoconutColors.black.withValues(alpha: widget.isSelected ? 1 : 0.1),
-                )
-                : widget.isEditMode
-                ? ReorderableDragStartListener(
-                  index: index!,
-                  child: GestureDetector(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: SvgPicture.asset('assets/svg/hamburger.svg'),
-                    ),
-                  ),
-                )
-                : const SizedBox.shrink(),
+            _buildTrailingWidget(index),
           ],
         ),
       ),
