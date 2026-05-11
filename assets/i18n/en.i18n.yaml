@@ -534,6 +534,27 @@ taproot:
     avtive_child_wallet: "Child wallet will be activated"
     singlesig_wallet_with_mfp: "Single-sig Wallet | MFP: $mfp"
     taproot_wallet_with_mfp: "Taproot Wallet | MFP: $mfp"
+  child_creation_screen:
+    title: "Create Child Wallet"
+    step1:
+      title1: "Prepare a wallet to use"
+      title2: "after a preset timelock"
+    step2:
+      title1: "How would you like to"
+      title2: "prepare your child wallet?"
+      option1_title: "Create with\nnew mnemonic"
+      option1_desc: "Create a new mnemonic\nfor the inheritance wallet"
+      option2_title: "Import existing\nmnemonic"
+      option2_desc: "Create a Taproot wallet\nwith an existing mnemonic"
+    step3:
+      title_new: "How do you want to create it?"
+      title_existing: "Which mnemonic to use?"
+      new_option1: "Coin flip"
+      new_option2: "Dice roll"
+      new_option3: "Auto generate"
+      existing_option1: "Select from\ncurrent vault"
+      existing_option2: "Enter mnemonic"
+      existing_option3: "Scan Seed QR"
   setup_summary_card:
     signer_configuration: "Signer Configuration"
     inheritance_condition: "Inheritance Condition"

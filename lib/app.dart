@@ -27,6 +27,7 @@ import 'package:coconut_vault/screens/precheck/jail_break_detection_screen.dart'
 import 'package:coconut_vault/screens/vault_creation/multisig/coordinator_bsms_paste_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/coordinator_bsms_config_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/multisig_creation_options_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/taproot/child_creation_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/parent_creation_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/multisig_menu/backup_wallet_data_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/extended_pub_key_screen.dart';

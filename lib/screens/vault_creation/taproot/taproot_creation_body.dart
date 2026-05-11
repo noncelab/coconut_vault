@@ -10,6 +10,7 @@ class TaprootCreationBody extends StatefulWidget {
   final Widget? fixedBottomSubWidget;
   final String? bottomButtonText;
   final List<TextSpan> titleLines;
+  final bool showBottomButton;
   final bool isError;
 
   const TaprootCreationBody({
@@ -19,6 +20,7 @@ class TaprootCreationBody extends StatefulWidget {
     this.onBottomButtonPressed,
     this.fixedBottomSubWidget,
     this.bottomButtonText,
+    this.showBottomButton = true,
     this.isError = false,
   });
 
@@ -147,11 +149,18 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
           ),
         ),
         if (widget.onBottomButtonPressed != null)
-          FixedBottomButton(
-            onButtonClicked: _onBottomButtonPressed,
-            text: widget.bottomButtonText ?? t.next,
-            showGradient: false,
-            subWidget: widget.fixedBottomSubWidget,
+          AnimatedOpacity(
+            opacity: widget.showBottomButton ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 300),
+            child: IgnorePointer(
+              ignoring: !widget.showBottomButton,
+              child: FixedBottomButton(
+                onButtonClicked: _onBottomButtonPressed,
+                text: widget.bottomButtonText ?? t.next,
+                showGradient: false,
+                subWidget: widget.fixedBottomSubWidget,
+              ),
+            ),
           ),
       ],
     );

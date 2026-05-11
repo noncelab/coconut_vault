@@ -8,6 +8,7 @@ class SelectableOptionCard extends StatelessWidget {
   final String? description;
   final String bottomAssetPath;
   final double? imageScale;
+  final double? imageWidth;
   final bool isSelected;
   final VoidCallback onTap;
   final double width;
@@ -20,6 +21,7 @@ class SelectableOptionCard extends StatelessWidget {
     this.description,
     required this.bottomAssetPath,
     this.imageScale,
+    this.imageWidth,
     required this.isSelected,
     required this.onTap,
     this.width = double.infinity,
@@ -55,7 +57,11 @@ class SelectableOptionCard extends StatelessWidget {
                 ),
               ),
             ),
-            Positioned(bottom: 12, right: 12, child: Image.asset(bottomAssetPath, scale: imageScale)),
+            Positioned(
+              bottom: 12,
+              right: 12,
+              child: Image.asset(bottomAssetPath, scale: imageScale, width: imageWidth),
+            ),
             Positioned(
               top: 20,
               left: 20,

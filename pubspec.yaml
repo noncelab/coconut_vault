@@ -264,7 +264,15 @@ flutter:
     - assets/svg/arrow-reload.svg
     - assets/png/single-key.png
     - assets/png/multi-keys.png
+    - assets/png/load-wallet.png
+    - assets/png/wallet.png
+    - assets/png/key-holder.png
     - assets/png/coin.png
+    - assets/png/dice.png
+    - assets/png/gear.png
+    - assets/png/finger-picking.png
+    - assets/png/word.png
+    - assets/png/scan-qr.png
 
   fonts:
     - family: SpaceGrotesk
