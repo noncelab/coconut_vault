@@ -16,7 +16,8 @@ import 'package:provider/provider.dart';
 // 마지막 확인: 그 외
 class MnemonicConfirmationScreen extends StatefulWidget {
   final String calledFrom;
-  const MnemonicConfirmationScreen({super.key, required this.calledFrom});
+  final bool isTaprootChild;
+  const MnemonicConfirmationScreen({super.key, required this.calledFrom, this.isTaprootChild = false});
 
   @override
   State<MnemonicConfirmationScreen> createState() => _MnemonicConfirmationScreenState();
@@ -95,7 +96,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                   isActive: _getNextButtonState().isActive && !_isWarningVisible,
                   text: _getNextButtonState().text,
                   backgroundColor: CoconutColors.black,
-                  onButtonClicked: () {
+                  onButtonClicked: () async {
                     if (step == 0 && (_walletCreationProvider.passphrase?.isNotEmpty ?? false)) {
                       setState(() {
                         // 패스프레이즈 확인 단계로 이동
@@ -105,9 +106,28 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                     }
                     if (widget.calledFrom == AppRoutes.mnemonicCoinflip ||
                         widget.calledFrom == AppRoutes.mnemonicDiceRoll) {
-                      Navigator.pushReplacementNamed(context, AppRoutes.mnemonicVerify);
+                      if (widget.isTaprootChild) {
+                        final result = await Navigator.pushNamed(
+                          context,
+                          AppRoutes.mnemonicVerify,
+                          arguments: {'isTaprootChild': widget.isTaprootChild},
+                        );
+                        if (result == true && mounted) {
+                          Navigator.pop(context, true);
+                        }
+                      } else {
+                        Navigator.pushReplacementNamed(
+                          context,
+                          AppRoutes.mnemonicVerify,
+                          arguments: {'isTaprootChild': widget.isTaprootChild},
+                        );
+                      }
                     } else {
-                      Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
+                      if (widget.isTaprootChild) {
+                        Navigator.pop(context, true);
+                      } else {
+                        Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
+                      }
                     }
                   },
                 ),

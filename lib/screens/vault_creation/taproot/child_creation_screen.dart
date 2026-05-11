@@ -1,4 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
@@ -204,7 +205,60 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
     return true;
   }
 
-  void _onNextPressed() {
+  void _onNextPressed() async {
+    if (_currentStep == 3) {
+      if (_selectedChildMethodIndex == 0) {
+        if (_selectedChildCreationIndex == 0) {
+          final passedCheck = await Navigator.pushNamed(
+            context,
+            AppRoutes.securitySelfCheck,
+            arguments: () {
+              Navigator.pop(context, true);
+            },
+          );
+          if (passedCheck == true) {
+            final result = await Navigator.pushNamed(
+              context,
+              AppRoutes.mnemonicCoinflip,
+              arguments: {'isTaprootChild': true},
+            );
+            if (result == true) {
+              setState(() {
+                _currentStep += 1;
+              });
+            }
+          }
+          return;
+        } else if (_selectedChildCreationIndex == 1) {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.securitySelfCheck,
+            arguments: () {
+              Navigator.pushReplacementNamed(context, AppRoutes.mnemonicDiceRoll);
+            },
+          );
+          return;
+        } else if (_selectedChildCreationIndex == 2) {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.securitySelfCheck,
+            arguments: () {
+              Navigator.pushReplacementNamed(context, AppRoutes.mnemonicAutoGen);
+            },
+          );
+          return;
+        }
+      } else if (_selectedChildMethodIndex == 1) {
+        if (_selectedExistingChildIndex == 1) {
+          Navigator.pushNamed(context, AppRoutes.mnemonicImport);
+          return;
+        } else if (_selectedExistingChildIndex == 2) {
+          Navigator.pushNamed(context, AppRoutes.seedQrImport);
+          return;
+        }
+      }
+    }
+
     if (_currentStep >= _totalStep) {
       return;
     }
