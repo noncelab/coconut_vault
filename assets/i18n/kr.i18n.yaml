@@ -595,6 +595,27 @@ taproot:
     avtive_child_wallet: "자식 지갑이 활성화 돼요"
     singlesig_wallet_with_mfp: "단일 서명 지갑 | MFP: $mfp"
     taproot_wallet_with_mfp: "탭루트 지갑 | MFP: $mfp"
+  child_creation_screen:
+    title: "자식 지갑 생성"
+    step1:
+      title1: "정해진 시점 이후"
+      title2: "사용할 지갑을 준비할게요"
+    step2:
+      title1: "자식 지갑을"
+      title2: "어떻게 준비할까요?"
+      option1_title: "새 니모닉으로\n만들기"
+      option1_desc: "상속 지갑 전용으로\n새 니모닉을 만들어요"
+      option2_title: "기존 니모닉으로\n만들기"
+      option2_desc: "보관 중인 니모닉으로\n탭루트 지갑을 만들어요"
+    step3:
+      title_new: "지갑을 어떻게 만들까요?"
+      title_existing: "어떤 기존 니모닉을 사용할까요?"
+      new_option1: "동전 던지기"
+      new_option2: "주사위 굴리기"
+      new_option3: "자동 생성하기"
+      existing_option1: "현재 볼트에서\n선택하기"
+      existing_option2: "니모닉 입력하기"
+      existing_option3: "시드 QR 스캔하기"
   setup_summary_card:
     signer_configuration: "서명자 구성"
     inheritance_condition: "상속 조건"

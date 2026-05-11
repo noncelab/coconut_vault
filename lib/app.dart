@@ -455,7 +455,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         AppRoutes.vaultTypeSelection: (context) => const VaultTypeSelectionScreen(),
                         AppRoutes.signerAssignment: (context) => const SignerAssignmentScreen(),
                         AppRoutes.vaultCreationOptions: (context) => const VaultCreationOptions(),
-                        AppRoutes.mnemonicVerify: (context) => const MnemonicVerifyScreen(),
+                        AppRoutes.mnemonicVerify:
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => MnemonicVerifyScreen(isTaprootChild: args['isTaprootChild'] ?? false),
+                            ),
                         AppRoutes.mnemonicImport:
                             (context) => buildScreenWithArguments(
                               context,
@@ -475,7 +479,10 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         AppRoutes.mnemonicConfirmation:
                             (context) => buildScreenWithArguments(
                               context,
-                              (args) => MnemonicConfirmationScreen(calledFrom: args['calledFrom']),
+                              (args) => MnemonicConfirmationScreen(
+                                calledFrom: args['calledFrom'],
+                                isTaprootChild: args['isTaprootChild'] ?? false,
+                              ),
                             ),
                         AppRoutes.mnemonicView:
                             (context) =>
@@ -561,7 +568,13 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         AppRoutes.mnemonicAutoGen:
                             (context) => const MnemonicAutoGenScreen(entropyType: EntropyType.auto),
                         AppRoutes.mnemonicCoinflip:
-                            (context) => const MnemonicCoinflipScreen(entropyType: EntropyType.manual),
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => MnemonicCoinflipScreen(
+                                entropyType: EntropyType.manual,
+                                isTaprootChild: args['isTaprootChild'] ?? false,
+                              ),
+                            ),
                         AppRoutes.mnemonicDiceRoll:
                             (context) => const MnemonicDiceRollScreen(entropyType: EntropyType.manual),
                         AppRoutes.appInfo: (context) => const AppInfoScreen(),

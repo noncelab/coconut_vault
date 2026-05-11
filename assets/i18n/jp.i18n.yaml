@@ -593,6 +593,27 @@ taproot:
     avtive_child_wallet: "子ウォレットが有効になります"
     singlesig_wallet_with_mfp: "シングルシグウォレット | MFP: $mfp"
     taproot_wallet_with_mfp: "Taprootウォレット | MFP: $mfp"
+  child_creation_screen:
+    title: "子ウォレット作成"
+    step1:
+      title1: "指定された時期以降に"
+      title2: "使用するウォレットを準備します"
+    step2:
+      title1: "子ウォレットを"
+      title2: "どのように準備しますか？"
+      option1_title: "新しいニーモニックで\n作成"
+      option1_desc: "相続ウォレット専用の\n新しいニーモニックを作成します"
+      option2_title: "既存のニーモニックで\n作成"
+      option2_desc: "保存しているニーモニックで\nTaprootウォレットを作成します"
+    step3:
+      title_new: "ウォレットをどのように作成しますか？"
+      title_existing: "どの既存のニーモニックを使用しますか？"
+      new_option1: "コイン投げ"
+      new_option2: "サイコロ振り"
+      new_option3: "自動生成"
+      existing_option1: "現在のボルトから\n選択"
+      existing_option2: "ニーモニック入力"
+      existing_option3: "シードQRスキャン"
   setup_summary_card:
     signer_configuration: "署名者構成"
     inheritance_condition: "相続条件"

@@ -10,7 +10,8 @@ import 'package:coconut_vault/widgets/entropy_base/base_entropy_widget.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 
 class MnemonicCoinflipScreen extends BaseMnemonicEntropyScreen {
-  const MnemonicCoinflipScreen({super.key, required super.entropyType});
+  final bool isTaprootChild;
+  const MnemonicCoinflipScreen({super.key, required super.entropyType, this.isTaprootChild = false});
 
   @override
   State<MnemonicCoinflipScreen> createState() => _MnemonicDiceRollScreenState();
@@ -26,17 +27,20 @@ class _MnemonicDiceRollScreenState extends BaseMnemonicEntropyScreenState<Mnemon
       usePassphrase: usePassphrase,
       onReset: onReset,
       entropyType: EntropyType.manual,
+      isTaprootChild: widget.isTaprootChild,
     );
   }
 }
 
 class CoinFlip extends BaseEntropyWidget {
+  final bool isTaprootChild;
   const CoinFlip({
     super.key,
     required super.wordsCount,
     required super.usePassphrase,
     required super.onReset,
     required super.entropyType,
+    this.isTaprootChild = false,
   });
 
   @override
@@ -71,8 +75,18 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
   }
 
   @override
-  void onNavigateToNext() {
-    Navigator.pushNamed(context, AppRoutes.mnemonicConfirmation, arguments: {'calledFrom': AppRoutes.mnemonicCoinflip});
+  void onNavigateToNext() async {
+    final result = await Navigator.pushNamed(
+      context,
+      AppRoutes.mnemonicConfirmation,
+      arguments: {'calledFrom': AppRoutes.mnemonicCoinflip, 'isTaprootChild': widget.isTaprootChild},
+    );
+
+    if (result == true && widget.isTaprootChild) {
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    }
   }
 
   @override

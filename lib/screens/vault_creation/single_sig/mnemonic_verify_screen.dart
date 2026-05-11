@@ -10,7 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class MnemonicVerifyScreen extends StatefulWidget {
-  const MnemonicVerifyScreen({super.key});
+  final bool isTaprootChild;
+  const MnemonicVerifyScreen({super.key, this.isTaprootChild = false});
 
   @override
   State<MnemonicVerifyScreen> createState() => _MnemonicVerifyScreenState();
@@ -173,12 +174,15 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
   }
 
   void _onVerificationSuccess() {
-    // 성공 시 MnemonicConfirmation(final check) 화면으로 이동
-    Navigator.pushReplacementNamed(
-      context,
-      AppRoutes.mnemonicConfirmation,
-      arguments: {'calledFrom': AppRoutes.mnemonicVerify},
-    );
+    if (widget.isTaprootChild) {
+      Navigator.pop(context, true);
+    } else {
+      Navigator.pushReplacementNamed(
+        context,
+        AppRoutes.mnemonicConfirmation,
+        arguments: {'calledFrom': AppRoutes.mnemonicVerify, 'isTaprootChild': widget.isTaprootChild},
+      );
+    }
   }
 
   @override
