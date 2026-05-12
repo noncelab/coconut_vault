@@ -72,7 +72,6 @@ class WalletIsolates {
 
   static (TaprootSeedInfo, KeyStore) _createSeedInfo(SeedSource seed) {
     final keystore = KeyStore.fromSeed(Seed.fromMnemonic(seed.mnemonic, passphrase: seed.passphrase), AddressType.p2tr);
-    keystore.wipeSeed();
     return (
       TaprootSeedInfo(
         extendedPublicKey: keystore.extendedPublicKey.serialize(),
@@ -96,6 +95,9 @@ class WalletIsolates {
 
         /// seed가 제거된 keystore를 얻기 위해
         keyStoreList.add(KeyStore.fromSignerBsms(taprootVault.getSignerBsms("")));
+
+        keyStore.wipeSeed();
+        seed.wipe();
       }
     }
 
@@ -116,6 +118,9 @@ class WalletIsolates {
           beneficiarySeedInfos.add(seedInfo);
           final taprootVault = TaprootVault.fromKeyStoreList([keyStore], []);
           policyList.add(InheritancePolicy.fromDescriptorAndLocktime(taprootVault.descriptor, leaf.lockTime));
+          // seed 정보 정리
+          keyStore.wipeSeed();
+          leaf.secret!.wipe();
         }
       }
     }
