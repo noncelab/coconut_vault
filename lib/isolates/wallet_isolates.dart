@@ -11,6 +11,9 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/taproot_seed_info.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
+import 'package:coconut_vault/model/taproot/taproot_wallet_create_dto.dart';
 
 class WalletIsolates {
   static void setNetworkType() {
@@ -19,7 +22,7 @@ class WalletIsolates {
     NetworkType.setNetworkType(appFlavor == "mainnet" ? NetworkType.mainnet : NetworkType.regtest);
   }
 
-  static Future<List<SingleSigVaultListItem>> addVault(Map<String, dynamic> data) async {
+  static Future<List<SingleSigVaultListItem>> createSingleSigVault(Map<String, dynamic> data) async {
     setNetworkType();
 
     List<SingleSigVaultListItem> vaultList = [];
@@ -45,10 +48,11 @@ class WalletIsolates {
     vaultList.insert(0, newItem);
 
     wallet.wipe();
+    // TODO: keyStore.wipe(); 누락인지 확인
     return vaultList;
   }
 
-  static Future<MultisigVaultListItem> addMultisigVault(Map<String, dynamic> data) async {
+  static Future<MultisigVaultListItem> createMultisigVault(Map<String, dynamic> data) async {
     setNetworkType();
 
     var walletData = MultisigWallet.fromJson(data);
@@ -65,6 +69,76 @@ class WalletIsolates {
     return newMultisigVault;
   }
 
+  static Future<TaprootVaultListItem> createTaprootVault(Map<String, dynamic> data) async {
+    setNetworkType();
+
+    final wallet = TaprootWalletCreateDto.fromJson(data);
+    List<KeyStore> keyStoreList = [];
+    List<TaprootSeedInfo> keyPathSeedInfos = [];
+    if (wallet.keyPathSeeds != null) {
+      for (final seed in wallet.keyPathSeeds!) {
+        final keystore = KeyStore.fromSeed(
+          Seed.fromMnemonic(seed.mnemonic, passphrase: seed.passphrase),
+          AddressType.p2tr,
+        );
+        keyPathSeedInfos.add(
+          TaprootSeedInfo(
+            extendedPublicKey: keystore.extendedPublicKey.serialize(),
+            isPassphraseSet: seed.passphrase.isNotEmpty,
+          ),
+        );
+        final taprootVault = TaprootVault.fromKeyStoreList([keystore], []);
+
+        /// seed가 제거된 keystore를 얻기 위해
+        keyStoreList.add(KeyStore.fromSignerBsms(taprootVault.getSignerBsms("")));
+      }
+    }
+
+    if (wallet.keyPathSignerBsmses != null) {
+      for (final signerBsms in wallet.keyPathSignerBsmses!) {
+        keyStoreList.add(KeyStore.fromSignerBsms(signerBsms));
+      }
+    }
+
+    List<Policy> policyList = [];
+    List<TaprootSeedInfo> beneficiarySeedInfos = [];
+    if (wallet.inheritanceLeaves != null) {
+      for (final leaf in wallet.inheritanceLeaves!) {
+        if (leaf.descriptor != null) {
+          policyList.add(InheritancePolicy.fromDescriptorAndLocktime(leaf.descriptor!, leaf.lockTime));
+        } else {
+          final keyStore = KeyStore.fromSeed(
+            Seed.fromMnemonic(leaf.secret!.mnemonic, passphrase: leaf.secret!.passphrase),
+            AddressType.p2tr,
+          );
+          beneficiarySeedInfos.add(
+            TaprootSeedInfo(
+              extendedPublicKey: keyStore.extendedPublicKey.serialize(),
+              isPassphraseSet: leaf.secret!.passphrase.isNotEmpty,
+            ),
+          );
+          final taprootVault = TaprootVault.fromKeyStoreList([keyStore], []);
+          policyList.add(InheritancePolicy.fromDescriptorAndLocktime(taprootVault.descriptor, leaf.lockTime));
+        }
+      }
+    }
+
+    final taprootVault = TaprootVault.fromKeyStoreList(keyStoreList, policyList);
+
+    final newTaprootVault = TaprootVaultListItem(
+      id: wallet.id!,
+      name: wallet.name!,
+      colorIndex: wallet.color!,
+      iconIndex: wallet.icon!,
+      createdAt: DateTime.now(),
+      descriptor: taprootVault.descriptor,
+      keyPathSeedInfos: keyPathSeedInfos,
+      beneficiarySeedInfos: beneficiarySeedInfos,
+    );
+
+    return newTaprootVault;
+  }
+
   static Future<VaultListItemBase> initializeWallet(Map<String, dynamic> data) async {
     setNetworkType();
 
@@ -75,6 +149,8 @@ class WalletIsolates {
       return SingleSigVaultListItem.fromJson(data);
     } else if (vaultType == WalletType.multiSignature.name) {
       return MultisigVaultListItem.fromJson(data);
+    } else if (vaultType == WalletType.taproot.name) {
+      return TaprootVaultListItem.fromJson(data);
     } else {
       throw ArgumentError('[initializeWallet] vaultType: $vaultType');
     }
