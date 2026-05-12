@@ -42,12 +42,13 @@ class TaprootVaultListItem extends VaultListItemBase {
     coconutVault = TaprootVault.fromDescriotor(descriptor);
 
     final taprootVault = (coconutVault as TaprootVault);
+    final List<TaprootParticipant> keyPathParticipants = [];
     for (final keyStore in taprootVault.keyStoreList) {
       final extendedPubKey = keyStore.extendedPublicKey.serialize();
       final TaprootSeedInfo? seedInfo = keyPathSeedInfos.firstWhereOrNull(
         (seedInfo) => seedInfo.extendedPublicKey == extendedPubKey,
       );
-      _keyPathParticipants.add(
+      keyPathParticipants.add(
         TaprootParticipant(
           masterFingerprint: keyStore.masterFingerprint,
           type: TaprootParticipantType.keyPath,
@@ -58,6 +59,7 @@ class TaprootVaultListItem extends VaultListItemBase {
       );
     }
 
+    final List<TaprootBeneficiaryParticipant> beneficiaryParticipants = [];
     for (final policy in taprootVault.policyList) {
       if (policy is! InheritancePolicy) continue;
 
@@ -66,7 +68,7 @@ class TaprootVaultListItem extends VaultListItemBase {
       final TaprootSeedInfo? seedInfo = beneficiarySeedInfos.firstWhereOrNull(
         (seedInfo) => seedInfo.extendedPublicKey == extendedPubKey,
       );
-      _beneficiaryParticipants.add(
+      beneficiaryParticipants.add(
         TaprootBeneficiaryParticipant(
           masterFingerprint: keyStore.masterFingerprint,
           type: TaprootParticipantType.beneficiary,
@@ -78,6 +80,8 @@ class TaprootVaultListItem extends VaultListItemBase {
       );
     }
 
+    _keyPathParticipants = keyPathParticipants;
+    _beneficiaryParticipants = beneficiaryParticipants;
     _isParent = keyPathSeedInfos.isNotEmpty;
   }
 
