@@ -526,6 +526,19 @@ welcome_screen:
 # lib/screens/vault_creation
 taproot:
   taproot_inheritance_wallet: "Taproot Inheritance Wallet"
+  common:
+    create_new_wallet_title: "How do you want to create the wallet?"
+    existing_mnemonic_title: "Use an existing mnemonic?"
+    prepare_key_option1_title: "Create with\nnew mnemonic"
+    prepare_key_option1_desc: "Create a new mnemonic\nfor the inheritance wallet"
+    prepare_key_option2_title: "Import existing\nmnemonic"
+    prepare_key_option2_desc: "Create a Taproot wallet\nwith an existing mnemonic"
+    new_option1: "Coin flip"
+    new_option2: "Dice roll"
+    new_option3: "Auto generate"
+    existing_option1: "Select from\ncurrent Vault"
+    existing_option2: "Enter mnemonic"
+    existing_option3: "Scan Seed QR"
   taproot_creation_option:
     parent_creation_title: "I am a parent"
     parent_creation_description: "I'll prepare inheritance conditions for the wallet you want to use"
@@ -542,6 +555,8 @@ taproot:
       title_2: "will the parent wallet use?"
       single_sig_wallet: "Single Signature Wallet"
       wallet_usable_with_single_key: "Use your everyday wallet with one key"
+      single_sig_how_to_prepare_key_title_1: "How will you prepare the key"
+      single_sig_how_to_prepare_key_title_2: "for the single-sig parent wallet?"
       multisig_wallet: "Multi Signature Wallet"
       wallet_usable_after_signed_all: "Usable only after both parent wallets sign"
       multisig_start_with_another_vault_title_1: "Start creating the parent wallet"
@@ -602,19 +617,6 @@ taproot:
     step2:
       title1: "How would you like to"
       title2: "prepare your child wallet?"
-      option1_title: "Create with\nnew mnemonic"
-      option1_desc: "Create a new mnemonic\nfor the inheritance wallet"
-      option2_title: "Import existing\nmnemonic"
-      option2_desc: "Create a Taproot wallet\nwith an existing mnemonic"
-    step3:
-      title_new: "How do you want to create it?"
-      title_existing: "Which mnemonic to use?"
-      new_option1: "Coin flip"
-      new_option2: "Dice roll"
-      new_option3: "Auto generate"
-      existing_option1: "Select from\ncurrent vault"
-      existing_option2: "Enter mnemonic"
-      existing_option3: "Scan Seed QR"
   setup_summary_card:
     signer_configuration: "Signer Configuration"
     inheritance_condition: "Inheritance Condition"

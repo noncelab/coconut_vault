@@ -69,8 +69,8 @@ class WalletCreationProvider {
 
   /// SingleSig
   void setSecretAndPassphrase(Uint8List secret, Uint8List? passphrase) {
-    _secret = secret;
-    _passphrase = passphrase ?? Uint8List(0);
+    _secret = Uint8List.fromList(secret);
+    _passphrase = passphrase == null ? Uint8List(0) : Uint8List.fromList(passphrase);
   }
 
   void setSingleSigCreationOption(String routeName) {

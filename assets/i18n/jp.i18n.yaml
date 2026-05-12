@@ -525,6 +525,19 @@ welcome_screen:
 # lib/screens/vault_creation
 taproot:
   taproot_inheritance_wallet: "Taproot相続ウォレット"
+  common:
+    create_new_wallet_title: "ウォレットをどのように作成しますか？"
+    existing_mnemonic_title: "既存のニーモニックを使用しますか？"
+    prepare_key_option1_title: "新しいニーモニックで\n作成"
+    prepare_key_option1_desc: "相続ウォレット専用の\n新しいニーモニックを作成します"
+    prepare_key_option2_title: "既存のニーモニックで\n作成"
+    prepare_key_option2_desc: "保存しているニーモニックで\nTaprootウォレットを作成します"
+    new_option1: "コイン投げ"
+    new_option2: "サイコロ振り"
+    new_option3: "自動生成"
+    existing_option1: "現在のVaultから\n選択"
+    existing_option2: "ニーモニック入力"
+    existing_option3: "シードQRスキャン"
   taproot_creation_option:
     parent_creation_title: "私は親です"
     parent_creation_description: "使用するウォレットに相続条件を一緒に準備します"
@@ -541,6 +554,8 @@ taproot:
       title_2: "いくつのキーを使いますか？"
       single_sig_wallet: "シングルシグウォレット"
       wallet_usable_with_single_key: "1つのキーで普段のウォレットを使えます"
+      single_sig_how_to_prepare_key_title_1: "シングルシグ親ウォレットで使う"
+      single_sig_how_to_prepare_key_title_2: "キーをどう準備しますか？"
       multisig_wallet: "マルチシグウォレット"
       wallet_usable_after_signed_all: "2つの親ウォレットが両方署名すると使えます"
       multisig_start_with_another_vault_title_1: "別のVaultでも"
@@ -601,19 +616,6 @@ taproot:
     step2:
       title1: "子ウォレットを"
       title2: "どのように準備しますか？"
-      option1_title: "新しいニーモニックで\n作成"
-      option1_desc: "相続ウォレット専用の\n新しいニーモニックを作成します"
-      option2_title: "既存のニーモニックで\n作成"
-      option2_desc: "保存しているニーモニックで\nTaprootウォレットを作成します"
-    step3:
-      title_new: "ウォレットをどのように作成しますか？"
-      title_existing: "どの既存のニーモニックを使用しますか？"
-      new_option1: "コイン投げ"
-      new_option2: "サイコロ振り"
-      new_option3: "自動生成"
-      existing_option1: "現在のボルトから\n選択"
-      existing_option2: "ニーモニック入力"
-      existing_option3: "シードQRスキャン"
   setup_summary_card:
     signer_configuration: "署名者構成"
     inheritance_condition: "相続条件"

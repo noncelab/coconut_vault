@@ -16,6 +16,9 @@ class TaprootCreationBody extends StatefulWidget {
   final Duration bottomButtonFadeOutDelay;
   final bool showBottomButton;
   final bool isError;
+  final bool ignoreChildHorizontalPadding;
+  final bool showHeader;
+  final bool scrollChild;
 
   const TaprootCreationBody({
     super.key,
@@ -28,6 +31,9 @@ class TaprootCreationBody extends StatefulWidget {
     this.bottomButtonFadeOutDelay = defaultBottomButtonFadeOutDelay,
     this.showBottomButton = true,
     this.isError = false,
+    this.ignoreChildHorizontalPadding = false,
+    this.showHeader = true,
+    this.scrollChild = true,
   });
 
   @override
@@ -136,31 +142,40 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
 
   @override
   Widget build(BuildContext context) {
+    final showBottomButton = widget.showBottomButton && !_isContentTransitioning;
+    final content = widget.scrollChild ? SingleChildScrollView(child: widget.child) : widget.child;
+
     return Stack(
       children: [
         Positioned.fill(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                _buildAnimatedHeader(),
-                AnimatedOpacity(
-                  opacity: _isContentVisible ? 1 : 0,
-                  duration: _isContentVisible ? _contentFadeInDuration : _contentFadeOutDuration,
-                  curve: _isContentVisible ? Curves.easeOut : Curves.easeIn,
-                  child: SingleChildScrollView(child: widget.child),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              if (widget.showHeader)
+                Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: _buildAnimatedHeader()),
+              Expanded(
+                child: Padding(
+                  padding:
+                      widget.ignoreChildHorizontalPadding
+                          ? EdgeInsets.zero
+                          : const EdgeInsets.symmetric(horizontal: 16),
+                  child: AnimatedOpacity(
+                    opacity: _isContentVisible ? 1 : 0,
+                    duration: _isContentVisible ? _contentFadeInDuration : _contentFadeOutDuration,
+                    curve: _isContentVisible ? Curves.easeOut : Curves.easeIn,
+                    child: content,
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         if (widget.onBottomButtonPressed != null)
           AnimatedOpacity(
-            opacity: widget.showBottomButton ? 1.0 : 0.0,
+            opacity: showBottomButton ? 1.0 : 0.0,
             duration: const Duration(milliseconds: 300),
             child: IgnorePointer(
-              ignoring: !widget.showBottomButton,
+              ignoring: !showBottomButton,
               child: FixedBottomButton(
                 onButtonClicked: _onBottomButtonPressed,
                 text: widget.bottomButtonText ?? t.next,

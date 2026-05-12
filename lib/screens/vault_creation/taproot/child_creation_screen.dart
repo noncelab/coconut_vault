@@ -43,8 +43,8 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
       TextSpan(text: t.taproot.child_creation_screen.step2.title2),
     ],
     _selectedChildMethodIndex == 0
-        ? [TextSpan(text: t.taproot.child_creation_screen.step3.title_new)]
-        : [TextSpan(text: t.taproot.child_creation_screen.step3.title_existing)],
+        ? [TextSpan(text: t.taproot.common.create_new_wallet_title)]
+        : [TextSpan(text: t.taproot.common.existing_mnemonic_title)],
     [const TextSpan(text: '자식 지갑 타이틀'), TextSpan(text: '($_currentStep / $_totalStep)')],
   ];
 
@@ -53,8 +53,8 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
     MenuGrid(
       children: [
         SelectableOptionCard(
-          title: t.taproot.child_creation_screen.step2.option1_title,
-          description: t.taproot.child_creation_screen.step2.option1_desc,
+          title: t.taproot.common.prepare_key_option1_title,
+          description: t.taproot.common.prepare_key_option1_desc,
           bottomAssetPath: 'assets/png/wallet.png',
           imageScale: 4.0,
           imageWidth: 100,
@@ -67,8 +67,8 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
           },
         ),
         SelectableOptionCard(
-          title: t.taproot.child_creation_screen.step2.option2_title,
-          description: t.taproot.child_creation_screen.step2.option2_desc,
+          title: t.taproot.common.prepare_key_option2_title,
+          description: t.taproot.common.prepare_key_option2_desc,
           bottomAssetPath: 'assets/png/key-holder.png',
           imageScale: 4.0,
           imageWidth: 100,
@@ -86,7 +86,7 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
         ? MenuGrid(
           children: [
             SelectableOptionCard(
-              title: t.taproot.child_creation_screen.step3.new_option1,
+              title: t.taproot.common.new_option1,
               bottomAssetPath: 'assets/png/coin.png',
               imageScale: 4.0,
               imageWidth: 67,
@@ -99,7 +99,7 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
               },
             ),
             SelectableOptionCard(
-              title: t.taproot.child_creation_screen.step3.new_option2,
+              title: t.taproot.common.new_option2,
               bottomAssetPath: 'assets/png/dice.png',
               imageScale: 4.0,
               imageWidth: 67,
@@ -112,7 +112,7 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
               },
             ),
             SelectableOptionCard(
-              title: t.taproot.child_creation_screen.step3.new_option3,
+              title: t.taproot.common.new_option3,
               bottomAssetPath: 'assets/png/gear.png',
               imageScale: 4.0,
               imageWidth: 67,
@@ -129,7 +129,7 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
         : MenuGrid(
           children: [
             SelectableOptionCard(
-              title: t.taproot.child_creation_screen.step3.existing_option1,
+              title: t.taproot.common.existing_option1,
               bottomAssetPath: 'assets/png/finger-picking.png',
               imageScale: 4.0,
               imageWidth: 67,
@@ -142,7 +142,7 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
               },
             ),
             SelectableOptionCard(
-              title: t.taproot.child_creation_screen.step3.existing_option2,
+              title: t.taproot.common.existing_option2,
               bottomAssetPath: 'assets/png/word.png',
               imageScale: 4.0,
               imageWidth: 67,
@@ -155,7 +155,7 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
               },
             ),
             SelectableOptionCard(
-              title: t.taproot.child_creation_screen.step3.existing_option3,
+              title: t.taproot.common.existing_option3,
               bottomAssetPath: 'assets/png/scan-qr.png',
               imageScale: 4.0,
               imageWidth: 67,

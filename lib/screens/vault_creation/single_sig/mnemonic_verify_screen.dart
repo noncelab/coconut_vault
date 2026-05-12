@@ -11,7 +11,15 @@ import 'package:provider/provider.dart';
 
 class MnemonicVerifyScreen extends StatefulWidget {
   final bool isTaprootChild;
-  const MnemonicVerifyScreen({super.key, this.isTaprootChild = false});
+  final bool isEmbedded;
+  final VoidCallback? onVerificationSuccess;
+
+  const MnemonicVerifyScreen({
+    super.key,
+    this.isTaprootChild = false,
+    this.isEmbedded = false,
+    this.onVerificationSuccess,
+  });
 
   @override
   State<MnemonicVerifyScreen> createState() => _MnemonicVerifyScreenState();
@@ -174,6 +182,11 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
   }
 
   void _onVerificationSuccess() async {
+    if (widget.isEmbedded) {
+      widget.onVerificationSuccess?.call();
+      return;
+    }
+
     if (widget.isTaprootChild) {
       final result = await Navigator.pushNamed(
         context,
@@ -194,29 +207,32 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final body = Column(
+      children: [
+        // 진행률 표시
+        _buildProgressBar(),
+        CoconutLayout.spacing_1200h,
+        // '일치하지 않아요' 문구
+        _buildAnswerExplanation(),
+        // 퀴즈 내용
+        Expanded(child: _buildQuizScreen()),
+      ],
+    );
+
     return PopScope(
       canPop: false,
-      child: Scaffold(
-        backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(
-          title: t.mnemonic_verify_screen.title,
-          context: context,
-          backgroundColor: CoconutColors.white,
-        ),
-        body: SafeArea(
-          child: Column(
-            children: [
-              // 진행률 표시
-              _buildProgressBar(),
-              CoconutLayout.spacing_1200h,
-              // '일치하지 않아요' 문구
-              _buildAnswerExplanation(),
-              // 퀴즈 내용
-              Expanded(child: _buildQuizScreen()),
-            ],
-          ),
-        ),
-      ),
+      child:
+          widget.isEmbedded
+              ? body
+              : Scaffold(
+                backgroundColor: CoconutColors.white,
+                appBar: CoconutAppBar.build(
+                  title: t.mnemonic_verify_screen.title,
+                  context: context,
+                  backgroundColor: CoconutColors.white,
+                ),
+                body: SafeArea(child: body),
+              ),
     );
   }
 

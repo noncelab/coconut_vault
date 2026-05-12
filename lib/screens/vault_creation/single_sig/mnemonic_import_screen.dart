@@ -27,7 +27,14 @@ import 'package:provider/provider.dart';
 class MnemonicImportScreen extends StatefulWidget {
   final MultisigSigner? externalSigner;
   final int? multisigVaultIdOfExternalSigner;
-  const MnemonicImportScreen({super.key, this.externalSigner, this.multisigVaultIdOfExternalSigner});
+  final bool isEmbedded;
+
+  const MnemonicImportScreen({
+    super.key,
+    this.externalSigner,
+    this.multisigVaultIdOfExternalSigner,
+    this.isEmbedded = false,
+  });
 
   @override
   State<MnemonicImportScreen> createState() => _MnemonicImportScreenState();
@@ -761,12 +768,15 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
               await _handleBackNavigation();
             }
           },
-          child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            backgroundColor: CoconutColors.white,
-            appBar: _buildAppBar(),
-            body: _buildBody(),
-          ),
+          child:
+              widget.isEmbedded
+                  ? _buildBody(isEmbedded: true)
+                  : Scaffold(
+                    resizeToAvoidBottomInset: true,
+                    backgroundColor: CoconutColors.white,
+                    appBar: _buildAppBar(),
+                    body: _buildBody(),
+                  ),
         ),
       ),
     );
@@ -801,19 +811,23 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     );
   }
 
-  Widget _buildBody() {
-    return SafeArea(
-      child: Stack(
-        children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: Column(children: [_buildWordCountSelector(), Expanded(child: _buildMnemonicInputSection())]),
-          ),
-          if (!_isSuggestionWordsVisible) _buildBottomButton(),
-          if (_isSuggestionWordsVisible) _buildSuggestionSection(),
-        ],
-      ),
+  Widget _buildBody({bool isEmbedded = false}) {
+    final body = Stack(
+      children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height,
+          child: Column(children: [_buildWordCountSelector(), Expanded(child: _buildMnemonicInputSection())]),
+        ),
+        if (!_isSuggestionWordsVisible) _buildBottomButton(),
+        if (_isSuggestionWordsVisible) _buildSuggestionSection(),
+      ],
     );
+
+    if (isEmbedded) {
+      return body;
+    }
+
+    return SafeArea(child: body);
   }
 
   Widget _buildWordCountSelector() {
