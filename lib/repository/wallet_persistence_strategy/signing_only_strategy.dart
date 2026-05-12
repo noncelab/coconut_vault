@@ -99,11 +99,15 @@ class SigningOnlyStrategy implements WalletPersistenceStrategy {
   Future<void> _deleteTaprootSecrets(int walletId) async {
     final seedKeys = await _readTaprootSeedIndex(walletId);
     for (final seedKey in seedKeys) {
-      await _storageService.delete(key: seedKey);
-      await _secureZoneRepository.deleteKey(alias: seedKey);
-      await _storageService.delete(key: WalletStorageKeys.taprootSeedPassphraseEnabledKey(seedKey));
+      await _deleteTaprootSeedByKey(seedKey);
     }
     await _storageService.delete(key: WalletStorageKeys.taprootSeedIndexKey(walletId));
+  }
+
+  Future<void> _deleteTaprootSeedByKey(String seedKey) async {
+    await _storageService.delete(key: seedKey);
+    await _secureZoneRepository.deleteKey(alias: seedKey);
+    await _storageService.delete(key: WalletStorageKeys.taprootSeedPassphraseEnabledKey(seedKey));
   }
 
   Future<List<String>> _readTaprootSeedIndex(int walletId) async {

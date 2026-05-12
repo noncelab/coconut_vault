@@ -11,6 +11,7 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/seed_source.dart';
 import 'package:coconut_vault/model/taproot/taproot_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/taproot_wallet_create_dto.dart';
@@ -22,7 +23,7 @@ class WalletIsolates {
     NetworkType.setNetworkType(appFlavor == "mainnet" ? NetworkType.mainnet : NetworkType.regtest);
   }
 
-  static Future<List<SingleSigVaultListItem>> createSingleSigVault(Map<String, dynamic> data) async {
+  static List<SingleSigVaultListItem> createSingleSigVault(Map<String, dynamic> data) {
     setNetworkType();
 
     List<SingleSigVaultListItem> vaultList = [];
@@ -52,7 +53,7 @@ class WalletIsolates {
     return vaultList;
   }
 
-  static Future<MultisigVaultListItem> createMultisigVault(Map<String, dynamic> data) async {
+  static MultisigVaultListItem createMultisigVault(Map<String, dynamic> data) {
     setNetworkType();
 
     var walletData = MultisigWallet.fromJson(data);
@@ -69,7 +70,19 @@ class WalletIsolates {
     return newMultisigVault;
   }
 
-  static Future<TaprootVaultListItem> createTaprootVault(Map<String, dynamic> data) async {
+  static (TaprootSeedInfo, KeyStore) _createSeedInfo(SeedSource seed) {
+    final keystore = KeyStore.fromSeed(Seed.fromMnemonic(seed.mnemonic, passphrase: seed.passphrase), AddressType.p2tr);
+    keystore.wipeSeed();
+    return (
+      TaprootSeedInfo(
+        extendedPublicKey: keystore.extendedPublicKey.serialize(),
+        isPassphraseSet: seed.passphrase.isNotEmpty,
+      ),
+      keystore,
+    );
+  }
+
+  static TaprootVaultListItem createTaprootVault(Map<String, dynamic> data) {
     setNetworkType();
 
     final wallet = TaprootWalletCreateDto.fromJson(data);
@@ -77,17 +90,9 @@ class WalletIsolates {
     List<TaprootSeedInfo> keyPathSeedInfos = [];
     if (wallet.keyPathSeeds != null) {
       for (final seed in wallet.keyPathSeeds!) {
-        final keystore = KeyStore.fromSeed(
-          Seed.fromMnemonic(seed.mnemonic, passphrase: seed.passphrase),
-          AddressType.p2tr,
-        );
-        keyPathSeedInfos.add(
-          TaprootSeedInfo(
-            extendedPublicKey: keystore.extendedPublicKey.serialize(),
-            isPassphraseSet: seed.passphrase.isNotEmpty,
-          ),
-        );
-        final taprootVault = TaprootVault.fromKeyStoreList([keystore], []);
+        final (seedInfo, keyStore) = _createSeedInfo(seed);
+        keyPathSeedInfos.add(seedInfo);
+        final taprootVault = TaprootVault.fromKeyStoreList([keyStore], []);
 
         /// seed가 제거된 keystore를 얻기 위해
         keyStoreList.add(KeyStore.fromSignerBsms(taprootVault.getSignerBsms("")));
@@ -107,16 +112,8 @@ class WalletIsolates {
         if (leaf.descriptor != null) {
           policyList.add(InheritancePolicy.fromDescriptorAndLocktime(leaf.descriptor!, leaf.lockTime));
         } else {
-          final keyStore = KeyStore.fromSeed(
-            Seed.fromMnemonic(leaf.secret!.mnemonic, passphrase: leaf.secret!.passphrase),
-            AddressType.p2tr,
-          );
-          beneficiarySeedInfos.add(
-            TaprootSeedInfo(
-              extendedPublicKey: keyStore.extendedPublicKey.serialize(),
-              isPassphraseSet: leaf.secret!.passphrase.isNotEmpty,
-            ),
-          );
+          final (seedInfo, keyStore) = _createSeedInfo(leaf.secret!);
+          beneficiarySeedInfos.add(seedInfo);
           final taprootVault = TaprootVault.fromKeyStoreList([keyStore], []);
           policyList.add(InheritancePolicy.fromDescriptorAndLocktime(taprootVault.descriptor, leaf.lockTime));
         }
@@ -136,6 +133,7 @@ class WalletIsolates {
       beneficiarySeedInfos: beneficiarySeedInfos,
     );
 
+    wallet.wipe();
     return newTaprootVault;
   }
 

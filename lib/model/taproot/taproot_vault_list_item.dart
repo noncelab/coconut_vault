@@ -1,8 +1,8 @@
-import 'dart:collection';
-
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:collection/collection.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/taproot/taproot_participant.dart';
 import 'package:coconut_vault/model/taproot/taproot_seed_info.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -24,6 +24,8 @@ class TaprootVaultListItem extends VaultListItemBase {
   List<TaprootSeedInfo> get beneficiarySeedInfos => _beneficiarySeedInfos;
 
   late final bool _isParent;
+  late final List<TaprootParticipant> _keyPathParticipants;
+  late final List<TaprootBeneficiaryParticipant> _beneficiaryParticipants;
 
   TaprootVaultListItem({
     required super.id,
@@ -39,10 +41,50 @@ class TaprootVaultListItem extends VaultListItemBase {
        super(vaultType: WalletType.taproot) {
     coconutVault = TaprootVault.fromDescriotor(descriptor);
 
+    final taprootVault = (coconutVault as TaprootVault);
+    for (final keyStore in taprootVault.keyStoreList) {
+      final extendedPubKey = keyStore.extendedPublicKey.serialize();
+      final TaprootSeedInfo? seedInfo = keyPathSeedInfos.firstWhereOrNull(
+        (seedInfo) => seedInfo.extendedPublicKey == extendedPubKey,
+      );
+      _keyPathParticipants.add(
+        TaprootParticipant(
+          masterFingerprint: keyStore.masterFingerprint,
+          type: TaprootParticipantType.keyPath,
+          extendedPublicKey: extendedPubKey,
+          isSeedStored: seedInfo != null,
+          isPassphraseSet: seedInfo?.isPassphraseSet ?? false,
+        ),
+      );
+    }
+
+    for (final policy in taprootVault.policyList) {
+      if (policy is! InheritancePolicy) continue;
+
+      final keyStore = policy.beneficiaryKeyStore;
+      final extendedPubKey = keyStore.extendedPublicKey.serialize();
+      final TaprootSeedInfo? seedInfo = beneficiarySeedInfos.firstWhereOrNull(
+        (seedInfo) => seedInfo.extendedPublicKey == extendedPubKey,
+      );
+      _beneficiaryParticipants.add(
+        TaprootBeneficiaryParticipant(
+          masterFingerprint: keyStore.masterFingerprint,
+          type: TaprootParticipantType.beneficiary,
+          extendedPublicKey: extendedPubKey,
+          isSeedStored: seedInfo != null,
+          isPassphraseSet: seedInfo?.isPassphraseSet ?? false,
+          lockTime: policy.locktime,
+        ),
+      );
+    }
+
     _isParent = keyPathSeedInfos.isNotEmpty;
   }
 
+  List<TaprootParticipant> get keyPathParticipants => List.unmodifiable(_keyPathParticipants);
+  List<TaprootBeneficiaryParticipant> get beneficiaryParticipants => List.unmodifiable(_beneficiaryParticipants);
   bool get isParent => _isParent;
+  String get derivationPath => (coconutVault as TaprootVault).derivationPath;
 
   @override
   Future<bool> canSign(String psbt) async => false;

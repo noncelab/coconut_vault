@@ -9,6 +9,8 @@ import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
+import 'package:coconut_vault/model/taproot/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -120,6 +122,14 @@ class WalletProvider extends ChangeNotifier {
 
   Future<MultisigVaultListItem> importMultisigVault(MultisigImportDetail details, int walletId) async {
     final vault = await _service.importMultisig(details, walletId);
+    _setVaultList(_service.vaultSnapshot);
+    notifyListeners();
+    return vault;
+  }
+
+  // TODO: TaprootWalletCreateDto 매개변수 넘겨준 곳에서 wipe 호출
+  Future<TaprootVaultListItem> addTaprootVault(TaprootWalletCreateDto wallet) async {
+    final vault = await _service.addTaproot(wallet);
     _setVaultList(_service.vaultSnapshot);
     notifyListeners();
     return vault;

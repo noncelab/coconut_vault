@@ -10,6 +10,8 @@ import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
+import 'package:coconut_vault/model/taproot/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -145,6 +147,20 @@ class WalletService {
       signers: signers,
       requiredSignatureCount: multisigVault.requiredSignature,
     );
+  }
+
+  Future<TaprootVaultListItem> addTaproot(TaprootWalletCreateDto wallet) async {
+    // HardwareBackedKeystorePlugin.encrypt 내부에서 AUTH_NEEDED 에러 발생 시 생체인증 시도
+    // 하지만 ios에서도 지갑 저장 중 라이프사이클 이벤트 호출로 중단되는 것을 방지하기 위해 operation 등록
+    _lifecycle.startOperation(AppLifecycleOperations.hwBasedEncryption);
+    try {
+      wallet.name = _query.getUnduplicatedName(wallet.name!);
+      final vault = await _repo.addTaprootWallet(wallet);
+      await _syncAfterAdd(vault.id);
+      return vault;
+    } finally {
+      _lifecycle.endOperation(AppLifecycleOperations.hwBasedEncryption);
+    }
   }
 
   // ---- update ----
