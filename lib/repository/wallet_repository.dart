@@ -15,15 +15,21 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
+import 'package:coconut_vault/model/taproot/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/repository/migration/data_schema_migration_runner.dart';
 import 'package:coconut_vault/repository/model/multisig_wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/model/single_sig_wallet_privacy_info.dart';
+import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
+import 'package:coconut_vault/repository/model/taproot_wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/model/wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/secure_zone_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/repository/wallet_linker.dart';
-import 'package:coconut_vault/repository/wallet_persistence_strategy.dart';
+import 'package:coconut_vault/repository/wallet_persistence_strategy/secure_storage_strategy.dart';
+import 'package:coconut_vault/repository/wallet_persistence_strategy/signing_only_strategy.dart';
+import 'package:coconut_vault/repository/wallet_persistence_strategy/wallet_persistence_strategy.dart';
 import 'package:coconut_vault/repository/wallet_storage_cleaner.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_payload_codec.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -36,9 +42,9 @@ class WalletRepository {
   static const int currentDataSchemeVersion = 2;
   static String vaultTypeField = VaultListItemBase.vaultTypeField;
 
-  final SecureStorageRepository _storageService = SecureStorageRepository();
-  final SharedPrefsRepository _sharedPrefs = SharedPrefsRepository();
-  final SecureZoneRepository _secureZoneRepository = SecureZoneRepository();
+  final SecureStorageRepositoryContract _storageService;
+  final SharedPrefsRepository _sharedPrefs;
+  final SecureZoneRepositoryContract _secureZoneRepository;
 
   List<VaultListItemBase>? _vaultList;
   late bool _isSigningOnlyMode;
@@ -47,9 +53,19 @@ class WalletRepository {
 
   Completer<void>? _walletLoadCancelToken;
 
-  WalletRepository({bool isSigningOnlyMode = false}) {
+  WalletRepository({
+    bool isSigningOnlyMode = false,
+    SecureStorageRepositoryContract? storageService,
+    SharedPrefsRepository? sharedPrefs,
+    SecureZoneRepositoryContract? secureZoneRepository,
+  }) : _storageService = storageService ?? SecureStorageRepository(),
+       _sharedPrefs = sharedPrefs ?? SharedPrefsRepository(),
+       _secureZoneRepository = secureZoneRepository ?? SecureZoneRepository() {
     _isSigningOnlyMode = isSigningOnlyMode;
-    _strategy = isSigningOnlyMode ? SigningOnlyStrategy() : SecureStorageStrategy();
+    _strategy =
+        isSigningOnlyMode
+            ? SigningOnlyStrategy(storageService: _storageService, secureZoneRepository: _secureZoneRepository)
+            : SecureStorageStrategy(storageService: _storageService, secureZoneRepository: _secureZoneRepository);
   }
 
   int? _getSavedDataSchemeVersion() {
@@ -137,6 +153,9 @@ class WalletRepository {
       case WalletType.multiSignature:
         _applyMultisigPrivacyToJson(json, privacyInfo as MultisigWalletPrivacyInfo);
         break;
+      case WalletType.taproot:
+        _applyTaprootPrivacyToJson(json, privacyInfo as TaprootWalletPrivacyInfo);
+        break;
     }
 
     return json;
@@ -160,6 +179,14 @@ class WalletRepository {
     }
   }
 
+  void _applyTaprootPrivacyToJson(Map<String, dynamic> json, TaprootWalletPrivacyInfo privacyInfo) {
+    json[TaprootVaultListItem.fieldDescriptor] = privacyInfo.descriptor;
+    json[TaprootVaultListItem.fieldKeyPathSeedInfos] =
+        privacyInfo.keyPathSeedInfos.map((seedInfo) => seedInfo.toJson()).toList();
+    json[TaprootVaultListItem.fieldBeneficiarySeedInfos] =
+        privacyInfo.beneficiarySeedInfos?.map((seedInfo) => seedInfo.toJson()).toList() ?? [];
+  }
+
   Future<void> _loadVaultList() async {
     final jsonList = await loadVaultListJsonArrayString() ?? [];
     await loadAndEmitEachWallet(jsonList, (VaultListItemBase wallet) {});
@@ -172,7 +199,7 @@ class WalletRepository {
     final int nextId = _getNextWalletId();
     wallet.id = nextId;
     final Map<String, dynamic> vaultData = wallet.toJson();
-    List<SingleSigVaultListItem> vaultListResult = await compute(WalletIsolates.addVault, vaultData);
+    List<SingleSigVaultListItem> vaultListResult = await compute(WalletIsolates.createSingleSigVault, vaultData);
 
     linker.linkNewSinglesigWallet(vaultListResult.first);
     vaults.add(vaultListResult[0]);
@@ -203,40 +230,6 @@ class WalletRepository {
     return vaultListResult[0];
   }
 
-  Future<WalletPrivacyInfo> _getPrivacyInfo(int id, WalletType walletType) async {
-    final key = WalletStorageKeys.privacyInfoKey(WalletStorageKeys.walletKey(id, walletType));
-    final String? privacyInfoString = await _storageService.read(key: key);
-    if (privacyInfoString == null) {
-      throw "Privacy data cannot be found";
-    }
-
-    if (walletType == WalletType.singleSignature) {
-      return SingleSigWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
-    } else if (walletType == WalletType.multiSignature) {
-      return MultisigWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
-    }
-    throw "Unsupported wallet type";
-  }
-
-  /// Ensures the vault list is loaded, lazy-loading on first access.
-  /// Use in entry-point write methods that can be called before any explicit load.
-  Future<List<VaultListItemBase>> _ensureLoaded() async {
-    if (_vaultList == null) {
-      await _loadVaultList();
-    }
-    return _vaultList!;
-  }
-
-  /// Asserts the vault list has already been loaded.
-  /// Use in methods whose preconditions guarantee a prior load.
-  List<VaultListItemBase> _requireLoaded() {
-    final list = _vaultList;
-    if (list == null) {
-      throw StateError('WalletRepository: vault list has not been loaded yet');
-    }
-    return list;
-  }
-
   Future<MultisigVaultListItem> addMultisigWallet(
     MultisigWallet wallet, {
     bool shouldAttachInnerVaultMetadata = false,
@@ -252,7 +245,7 @@ class WalletRepository {
       }
     }
     final Map<String, dynamic> data = wallet.toJson();
-    MultisigVaultListItem newMultisigVault = await compute(WalletIsolates.addMultisigVault, data);
+    MultisigVaultListItem newMultisigVault = await compute(WalletIsolates.createMultisigVault, data);
     Logger.logLongString('${newMultisigVault.toJson()}');
     linker.linkNewMultisigWallet(nextId, wallet.signers!);
     vaults.add(newMultisigVault);
@@ -272,6 +265,77 @@ class WalletRepository {
     }
     await _recordNextWalletId();
     return newMultisigVault;
+  }
+
+  Future<TaprootVaultListItem> addTaprootWallet(TaprootWalletCreateDto walletCreateDto) async {
+    final vaults = await _ensureLoaded();
+
+    final int nextId = _getNextWalletId();
+    walletCreateDto.id = nextId;
+
+    final Map<String, dynamic> data = walletCreateDto.toJson();
+    TaprootVaultListItem newTaprootVault = await compute(WalletIsolates.createTaprootVault, data);
+    Logger.logLongString('${newTaprootVault.toJson()}');
+    vaults.add(newTaprootVault);
+    final keyPathSeedInfosForAdd = [
+      for (final entry in (walletCreateDto.keyPathSeeds ?? []).asMap().entries)
+        TaprootSeedInfoForAdd(
+          secretPassphrasePair: (secret: entry.value.mnemonic, passphrase: entry.value.passphrase),
+          extendedPublicKey: newTaprootVault.keyPathSeedInfos[entry.key].extendedPublicKey,
+          role: TaprootSeedRole.keyPath,
+        ),
+    ];
+    final beneficiarySeedSources =
+        walletCreateDto.inheritanceLeaves?.where((leaf) => leaf.secret != null).map((leaf) => leaf.secret!).toList();
+    final beneficiarySeedInfosForAdd =
+        beneficiarySeedSources == null
+            ? null
+            : [
+              for (final entry in beneficiarySeedSources.asMap().entries)
+                TaprootSeedInfoForAdd(
+                  secretPassphrasePair: (secret: entry.value.mnemonic, passphrase: entry.value.passphrase),
+                  extendedPublicKey: newTaprootVault.beneficiarySeedInfos[entry.key].extendedPublicKey,
+                  role: TaprootSeedRole.beneficiary,
+                ),
+            ];
+    try {
+      await _strategy.mutate(
+        execute:
+            (ops) => ops.persistTaprootAdd(
+              id: nextId,
+              item: newTaprootVault,
+              keyPathSeedInfosForAdd: keyPathSeedInfosForAdd,
+              beneficiarySeedInfosForAdd: beneficiarySeedInfosForAdd,
+            ),
+        snapshot: () => vaults,
+      );
+    } catch (error) {
+      vaults.removeLast();
+      await _strategy.mutate(
+        execute: (ops) => ops.deleteWalletData(nextId, WalletType.taproot),
+        snapshot: () => vaults,
+      );
+      rethrow;
+    }
+    await _recordNextWalletId();
+    return newTaprootVault;
+  }
+
+  Future<WalletPrivacyInfo> _getPrivacyInfo(int id, WalletType walletType) async {
+    final key = WalletStorageKeys.privacyInfoKey(WalletStorageKeys.walletKey(id, walletType));
+    final String? privacyInfoString = await _storageService.read(key: key);
+    if (privacyInfoString == null) {
+      throw "Privacy data cannot be found";
+    }
+
+    switch (walletType) {
+      case WalletType.singleSignature:
+        return SingleSigWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
+      case WalletType.multiSignature:
+        return MultisigWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
+      case WalletType.taproot:
+        return TaprootWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
+    }
   }
 
   int _getNextWalletId() {
@@ -518,6 +582,25 @@ class WalletRepository {
 
     await _strategy.updateSinglesigPrivacy(id, updatedItem as SingleSigVaultListItem);
     await _strategy.savePublicVaultList(vaults);
+  }
+
+  /// Ensures the vault list is loaded, lazy-loading on first access.
+  /// Use in entry-point write methods that can be called before any explicit load.
+  Future<List<VaultListItemBase>> _ensureLoaded() async {
+    if (_vaultList == null) {
+      await _loadVaultList();
+    }
+    return _vaultList!;
+  }
+
+  /// Asserts the vault list has already been loaded.
+  /// Use in methods whose preconditions guarantee a prior load.
+  List<VaultListItemBase> _requireLoaded() {
+    final list = _vaultList;
+    if (list == null) {
+      throw StateError('WalletRepository: vault list has not been loaded yet');
+    }
+    return list;
   }
 
   void dispose() {

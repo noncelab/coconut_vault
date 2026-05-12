@@ -1,4 +1,4 @@
-import 'package:coconut_vault/model/taproot/mnemonic_passphrase_pair.dart';
+import 'package:coconut_vault/model/taproot/seed_source.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'inheritance_leaf.g.dart';

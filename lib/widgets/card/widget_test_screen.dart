@@ -86,8 +86,9 @@ class _MockTaprootVaultListItem extends TaprootVaultListItem {
         name: 'Name',
         colorIndex: 0,
         iconIndex: 0,
-        vaultType: WalletType.values.first,
+        descriptor: '',
+        keyPathSeedInfos: [],
+        beneficiarySeedInfos: [],
         createdAt: DateTime.now(),
-        isParent: true,
       );
 }

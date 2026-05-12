@@ -1,5 +1,5 @@
 import 'package:coconut_vault/model/taproot/inheritance_leaf.dart';
-import 'package:coconut_vault/model/taproot/mnemonic_passphrase_pair.dart';
+import 'package:coconut_vault/model/taproot/seed_source.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'taproot_wallet_create_dto.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
