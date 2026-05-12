@@ -217,6 +217,7 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
             },
           );
           if (passedCheck == true) {
+            if (!mounted) return;
             final result = await Navigator.pushNamed(
               context,
               AppRoutes.mnemonicCoinflip,
@@ -238,6 +239,7 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
             },
           );
           if (passedCheck == true) {
+            if (!mounted) return;
             final result = await Navigator.pushNamed(
               context,
               AppRoutes.mnemonicDiceRoll,
@@ -251,13 +253,26 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
           }
           return;
         } else if (_selectedChildCreationIndex == 2) {
-          Navigator.pushNamed(
+          final passedCheck = await Navigator.pushNamed(
             context,
             AppRoutes.securitySelfCheck,
             arguments: () {
-              Navigator.pushReplacementNamed(context, AppRoutes.mnemonicAutoGen);
+              Navigator.pop(context, true);
             },
           );
+          if (passedCheck == true) {
+            if (!mounted) return;
+            final result = await Navigator.pushNamed(
+              context,
+              AppRoutes.mnemonicAutoGen,
+              arguments: {'isTaprootChild': true},
+            );
+            if (result == true) {
+              setState(() {
+                _currentStep += 1;
+              });
+            }
+          }
           return;
         }
       } else if (_selectedChildMethodIndex == 1) {

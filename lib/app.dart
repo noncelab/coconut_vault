@@ -564,7 +564,13 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                           return SecuritySelfCheckScreen(onNextPressed: onNextPressed);
                         },
                         AppRoutes.mnemonicAutoGen:
-                            (context) => const MnemonicAutoGenScreen(entropyType: EntropyType.auto),
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => MnemonicAutoGenScreen(
+                                entropyType: EntropyType.auto,
+                                isTaprootChild: args['isTaprootChild'] ?? false,
+                              ),
+                            ),
                         AppRoutes.mnemonicCoinflip:
                             (context) => buildScreenWithArguments(
                               context,
