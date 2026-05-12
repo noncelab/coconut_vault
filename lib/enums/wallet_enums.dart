@@ -3,7 +3,8 @@ import 'package:coconut_lib/coconut_lib.dart';
 /// vault_model의 _vaultList에서 type 값 문자열을 비교할 때 꼭 VaultType.singleSignature.name으로 비교하셔야 합니다
 enum WalletType {
   singleSignature, // Single-Signature Vault
-  multiSignature; // Multi-Signature Vault
+  multiSignature,
+  taproot; // Multi-Signature Vault
 
   AddressType get addressType {
     switch (this) {
@@ -11,6 +12,8 @@ enum WalletType {
         return AddressType.p2wpkh;
       case WalletType.multiSignature:
         return AddressType.p2wsh;
+      case WalletType.taproot:
+        return AddressType.p2tr;
     }
   }
 
