@@ -10,8 +10,10 @@ import 'package:coconut_vault/utils/hash_util.dart';
 
 /// Storage key derivation helpers shared by repository & strategies.
 class WalletStorageKeys {
+  static String _passphraseEnabledFlagKey(String key) => hashString("$key - passphraseEnabled");
+
   static String walletKey(int id, WalletType type) => hashString("${id.toString()} - ${type.name}");
-  static String passphraseEnabledKey(String walletKey) => hashString("$walletKey - passphraseEnabled");
+  static String passphraseEnabledKey(String walletKey) => _passphraseEnabledFlagKey(walletKey);
   static String privacyInfoKey(String walletKey) => "privacy_${hashString(walletKey)}";
 
   // Taproot seed 관련
@@ -21,7 +23,7 @@ class WalletStorageKeys {
     return hashString(parts.join(' - '));
   }
 
-  static String taprootSeedPassphraseEnabledKey(String seedKey) => hashString("$seedKey - passphraseEnabled");
+  static String taprootSeedPassphraseEnabledKey(String seedKey) => _passphraseEnabledFlagKey(seedKey);
   // 탭루트 지갑을 구성하는 Seed 저장한 Key 목록
   static String taprootSeedIndexKey(int walletId) => hashString("$walletId - taprootSeedIndex");
 }
