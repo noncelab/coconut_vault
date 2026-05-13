@@ -323,11 +323,21 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           title: t.taproot.child_creation_screen.title,
           context: context,
           backgroundColor: CoconutColors.white,
+          onBackPressed: () {
+            if (_currentStep > 1) {
+              setState(() {
+                _currentStep -= 1;
+              });
+            } else {
+              Navigator.maybePop(context);
+            }
+          },
         ),
         body: SafeArea(
           child: Stack(
             children: [
               TaprootCreationBody(
+                key: ValueKey(_currentStep),
                 titleLines: _titleLines(viewModel),
                 showBottomButton: _isNextButtonVisible(viewModel),
                 onBottomButtonPressed: () => _onNextPressed(viewModel),
