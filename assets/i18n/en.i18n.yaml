@@ -112,6 +112,9 @@ edit: "Edit"
 descriptor: "Descriptor"
 precautions: "Precautions"
 
+wallet_type: "Wallet Type"
+mfp: "MFP"
+
 watch_only_options:
   title: "Select Watch-Only Wallet"
   coconut_wallet: "Coconut Wallet"
@@ -525,6 +528,8 @@ welcome_screen:
 
 # lib/screens/vault_creation
 taproot:
+  taproot_single_sig_wallet: "Taproot Single-sig Wallet"
+  taproot_multisig_wallet: "Taproot Multisig Wallet"
   parent_creation_screen:
     title: "Create Parent Wallet"
     taproot_inheritance_wallet: "Taproot Inheritance Wallet"
@@ -555,6 +560,15 @@ taproot:
       existing_option1: "Select from\ncurrent vault"
       existing_option2: "Enter mnemonic"
       existing_option3: "Scan Seed QR"
+    step4:
+      title1: "Child wallet is ready"
+      title2: "Please export wallet info"
+      title3: "to use in the parent wallet"
+    step5:
+      title1: "Please scan"
+      title2: "the inheritance wallet"
+    step6:
+      title1: "Matches the inheritance condition wallet"
   setup_summary_card:
     signer_configuration: "Signer Configuration"
     inheritance_condition: "Inheritance Condition"

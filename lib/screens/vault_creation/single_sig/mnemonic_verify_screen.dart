@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -18,8 +19,6 @@ class MnemonicVerifyScreen extends StatefulWidget {
 }
 
 class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
-  late WalletCreationProvider _walletCreationProvider;
-
   // 퀴즈 관련 변수
   int _currentQuizIndex = 0; // 현재 퀴즈 인덱스
   final int _totalQuizzes = 5; // 총 퀴즈 개수
@@ -38,7 +37,6 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
   @override
   void initState() {
     super.initState();
-    _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
     _initializeQuiz();
   }
 
@@ -49,7 +47,12 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
   }
 
   void _initializeQuiz() {
-    _mnemonic = utf8.decode(_walletCreationProvider.secret).split(' ');
+    final secret =
+        widget.isTaprootChild
+            ? Provider.of<TaprootWalletCreationProvider>(context, listen: false).secret
+            : Provider.of<WalletCreationProvider>(context, listen: false).secret;
+
+    _mnemonic = utf8.decode(secret).split(' ');
     if (_mnemonic.isEmpty) return;
 
     // 랜덤하게 n개의 단어 선택 (중복 없이)

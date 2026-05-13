@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
@@ -24,17 +25,26 @@ class MnemonicConfirmationScreen extends StatefulWidget {
 }
 
 class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen> {
-  late WalletCreationProvider _walletCreationProvider;
   late int step;
   final ScrollController _scrollController = ScrollController();
   late Uint8List _mnemonic;
+  Uint8List? _passphrase;
   bool _isWarningVisible = true;
 
   @override
   void initState() {
     super.initState();
-    _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
-    _mnemonic = Uint8List.fromList(_walletCreationProvider.secret);
+
+    final secret =
+        widget.isTaprootChild
+            ? Provider.of<TaprootWalletCreationProvider>(context, listen: false).secret
+            : Provider.of<WalletCreationProvider>(context, listen: false).secret;
+    _passphrase =
+        widget.isTaprootChild
+            ? Provider.of<TaprootWalletCreationProvider>(context, listen: false).passphrase
+            : Provider.of<WalletCreationProvider>(context, listen: false).passphrase;
+
+    _mnemonic = Uint8List.fromList(secret);
     step = 0;
   }
 
@@ -45,7 +55,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   }
 
   NextButtonState _getNextButtonState() {
-    if (_walletCreationProvider.passphrase?.isEmpty ?? true) {
+    if (_passphrase?.isEmpty ?? true) {
       return NextButtonState.completeActive;
     }
     if (step == 0) {
@@ -97,7 +107,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                   text: _getNextButtonState().text,
                   backgroundColor: CoconutColors.black,
                   onButtonClicked: () async {
-                    if (step == 0 && (_walletCreationProvider.passphrase?.isNotEmpty ?? false)) {
+                    if (step == 0 && (_passphrase?.isNotEmpty ?? false)) {
                       setState(() {
                         // 패스프레이즈 확인 단계로 이동
                         step = 1;
@@ -149,7 +159,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
 
   Widget buildStepIndicator() {
     return EntropyStepIndicator(
-      usePassphrase: _walletCreationProvider.passphrase?.isNotEmpty ?? false,
+      usePassphrase: _passphrase?.isNotEmpty ?? false,
       step: step,
       onStepSelected: (selectedStep) {
         setState(() {
@@ -160,7 +170,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   }
 
   Widget _passphraseGridViewWidget() {
-    final passphrase = _walletCreationProvider.passphrase;
+    final passphrase = _passphrase;
     if (passphrase == null) return Container();
 
     final decodedPassphrase = utf8.decode(passphrase);

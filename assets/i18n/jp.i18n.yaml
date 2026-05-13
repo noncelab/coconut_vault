@@ -112,6 +112,9 @@ edit: "編集"
 descriptor: "ディスクリプタ"
 precautions: "注意事項"
 
+wallet_type: "ウォレットの種類"
+mfp: "MFP"
+
 watch_only_options:
   title: "ウォッチオンリーウォレット選択"
   coconut_wallet: "ココナッツウォレット"
@@ -524,6 +527,8 @@ welcome_screen:
 
 # lib/screens/vault_creation
 taproot:
+  taproot_single_sig_wallet: "Taprootシングルシグウォレット"
+  taproot_multisig_wallet: "Taprootマルチシグウォレット"
   parent_creation_screen:
     title: "親ウォレットを作成"
     taproot_inheritance_wallet: "Taproot相続ウォレット"
@@ -554,6 +559,15 @@ taproot:
       existing_option1: "現在のボルトから\n選択"
       existing_option2: "ニーモニック入力"
       existing_option3: "シードQRスキャン"
+    step4:
+      title1: "子ウォレットの準備ができました"
+      title2: "親ウォレットで使用できるように"
+      title3: "ウォレット情報をエクスポートしてください"
+    step5:
+      title1: "相続ウォレットを"
+      title2: "スキャンしてインポートしてください"
+    step6:
+      title1: "相続条件のウォレットと一致します"
   setup_summary_card:
     signer_configuration: "署名者構成"
     inheritance_condition: "相続条件"

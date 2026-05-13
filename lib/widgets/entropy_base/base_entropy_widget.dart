@@ -5,6 +5,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
@@ -24,6 +25,7 @@ abstract class BaseEntropyWidget extends StatefulWidget {
   final EntropyType entropyType;
   final Uint8List? mnemonic;
   final ValueNotifier<int>? stepNotifier; // 니모닉 or 패스프레이즈 입력 단계
+  final bool isTaprootChild;
 
   const BaseEntropyWidget({
     super.key,
@@ -33,6 +35,7 @@ abstract class BaseEntropyWidget extends StatefulWidget {
     required this.entropyType,
     this.mnemonic,
     this.stepNotifier,
+    this.isTaprootChild = false,
   });
 }
 
@@ -247,7 +250,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
     if (!widget.usePassphrase && step == 0) {
       if (widget.entropyType == EntropyType.auto) {
         _passphrase = utf8.encode(_passphraseController.text);
-        Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+        _saveSecretAndPassphrase();
       }
     }
 
@@ -263,7 +266,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
         _setMnemonicFromEntropy();
       }
 
-      Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+      _saveSecretAndPassphrase();
       _passphraseFocusNode.unfocus();
       _passphraseConfirmFocusNode.unfocus();
 
@@ -302,8 +305,16 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
       return;
     }
 
-    Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+    _saveSecretAndPassphrase();
     onNavigateToNext();
+  }
+
+  void _saveSecretAndPassphrase() {
+    if (widget.isTaprootChild) {
+      Provider.of<TaprootWalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+    } else {
+      Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+    }
   }
 
   // 추상 메서드 (각 구현체에서 정의)

@@ -3,9 +3,14 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
+import 'package:coconut_vault/widgets/box/info_box.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
 import 'package:coconut_vault/widgets/indicator/timeline_step_indicator.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
+import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
+import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 class ChildCreationScreen extends StatefulWidget {
@@ -16,7 +21,7 @@ class ChildCreationScreen extends StatefulWidget {
 }
 
 class _ChildCreationScreenState extends State<ChildCreationScreen> {
-  static const int _totalStep = 4;
+  static const int _totalStep = 5;
   int _currentStep = 1;
   int _selectedChildMethodIndex = -1;
   int _selectedChildCreationIndex = -1;
@@ -45,7 +50,16 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
     _selectedChildMethodIndex == 0
         ? [TextSpan(text: t.taproot.child_creation_screen.step3.title_new)]
         : [TextSpan(text: t.taproot.child_creation_screen.step3.title_existing)],
-    [const TextSpan(text: '자식 지갑 타이틀'), TextSpan(text: '($_currentStep / $_totalStep)')],
+    [
+      TextSpan(text: t.taproot.child_creation_screen.step4.title1),
+      TextSpan(text: t.taproot.child_creation_screen.step4.title2, style: CoconutTypography.body1_16),
+      TextSpan(text: t.taproot.child_creation_screen.step4.title3, style: CoconutTypography.body1_16),
+    ],
+    [
+      TextSpan(text: t.taproot.child_creation_screen.step5.title1),
+      TextSpan(text: t.taproot.child_creation_screen.step5.title2),
+    ],
+    [TextSpan(text: t.taproot.child_creation_screen.step6.title1)],
   ];
 
   List<Widget> get _childList => [
@@ -169,6 +183,7 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
             ),
           ],
         ),
+    _buildQrSection(),
     const TimelineStepIndicator(
       timelineStepItemList: [
         TimelineStepItem(
@@ -191,6 +206,32 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
     ),
   ];
 
+  Widget _buildQrSection() {
+    return Consumer<TaprootWalletCreationProvider>(
+      builder: (context, taprootProvider, child) {
+        return Padding(
+          padding: const EdgeInsets.only(top: 21),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (taprootProvider.qrData != null && taprootProvider.qrData!.isNotEmpty)
+                AdaptiveQrImage(qrData: taprootProvider.qrData!)
+              else
+                const SizedBox(height: 200), // QR 데이터가 없을 때 영역 확보용 위젯
+              CoconutLayout.spacing_500h,
+              InfoBox(
+                infoList: [
+                  MapEntry(t.wallet_type, t.taproot.taproot_single_sig_wallet),
+                  MapEntry(t.mfp, taprootProvider.masterFingerprint ?? '00000000'),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   bool get _isNextButtonVisible {
     if (_currentStep == 2) {
       return _selectedChildMethodIndex != -1;
@@ -208,7 +249,20 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
   void _onNextPressed() async {
     if (_currentStep == 3) {
       if (_selectedChildMethodIndex == 0) {
-        if (_selectedChildCreationIndex == 0) {
+        String? route;
+        switch (_selectedChildCreationIndex) {
+          case 0:
+            route = AppRoutes.mnemonicCoinflip;
+            break;
+          case 1:
+            route = AppRoutes.mnemonicDiceRoll;
+            break;
+          case 2:
+            route = AppRoutes.mnemonicAutoGen;
+            break;
+        }
+
+        if (route != null) {
           final passedCheck = await Navigator.pushNamed(
             context,
             AppRoutes.securitySelfCheck,
@@ -218,59 +272,16 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
           );
           if (passedCheck == true) {
             if (!mounted) return;
-            final result = await Navigator.pushNamed(
-              context,
-              AppRoutes.mnemonicCoinflip,
-              arguments: {'isTaprootChild': true},
-            );
+            final result = await Navigator.pushNamed(context, route, arguments: {'isTaprootChild': true});
             if (result == true) {
-              setState(() {
-                _currentStep += 1;
-              });
-            }
-          }
-          return;
-        } else if (_selectedChildCreationIndex == 1) {
-          final passedCheck = await Navigator.pushNamed(
-            context,
-            AppRoutes.securitySelfCheck,
-            arguments: () {
-              Navigator.pop(context, true);
-            },
-          );
-          if (passedCheck == true) {
-            if (!mounted) return;
-            final result = await Navigator.pushNamed(
-              context,
-              AppRoutes.mnemonicDiceRoll,
-              arguments: {'isTaprootChild': true},
-            );
-            if (result == true) {
-              setState(() {
-                _currentStep += 1;
-              });
-            }
-          }
-          return;
-        } else if (_selectedChildCreationIndex == 2) {
-          final passedCheck = await Navigator.pushNamed(
-            context,
-            AppRoutes.securitySelfCheck,
-            arguments: () {
-              Navigator.pop(context, true);
-            },
-          );
-          if (passedCheck == true) {
-            if (!mounted) return;
-            final result = await Navigator.pushNamed(
-              context,
-              AppRoutes.mnemonicAutoGen,
-              arguments: {'isTaprootChild': true},
-            );
-            if (result == true) {
-              setState(() {
-                _currentStep += 1;
-              });
+              if (!mounted) return;
+              try {
+                setState(() {
+                  _currentStep += 1;
+                });
+              } catch (e) {
+                Logger.error('Failed to generate child wallet: $e');
+              }
             }
           }
           return;

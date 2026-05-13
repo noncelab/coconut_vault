@@ -42,7 +42,6 @@ class _MnemonicAutoGenScreenState extends BaseMnemonicEntropyScreenState<Mnemoni
 
 class GeneratedWords extends BaseEntropyWidget {
   final Uint8List? customMnemonic;
-  final bool isTaprootChild;
 
   const GeneratedWords({
     super.key,
@@ -51,7 +50,7 @@ class GeneratedWords extends BaseEntropyWidget {
     required super.onReset,
     required super.entropyType,
     this.customMnemonic,
-    this.isTaprootChild = false,
+    super.isTaprootChild = false,
   });
 
   @override
