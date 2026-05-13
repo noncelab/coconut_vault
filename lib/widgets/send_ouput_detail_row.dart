@@ -26,12 +26,15 @@ class SendOutputDetailRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(label, style: CoconutTypography.body2_14.setColor(CoconutColors.gray700)),
-        ),
-        CoconutLayout.spacing_1000w,
         Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(label, style: CoconutTypography.body2_14.setColor(CoconutColors.gray700)),
+          ),
+        ),
+        CoconutLayout.spacing_300w,
+        Flexible(
+          flex: 5,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
