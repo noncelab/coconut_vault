@@ -24,7 +24,6 @@ class VaultRowItem extends StatefulWidget {
     this.isSelectable = false,
     this.onSelected,
     this.isSelected = false,
-    this.isSelectedBorderVisible = false,
     this.isStarVisible = false,
     this.isFavorite = false,
     this.isPrimaryWallet,
@@ -50,7 +49,6 @@ class VaultRowItem extends StatefulWidget {
   final bool isNextIconVisible;
   final bool isKeyBorderVisible;
   final bool isSelected;
-  final bool isSelectedBorderVisible;
 
   /// 스켈레톤 UI를 반환하는 static 메서드
   static Widget buildSkeleton() {
@@ -175,9 +173,9 @@ class _VaultRowItemState extends State<VaultRowItem> {
       pressedColor: CoconutColors.gray150,
       borderGradientColors:
           widget.isKeyBorderVisible
-              ? [CoconutColors.black.withValues(alpha: 0.08), CoconutColors.black.withValues(alpha: 0.08)]
-              : (widget.isSelected && widget.isSelectedBorderVisible)
-              ? [CoconutColors.gray800, CoconutColors.gray800]
+              ? widget.isSelected
+                  ? [CoconutColors.gray800, CoconutColors.gray800]
+                  : [CoconutColors.black.withValues(alpha: 0.08), CoconutColors.black.withValues(alpha: 0.08)]
               : null,
       borderWidth: 1,
       borderRadius: 8,

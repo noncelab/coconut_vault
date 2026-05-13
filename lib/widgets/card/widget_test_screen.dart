@@ -103,8 +103,8 @@ class _WidgetTestScreenState extends State<WidgetTestScreen> {
                 child: VaultRowItem(
                   vault: vault,
                   isSelected: _selectedVaultId == vault.id,
+                  isKeyBorderVisible: true,
                   isSelectable: true,
-                  isSelectedBorderVisible: true,
                   isNextIconVisible: false,
                   onSelected: () {
                     setState(() {
