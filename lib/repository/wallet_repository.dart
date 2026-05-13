@@ -347,8 +347,7 @@ class WalletRepository {
     await _sharedPrefs.setInt(SharedPrefsKeys.kNextIdField, nextId + 1);
   }
 
-  Future<({Uint8List secret, Uint8List? passphrase})> _decryptSecret(int id, {bool autoAuth = true}) async {
-    final key = WalletStorageKeys.walletKey(id, WalletType.singleSignature);
+  Future<({Uint8List secret, Uint8List? passphrase})> _decryptSeed(String key, {bool autoAuth = true}) async {
     final combinedBase64 = await _storageService.read(key: key);
     if (combinedBase64 == null && Platform.isIOS) {
       throw SeedInvalidatedException();
@@ -369,13 +368,43 @@ class WalletRepository {
     return parsed;
   }
 
-  Future<Uint8List> getSecret(int id, {bool autoAuth = true}) async {
-    final parsed = await _decryptSecret(id, autoAuth: autoAuth);
+  Future<({Uint8List secret, Uint8List? passphrase})> _decryptSingleSigSeed(int id, {bool autoAuth = true}) async {
+    assert(getVaultById(id) is SingleSigVaultListItem);
+    final key = WalletStorageKeys.walletKey(id, WalletType.singleSignature);
+    return _decryptSeed(key, autoAuth: autoAuth);
+  }
+
+  Future<Uint8List> getSingleSigSecret(int id, {bool autoAuth = true}) async {
+    final parsed = await _decryptSingleSigSeed(id, autoAuth: autoAuth);
     return parsed.secret;
   }
 
-  Future<Seed> getSeedInSigningOnlyMode(int id) async {
-    final parsed = await _decryptSecret(id);
+  Future<Seed> getSingleSigSeedInSigningOnlyMode(int id) async {
+    final parsed = await _decryptSingleSigSeed(id);
+    final Uint8List secret = parsed.secret;
+    final Uint8List? passphrase = parsed.passphrase;
+
+    return Seed.fromMnemonic(secret, passphrase: passphrase);
+  }
+
+  Future<({Uint8List secret, Uint8List? passphrase})> _decryptTaprootSeed(
+    int id,
+    TaprootSeedKeyIdentifier seedIdentifier, {
+    bool autoAuth = true,
+  }) async {
+    assert(getVaultById(id) is TaprootVaultListItem);
+    final key = WalletStorageKeys.taprootSeedKey(id, seedIdentifier);
+    return _decryptSeed(key, autoAuth: autoAuth);
+  }
+
+  // secure storage mode
+  Future<Uint8List> getTaprootSecret(int id, TaprootSeedKeyIdentifier seedIdentifier, {bool autoAuth = true}) async {
+    final parsed = await _decryptTaprootSeed(id, seedIdentifier, autoAuth: autoAuth);
+    return parsed.secret;
+  }
+
+  Future<Seed> getTaprootSeedInSigningOnlyMode(int id, TaprootSeedKeyIdentifier seedIdentifier) async {
+    final parsed = await _decryptTaprootSeed(id, seedIdentifier);
     final Uint8List secret = parsed.secret;
     final Uint8List? passphrase = parsed.passphrase;
 
@@ -524,7 +553,7 @@ class WalletRepository {
           }
 
           final singleSigWallet = vault as SingleSigVaultListItem;
-          final Seed seed = await getSeedInSigningOnlyMode(vault.id);
+          final Seed seed = await getSingleSigSeedInSigningOnlyMode(vault.id);
           await ops.persistSinglesigAdd(
             id: vault.id,
             secret: seed.mnemonic,
@@ -551,8 +580,7 @@ class WalletRepository {
     }
 
     final currentCoconutVault = existingVault.coconutVault as SingleSignatureVault;
-
-    final parsed = await _decryptSecret(id);
+    final parsed = await _decryptSingleSigSeed(id);
     final passphrase = _strategy.passphraseStoredWithSecret ? parsed.passphrase : inputPassphrase;
 
     final derivedNewAccountVault = await compute(WalletIsolates.deriveNewAccountVault, {

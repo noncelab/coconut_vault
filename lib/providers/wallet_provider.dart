@@ -14,6 +14,7 @@ import 'package:coconut_vault/model/taproot/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/services/wallet/wallet_service.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
@@ -217,10 +218,19 @@ class WalletProvider extends ChangeNotifier {
     }
   }
 
-  Future<Uint8List> getSecret(int id, {bool autoAuth = true}) => _service.getSecret(id, autoAuth: autoAuth);
+  // TODO: rename to 'getSingleSigSecret'
+  Future<Uint8List> getSecret(int id, {bool autoAuth = true}) => _service.getSingleSigSecret(id, autoAuth: autoAuth);
 
   // 서명 전용 모드
-  Future<Seed> getSeedInSigningOnlyMode(int id) => _service.getSeedInSigningOnlyMode(id);
+  // TODO: rename to 'getSingleSigSeedInSigningOnlyMode'
+  Future<Seed> getSeedInSigningOnlyMode(int id) => _service.getSingleSigSeedInSigningOnlyMode(id);
+
+  Future<Uint8List> getTaprootSecret(int id, TaprootSeedKeyIdentifier seedIdentifier, {bool autoAuth = true}) =>
+      _service.getTaprootSecret(id, seedIdentifier, autoAuth: autoAuth);
+
+  // 서명 전용 모드
+  Future<Seed> getTaprootSeedInSigningOnlyMode(int id, TaprootSeedKeyIdentifier seedIdentifier) =>
+      _service.getTaprootSeedInSigningOnlyMode(id, seedIdentifier);
 
   Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {
     if (_isSigningOnlyMode == isSigningOnlyMode) return;

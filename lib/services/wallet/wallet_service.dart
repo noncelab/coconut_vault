@@ -15,6 +15,7 @@ import 'package:coconut_vault/model/taproot/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:flutter/foundation.dart';
 
@@ -224,11 +225,11 @@ class WalletService {
 
   // ---- secret / passphrase ----
 
-  Future<Uint8List> getSecret(int id, {bool autoAuth = true}) async {
+  Future<Uint8List> getSingleSigSecret(int id, {bool autoAuth = true}) async {
     // TEE 접근 시작 - inactive 상태 전환 무시
     _lifecycle.startOperation(AppLifecycleOperations.hwBasedDecryption);
     try {
-      return await _repo.getSecret(id, autoAuth: autoAuth);
+      return await _repo.getSingleSigSecret(id, autoAuth: autoAuth);
     } finally {
       // TEE 접근 완료 - inactive 상태 전환 허용
       // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
@@ -237,16 +238,38 @@ class WalletService {
   }
 
   /// 서명 전용 모드 전용
-  Future<Seed> getSeedInSigningOnlyMode(int id) async {
+  Future<Seed> getSingleSigSeedInSigningOnlyMode(int id) async {
     _lifecycle.startOperation(AppLifecycleOperations.hwBasedDecryption);
     try {
-      return await _repo.getSeedInSigningOnlyMode(id);
+      return await _repo.getSingleSigSeedInSigningOnlyMode(id);
     } finally {
       _lifecycle.endOperation(AppLifecycleOperations.hwBasedDecryption, delay: const Duration(milliseconds: 1500));
     }
   }
 
   Future<bool> hasPassphrase(int walletId) => _repo.hasPassphrase(walletId);
+
+  Future<Uint8List> getTaprootSecret(int id, TaprootSeedKeyIdentifier seedIdentifier, {bool autoAuth = true}) async {
+    // TEE 접근 시작 - inactive 상태 전환 무시
+    _lifecycle.startOperation(AppLifecycleOperations.hwBasedDecryption);
+    try {
+      return await _repo.getTaprootSecret(id, seedIdentifier, autoAuth: autoAuth);
+    } finally {
+      // TEE 접근 완료 - inactive 상태 전환 허용
+      // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
+      _lifecycle.endOperation(AppLifecycleOperations.hwBasedDecryption, delay: const Duration(milliseconds: 1500));
+    }
+  }
+
+  /// 서명 전용 모드 전용
+  Future<Seed> getTaprootSeedInSigningOnlyMode(int id, TaprootSeedKeyIdentifier seedIdentifier) async {
+    _lifecycle.startOperation(AppLifecycleOperations.hwBasedDecryption);
+    try {
+      return await _repo.getTaprootSeedInSigningOnlyMode(id, seedIdentifier);
+    } finally {
+      _lifecycle.endOperation(AppLifecycleOperations.hwBasedDecryption, delay: const Duration(milliseconds: 1500));
+    }
+  }
 
   // ---- mode ----
 
