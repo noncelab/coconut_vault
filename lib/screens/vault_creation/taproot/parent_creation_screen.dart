@@ -165,17 +165,12 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       4 =>
         _viewModel.selectedWalletType == ParentWalletType.multisig
             ? _viewModel.selectedKeyPreparationType != ParentKeyPreparationType.none
-            : _hasSelectedKeyCreationOrImportOption,
-      5 => _viewModel.selectedWalletType == ParentWalletType.multisig ? _hasSelectedKeyCreationOrImportOption : true,
+            : _viewModel.hasSelectedKeyCreationOrImportOption,
+      5 =>
+        _viewModel.selectedWalletType == ParentWalletType.multisig
+            ? _viewModel.hasSelectedKeyCreationOrImportOption
+            : true,
       _ => true,
-    };
-  }
-
-  bool get _hasSelectedKeyCreationOrImportOption {
-    return switch (_viewModel.selectedKeyPreparationType) {
-      ParentKeyPreparationType.create => _viewModel.selectedNewKeyCreationType != ParentNewKeyCreationType.none,
-      ParentKeyPreparationType.import => _viewModel.selectedExistingKeyImportType != ParentExistingKeyImportType.none,
-      ParentKeyPreparationType.none => false,
     };
   }
 

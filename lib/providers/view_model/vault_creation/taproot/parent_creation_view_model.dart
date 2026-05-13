@@ -32,6 +32,13 @@ class ParentCreationViewModel extends ChangeNotifier {
   bool get isCurrentVaultSelected => _selectedExistingKeyImportType == ParentExistingKeyImportType.currentVault;
   bool get isMnemonicInputSelected => _selectedExistingKeyImportType == ParentExistingKeyImportType.mnemonicInput;
   bool get isSeedQrScanSelected => _selectedExistingKeyImportType == ParentExistingKeyImportType.seedQrScan;
+  bool get hasSelectedKeyCreationOrImportOption {
+    return switch (_selectedKeyPreparationType) {
+      ParentKeyPreparationType.create => _selectedNewKeyCreationType != ParentNewKeyCreationType.none,
+      ParentKeyPreparationType.import => _selectedExistingKeyImportType != ParentExistingKeyImportType.none,
+      ParentKeyPreparationType.none => false,
+    };
+  }
 
   void setWalletType(ParentWalletType type) {
     _selectedWalletType = _selectedWalletType == type ? ParentWalletType.none : type;
