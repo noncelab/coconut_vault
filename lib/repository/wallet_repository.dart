@@ -489,7 +489,11 @@ class WalletRepository {
   }
 
   Future<void> resetAll() async {
-    await WalletStorageCleaner.clearAll(wallets: _vaultList);
+    await WalletStorageCleaner.clearAll(
+      wallets: _vaultList,
+      storageService: _storageService,
+      secureZoneRepository: _secureZoneRepository,
+    );
   }
 
   Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {

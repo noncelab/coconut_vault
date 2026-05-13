@@ -646,6 +646,124 @@ void main() {
       expect(storage.values.containsKey(seedIndexKey), isFalse);
     });
 
+    test('SecureStorage / resetAll clears all taproot wallet data', () async {
+      final storage = _FakeSecureStorageRepository();
+      final secureZone = _FakeSecureZoneRepository();
+      final repository = WalletRepository(storageService: storage, secureZoneRepository: secureZone);
+      final walletCreateDto = TaprootWalletCreateDto(
+        null,
+        'taproot inheritance wallet',
+        1,
+        2,
+        [
+          _seedSource(
+            'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+            'key-passphrase',
+          ),
+        ],
+        [
+          _taprootSignerBsms(
+            'letter advice cage absurd amount doctor acoustic avoid letter advice cage above',
+            'external-passphrase',
+          ),
+        ],
+        [
+          InheritanceLeaf(
+            secret: _seedSource(
+              'legal winner thank year wave sausage worth useful legal winner thank yellow',
+              'beneficiary-passphrase',
+            ),
+            lockTime: 500000000,
+          ),
+        ],
+      );
+
+      final added = await repository.addTaprootWallet(walletCreateDto);
+      final keyPathSeedKey = WalletStorageKeys.taprootSeedKey(
+        added.id,
+        TaprootSeedKeyIdentifierImpl(
+          extendedPublicKey: added.keyPathSeedInfos.single.extendedPublicKey,
+          role: TaprootSeedRole.keyPath,
+        ),
+      );
+      final beneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
+        added.id,
+        TaprootSeedKeyIdentifierImpl(
+          extendedPublicKey: added.beneficiarySeedInfos.single.extendedPublicKey,
+          role: TaprootSeedRole.beneficiary,
+        ),
+      );
+
+      expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isNotEmpty);
+
+      await repository.resetAll();
+
+      expect(storage.values, isEmpty);
+      expect(secureZone.deletedAliases, hasLength(2));
+      expect(secureZone.deletedAliases, contains(keyPathSeedKey));
+      expect(secureZone.deletedAliases, contains(beneficiarySeedKey));
+      expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isEmpty);
+      expect(SharedPrefsRepository().getInt(SharedPrefsKeys.kNextIdField), isNull);
+    });
+
+    test('SigningOnly / resetAll clears all taproot wallet data', () async {
+      final storage = _FakeSecureStorageRepository();
+      final secureZone = _FakeSecureZoneRepository();
+      final repository = WalletRepository(
+        isSigningOnlyMode: true,
+        storageService: storage,
+        secureZoneRepository: secureZone,
+      );
+      final walletCreateDto = TaprootWalletCreateDto(
+        null,
+        'taproot inheritance wallet',
+        1,
+        2,
+        [
+          _seedSource(
+            'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+            'key-passphrase',
+          ),
+        ],
+        null,
+        [
+          InheritanceLeaf(
+            secret: _seedSource(
+              'legal winner thank year wave sausage worth useful legal winner thank yellow',
+              'beneficiary-passphrase',
+            ),
+            lockTime: 500000000,
+          ),
+        ],
+      );
+
+      final added = await repository.addTaprootWallet(walletCreateDto);
+      final keyPathSeedKey = WalletStorageKeys.taprootSeedKey(
+        added.id,
+        TaprootSeedKeyIdentifierImpl(
+          extendedPublicKey: added.keyPathSeedInfos.single.extendedPublicKey,
+          role: TaprootSeedRole.keyPath,
+        ),
+      );
+      final beneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
+        added.id,
+        TaprootSeedKeyIdentifierImpl(
+          extendedPublicKey: added.beneficiarySeedInfos.single.extendedPublicKey,
+          role: TaprootSeedRole.beneficiary,
+        ),
+      );
+      expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isEmpty);
+      expect(SharedPrefsRepository().getInt(SharedPrefsKeys.kNextIdField), isNotNull);
+
+      await repository.resetAll();
+
+      expect(storage.values, isEmpty);
+      expect(secureZone.deletedAliases, contains(keyPathSeedKey));
+      expect(secureZone.deletedAliases, contains(beneficiarySeedKey));
+      expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isEmpty);
+      expect(SharedPrefsRepository().getInt(SharedPrefsKeys.kNextIdField), isNull);
+    });
+
     test('SecureStorage / rolls back taproot secrets when privacy write fails', () async {
       final storage = _FakeSecureStorageRepository(throwOnPrivacyWrite: true);
       final secureZone = _FakeSecureZoneRepository();
