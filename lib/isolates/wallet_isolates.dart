@@ -30,12 +30,7 @@ class WalletIsolates {
       AddressType.p2wpkh,
     );
     final derivationPath = NetworkType.currentNetworkType.isTestnet ? "84'/1'/0'" : "84'/0'/0'";
-    final descriptor = Descriptor.forSingleSignature(
-      AddressType.p2wpkh,
-      keyStore.extendedPublicKey.serialize(),
-      derivationPath,
-      keyStore.masterFingerprint,
-    );
+    final descriptor = Descriptor.forSingleSignature(AddressType.p2wpkh, keyStore, derivationPath);
     final signerBsms = SingleSignatureVault.fromKeyStore(keyStore).getSignerBsms(AddressType.p2wsh, '');
     SingleSigVaultListItem newItem = SingleSigVaultListItem(
       id: wallet.id!,

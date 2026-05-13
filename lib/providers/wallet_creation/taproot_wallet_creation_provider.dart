@@ -24,7 +24,7 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
     try {
       final seed = Seed.fromMnemonic(_secret, passphrase: _passphrase.isNotEmpty ? _passphrase : Uint8List(0));
 
-      final keyStore = KeyStore.fromSeed(seed, AddressType.p2trKeyPathSpending);
+      final keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
 
       _masterFingerprint = keyStore.masterFingerprint;
       _qrData = keyStore.extendedPublicKey.serialize();
