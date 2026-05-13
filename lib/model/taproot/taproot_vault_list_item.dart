@@ -39,7 +39,7 @@ class TaprootVaultListItem extends VaultListItemBase {
   }) : _keyPathSeedInfos = List.unmodifiable(keyPathSeedInfos),
        _beneficiarySeedInfos = List.unmodifiable(beneficiarySeedInfos),
        super(vaultType: WalletType.taproot) {
-    coconutVault = TaprootVault.fromDescriotor(descriptor);
+    coconutVault = TaprootVault.fromDescriptor(descriptor);
 
     final taprootVault = (coconutVault as TaprootVault);
     final List<TaprootParticipant> keyPathParticipants = [];
