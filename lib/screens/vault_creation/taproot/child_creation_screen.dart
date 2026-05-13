@@ -301,24 +301,35 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   Widget build(BuildContext context) {
     final viewModel = context.watch<ChildCreationViewModel>();
 
-    return Scaffold(
-      backgroundColor: CoconutColors.white,
-      appBar: CoconutAppBar.build(
-        title: t.taproot.child_creation_screen.title,
-        context: context,
+    return PopScope(
+      canPop: _currentStep == 1,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (_currentStep > 1) {
+          setState(() {
+            _currentStep -= 1;
+          });
+        }
+      },
+      child: Scaffold(
         backgroundColor: CoconutColors.white,
-      ),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            TaprootCreationBody(
-              titleLines: _titleLines(viewModel),
-              showBottomButton: _isNextButtonVisible(viewModel),
-              onBottomButtonPressed: () => _onNextPressed(viewModel),
-              child: Container(child: _childList(viewModel)[_currentStep - 1]),
-            ),
-            TopProgressBar(visible: true, total: _totalStep - 1, current: _currentStep - 1),
-          ],
+        appBar: CoconutAppBar.build(
+          title: t.taproot.child_creation_screen.title,
+          context: context,
+          backgroundColor: CoconutColors.white,
+        ),
+        body: SafeArea(
+          child: Stack(
+            children: [
+              TaprootCreationBody(
+                titleLines: _titleLines(viewModel),
+                showBottomButton: _isNextButtonVisible(viewModel),
+                onBottomButtonPressed: () => _onNextPressed(viewModel),
+                child: Container(child: _childList(viewModel)[_currentStep - 1]),
+              ),
+              TopProgressBar(visible: true, total: _totalStep - 1, current: _currentStep - 1),
+            ],
+          ),
         ),
       ),
     );
