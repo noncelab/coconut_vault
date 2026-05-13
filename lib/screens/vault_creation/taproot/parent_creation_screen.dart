@@ -1,9 +1,14 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/extensions/widget_animation_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/parent_creation_view_model.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
+import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_auto_gen_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_coinflip_screen.dart';
@@ -14,8 +19,13 @@ import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_verify_
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
+import 'package:coconut_vault/screens/wallet_info/single_sig_menu/mnemonic_view_screen.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
+import 'package:coconut_vault/widgets/bottom_sheet.dart';
+import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
+import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -35,6 +45,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   late final List<VoidCallback?> _nextButtonActions;
   late final List<bool> _ignoreBodyHorizontalPaddingList;
   late final List<bool> _pauseProgressList;
+  late final List<bool> _scrollChildList;
   int _currentStep = 1;
 
   bool get _hasNextBuiltStep => _currentStep < _titleList.length;
@@ -47,6 +58,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     _nextButtonActions = [_moveToNextStep, _confirmWalletType];
     _ignoreBodyHorizontalPaddingList = [false, false];
     _pauseProgressList = [false, false];
+    _scrollChildList = [true, true];
     _viewModel.addListener(_handleViewModelChanged);
   }
 
@@ -231,6 +243,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     required VoidCallback? nextButtonAction,
     bool ignoreBodyHorizontalPadding = false,
     bool pauseProgress = false,
+    bool scrollChild = true,
   }) {
     setState(() {
       _titleList.add(titleList);
@@ -238,6 +251,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _nextButtonActions.add(nextButtonAction);
       _ignoreBodyHorizontalPaddingList.add(ignoreBodyHorizontalPadding);
       _pauseProgressList.add(pauseProgress);
+      _scrollChildList.add(scrollChild);
       _currentStep += 1;
     });
   }
@@ -390,6 +404,11 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return;
     }
 
+    if (_viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.currentVault) {
+      _addExistingVaultSelectionStep();
+      return;
+    }
+
     _addSelectedKeyCreationOrImportScreen();
   }
 
@@ -494,7 +513,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         };
       case ParentKeyPreparationType.import:
         return switch (_viewModel.selectedExistingKeyImportType) {
-          ParentExistingKeyImportType.currentVault => _buildCurrentVaultSelectionScreen(),
+          ParentExistingKeyImportType.currentVault => null,
           ParentExistingKeyImportType.mnemonicInput => const MnemonicImportScreen(isEmbedded: true),
           ParentExistingKeyImportType.seedQrScan => const SeedQrImportScreen(isEmbedded: true),
           ParentExistingKeyImportType.none => null,
@@ -504,13 +523,196 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     }
   }
 
-  Widget _buildCurrentVaultSelectionScreen() {
-    return Center(
-      child: Text(
-        t.taproot.common.existing_option1,
-        style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.black),
-        textAlign: TextAlign.center,
+  void _addExistingVaultSelectionStep() {
+    final titleList = [
+      TextSpan(text: t.taproot.parent_creation_screen.step_1.single_sig_select_from_vault_title_1),
+      TextSpan(text: t.taproot.parent_creation_screen.step_1.single_sig_select_from_vault_title_2),
+    ];
+    final bodyList = [Expanded(child: _buildExistingVaultSelectionBody())];
+
+    _addStep(
+      titleList: titleList,
+      bodyList: bodyList,
+      nextButtonAction: _onExistingVaultSelected,
+      scrollChild: false,
+      ignoreBodyHorizontalPadding: true,
+    );
+  }
+
+  void _onExistingVaultSelected() {
+    final selectedExistingVaultId = _viewModel.selectedExistingVaultId;
+    if (selectedExistingVaultId == null) {
+      return;
+    }
+
+    final mnemonicViewKey = GlobalKey<MnemonicViewScreenState>();
+    _addEmbeddedStep(
+      Stack(
+        children: [
+          MnemonicViewScreen(
+            key: mnemonicViewKey,
+            walletId: selectedExistingVaultId,
+            autoLoadMnemonic: false,
+            isEmbedded: true,
+            onAuthCanceled: _returnToPreviousStep,
+            onNextButtonPressed: () {
+              _onMnemonicReady();
+            },
+          ),
+        ],
       ),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _showDeviceAuthDialog(mnemonicViewKey);
+    });
+  }
+
+  void _showDeviceAuthDialog(GlobalKey<MnemonicViewScreenState> mnemonicViewKey) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
+          title: '기기 인증 진행',
+          description: '기기 보안 영역에 저장된 니모닉에 접근하기 위해 기기 인증을 진행합니다.',
+          rightButtonText: t.confirm,
+          onTapRight: () async {
+            final pinCheckResult = await _showPinCheckBottomSheet();
+            if (pinCheckResult != true || !context.mounted) {
+              return;
+            }
+
+            Navigator.of(context).pop();
+            mnemonicViewKey.currentState?.setMnemonic();
+          },
+        );
+      },
+    );
+  }
+
+  Future<bool?> _showPinCheckBottomSheet() async {
+    return await MyBottomSheet.showBottomSheet_90<bool>(
+      context: context,
+      child: CustomLoadingOverlay(
+        child: PinCheckScreen(
+          pinCheckContext: PinCheckContextEnum.sensitiveAction,
+          onSuccess: () => Navigator.pop(context, true),
+        ),
+      ),
+    );
+  }
+
+  void _returnToPreviousStep() {
+    if (_currentStep <= 1) {
+      return;
+    }
+
+    setState(() {
+      final currentStepIndex = _currentStep - 1;
+      _titleList.removeAt(currentStepIndex);
+      _bodyList.removeAt(currentStepIndex);
+      _nextButtonActions.removeAt(currentStepIndex);
+      _ignoreBodyHorizontalPaddingList.removeAt(currentStepIndex);
+      _pauseProgressList.removeAt(currentStepIndex);
+      _scrollChildList.removeAt(currentStepIndex);
+      _currentStep -= 1;
+    });
+  }
+
+  Widget _buildExistingVaultSelectionBody() {
+    const gradientHeight = 36.0;
+
+    return Consumer2<WalletProvider, ParentCreationViewModel>(
+      builder: (context, walletProvider, viewModel, child) {
+        final vaultList = walletProvider.getVaultsByWalletType(WalletType.singleSignature);
+
+        return Stack(
+          children: [
+            ListView.separated(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.only(top: gradientHeight, bottom: gradientHeight),
+              itemCount: vaultList.length,
+              separatorBuilder: (context, index) => CoconutLayout.spacing_300h,
+              itemBuilder: (context, index) {
+                final vault = vaultList[index];
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      VaultRowItem(
+                        vault: vault,
+                        onSelected: () {
+                          viewModel.setSelectedExistingVaultId(vault.id);
+                        },
+                        isNextIconVisible: false,
+                        isKeyBorderVisible: true,
+                        isSelectable: true,
+                        isSelected: viewModel.selectedExistingVaultId == vault.id,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            const Positioned(
+              left: 0,
+              top: 0,
+              right: 0,
+              height: gradientHeight,
+              child: IgnorePointer(
+                ignoring: true,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        CoconutColors.white,
+                        CoconutColors.white,
+                        Color(0xE6FFFFFF),
+                        Color(0x99FFFFFF),
+                        Color(0x33FFFFFF),
+                      ],
+                      stops: [0.0, 0.16, 0.36, 0.62, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: gradientHeight,
+              child: IgnorePointer(
+                ignoring: true,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        CoconutColors.white,
+                        CoconutColors.white,
+                        Color(0xE6FFFFFF),
+                        Color(0x99FFFFFF),
+                        Color(0x33FFFFFF),
+                      ],
+                      stops: [0.0, 0.16, 0.36, 0.62, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -533,7 +735,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
                 onBottomButtonPressed: _onNextPressed,
                 ignoreChildHorizontalPadding: _ignoreBodyHorizontalPaddingList[_currentStep - 1],
                 showHeader: !_isProgressPaused,
-                scrollChild: !_isProgressPaused,
+                scrollChild: !_isProgressPaused && _scrollChildList[_currentStep - 1],
                 child:
                     _isProgressPaused
                         ? _bodyList[_currentStep - 1].first

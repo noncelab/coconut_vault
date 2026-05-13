@@ -268,17 +268,21 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
           maxLines: 1,
           isLengthVisible: false,
           obscureText: _passphraseObscured,
-          suffix: CupertinoButton(
-            onPressed: () {
-              setState(() {
-                _passphraseObscured = !_passphraseObscured;
-              });
-            },
-            child:
-                _passphraseObscured
-                    ? const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18)
-                    : const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
+          suffix: SizedBox(
+            width: 44,
+            height: 44,
+            child: CupertinoButton(
+              padding: EdgeInsets.zero,
+              minSize: 0,
+              onPressed: () => setState(() => _passphraseObscured = !_passphraseObscured),
+              child: Icon(
+                _passphraseObscured ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+                color: CoconutColors.gray800,
+                size: 18,
+              ),
+            ),
           ),
+
           maxLength: 100,
         ),
       ),

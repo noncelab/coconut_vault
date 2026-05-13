@@ -1262,16 +1262,19 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   }
 
   Widget _buildPassphraseVisibilityToggle() {
-    return CupertinoButton(
-      onPressed: () {
-        setState(() {
-          _passphraseObscured = !_passphraseObscured;
-        });
-      },
-      child:
-          _passphraseObscured
-              ? const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18)
-              : const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
+    return SizedBox(
+      width: 44,
+      height: 44,
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        minSize: 0,
+        onPressed: () => setState(() => _passphraseObscured = !_passphraseObscured),
+        child: Icon(
+          _passphraseObscured ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+          color: CoconutColors.gray800,
+          size: 18,
+        ),
+      ),
     );
   }
 

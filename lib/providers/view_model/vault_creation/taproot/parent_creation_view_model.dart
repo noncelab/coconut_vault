@@ -13,11 +13,13 @@ class ParentCreationViewModel extends ChangeNotifier {
   ParentKeyPreparationType _selectedKeyPreparationType = ParentKeyPreparationType.none;
   ParentNewKeyCreationType _selectedNewKeyCreationType = ParentNewKeyCreationType.none;
   ParentExistingKeyImportType _selectedExistingKeyImportType = ParentExistingKeyImportType.none;
+  int? _selectedExistingVaultId;
 
   ParentWalletType get selectedWalletType => _selectedWalletType;
   ParentKeyPreparationType get selectedKeyPreparationType => _selectedKeyPreparationType;
   ParentNewKeyCreationType get selectedNewKeyCreationType => _selectedNewKeyCreationType;
   ParentExistingKeyImportType get selectedExistingKeyImportType => _selectedExistingKeyImportType;
+  int? get selectedExistingVaultId => _selectedExistingVaultId;
   bool get isSingleSigSelected => _selectedWalletType == ParentWalletType.singleSig;
   bool get isMultisigSelected => _selectedWalletType == ParentWalletType.multisig;
   bool get isCreateKeySelected => _selectedKeyPreparationType == ParentKeyPreparationType.create;
@@ -49,11 +51,18 @@ class ParentCreationViewModel extends ChangeNotifier {
 
   void setExistingKeyImportType(ParentExistingKeyImportType type) {
     _selectedExistingKeyImportType = _selectedExistingKeyImportType == type ? ParentExistingKeyImportType.none : type;
+    _selectedExistingVaultId = null;
+    notifyListeners();
+  }
+
+  void setSelectedExistingVaultId(int vaultId) {
+    _selectedExistingVaultId = _selectedExistingVaultId == vaultId ? null : vaultId;
     notifyListeners();
   }
 
   void _resetKeyOptionSelection() {
     _selectedNewKeyCreationType = ParentNewKeyCreationType.none;
     _selectedExistingKeyImportType = ParentExistingKeyImportType.none;
+    _selectedExistingVaultId = null;
   }
 }
