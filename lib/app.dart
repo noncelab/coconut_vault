@@ -456,7 +456,9 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         AppRoutes.mnemonicVerify:
                             (context) => buildScreenWithArguments(
                               context,
-                              (args) => MnemonicVerifyScreen(isTaprootChild: args['isTaprootChild'] ?? false),
+                              (args) => MnemonicVerifyScreen(
+                                isTaprootChild: context.read<TaprootWalletCreationProvider>().isChildWalletCreation,
+                              ),
                             ),
                         AppRoutes.mnemonicImport:
                             (context) => buildScreenWithArguments(
@@ -479,7 +481,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               context,
                               (args) => MnemonicConfirmationScreen(
                                 calledFrom: args['calledFrom'],
-                                isTaprootChild: args['isTaprootChild'] ?? false,
+                                isTaprootChild: context.read<TaprootWalletCreationProvider>().isChildWalletCreation,
                               ),
                             ),
                         AppRoutes.mnemonicView:
@@ -568,7 +570,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               context,
                               (args) => MnemonicAutoGenScreen(
                                 entropyType: EntropyType.auto,
-                                isTaprootChild: args['isTaprootChild'] ?? false,
+                                isTaprootChild: context.read<TaprootWalletCreationProvider>().isChildWalletCreation,
                               ),
                             ),
                         AppRoutes.mnemonicCoinflip:
@@ -576,7 +578,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               context,
                               (args) => MnemonicCoinflipScreen(
                                 entropyType: EntropyType.manual,
-                                isTaprootChild: args['isTaprootChild'] ?? false,
+                                isTaprootChild: context.read<TaprootWalletCreationProvider>().isChildWalletCreation,
                               ),
                             ),
                         AppRoutes.mnemonicDiceRoll:
@@ -584,7 +586,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               context,
                               (args) => MnemonicDiceRollScreen(
                                 entropyType: EntropyType.manual,
-                                isTaprootChild: args['isTaprootChild'] ?? false,
+                                isTaprootChild: context.read<TaprootWalletCreationProvider>().isChildWalletCreation,
                               ),
                             ),
                         AppRoutes.appInfo: (context) => const AppInfoScreen(),

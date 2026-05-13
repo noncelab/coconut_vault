@@ -234,6 +234,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   void _onNextPressed(ChildCreationViewModel viewModel) async {
+    final taprootProvider = context.read<TaprootWalletCreationProvider>();
+
     if (_currentStep == 3) {
       if (viewModel.isCreateKeySelected) {
         String? route;
@@ -261,11 +263,13 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           );
           if (passedCheck == true) {
             if (!mounted) return;
-            final result = await Navigator.pushNamed(context, route, arguments: {'isTaprootChild': true});
+
+            taprootProvider.setIsChildWalletCreation(true);
+
+            final result = await Navigator.pushNamed(context, route);
             if (result == true) {
               if (!mounted) return;
               try {
-                final taprootProvider = context.read<TaprootWalletCreationProvider>();
                 viewModel.generateKeyData(taprootProvider.secret, taprootProvider.passphrase);
                 setState(() {
                   _currentStep += 1;
@@ -278,6 +282,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           return;
         }
       } else if (viewModel.isImportKeySelected) {
+        taprootProvider.setIsChildWalletCreation(true);
+
         if (viewModel.isMnemonicInputSelected) {
           Navigator.pushNamed(context, AppRoutes.mnemonicImport);
           return;
