@@ -578,6 +578,10 @@ taproot:
     step_2:
       creation_script_path_intro_title_1: "相続に使う"
       creation_script_path_intro_title_2: "子ウォレットを追加してください"
+      creation_script_path_import: "取り込み"
+      creation_script_path_import_description: "別のVaultで作成した\n子ウォレットと接続します"
+      creation_script_path_create: "子ウォレットを作成"
+      creation_script_path_create_description: "このVaultで作成し、\nあとで渡すことができます"
       import_scanner_title_1: "別のVaultで準備した"
       import_scanner_title_2: "子ウォレット情報をスキャンしてください"
       imported_script_path_title: "子ウォレットを取り込みました"

@@ -275,6 +275,7 @@ flutter:
     - assets/png/finger-picking.png
     - assets/png/word.png
     - assets/png/scan-qr.png
+    - assets/png/scan-qr-big.png
 
   fonts:
     - family: SpaceGrotesk

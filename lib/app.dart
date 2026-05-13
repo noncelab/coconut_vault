@@ -406,7 +406,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         ),
         if (_appEntryFlow == AppEntryFlow.vaultHome) ...[
           Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
-          Provider<TaprootWalletCreationProvider>(create: (_) => TaprootWalletCreationProvider()),
+          ChangeNotifierProvider<TaprootWalletCreationProvider>(create: (_) => TaprootWalletCreationProvider()),
           Provider<SignProvider>(create: (_) => SignProvider()),
           ChangeNotifierProvider.value(
             value: _ensureWalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider),

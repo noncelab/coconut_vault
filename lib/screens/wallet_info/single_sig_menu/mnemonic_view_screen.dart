@@ -47,6 +47,7 @@ class MnemonicViewScreenState extends State<MnemonicViewScreen> with TickerProvi
   String _passphrase = '';
   bool _passphraseObscured = false;
 
+  Uint8List get mnemonic => Uint8List.fromList(_mnemonic);
   String get passphrase => _usePassphrase ? _passphrase : '';
 
   @override

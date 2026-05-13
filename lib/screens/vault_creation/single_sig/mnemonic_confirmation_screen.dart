@@ -54,6 +54,10 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   }
 
   NextButtonState _getNextButtonState() {
+    if (widget.calledFrom == AppRoutes.mnemonicCoinflip || widget.calledFrom == AppRoutes.mnemonicDiceRoll) {
+      return NextButtonState.nextActive;
+    }
+
     if (_walletCreationProvider.passphrase?.isEmpty ?? true) {
       return NextButtonState.completeActive;
     }

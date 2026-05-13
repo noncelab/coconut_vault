@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
@@ -6,6 +9,7 @@ import 'package:coconut_vault/extensions/widget_animation_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/parent_creation_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
@@ -444,10 +448,6 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     );
   }
 
-  void _onMnemonicReady() {
-    _onKeyPreparationTypeSelected();
-  }
-
   void _addMnemonicVerifyStep() {
     _addEmbeddedStep(
       MnemonicVerifyScreen(
@@ -464,7 +464,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         calledFrom: AppRoutes.mnemonicVerify,
         isEmbedded: true,
         isTaprootChild: true,
-        onMnemonicReady: _onMnemonicReady,
+        onMnemonicReady: () {
+          final walletCreationProvider = context.read<WalletCreationProvider>();
+          _onParentWalletSet(secret: walletCreationProvider.secret, passphrase: walletCreationProvider.passphrase);
+        },
       ),
     );
   }
@@ -522,7 +525,9 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
           ParentExistingKeyImportType.seedQrScan => SeedQrImportScreen(
             isEmbedded: true,
             isTaprootChild: true,
-            onCompleted: _addImportedMnemonicViewStep,
+            onMnemonicConfirmationRequested: (secret, passphrase) {
+              _onParentWalletSet(secret: secret, passphrase: passphrase);
+            },
           ),
           ParentExistingKeyImportType.none => null,
         };
@@ -564,7 +569,15 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
             isEmbedded: true,
             onAuthCanceled: _returnToPreviousStep,
             onNextButtonPressed: () {
-              _onExistingVaultMnemonicConfirmed();
+              final mnemonicViewState = mnemonicViewKey.currentState;
+              if (mnemonicViewState == null) {
+                return;
+              }
+
+              _onParentWalletSet(
+                secret: mnemonicViewState.mnemonic,
+                passphrase: Uint8List.fromList(utf8.encode(mnemonicViewState.passphrase)),
+              );
             },
           ),
         ],
@@ -579,19 +592,76 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     });
   }
 
-  void _onExistingVaultMnemonicConfirmed() {
+  /// STEP 2: 부모 지갑 설정 완료 -> 자식 지갑 설정 차례 진입
+  void _onParentWalletSet({Uint8List? secret, Uint8List? passphrase}) {
     debugPrint('Step2로 이동');
+    final taprootWalletCreationProvider = context.read<TaprootWalletCreationProvider>();
+    if (secret != null) {
+      taprootWalletCreationProvider.setSecretAndPassphrase(secret, passphrase);
+    }
 
-    /// TODO: Step2로 이동 로직 추가
+    /// TODO: TaprootWalletCreationProvider에 선택한 기존 니모닉 정보 저장 로직 추가
+    debugPrint(taprootWalletCreationProvider.secret.toString());
+
+    final titleList = [
+      TextSpan(text: t.taproot.parent_creation_screen.step_2.creation_script_path_intro_title_1),
+      TextSpan(text: t.taproot.parent_creation_screen.step_2.creation_script_path_intro_title_2),
+    ];
+    final bodyList = [
+      Consumer<ParentCreationViewModel>(
+        builder: (context, viewModel, child) {
+          return MenuGrid(
+            children: [
+              SelectableOptionCard(
+                title: t.taproot.parent_creation_screen.step_2.creation_script_path_import,
+                description: t.taproot.parent_creation_screen.step_2.creation_script_path_import_description,
+                bottomAssetPath: 'assets/png/scan-qr-big.png',
+                imageScale: 3.8,
+                isSelected: false,
+                onTap: () {},
+                imageWidth: 100,
+                height: 195,
+              ),
+              SelectableOptionCard(
+                title: t.taproot.parent_creation_screen.step_2.creation_script_path_create,
+                description: t.taproot.parent_creation_screen.step_2.creation_script_path_create_description,
+                bottomAssetPath: 'assets/png/load-wallet.png',
+                imageScale: 3.8,
+                isSelected: false,
+                onTap: () {},
+                imageWidth: 100,
+                height: 195,
+              ),
+            ],
+          );
+        },
+      ),
+    ];
+    _addStep(titleList: titleList, bodyList: bodyList, nextButtonAction: () {});
   }
 
   void _addImportedMnemonicViewStep() {
+    final mnemonicViewKey = GlobalKey<MnemonicViewScreenState>();
     _addEmbeddedStep(
       MnemonicViewScreen(
+        key: mnemonicViewKey,
         initialMnemonic: context.read<WalletCreationProvider>().secret,
         autoLoadMnemonic: false,
         isEmbedded: true,
-        onNextButtonPressed: _onExistingVaultMnemonicConfirmed,
+        onNextButtonPressed: () {
+          final mnemonicViewState = mnemonicViewKey.currentState;
+          if (mnemonicViewState == null) {
+            return;
+          }
+
+          final walletCreationProvider = context.read<WalletCreationProvider>();
+          final passphrase =
+              mnemonicViewState.passphrase.isNotEmpty
+                  ? Uint8List.fromList(utf8.encode(mnemonicViewState.passphrase))
+                  : walletCreationProvider.passphrase;
+
+          _onParentWalletSet(secret: mnemonicViewState.mnemonic, passphrase: passphrase);
+        },
       ),
     );
   }

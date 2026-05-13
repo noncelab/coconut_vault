@@ -25,6 +25,7 @@ class SeedQrConfirmationScreen extends StatefulWidget {
   final int? multisigVaultIdOfExternalSigner;
   final bool isTaprootChild;
   final VoidCallback? onCompleted;
+  final void Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
 
   const SeedQrConfirmationScreen({
     super.key,
@@ -33,6 +34,7 @@ class SeedQrConfirmationScreen extends StatefulWidget {
     this.multisigVaultIdOfExternalSigner,
     this.isTaprootChild = false,
     this.onCompleted,
+    this.onMnemonicConfirmationRequested,
   });
 
   @override
@@ -179,6 +181,22 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
       final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
       final externalSigner = widget.externalSigner;
 
+      if (widget.isTaprootChild) {
+        _walletCreationProvider.setSecretAndPassphrase(Uint8List.fromList(secret), Uint8List.fromList(passphrase));
+
+        final onMnemonicConfirmationRequested = widget.onMnemonicConfirmationRequested;
+        if (onMnemonicConfirmationRequested != null) {
+          Navigator.pop(context);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            onMnemonicConfirmationRequested(secret, passphrase);
+          });
+          return;
+        }
+
+        widget.onCompleted?.call();
+        return;
+      }
+
       if (externalSigner != null) {
         if (!mounted) return;
         context.loaderOverlay.show();
@@ -206,10 +224,6 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
 
       if (mounted) {
         context.loaderOverlay.hide();
-        if (widget.isTaprootChild) {
-          widget.onCompleted?.call();
-          return;
-        }
 
         if (widget.onCompleted != null) {
           widget.onCompleted!();

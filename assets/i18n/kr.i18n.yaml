@@ -580,6 +580,10 @@ taproot:
     step_2:
       creation_script_path_intro_title_1: "상속에 사용할"
       creation_script_path_intro_title_2: "자식 지갑을 추가하세요"
+      creation_script_path_import: "가져오기"
+      creation_script_path_import_description: "다른 볼트에서 만든\n자식 지갑과 연결해요"
+      creation_script_path_create: "자식 지갑 만들기"
+      creation_script_path_create_description: "이 볼트에서 만들고 나중에 전달할 수 있어요"
       import_scanner_title_1: "다른 볼트에서 준비한"
       import_scanner_title_2: "자식 지갑 정보를 스캔하세요"
       imported_script_path_title: "자식 지갑을 가져왔어요"

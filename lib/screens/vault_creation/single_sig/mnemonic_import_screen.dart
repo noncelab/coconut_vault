@@ -8,6 +8,7 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -598,6 +599,16 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       final secret = _buildMnemonicSecret();
       final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
       final externalSigner = widget.externalSigner;
+
+      if (widget.isTaprootChild) {
+        final taprootWalletCreationProvider = context.read<TaprootWalletCreationProvider>();
+
+        taprootWalletCreationProvider.setSecretAndPassphrase(secret, passphrase);
+        _walletCreationProvider.setSecretAndPassphrase(Uint8List.fromList(secret), Uint8List.fromList(passphrase));
+
+        widget.onCompleted?.call();
+        return;
+      }
 
       if (externalSigner != null) {
         if (!mounted) return;

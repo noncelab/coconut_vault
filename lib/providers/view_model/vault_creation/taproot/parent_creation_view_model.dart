@@ -8,6 +8,8 @@ enum ParentNewKeyCreationType { none, coinFlip, diceRoll, autoGenerate }
 
 enum ParentExistingKeyImportType { none, currentVault, mnemonicInput, seedQrScan }
 
+enum ParentAddScriptPathType { none, create, import }
+
 class ParentCreationViewModel extends ChangeNotifier {
   ParentWalletType _selectedWalletType = ParentWalletType.none;
   ParentKeyPreparationType _selectedKeyPreparationType = ParentKeyPreparationType.none;
