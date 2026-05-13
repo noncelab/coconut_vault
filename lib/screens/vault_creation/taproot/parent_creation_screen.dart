@@ -6,6 +6,7 @@ import 'package:coconut_vault/extensions/widget_animation_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/parent_creation_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
@@ -20,7 +21,6 @@ import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_ch
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/mnemonic_view_screen.dart';
-import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
@@ -405,7 +405,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     }
 
     if (_viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.currentVault) {
-      _addExistingVaultSelectionStep();
+      _addCurrentVaultSelectionStep();
       return;
     }
 
@@ -514,8 +514,16 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       case ParentKeyPreparationType.import:
         return switch (_viewModel.selectedExistingKeyImportType) {
           ParentExistingKeyImportType.currentVault => null,
-          ParentExistingKeyImportType.mnemonicInput => const MnemonicImportScreen(isEmbedded: true),
-          ParentExistingKeyImportType.seedQrScan => const SeedQrImportScreen(isEmbedded: true),
+          ParentExistingKeyImportType.mnemonicInput => MnemonicImportScreen(
+            isEmbedded: true,
+            isTaprootChild: true,
+            onCompleted: _addImportedMnemonicViewStep,
+          ),
+          ParentExistingKeyImportType.seedQrScan => SeedQrImportScreen(
+            isEmbedded: true,
+            isTaprootChild: true,
+            onCompleted: _addImportedMnemonicViewStep,
+          ),
           ParentExistingKeyImportType.none => null,
         };
       case ParentKeyPreparationType.none:
@@ -523,7 +531,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     }
   }
 
-  void _addExistingVaultSelectionStep() {
+  void _addCurrentVaultSelectionStep() {
     final titleList = [
       TextSpan(text: t.taproot.parent_creation_screen.step_1.single_sig_select_from_vault_title_1),
       TextSpan(text: t.taproot.parent_creation_screen.step_1.single_sig_select_from_vault_title_2),
@@ -533,13 +541,13 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     _addStep(
       titleList: titleList,
       bodyList: bodyList,
-      nextButtonAction: _onExistingVaultSelected,
+      nextButtonAction: _onCurrentVaultSelected,
       scrollChild: false,
       ignoreBodyHorizontalPadding: true,
     );
   }
 
-  void _onExistingVaultSelected() {
+  void _onCurrentVaultSelected() {
     final selectedExistingVaultId = _viewModel.selectedExistingVaultId;
     if (selectedExistingVaultId == null) {
       return;
@@ -556,7 +564,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
             isEmbedded: true,
             onAuthCanceled: _returnToPreviousStep,
             onNextButtonPressed: () {
-              _onMnemonicReady();
+              _onExistingVaultMnemonicConfirmed();
             },
           ),
         ],
@@ -569,6 +577,23 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       }
       _showDeviceAuthDialog(mnemonicViewKey);
     });
+  }
+
+  void _onExistingVaultMnemonicConfirmed() {
+    debugPrint('Step2로 이동');
+
+    /// TODO: Step2로 이동 로직 추가
+  }
+
+  void _addImportedMnemonicViewStep() {
+    _addEmbeddedStep(
+      MnemonicViewScreen(
+        initialMnemonic: context.read<WalletCreationProvider>().secret,
+        autoLoadMnemonic: false,
+        isEmbedded: true,
+        onNextButtonPressed: _onExistingVaultMnemonicConfirmed,
+      ),
+    );
   }
 
   void _showDeviceAuthDialog(GlobalKey<MnemonicViewScreenState> mnemonicViewKey) {

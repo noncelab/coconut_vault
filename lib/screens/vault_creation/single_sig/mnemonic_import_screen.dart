@@ -28,12 +28,16 @@ class MnemonicImportScreen extends StatefulWidget {
   final MultisigSigner? externalSigner;
   final int? multisigVaultIdOfExternalSigner;
   final bool isEmbedded;
+  final bool isTaprootChild;
+  final VoidCallback? onCompleted;
 
   const MnemonicImportScreen({
     super.key,
     this.externalSigner,
     this.multisigVaultIdOfExternalSigner,
     this.isEmbedded = false,
+    this.isTaprootChild = false,
+    this.onCompleted,
   });
 
   @override
@@ -608,7 +612,9 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       }
 
       if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
-        CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+        if (mounted) {
+          CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+        }
         return;
       }
 
@@ -620,6 +626,11 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
       if (mounted) {
         context.loaderOverlay.hide();
+        if (widget.onCompleted != null) {
+          widget.onCompleted!();
+          return;
+        }
+
         Navigator.pushNamed(
           context,
           AppRoutes.mnemonicConfirmation,

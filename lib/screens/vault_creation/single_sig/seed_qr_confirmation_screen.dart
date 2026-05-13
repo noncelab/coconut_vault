@@ -23,12 +23,16 @@ class SeedQrConfirmationScreen extends StatefulWidget {
   final Uint8List scannedData;
   final MultisigSigner? externalSigner;
   final int? multisigVaultIdOfExternalSigner;
+  final bool isTaprootChild;
+  final VoidCallback? onCompleted;
 
   const SeedQrConfirmationScreen({
     super.key,
     required this.scannedData, // 필수 매개변수로 설정
     this.externalSigner,
     this.multisigVaultIdOfExternalSigner,
+    this.isTaprootChild = false,
+    this.onCompleted,
   });
 
   @override
@@ -202,6 +206,16 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
 
       if (mounted) {
         context.loaderOverlay.hide();
+        if (widget.isTaprootChild) {
+          widget.onCompleted?.call();
+          return;
+        }
+
+        if (widget.onCompleted != null) {
+          widget.onCompleted!();
+          return;
+        }
+
         Navigator.pushNamed(context, AppRoutes.vaultNameSetup);
       }
     } catch (e) {

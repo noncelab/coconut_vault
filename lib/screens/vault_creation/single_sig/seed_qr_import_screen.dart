@@ -26,12 +26,16 @@ class SeedQrImportScreen extends StatefulWidget {
   final MultisigSigner? externalSigner;
   final int? multisigVaultIdOfExternalSigner;
   final bool isEmbedded;
+  final bool isTaprootChild;
+  final VoidCallback? onCompleted;
 
   const SeedQrImportScreen({
     super.key,
     this.externalSigner,
     this.multisigVaultIdOfExternalSigner,
     this.isEmbedded = false,
+    this.isTaprootChild = false,
+    this.onCompleted,
   });
 
   @override
@@ -252,9 +256,15 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
                     scannedData: utf8.encode(words!.join(' ')),
                     externalSigner: widget.externalSigner,
                     multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
+                    isTaprootChild: widget.isTaprootChild,
+                    onCompleted: widget.onCompleted,
                   ),
             ),
-          ).then((_) {
+          ).then((result) {
+            if (result == true && widget.isTaprootChild && mounted) {
+              Navigator.pop(context, true);
+              return;
+            }
             // 2. 돌아왔을 때 카메라 재개하기
             if (mounted) {
               controller.resumeCamera();

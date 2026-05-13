@@ -217,12 +217,13 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
             },
           );
           if (passedCheck == true) {
+            if (!mounted) return;
             final result = await Navigator.pushNamed(
               context,
               AppRoutes.mnemonicCoinflip,
               arguments: {'isTaprootChild': true},
             );
-            if (result == true) {
+            if (result == true && mounted) {
               setState(() {
                 _currentStep += 1;
               });
@@ -238,12 +239,13 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
             },
           );
           if (passedCheck == true) {
+            if (!mounted) return;
             final result = await Navigator.pushNamed(
               context,
               AppRoutes.mnemonicDiceRoll,
               arguments: {'isTaprootChild': true},
             );
-            if (result == true) {
+            if (result == true && mounted) {
               setState(() {
                 _currentStep += 1;
               });
@@ -262,10 +264,10 @@ class _ChildCreationScreenState extends State<ChildCreationScreen> {
         }
       } else if (_selectedChildMethodIndex == 1) {
         if (_selectedExistingChildIndex == 1) {
-          Navigator.pushNamed(context, AppRoutes.mnemonicImport);
+          Navigator.pushNamed(context, AppRoutes.mnemonicImport, arguments: {'isTaprootChild': true});
           return;
         } else if (_selectedExistingChildIndex == 2) {
-          Navigator.pushNamed(context, AppRoutes.seedQrImport);
+          Navigator.pushNamed(context, AppRoutes.seedQrImport, arguments: {'isTaprootChild': true});
           return;
         }
       }

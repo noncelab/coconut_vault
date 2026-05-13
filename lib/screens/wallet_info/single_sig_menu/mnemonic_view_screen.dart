@@ -17,14 +17,16 @@ import 'package:provider/provider.dart';
 class MnemonicViewScreen extends StatefulWidget {
   const MnemonicViewScreen({
     super.key,
-    required this.walletId,
+    this.walletId,
+    this.initialMnemonic,
     this.autoLoadMnemonic = true,
     this.isEmbedded = false,
     this.onAuthCanceled,
     this.onNextButtonPressed,
-  });
+  }) : assert(walletId != null || initialMnemonic != null);
 
-  final int walletId;
+  final int? walletId;
+  final Uint8List? initialMnemonic;
   final bool autoLoadMnemonic;
   final bool isEmbedded;
   final VoidCallback? onAuthCanceled;
@@ -51,10 +53,15 @@ class MnemonicViewScreenState extends State<MnemonicViewScreen> with TickerProvi
   void initState() {
     super.initState();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
+    final initialMnemonic = widget.initialMnemonic;
+    if (initialMnemonic != null) {
+      _mnemonic = Uint8List.fromList(initialMnemonic);
+      _isLoading = false;
+    }
     _passphraseController.addListener(_handlePassphraseChanged);
     _passphraseFocusNode.addListener(_handlePassphraseFocusChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!widget.autoLoadMnemonic) {
+      if (!widget.autoLoadMnemonic || initialMnemonic != null) {
         return;
       }
       // getSecret하는 동안 생체인증 요청됨 - lifecycle event 호출됨
@@ -89,8 +96,13 @@ class MnemonicViewScreenState extends State<MnemonicViewScreen> with TickerProvi
   }
 
   Future<void> setMnemonic() async {
+    final walletId = widget.walletId;
+    if (walletId == null) {
+      return;
+    }
+
     try {
-      _mnemonic = await _walletProvider.getSecret(widget.walletId);
+      _mnemonic = await _walletProvider.getSecret(walletId);
     } on UserCanceledAuthException catch (_) {
       if (!mounted) return;
       if (widget.isEmbedded) {
@@ -199,8 +211,7 @@ class MnemonicViewScreenState extends State<MnemonicViewScreen> with TickerProvi
                   isActive: _usePassphrase ? _passphrase.isNotEmpty : true,
                   backgroundColor: CoconutColors.black,
                   onButtonClicked: () {
-                    /// TODO: Step2
-                    debugPrint('step2 이동');
+                    widget.onNextButtonPressed?.call();
                   },
                 ),
               ],
