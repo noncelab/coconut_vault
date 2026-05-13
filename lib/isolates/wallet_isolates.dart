@@ -11,10 +11,13 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
 import 'package:coconut_vault/model/taproot/taproot_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
-import 'package:coconut_vault/model/taproot/taproot_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
+import 'package:coconut_vault/utils/hash_util.dart';
+import 'package:coconut_vault/utils/logger.dart';
 
 class WalletIsolates {
   static void setNetworkType() {
@@ -108,16 +111,24 @@ class WalletIsolates {
     }
 
     List<Policy> policyList = [];
-    List<TaprootSeedInfo> beneficiarySeedInfos = [];
+    List<ScriptPathSeedInfo> scriptPathSeedInfos = [];
     if (wallet.inheritanceLeaves != null) {
       for (final leaf in wallet.inheritanceLeaves!) {
         if (leaf.descriptor != null) {
           policyList.add(InheritancePolicy.fromDescriptorAndLocktime(leaf.descriptor!, leaf.lockTime));
         } else {
           final (seedInfo, keyStore) = _createSeedInfo(leaf.secret!);
-          beneficiarySeedInfos.add(seedInfo);
           final taprootVault = TaprootVault.fromKeyStoreList([keyStore], []);
-          policyList.add(InheritancePolicy.fromDescriptorAndLocktime(taprootVault.descriptor, leaf.lockTime));
+          final inheritancePolicy = InheritancePolicy.fromDescriptorAndLocktime(taprootVault.descriptor, leaf.lockTime);
+          policyList.add(inheritancePolicy);
+          Logger.log('--> inheritance policy miniscript: ${inheritancePolicy.toMiniscript()}');
+          scriptPathSeedInfos.add(
+            ScriptPathSeedInfo(
+              key: hashString(inheritancePolicy.toMiniscript()),
+              role: ScriptPathRole.beneficiary,
+              seedInfos: [seedInfo],
+            ),
+          );
           // seed 정보 정리
           keyStore.wipeSeed();
           leaf.secret!.wipe();
@@ -135,7 +146,7 @@ class WalletIsolates {
       createdAt: DateTime.now(),
       descriptor: taprootVault.descriptor,
       keyPathSeedInfos: keyPathSeedInfos,
-      beneficiarySeedInfos: beneficiarySeedInfos,
+      scriptPathSeedInfos: scriptPathSeedInfos,
     );
 
     wallet.wipe();

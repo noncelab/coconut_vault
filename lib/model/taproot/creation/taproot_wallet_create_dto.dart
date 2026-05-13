@@ -1,4 +1,4 @@
-import 'package:coconut_vault/model/taproot/inheritance_leaf.dart';
+import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -18,6 +18,7 @@ class TaprootWalletCreateDto {
   List<SeedSource>? keyPathSeeds;
   @JsonKey(name: "keyPathSignerBsmses")
   List<String>? keyPathSignerBsmses;
+  // scriptPaths
   @JsonKey(name: "inheritanceLeaves")
   List<InheritanceLeaf>? inheritanceLeaves;
 

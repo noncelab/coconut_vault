@@ -1,5 +1,7 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
+import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:collection/collection.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/taproot/taproot_participant.dart';
@@ -12,20 +14,23 @@ part 'taproot_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run bui
 class TaprootVaultListItem extends VaultListItemBase {
   static const fieldDescriptor = 'descriptor';
   static const fieldKeyPathSeedInfos = 'keyPathSeedInfos';
-  static const fieldBeneficiarySeedInfos = 'beneficiarySeedInfos';
+  static const fieldScriptPathSeedInfos = 'scriptPathSeedInfos';
 
   @JsonKey(name: fieldDescriptor)
   final String descriptor;
   @JsonKey(name: fieldKeyPathSeedInfos)
   final List<TaprootSeedInfo> _keyPathSeedInfos;
   List<TaprootSeedInfo> get keyPathSeedInfos => _keyPathSeedInfos;
-  @JsonKey(name: fieldBeneficiarySeedInfos)
-  final List<TaprootSeedInfo> _beneficiarySeedInfos;
-  List<TaprootSeedInfo> get beneficiarySeedInfos => _beneficiarySeedInfos;
+  @JsonKey(name: fieldScriptPathSeedInfos)
+  final List<ScriptPathSeedInfo> _scriptPathSeedInfos;
+  List<ScriptPathSeedInfo> get scriptPathSeedInfos => _scriptPathSeedInfos;
 
-  late final bool _isParent;
-  late final List<TaprootParticipant> _keyPathParticipants;
-  late final List<TaprootBeneficiaryParticipant> _beneficiaryParticipants;
+  late final bool _hasKeyPathSeed;
+
+  /// Key Path spending에 참여하는 서명자 목록.
+  /// 이 키들은 MuSig2로 aggregate되어 단일 internal key를 구성함.
+  late final List<TaprootParticipant> _owners;
+  late final List<TaprootBeneficiaryParticipant> _beneficiaries;
 
   TaprootVaultListItem({
     required super.id,
@@ -35,20 +40,20 @@ class TaprootVaultListItem extends VaultListItemBase {
     required super.createdAt,
     required this.descriptor,
     required List<TaprootSeedInfo> keyPathSeedInfos,
-    required List<TaprootSeedInfo> beneficiarySeedInfos,
+    required List<ScriptPathSeedInfo> scriptPathSeedInfos,
   }) : _keyPathSeedInfos = List.unmodifiable(keyPathSeedInfos),
-       _beneficiarySeedInfos = List.unmodifiable(beneficiarySeedInfos),
+       _scriptPathSeedInfos = List.unmodifiable(scriptPathSeedInfos),
        super(vaultType: WalletType.taproot) {
     coconutVault = TaprootVault.fromDescriptor(descriptor);
 
     final taprootVault = (coconutVault as TaprootVault);
-    final List<TaprootParticipant> keyPathParticipants = [];
+    final List<TaprootParticipant> owners = [];
     for (final keyStore in taprootVault.keyStoreList) {
       final extendedPubKey = keyStore.extendedPublicKey.serialize();
       final TaprootSeedInfo? seedInfo = keyPathSeedInfos.firstWhereOrNull(
         (seedInfo) => seedInfo.extendedPublicKey == extendedPubKey,
       );
-      keyPathParticipants.add(
+      owners.add(
         TaprootParticipant(
           masterFingerprint: keyStore.masterFingerprint,
           type: TaprootParticipantType.keyPath,
@@ -59,35 +64,35 @@ class TaprootVaultListItem extends VaultListItemBase {
       );
     }
 
-    final List<TaprootBeneficiaryParticipant> beneficiaryParticipants = [];
+    final List<TaprootBeneficiaryParticipant> beneficiaries = [];
     for (final policy in taprootVault.policyList) {
       if (policy is! InheritancePolicy) continue;
 
       final keyStore = policy.beneficiaryKeyStore;
       final extendedPubKey = keyStore.extendedPublicKey.serialize();
-      final TaprootSeedInfo? seedInfo = beneficiarySeedInfos.firstWhereOrNull(
-        (seedInfo) => seedInfo.extendedPublicKey == extendedPubKey,
+      final ScriptPathSeedInfo? seedInfo = scriptPathSeedInfos.firstWhereOrNull(
+        (seedInfo) => seedInfo.role == ScriptPathRole.beneficiary && seedInfo.key == hashString(policy.toMiniscript()),
       );
-      beneficiaryParticipants.add(
+      beneficiaries.add(
         TaprootBeneficiaryParticipant(
           masterFingerprint: keyStore.masterFingerprint,
           type: TaprootParticipantType.beneficiary,
           extendedPublicKey: extendedPubKey,
           isSeedStored: seedInfo != null,
-          isPassphraseSet: seedInfo?.isPassphraseSet ?? false,
+          isPassphraseSet: seedInfo?.seedInfos[0].isPassphraseSet ?? false,
           lockTime: policy.locktime,
         ),
       );
     }
 
-    _keyPathParticipants = keyPathParticipants;
-    _beneficiaryParticipants = beneficiaryParticipants;
-    _isParent = keyPathSeedInfos.isNotEmpty;
+    _owners = owners;
+    _beneficiaries = beneficiaries;
+    _hasKeyPathSeed = keyPathSeedInfos.isNotEmpty;
   }
 
-  List<TaprootParticipant> get keyPathParticipants => List.unmodifiable(_keyPathParticipants);
-  List<TaprootBeneficiaryParticipant> get beneficiaryParticipants => List.unmodifiable(_beneficiaryParticipants);
-  bool get isParent => _isParent;
+  List<TaprootParticipant> get keyPathParticipants => List.unmodifiable(_owners);
+  List<TaprootBeneficiaryParticipant> get beneficiaryParticipants => List.unmodifiable(_beneficiaries);
+  bool get isParent => _hasKeyPathSeed;
   String get derivationPath => (coconutVault as TaprootVault).derivationPath;
 
   @override
@@ -104,7 +109,7 @@ class TaprootVaultListItem extends VaultListItemBase {
     final json = toJson();
     json.remove(fieldDescriptor);
     json.remove(fieldKeyPathSeedInfos);
-    json.remove(fieldBeneficiarySeedInfos);
+    json.remove(fieldScriptPathSeedInfos);
     return json;
   }
 
@@ -120,9 +125,9 @@ class TaprootVaultListItem extends VaultListItemBase {
           (json[fieldKeyPathSeedInfos] as List<dynamic>)
               .map((e) => TaprootSeedInfo.fromJson(e as Map<String, dynamic>))
               .toList(),
-      beneficiarySeedInfos:
-          (json[fieldBeneficiarySeedInfos] as List<dynamic>)
-              .map((e) => TaprootSeedInfo.fromJson(e as Map<String, dynamic>))
+      scriptPathSeedInfos:
+          (json[fieldScriptPathSeedInfos] as List<dynamic>)
+              .map((e) => ScriptPathSeedInfo.fromJson(e as Map<String, dynamic>))
               .toList(),
     );
   }

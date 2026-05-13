@@ -4,6 +4,7 @@ import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
+import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
@@ -17,11 +18,11 @@ class WalletStorageKeys {
   static String privacyInfoKey(String walletKey) => "privacy_${hashString(walletKey)}";
 
   // Taproot seed 관련
-  static String taprootSeedKey(int walletId, TaprootSeedKeyIdentifier seedInfo) {
-    final parts = <String>[walletId.toString(), seedInfo.extendedPublicKey];
-    parts.add(seedInfo.role.name);
-    return hashString(parts.join(' - '));
-  }
+  static String taprootKeyPathSeedKey(int walletId, String extendedPublicKey) =>
+      hashString('$walletId - $extendedPublicKey');
+
+  static String taprootScriptPathSeedKey(int walletId, String scriptKey, String extendedPublicKey) =>
+      hashString('$walletId - $scriptKey - $extendedPublicKey');
 
   static String taprootSeedPassphraseEnabledKey(String seedKey) => _passphraseEnabledFlagKey(seedKey);
   // 탭루트 지갑을 구성하는 Seed 저장한 Key 목록
@@ -85,8 +86,8 @@ abstract class WalletWriteOps {
   /// On a partial failure, rolls back internally before rethrowing.
   Future<void> persistTaprootAdd({
     required int id,
-    required List<TaprootSeedInfoForAdd> keyPathSeedInfosForAdd,
-    required List<TaprootSeedInfoForAdd>? beneficiarySeedInfosForAdd,
+    required List<TaprootSeedInfoForSave> keyPathSeedInfosForAdd,
+    required List<ScriptPathSeedInfoForSave>? scriptSeedInfosForAdd,
     required TaprootVaultListItem item,
   });
 

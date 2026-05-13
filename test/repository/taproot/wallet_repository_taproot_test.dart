@@ -4,12 +4,11 @@ import 'dart:typed_data';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
-import 'package:coconut_vault/model/taproot/inheritance_leaf.dart';
+import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
 import 'package:coconut_vault/model/taproot/taproot_participant.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
-import 'package:coconut_vault/model/taproot/taproot_wallet_create_dto.dart';
-import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
+import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/secure_zone_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -275,7 +274,7 @@ void main() {
       expect(result.name, 'taproot inheritance wallet with external signer');
       expect(result.vaultType, WalletType.taproot);
       expect(result.keyPathSeedInfos, hasLength(1));
-      expect(result.beneficiarySeedInfos, hasLength(1));
+      expect(result.scriptPathSeedInfos, hasLength(1));
       expect(result.keyPathParticipants, hasLength(2));
       expect(result.beneficiaryParticipants, hasLength(1));
       final seedStoredKeyPathIndex = result.keyPathParticipants.indexWhere((p) => p.isSeedStored);
@@ -351,14 +350,14 @@ void main() {
       expect(loaded.single.vaultType, WalletType.taproot);
       expect(loaded.single.descriptor, added.descriptor);
       expect(loaded.single.keyPathSeedInfos, hasLength(1));
-      expect(loaded.single.beneficiarySeedInfos, hasLength(1));
+      expect(loaded.single.scriptPathSeedInfos, hasLength(1));
       expect(loaded.single.keyPathSeedInfos.single.extendedPublicKey, added.keyPathSeedInfos.single.extendedPublicKey);
       expect(loaded.single.keyPathSeedInfos.single.isPassphraseSet, isFalse);
       expect(
-        loaded.single.beneficiarySeedInfos.single.extendedPublicKey,
-        added.beneficiarySeedInfos.single.extendedPublicKey,
+        loaded.single.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
+        added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
       );
-      expect(loaded.single.beneficiarySeedInfos.single.isPassphraseSet, isTrue);
+      expect(loaded.single.scriptPathSeedInfos.single.seedInfos.single.isPassphraseSet, isTrue);
 
       expect(loaded.single.keyPathParticipants, hasLength(2));
       expect(loaded.single.beneficiaryParticipants, hasLength(1));
@@ -412,7 +411,7 @@ void main() {
       expect(result.name, 'taproot inheritance wallet with external signer');
       expect(result.vaultType, WalletType.taproot);
       expect(result.keyPathSeedInfos, hasLength(1));
-      expect(result.beneficiarySeedInfos, hasLength(1));
+      expect(result.scriptPathSeedInfos, hasLength(1));
       expect(result.keyPathParticipants, hasLength(2));
       expect(result.beneficiaryParticipants, hasLength(1));
       final seedStoredKeyPathIndex = result.keyPathParticipants.indexWhere((p) => p.isSeedStored);
@@ -488,11 +487,11 @@ void main() {
       expect(loaded.single.vaultType, WalletType.taproot);
       expect(loaded.single.descriptor, added.descriptor);
       expect(loaded.single.keyPathSeedInfos, hasLength(1));
-      expect(loaded.single.beneficiarySeedInfos, hasLength(1));
+      expect(loaded.single.scriptPathSeedInfos, hasLength(1));
       expect(loaded.single.keyPathSeedInfos.single.extendedPublicKey, added.keyPathSeedInfos.single.extendedPublicKey);
       expect(
-        loaded.single.beneficiarySeedInfos.single.extendedPublicKey,
-        added.beneficiarySeedInfos.single.extendedPublicKey,
+        loaded.single.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
+        added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
       );
 
       expect(loaded.single.keyPathParticipants, hasLength(1));
@@ -537,25 +536,20 @@ void main() {
         ],
       );
 
-      final added = await repository.addTaprootWallet(walletCreateDto);
+      final TaprootVaultListItem added = await repository.addTaprootWallet(walletCreateDto);
       final reloadedRepository = WalletRepository(storageService: storage, secureZoneRepository: secureZone);
       final jsonList = await reloadedRepository.loadVaultListJsonArrayString();
 
       await reloadedRepository.loadAndEmitEachWallet(jsonList!, (_) {});
 
-      final keyPathSeedKey = WalletStorageKeys.taprootSeedKey(
+      final keyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.keyPathSeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.keyPath,
-        ),
+        added.keyPathSeedInfos.single.extendedPublicKey,
       );
-      final beneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
+      final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.beneficiarySeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.beneficiary,
-        ),
+        added.scriptPathSeedInfos.single.key,
+        added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
       );
       final walletKey = WalletStorageKeys.walletKey(added.id, WalletType.taproot);
       final privacyInfoKey = WalletStorageKeys.privacyInfoKey(walletKey);
@@ -613,19 +607,14 @@ void main() {
 
       final added = await repository.addTaprootWallet(walletCreateDto);
 
-      final keyPathSeedKey = WalletStorageKeys.taprootSeedKey(
+      final keyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.keyPathSeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.keyPath,
-        ),
+        added.keyPathSeedInfos.single.extendedPublicKey,
       );
-      final beneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
+      final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.beneficiarySeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.beneficiary,
-        ),
+        added.scriptPathSeedInfos.single.key,
+        added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
       );
       final seedIndexKey = WalletStorageKeys.taprootSeedIndexKey(added.id);
 
@@ -679,19 +668,14 @@ void main() {
       );
 
       final added = await repository.addTaprootWallet(walletCreateDto);
-      final keyPathSeedKey = WalletStorageKeys.taprootSeedKey(
+      final keyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.keyPathSeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.keyPath,
-        ),
+        added.keyPathSeedInfos.single.extendedPublicKey,
       );
-      final beneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
+      final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.beneficiarySeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.beneficiary,
-        ),
+        added.scriptPathSeedInfos.single.key,
+        added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
       );
 
       expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isNotEmpty);
@@ -738,19 +722,14 @@ void main() {
       );
 
       final added = await repository.addTaprootWallet(walletCreateDto);
-      final keyPathSeedKey = WalletStorageKeys.taprootSeedKey(
+      final keyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.keyPathSeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.keyPath,
-        ),
+        added.keyPathSeedInfos.single.extendedPublicKey,
       );
-      final beneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
+      final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.beneficiarySeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.beneficiary,
-        ),
+        added.scriptPathSeedInfos.single.key,
+        added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
       );
       expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isEmpty);
       expect(SharedPrefsRepository().getInt(SharedPrefsKeys.kNextIdField), isNotNull);

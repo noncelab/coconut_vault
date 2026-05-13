@@ -88,7 +88,7 @@ class _MockTaprootVaultListItem extends TaprootVaultListItem {
         iconIndex: 0,
         descriptor: '',
         keyPathSeedInfos: [],
-        beneficiarySeedInfos: [],
+        scriptPathSeedInfos: [],
         createdAt: DateTime.now(),
       );
 }

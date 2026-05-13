@@ -7,6 +7,7 @@ import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/repository/model/multisig_wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/model/single_sig_wallet_privacy_info.dart';
@@ -128,17 +129,26 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
 
   Future<void> _saveTaprootSecrets(
     int walletId,
-    List<TaprootSeedInfoForAdd> keyPathSecrets,
-    List<TaprootSeedInfoForAdd>? scriptPathSecrets,
+    List<TaprootSeedInfoForSave> keyPathSecrets,
+    List<ScriptPathSeedInfoForSave>? scriptPathSecrets,
   ) async {
-    final allSeeds = [...keyPathSecrets, ...?scriptPathSecrets];
-    for (final seedInfo in allSeeds) {
-      await _saveTaprootSeed(walletId, seedInfo);
+    for (final seedInfo in keyPathSecrets) {
+      final keyString = WalletStorageKeys.taprootKeyPathSeedKey(walletId, seedInfo.extendedPublicKey);
+      await _saveTaprootSeed(walletId, keyString, seedInfo);
+    }
+    for (final scriptPath in scriptPathSecrets ?? const <ScriptPathSeedInfoForSave>[]) {
+      for (final seedInfo in scriptPath.seedInfos) {
+        final keyString = WalletStorageKeys.taprootScriptPathSeedKey(
+          walletId,
+          scriptPath.key,
+          seedInfo.extendedPublicKey,
+        );
+        await _saveTaprootSeed(walletId, keyString, seedInfo);
+      }
     }
   }
 
-  Future<void> _saveTaprootSeed(int walletId, TaprootSeedInfoForAdd seedInfo) async {
-    final keyString = WalletStorageKeys.taprootSeedKey(walletId, seedInfo);
+  Future<void> _saveTaprootSeed(int walletId, String keyString, TaprootSeedInfoForSave seedInfo) async {
     Logger.log('--> taproot seed key: $keyString');
     await _secureZoneRepository.generateKey(alias: keyString, userAuthRequired: true);
     final pair = seedInfo.secretPassphrasePair;
@@ -160,9 +170,8 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
     await _storageService.delete(key: WalletStorageKeys.taprootSeedIndexKey(walletId));
   }
 
-  Future<void> _deleteTaprootSeeds(int walletId, List<TaprootSeedKeyIdentifier> allSeeds) async {
-    for (final seedInfo in allSeeds) {
-      final keyString = WalletStorageKeys.taprootSeedKey(walletId, seedInfo);
+  Future<void> _deleteTaprootSeeds(int walletId, List<String> seedKeys) async {
+    for (final keyString in seedKeys) {
       await _deleteTaprootSeedByKey(keyString);
     }
     await _storageService.delete(key: WalletStorageKeys.taprootSeedIndexKey(walletId));
@@ -195,7 +204,7 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
     final info = TaprootWalletPrivacyInfo(
       descriptor: item.descriptor,
       keyPathSeedInfos: item.keyPathSeedInfos,
-      beneficiarySeedInfos: item.beneficiarySeedInfos,
+      scriptPathSeedInfos: item.scriptPathSeedInfos,
     );
     await writePrivacyInfo(id, WalletType.taproot, info);
   }
@@ -235,15 +244,21 @@ class _SecureStorageOps implements WalletWriteOps {
   @override
   Future<void> persistTaprootAdd({
     required int id,
-    required List<TaprootSeedInfoForAdd> keyPathSeedInfosForAdd,
-    required List<TaprootSeedInfoForAdd>? beneficiarySeedInfosForAdd,
+    required List<TaprootSeedInfoForSave> keyPathSeedInfosForAdd,
+    required List<ScriptPathSeedInfoForSave>? scriptSeedInfosForAdd,
     required TaprootVaultListItem item,
   }) async {
-    await _s._saveTaprootSecrets(id, keyPathSeedInfosForAdd, beneficiarySeedInfosForAdd);
+    await _s._saveTaprootSecrets(id, keyPathSeedInfosForAdd, scriptSeedInfosForAdd);
     try {
       await _s._saveTaprootPrivacy(id, item);
     } catch (_) {
-      await _s._deleteTaprootSeeds(id, [...keyPathSeedInfosForAdd, ...?beneficiarySeedInfosForAdd]);
+      await _s._deleteTaprootSeeds(id, [
+        for (final seedInfo in keyPathSeedInfosForAdd)
+          WalletStorageKeys.taprootKeyPathSeedKey(id, seedInfo.extendedPublicKey),
+        for (final scriptPath in scriptSeedInfosForAdd ?? const <ScriptPathSeedInfoForSave>[])
+          for (final seedInfo in scriptPath.seedInfos)
+            WalletStorageKeys.taprootScriptPathSeedKey(id, scriptPath.key, seedInfo.extendedPublicKey),
+      ]);
       rethrow;
     }
   }

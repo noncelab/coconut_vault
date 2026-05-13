@@ -15,8 +15,9 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
-import 'package:coconut_vault/model/taproot/taproot_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/repository/migration/data_schema_migration_runner.dart';
 import 'package:coconut_vault/repository/model/multisig_wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/model/single_sig_wallet_privacy_info.dart';
@@ -183,8 +184,8 @@ class WalletRepository {
     json[TaprootVaultListItem.fieldDescriptor] = privacyInfo.descriptor;
     json[TaprootVaultListItem.fieldKeyPathSeedInfos] =
         privacyInfo.keyPathSeedInfos.map((seedInfo) => seedInfo.toJson()).toList();
-    json[TaprootVaultListItem.fieldBeneficiarySeedInfos] =
-        privacyInfo.beneficiarySeedInfos?.map((seedInfo) => seedInfo.toJson()).toList() ?? [];
+    json[TaprootVaultListItem.fieldScriptPathSeedInfos] =
+        privacyInfo.scriptPathSeedInfos?.map((seedInfo) => seedInfo.toJson()).toList() ?? [];
   }
 
   Future<void> _loadVaultList() async {
@@ -274,28 +275,35 @@ class WalletRepository {
     walletCreateDto.id = nextId;
 
     final Map<String, dynamic> data = walletCreateDto.toJson();
-    TaprootVaultListItem newTaprootVault = await compute(WalletIsolates.createTaprootVault, data);
+    final TaprootVaultListItem newTaprootVault = await compute(WalletIsolates.createTaprootVault, data);
     Logger.logLongString('${newTaprootVault.toJson()}');
     vaults.add(newTaprootVault);
     final keyPathSeedInfosForAdd = [
       for (final entry in (walletCreateDto.keyPathSeeds ?? []).asMap().entries)
-        TaprootSeedInfoForAdd(
+        TaprootSeedInfoForSave(
           secretPassphrasePair: (secret: entry.value.mnemonic, passphrase: entry.value.passphrase),
           extendedPublicKey: newTaprootVault.keyPathSeedInfos[entry.key].extendedPublicKey,
-          role: TaprootSeedRole.keyPath,
         ),
     ];
-    final beneficiarySeedSources =
-        walletCreateDto.inheritanceLeaves?.where((leaf) => leaf.secret != null).map((leaf) => leaf.secret!).toList();
-    final beneficiarySeedInfosForAdd =
-        beneficiarySeedSources == null
+    final inheritanceLeavesWithSecret =
+        walletCreateDto.inheritanceLeaves?.where((leaf) => leaf.secret != null).toList();
+    final scriptSeedInfosForAdd =
+        inheritanceLeavesWithSecret == null
             ? null
             : [
-              for (final entry in beneficiarySeedSources.asMap().entries)
-                TaprootSeedInfoForAdd(
-                  secretPassphrasePair: (secret: entry.value.mnemonic, passphrase: entry.value.passphrase),
-                  extendedPublicKey: newTaprootVault.beneficiarySeedInfos[entry.key].extendedPublicKey,
-                  role: TaprootSeedRole.beneficiary,
+              for (final entry in inheritanceLeavesWithSecret.asMap().entries)
+                ScriptPathSeedInfoForSave(
+                  key: newTaprootVault.scriptPathSeedInfos[entry.key].key,
+                  role: newTaprootVault.scriptPathSeedInfos[entry.key].role,
+                  seedInfos: [
+                    TaprootSeedInfoForSave(
+                      secretPassphrasePair: (
+                        secret: entry.value.secret!.mnemonic,
+                        passphrase: entry.value.secret!.passphrase,
+                      ),
+                      extendedPublicKey: newTaprootVault.scriptPathSeedInfos[entry.key].seedInfos[0].extendedPublicKey,
+                    ),
+                  ],
                 ),
             ];
     try {
@@ -305,7 +313,7 @@ class WalletRepository {
               id: nextId,
               item: newTaprootVault,
               keyPathSeedInfosForAdd: keyPathSeedInfosForAdd,
-              beneficiarySeedInfosForAdd: beneficiarySeedInfosForAdd,
+              scriptSeedInfosForAdd: scriptSeedInfosForAdd,
             ),
         snapshot: () => vaults,
       );
