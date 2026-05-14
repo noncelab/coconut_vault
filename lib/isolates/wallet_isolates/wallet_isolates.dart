@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data'; // Added for Uint8List
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/isolates/wallet_isolates/taproot/taproot_inheritance_isolates.dart';
 import 'package:coconut_vault/model/common/wallet_address.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
@@ -11,10 +12,22 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
 import 'package:coconut_vault/model/taproot/taproot_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
-import 'package:coconut_vault/model/taproot/taproot_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
+import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
+import 'package:coconut_vault/utils/hash_util.dart';
+import 'package:coconut_vault/utils/logger.dart';
+
+typedef TaprootCreationResult =
+    ({
+      TaprootVaultListItem vault,
+      List<TaprootSeedInfoForSave> keyPathSaves,
+      List<ScriptPathSeedInfoForSave> scriptPathSaves,
+    });
 
 class WalletIsolates {
   static void setNetworkType() {
@@ -70,7 +83,7 @@ class WalletIsolates {
     return newMultisigVault;
   }
 
-  static (TaprootSeedInfo, KeyStore) _createSeedInfo(SeedSource seed) {
+  static (TaprootSeedInfo, KeyStore) createSeedInfo(SeedSource seed) {
     final keystore = KeyStore.fromSeed(Seed.fromMnemonic(seed.mnemonic, passphrase: seed.passphrase), AddressType.p2tr);
     return (
       TaprootSeedInfo(
@@ -81,65 +94,93 @@ class WalletIsolates {
     );
   }
 
-  static TaprootVaultListItem createTaprootVault(Map<String, dynamic> data) {
-    setNetworkType();
+  /// seed.wipe() 이후에도 살아남도록 사본을 들고 save 모델 구성.
+  static TaprootSeedInfoForSave createSeedInfoForSave(SeedSource seed, String extendedPublicKey) {
+    return TaprootSeedInfoForSave(
+      secretPassphrasePair: (
+        secret: Uint8List.fromList(seed.mnemonic),
+        passphrase: seed.passphrase.isEmpty ? null : Uint8List.fromList(seed.passphrase),
+      ),
+      extendedPublicKey: extendedPublicKey,
+    );
+  }
 
-    final wallet = TaprootWalletCreateDto.fromJson(data);
-    List<KeyStore> keyStoreList = [];
-    List<TaprootSeedInfo> keyPathSeedInfos = [];
-    if (wallet.keyPathSeeds != null) {
-      for (final seed in wallet.keyPathSeeds!) {
-        final (seedInfo, keyStore) = _createSeedInfo(seed);
-        keyPathSeedInfos.add(seedInfo);
-        final taprootVault = TaprootVault.fromKeyStoreList([keyStore], []);
+  /// keyPath seed/signerBsms를 keyStore 목록과 seedInfo/save 모델로 변환한다.
+  /// [seeds]가 있는 경우 내부에서 각 seed를 wipe하므로 호출 후에는 사용할 수 없다.
+  static ({List<KeyStore> keyStores, List<TaprootSeedInfo> seedInfos, List<TaprootSeedInfoForSave> saves})
+  _buildKeyPathEntries(List<SeedSource>? seeds, List<String>? signerBsmses) {
+    final keyStores = <KeyStore>[];
+    final seedInfos = <TaprootSeedInfo>[];
+    final saves = <TaprootSeedInfoForSave>[];
+
+    if (seeds != null) {
+      for (final seed in seeds) {
+        final (seedInfo, keyStore) = createSeedInfo(seed);
+        seedInfos.add(seedInfo);
+        saves.add(createSeedInfoForSave(seed, seedInfo.extendedPublicKey));
+        final keyPathVault = TaprootVault.fromKeyStoreList([keyStore], []);
 
         /// seed가 제거된 keystore를 얻기 위해
-        keyStoreList.add(KeyStore.fromSignerBsms(taprootVault.getSignerBsms("")));
+        keyStores.add(KeyStore.fromSignerBsms(keyPathVault.getSignerBsms("")));
 
         keyStore.wipeSeed();
         seed.wipe();
       }
     }
 
-    if (wallet.keyPathSignerBsmses != null) {
-      for (final signerBsms in wallet.keyPathSignerBsmses!) {
-        keyStoreList.add(KeyStore.fromSignerBsms(signerBsms));
+    if (signerBsmses != null) {
+      for (final signerBsms in signerBsmses) {
+        keyStores.add(KeyStore.fromSignerBsms(signerBsms));
       }
     }
 
-    List<Policy> policyList = [];
-    List<TaprootSeedInfo> beneficiarySeedInfos = [];
-    if (wallet.inheritanceLeaves != null) {
-      for (final leaf in wallet.inheritanceLeaves!) {
-        if (leaf.descriptor != null) {
-          policyList.add(InheritancePolicy.fromDescriptorAndLocktime(leaf.descriptor!, leaf.lockTime));
-        } else {
-          final (seedInfo, keyStore) = _createSeedInfo(leaf.secret!);
-          beneficiarySeedInfos.add(seedInfo);
-          final taprootVault = TaprootVault.fromKeyStoreList([keyStore], []);
-          policyList.add(InheritancePolicy.fromDescriptorAndLocktime(taprootVault.descriptor, leaf.lockTime));
-          // seed 정보 정리
-          keyStore.wipeSeed();
-          leaf.secret!.wipe();
-        }
-      }
+    return (keyStores: keyStores, seedInfos: seedInfos, saves: saves);
+  }
+
+  /// inheritance leaf 목록을 policy 목록과 scriptPath seedInfo/save 모델로 변환한다.
+  /// secret을 보유한 leaf는 내부에서 wipe되므로 호출 후 해당 leaf의 secret은 사용할 수 없다.
+  static ({List<Policy> policies, List<ScriptPathSeedInfo> seedInfos, List<ScriptPathSeedInfoForSave> saves})
+  _buildScriptPathEntries(List<InheritanceLeaf>? inheritanceleaves) {
+    final policies = <Policy>[];
+    final seedInfos = <ScriptPathSeedInfo>[];
+    final saves = <ScriptPathSeedInfoForSave>[];
+
+    if (inheritanceleaves != null) {
+      final result = TaprootInheritanceIsolates.buildScriptPathEntries(inheritanceleaves);
+      policies.addAll(result.policies);
+      seedInfos.addAll(result.seedInfos);
+      saves.addAll(result.saves);
     }
+    // 추후 다른 종류의 leaves가 생기면 여기서 동일하게 병합
 
-    final taprootVault = TaprootVault.fromKeyStoreList(keyStoreList, policyList);
+    return (policies: policies, seedInfos: seedInfos, saves: saves);
+  }
 
-    final newTaprootVault = TaprootVaultListItem(
-      id: wallet.id!,
-      name: wallet.name!,
-      colorIndex: wallet.color!,
-      iconIndex: wallet.icon!,
-      createdAt: DateTime.now(),
-      descriptor: taprootVault.descriptor,
-      keyPathSeedInfos: keyPathSeedInfos,
-      beneficiarySeedInfos: beneficiarySeedInfos,
-    );
+  static TaprootCreationResult createTaprootVault(Map<String, dynamic> data) {
+    setNetworkType();
 
-    wallet.wipe();
-    return newTaprootVault;
+    final taprootCreateDto = TaprootWalletCreateDto.fromJson(data);
+    try {
+      final keyPath = _buildKeyPathEntries(taprootCreateDto.keyPathSeeds, taprootCreateDto.keyPathSignerBsmses);
+      final scriptPath = _buildScriptPathEntries(taprootCreateDto.inheritanceLeaves);
+
+      final taprootVault = TaprootVault.fromKeyStoreList(keyPath.keyStores, scriptPath.policies);
+
+      final newTaprootVault = TaprootVaultListItem(
+        id: taprootCreateDto.id!,
+        name: taprootCreateDto.name!,
+        colorIndex: taprootCreateDto.color!,
+        iconIndex: taprootCreateDto.icon!,
+        createdAt: DateTime.now(),
+        descriptor: taprootVault.descriptor,
+        keyPathSeedInfos: keyPath.seedInfos,
+        scriptPathSeedInfos: scriptPath.seedInfos,
+      );
+
+      return (vault: newTaprootVault, keyPathSaves: keyPath.saves, scriptPathSaves: scriptPath.saves);
+    } finally {
+      taprootCreateDto.wipe();
+    }
   }
 
   static Future<VaultListItemBase> initializeWallet(Map<String, dynamic> data) async {

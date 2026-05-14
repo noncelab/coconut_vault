@@ -8,7 +8,7 @@
 
 ```
 taprootSeedKey       = hash("${walletId} - ${seedInfo.extendedPublicKey} - ${seedInfo.role.name}")
-                         role.name = "keyPath" | "beneficiary"
+                         role.name = "parent" | "beneficiary"
 
 taprootSeedPassphraseEnabledKey = hash("${taprootSeedKey} - passphraseEnabled")
 

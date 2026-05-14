@@ -5,6 +5,7 @@ import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
+import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
@@ -77,17 +78,26 @@ class SigningOnlyStrategy implements WalletPersistenceStrategy {
 
   Future<void> _saveTaprootSecrets(
     int walletId,
-    List<TaprootSeedInfoForAdd> keyPathSeeds,
-    List<TaprootSeedInfoForAdd>? scriptPathSeeds,
+    List<TaprootSeedInfoForSave> keyPathSeeds,
+    List<ScriptPathSeedInfoForSave> scriptPathSeeds,
   ) async {
-    final allSeeds = [...keyPathSeeds, ...?scriptPathSeeds];
-    for (final seedInfo in allSeeds) {
-      await _saveTaprootSeed(walletId, seedInfo);
+    for (final seedInfo in keyPathSeeds) {
+      final keyString = WalletStorageKeys.taprootKeyPathSeedKey(walletId, seedInfo.extendedPublicKey);
+      await _saveTaprootSeed(walletId, keyString, seedInfo);
+    }
+    for (final scriptPath in scriptPathSeeds) {
+      for (final seedInfo in scriptPath.seedInfos) {
+        final keyString = WalletStorageKeys.taprootScriptPathSeedKey(
+          walletId,
+          scriptPath.key,
+          seedInfo.extendedPublicKey,
+        );
+        await _saveTaprootSeed(walletId, keyString, seedInfo);
+      }
     }
   }
 
-  Future<void> _saveTaprootSeed(int walletId, TaprootSeedInfoForAdd seedInfo) async {
-    final keyString = WalletStorageKeys.taprootSeedKey(walletId, seedInfo);
+  Future<void> _saveTaprootSeed(int walletId, String keyString, TaprootSeedInfoForSave seedInfo) async {
     await _secureZoneRepository.generateKey(alias: keyString, userAuthRequired: true);
     final pair = seedInfo.secretPassphrasePair;
     final plainText = SecureZonePayloadCodec.buildPlaintext(secret: pair.secret, passphrase: pair.passphrase);
@@ -107,7 +117,6 @@ class SigningOnlyStrategy implements WalletPersistenceStrategy {
   Future<void> _deleteTaprootSeedByKey(String seedKey) async {
     await _storageService.delete(key: seedKey);
     await _secureZoneRepository.deleteKey(alias: seedKey);
-    await _storageService.delete(key: WalletStorageKeys.taprootSeedPassphraseEnabledKey(seedKey));
   }
 
   Future<List<String>> _readTaprootSeedIndex(int walletId) async {
@@ -151,12 +160,12 @@ class _SigningOnlyOps implements WalletWriteOps {
   @override
   Future<void> persistTaprootAdd({
     required int id,
-    required List<TaprootSeedInfoForAdd> keyPathSeedInfosForAdd,
-    required List<TaprootSeedInfoForAdd>? beneficiarySeedInfosForAdd,
+    required List<TaprootSeedInfoForSave> keyPathSeedInfosForAdd,
+    required List<ScriptPathSeedInfoForSave> scriptSeedInfosForAdd,
     required TaprootVaultListItem item,
   }) async {
     // Privacy info is not persisted in signing-only mode; only the secret matters.
-    await _s._saveTaprootSecrets(id, keyPathSeedInfosForAdd, beneficiarySeedInfosForAdd);
+    await _s._saveTaprootSecrets(id, keyPathSeedInfosForAdd, scriptSeedInfosForAdd);
   }
 
   @override

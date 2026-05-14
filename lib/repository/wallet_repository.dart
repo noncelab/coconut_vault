@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
-import 'package:coconut_vault/isolates/wallet_isolates.dart';
+import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
@@ -16,11 +16,10 @@ import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
-import 'package:coconut_vault/model/taproot/taproot_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/repository/migration/data_schema_migration_runner.dart';
 import 'package:coconut_vault/repository/model/multisig_wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/model/single_sig_wallet_privacy_info.dart';
-import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
 import 'package:coconut_vault/repository/model/taproot_wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/model/wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
@@ -183,8 +182,8 @@ class WalletRepository {
     json[TaprootVaultListItem.fieldDescriptor] = privacyInfo.descriptor;
     json[TaprootVaultListItem.fieldKeyPathSeedInfos] =
         privacyInfo.keyPathSeedInfos.map((seedInfo) => seedInfo.toJson()).toList();
-    json[TaprootVaultListItem.fieldBeneficiarySeedInfos] =
-        privacyInfo.beneficiarySeedInfos?.map((seedInfo) => seedInfo.toJson()).toList() ?? [];
+    json[TaprootVaultListItem.fieldScriptPathSeedInfos] =
+        privacyInfo.scriptPathSeedInfos?.map((seedInfo) => seedInfo.toJson()).toList() ?? [];
   }
 
   Future<void> _loadVaultList() async {
@@ -274,38 +273,18 @@ class WalletRepository {
     walletCreateDto.id = nextId;
 
     final Map<String, dynamic> data = walletCreateDto.toJson();
-    TaprootVaultListItem newTaprootVault = await compute(WalletIsolates.createTaprootVault, data);
+    final TaprootCreationResult result = await compute(WalletIsolates.createTaprootVault, data);
+    final newTaprootVault = result.vault;
     Logger.logLongString('${newTaprootVault.toJson()}');
     vaults.add(newTaprootVault);
-    final keyPathSeedInfosForAdd = [
-      for (final entry in (walletCreateDto.keyPathSeeds ?? []).asMap().entries)
-        TaprootSeedInfoForAdd(
-          secretPassphrasePair: (secret: entry.value.mnemonic, passphrase: entry.value.passphrase),
-          extendedPublicKey: newTaprootVault.keyPathSeedInfos[entry.key].extendedPublicKey,
-          role: TaprootSeedRole.keyPath,
-        ),
-    ];
-    final beneficiarySeedSources =
-        walletCreateDto.inheritanceLeaves?.where((leaf) => leaf.secret != null).map((leaf) => leaf.secret!).toList();
-    final beneficiarySeedInfosForAdd =
-        beneficiarySeedSources == null
-            ? null
-            : [
-              for (final entry in beneficiarySeedSources.asMap().entries)
-                TaprootSeedInfoForAdd(
-                  secretPassphrasePair: (secret: entry.value.mnemonic, passphrase: entry.value.passphrase),
-                  extendedPublicKey: newTaprootVault.beneficiarySeedInfos[entry.key].extendedPublicKey,
-                  role: TaprootSeedRole.beneficiary,
-                ),
-            ];
     try {
       await _strategy.mutate(
         execute:
             (ops) => ops.persistTaprootAdd(
               id: nextId,
               item: newTaprootVault,
-              keyPathSeedInfosForAdd: keyPathSeedInfosForAdd,
-              beneficiarySeedInfosForAdd: beneficiarySeedInfosForAdd,
+              keyPathSeedInfosForAdd: result.keyPathSaves,
+              scriptSeedInfosForAdd: result.scriptPathSaves,
             ),
         snapshot: () => vaults,
       );

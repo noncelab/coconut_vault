@@ -4,18 +4,18 @@ import 'dart:typed_data';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
-import 'package:coconut_vault/model/taproot/inheritance_leaf.dart';
+import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
 import 'package:coconut_vault/model/taproot/taproot_participant.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
-import 'package:coconut_vault/model/taproot/taproot_wallet_create_dto.dart';
-import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
+import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/secure_zone_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/repository/wallet_persistence_strategy/wallet_persistence_strategy.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_payload_codec.dart';
+import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -275,7 +275,7 @@ void main() {
       expect(result.name, 'taproot inheritance wallet with external signer');
       expect(result.vaultType, WalletType.taproot);
       expect(result.keyPathSeedInfos, hasLength(1));
-      expect(result.beneficiarySeedInfos, hasLength(1));
+      expect(result.scriptPathSeedInfos, hasLength(1));
       expect(result.keyPathParticipants, hasLength(2));
       expect(result.beneficiaryParticipants, hasLength(1));
       final seedStoredKeyPathIndex = result.keyPathParticipants.indexWhere((p) => p.isSeedStored);
@@ -351,14 +351,14 @@ void main() {
       expect(loaded.single.vaultType, WalletType.taproot);
       expect(loaded.single.descriptor, added.descriptor);
       expect(loaded.single.keyPathSeedInfos, hasLength(1));
-      expect(loaded.single.beneficiarySeedInfos, hasLength(1));
+      expect(loaded.single.scriptPathSeedInfos, hasLength(1));
       expect(loaded.single.keyPathSeedInfos.single.extendedPublicKey, added.keyPathSeedInfos.single.extendedPublicKey);
       expect(loaded.single.keyPathSeedInfos.single.isPassphraseSet, isFalse);
       expect(
-        loaded.single.beneficiarySeedInfos.single.extendedPublicKey,
-        added.beneficiarySeedInfos.single.extendedPublicKey,
+        loaded.single.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
+        added.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
       );
-      expect(loaded.single.beneficiarySeedInfos.single.isPassphraseSet, isTrue);
+      expect(loaded.single.scriptPathSeedInfos!.single.seedInfos.single.isPassphraseSet, isTrue);
 
       expect(loaded.single.keyPathParticipants, hasLength(2));
       expect(loaded.single.beneficiaryParticipants, hasLength(1));
@@ -412,7 +412,7 @@ void main() {
       expect(result.name, 'taproot inheritance wallet with external signer');
       expect(result.vaultType, WalletType.taproot);
       expect(result.keyPathSeedInfos, hasLength(1));
-      expect(result.beneficiarySeedInfos, hasLength(1));
+      expect(result.scriptPathSeedInfos, hasLength(1));
       expect(result.keyPathParticipants, hasLength(2));
       expect(result.beneficiaryParticipants, hasLength(1));
       final seedStoredKeyPathIndex = result.keyPathParticipants.indexWhere((p) => p.isSeedStored);
@@ -488,11 +488,11 @@ void main() {
       expect(loaded.single.vaultType, WalletType.taproot);
       expect(loaded.single.descriptor, added.descriptor);
       expect(loaded.single.keyPathSeedInfos, hasLength(1));
-      expect(loaded.single.beneficiarySeedInfos, hasLength(1));
+      expect(loaded.single.scriptPathSeedInfos, hasLength(1));
       expect(loaded.single.keyPathSeedInfos.single.extendedPublicKey, added.keyPathSeedInfos.single.extendedPublicKey);
       expect(
-        loaded.single.beneficiarySeedInfos.single.extendedPublicKey,
-        added.beneficiarySeedInfos.single.extendedPublicKey,
+        loaded.single.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
+        added.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
       );
 
       expect(loaded.single.keyPathParticipants, hasLength(1));
@@ -537,25 +537,20 @@ void main() {
         ],
       );
 
-      final added = await repository.addTaprootWallet(walletCreateDto);
+      final TaprootVaultListItem added = await repository.addTaprootWallet(walletCreateDto);
       final reloadedRepository = WalletRepository(storageService: storage, secureZoneRepository: secureZone);
       final jsonList = await reloadedRepository.loadVaultListJsonArrayString();
 
       await reloadedRepository.loadAndEmitEachWallet(jsonList!, (_) {});
 
-      final keyPathSeedKey = WalletStorageKeys.taprootSeedKey(
+      final keyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.keyPathSeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.keyPath,
-        ),
+        added.keyPathSeedInfos.single.extendedPublicKey,
       );
-      final beneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
+      final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.beneficiarySeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.beneficiary,
-        ),
+        added.scriptPathSeedInfos!.single.key,
+        added.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
       );
       final walletKey = WalletStorageKeys.walletKey(added.id, WalletType.taproot);
       final privacyInfoKey = WalletStorageKeys.privacyInfoKey(walletKey);
@@ -613,19 +608,14 @@ void main() {
 
       final added = await repository.addTaprootWallet(walletCreateDto);
 
-      final keyPathSeedKey = WalletStorageKeys.taprootSeedKey(
+      final keyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.keyPathSeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.keyPath,
-        ),
+        added.keyPathSeedInfos.single.extendedPublicKey,
       );
-      final beneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
+      final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.beneficiarySeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.beneficiary,
-        ),
+        added.scriptPathSeedInfos!.single.key,
+        added.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
       );
       final seedIndexKey = WalletStorageKeys.taprootSeedIndexKey(added.id);
 
@@ -635,9 +625,12 @@ void main() {
       expect(repository.vaultList, isEmpty);
       expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isEmpty);
       expect(storage.deletedKeys, contains(keyPathSeedKey));
-      expect(storage.deletedKeys, contains(WalletStorageKeys.taprootSeedPassphraseEnabledKey(keyPathSeedKey)));
+      expect(storage.deletedKeys, isNot(contains(WalletStorageKeys.taprootSeedPassphraseEnabledKey(keyPathSeedKey))));
       expect(storage.deletedKeys, contains(beneficiarySeedKey));
-      expect(storage.deletedKeys, contains(WalletStorageKeys.taprootSeedPassphraseEnabledKey(beneficiarySeedKey)));
+      expect(
+        storage.deletedKeys,
+        isNot(contains(WalletStorageKeys.taprootSeedPassphraseEnabledKey(beneficiarySeedKey))),
+      );
       expect(storage.deletedKeys, contains(seedIndexKey));
       expect(secureZone.deletedAliases, contains(keyPathSeedKey));
       expect(secureZone.deletedAliases, contains(beneficiarySeedKey));
@@ -679,19 +672,14 @@ void main() {
       );
 
       final added = await repository.addTaprootWallet(walletCreateDto);
-      final keyPathSeedKey = WalletStorageKeys.taprootSeedKey(
+      final keyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.keyPathSeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.keyPath,
-        ),
+        added.keyPathSeedInfos.single.extendedPublicKey,
       );
-      final beneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
+      final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.beneficiarySeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.beneficiary,
-        ),
+        added.scriptPathSeedInfos!.single.key,
+        added.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
       );
 
       expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isNotEmpty);
@@ -738,19 +726,14 @@ void main() {
       );
 
       final added = await repository.addTaprootWallet(walletCreateDto);
-      final keyPathSeedKey = WalletStorageKeys.taprootSeedKey(
+      final keyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.keyPathSeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.keyPath,
-        ),
+        added.keyPathSeedInfos.single.extendedPublicKey,
       );
-      final beneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
+      final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
         added.id,
-        TaprootSeedKeyIdentifierImpl(
-          extendedPublicKey: added.beneficiarySeedInfos.single.extendedPublicKey,
-          role: TaprootSeedRole.beneficiary,
-        ),
+        added.scriptPathSeedInfos!.single.key,
+        added.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
       );
       expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isEmpty);
       expect(SharedPrefsRepository().getInt(SharedPrefsKeys.kNextIdField), isNotNull);
@@ -794,7 +777,154 @@ void main() {
       expect(storage.deletedKeys, contains(seedIndexKey));
       expect(SharedPrefsRepository().getInt(SharedPrefsKeys.kNextIdField), isNull);
     });
+
+    /// isolate에서 만들어진 save 모델의 (xpub / scriptKey) ↔ secret 매핑이
+    /// 입력 SeedSource 그대로 짝지어지는지 확인. index 정합성이 깨지면 이 테스트가 잡아낸다.
+    test('SecureStorage / isolate pairs each save model to the right seed by derived xpub/scriptKey', () async {
+      final storage = _FakeSecureStorageRepository();
+      final secureZone = _FakeSecureZoneRepository();
+      final repository = WalletRepository(storageService: storage, secureZoneRepository: secureZone);
+
+      final keyPathSeedA = _seedSource(
+        'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+        'kp-a',
+      );
+      final keyPathSeedB = _seedSource(
+        'legal winner thank year wave sausage worth useful legal winner thank yellow',
+        '', // passphrase 없음 → save 모델에서 null 정규화 경로 검증
+      );
+      final beneficiarySeedA = _seedSource(
+        'letter advice cage absurd amount doctor acoustic avoid letter advice cage above',
+        'bn-a',
+      );
+      final beneficiarySeedB = _seedSource('zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong', 'bn-b');
+
+      final walletCreateDto = TaprootWalletCreateDto(
+        null,
+        'taproot multi-seed mapping',
+        1,
+        2,
+        [keyPathSeedA, keyPathSeedB],
+        null,
+        [
+          InheritanceLeaf(secret: beneficiarySeedA, lockTime: 500000000),
+          InheritanceLeaf(secret: beneficiarySeedB, lockTime: 500000001),
+        ],
+      );
+
+      final added = await repository.addTaprootWallet(walletCreateDto);
+
+      // 각 입력 seed에서 독립적으로 xpub을 재유도하여 strategy가 사용한 storage key를 예측한다.
+      void expectSeedStoredAt(String storageKey, Uint8List expectedSecret) {
+        final plaintext = secureZone.encryptedPlaintexts[storageKey];
+        expect(plaintext, isNotNull, reason: 'no encrypted payload at $storageKey');
+        final payload = SecureZonePayloadCodec.parsePlaintext(plaintext!);
+        expect(payload.secret, expectedSecret);
+      }
+
+      String xpubOf(SeedSource s) =>
+          KeyStore.fromSeed(
+            Seed.fromMnemonic(s.mnemonic, passphrase: s.passphrase),
+            AddressType.p2tr,
+          ).extendedPublicKey.serialize();
+
+      String scriptKeyOf(SeedSource s, int lockTime) {
+        final ks = KeyStore.fromSeed(Seed.fromMnemonic(s.mnemonic, passphrase: s.passphrase), AddressType.p2tr);
+        final v = TaprootVault.fromKeyStoreList([ks], []);
+        final policy = InheritancePolicy.fromDescriptorAndLocktime(v.descriptor, lockTime);
+        return hashString(policy.toMiniscript());
+      }
+
+      final kpAKey = WalletStorageKeys.taprootKeyPathSeedKey(added.id, xpubOf(keyPathSeedA));
+      final kpBKey = WalletStorageKeys.taprootKeyPathSeedKey(added.id, xpubOf(keyPathSeedB));
+      expectSeedStoredAt(kpAKey, keyPathSeedA.mnemonic);
+      expectSeedStoredAt(kpBKey, keyPathSeedB.mnemonic);
+
+      final bnAKey = WalletStorageKeys.taprootScriptPathSeedKey(
+        added.id,
+        scriptKeyOf(beneficiarySeedA, 500000000),
+        xpubOf(beneficiarySeedA),
+      );
+      final bnBKey = WalletStorageKeys.taprootScriptPathSeedKey(
+        added.id,
+        scriptKeyOf(beneficiarySeedB, 500000001),
+        xpubOf(beneficiarySeedB),
+      );
+      expectSeedStoredAt(bnAKey, beneficiarySeedA.mnemonic);
+      expectSeedStoredAt(bnBKey, beneficiarySeedB.mnemonic);
+
+      // 네 시드가 모두 인덱스에 등록되었는지도 확인 (롤백 등 후속 정리에서 사용됨).
+      final indexJson = storage.values[WalletStorageKeys.taprootSeedIndexKey(added.id)];
+      expect(indexJson, isNotNull);
+      final keys = List<String>.from(jsonDecode(indexJson!));
+      expect(keys, containsAll([kpAKey, kpBKey, bnAKey, bnBKey]));
+    });
+
+    /// secret-bearing leaves에 대해서만 scriptPath save 모델이 생성되는지.
+    test('SecureStorage / scriptPath saves skip descriptor-only inheritance leaves', () async {
+      final storage = _FakeSecureStorageRepository();
+      final secureZone = _FakeSecureZoneRepository();
+      final repository = WalletRepository(storageService: storage, secureZoneRepository: secureZone);
+
+      final keyPathSeed = _seedSource(
+        'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+        '',
+      );
+      // 외부 beneficiary는 descriptor-only로 들어온다 → scriptPath save 모델 생성 X.
+      final externalBeneficiary = _externalInheritancePolicyDescriptor(
+        'legal winner thank year wave sausage worth useful legal winner thank yellow',
+        '',
+        500000000,
+      );
+      final ownBeneficiarySeed = _seedSource(
+        'letter advice cage absurd amount doctor acoustic avoid letter advice cage above',
+        'bn',
+      );
+
+      final walletCreateDto = TaprootWalletCreateDto(
+        null,
+        'taproot mixed inheritance',
+        1,
+        2,
+        [keyPathSeed],
+        null,
+        [
+          InheritanceLeaf(descriptor: externalBeneficiary, lockTime: 500000000),
+          InheritanceLeaf(secret: ownBeneficiarySeed, lockTime: 500000001),
+        ],
+      );
+
+      final added = await repository.addTaprootWallet(walletCreateDto);
+
+      // SZR에는 keyPath seed 1개 + ownBeneficiarySeed 1개 = 2개만 저장되어야 한다.
+      expect(secureZone.generatedAliases, hasLength(2));
+      expect(secureZone.encryptedPlaintexts, hasLength(2));
+
+      // ownBeneficiarySeed가 정확한 storage key에 들어갔는지.
+      final ks = KeyStore.fromSeed(
+        Seed.fromMnemonic(ownBeneficiarySeed.mnemonic, passphrase: ownBeneficiarySeed.passphrase),
+        AddressType.p2tr,
+      );
+      final v = TaprootVault.fromKeyStoreList([ks], []);
+      final scriptKey = hashString(InheritancePolicy.fromDescriptorAndLocktime(v.descriptor, 500000001).toMiniscript());
+      final ownKey = WalletStorageKeys.taprootScriptPathSeedKey(added.id, scriptKey, ks.extendedPublicKey.serialize());
+      expect(secureZone.encryptedPlaintexts.keys, contains(ownKey));
+    });
   });
+}
+
+/// 외부 beneficiary 시뮬레이션: 시드로부터 single-sig taproot descriptor를 만들어
+/// descriptor-only 모드로 들어오는 InheritanceLeaf 입력을 흉내낸다.
+/// 입력 시점에는 lockTime이 따로 전달되므로 descriptor에 lockTime을 합칠 필요는 없다.
+String _externalInheritancePolicyDescriptor(String mnemonic, String passphrase, int lockTime) {
+  final ks = KeyStore.fromSeed(
+    Seed.fromMnemonic(
+      Uint8List.fromList(utf8.encode(mnemonic)),
+      passphrase: Uint8List.fromList(utf8.encode(passphrase)),
+    ),
+    AddressType.p2tr,
+  );
+  return TaprootVault.fromKeyStoreList([ks], []).descriptor;
 }
 
 SeedSource _seedSource(String mnemonic, String passphrase) {
