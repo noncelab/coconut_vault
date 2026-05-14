@@ -24,8 +24,6 @@ class TaprootVaultListItem extends VaultListItemBase {
   final List<ScriptPathSeedInfo>? _scriptPathSeedInfos;
   List<ScriptPathSeedInfo>? get scriptPathSeedInfos => _scriptPathSeedInfos;
 
-  late final bool _hasKeyPathSeed;
-
   /// Key Path spending에 참여하는 서명자 목록.
   /// 이 키들은 MuSig2로 aggregate되어 단일 internal key를 구성함.
   late final List<TaprootParticipant> _owners;
@@ -88,12 +86,11 @@ class TaprootVaultListItem extends VaultListItemBase {
 
     _owners = owners;
     _beneficiaries = beneficiaries;
-    _hasKeyPathSeed = keyPathSeedInfos.isNotEmpty;
   }
 
-  List<TaprootParticipant> get keyPathParticipants => List.unmodifiable(_owners);
-  List<TaprootBeneficiaryParticipant> get beneficiaryParticipants => List.unmodifiable(_beneficiaries);
-  bool get isParent => _hasKeyPathSeed;
+  List<TaprootParticipant> get owners => List.unmodifiable(_owners);
+  List<TaprootBeneficiaryParticipant> get beneficiaries => List.unmodifiable(_beneficiaries);
+  bool get isParent => _keyPathSeedInfos.isNotEmpty;
   String get derivationPath => (coconutVault as TaprootVault).derivationPath;
 
   @override

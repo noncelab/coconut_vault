@@ -55,14 +55,14 @@ void main() {
       expect(result.id, 1);
       expect(result.name, 'taproot wallet');
       expect(result.vaultType, WalletType.taproot);
-      expect(result.keyPathParticipants, hasLength(1));
-      expect(result.beneficiaryParticipants, hasLength(1));
-      expect(result.keyPathParticipants[0].isSeedStored, isTrue);
-      expect(result.keyPathParticipants[0].isPassphraseSet, isTrue);
-      expect(result.keyPathParticipants[0].type, TaprootParticipantType.keyPath);
-      expect(result.beneficiaryParticipants[0].isSeedStored, isTrue);
-      expect(result.beneficiaryParticipants[0].isPassphraseSet, isTrue);
-      expect(result.beneficiaryParticipants[0].type, TaprootParticipantType.beneficiary);
+      expect(result.owners, hasLength(1));
+      expect(result.beneficiaries, hasLength(1));
+      expect(result.owners[0].isSeedStored, isTrue);
+      expect(result.owners[0].isPassphraseSet, isTrue);
+      expect(result.owners[0].type, TaprootParticipantType.keyPath);
+      expect(result.beneficiaries[0].isSeedStored, isTrue);
+      expect(result.beneficiaries[0].isPassphraseSet, isTrue);
+      expect(result.beneficiaries[0].type, TaprootParticipantType.beneficiary);
       expect(repository.vaultList, hasLength(1));
       expect(repository.vaultList.single, same(result));
       expect(walletCreateDto.id, 1);
@@ -103,11 +103,11 @@ void main() {
       expect(result.id, 1);
       expect(result.name, 'taproot wallet');
       expect(result.vaultType, WalletType.taproot);
-      expect(result.keyPathParticipants, hasLength(1));
-      expect(result.beneficiaryParticipants, hasLength(0));
-      expect(result.keyPathParticipants[0].isSeedStored, isTrue);
-      expect(result.keyPathParticipants[0].isPassphraseSet, isTrue);
-      expect(result.keyPathParticipants[0].type, TaprootParticipantType.keyPath);
+      expect(result.owners, hasLength(1));
+      expect(result.beneficiaries, hasLength(0));
+      expect(result.owners[0].isSeedStored, isTrue);
+      expect(result.owners[0].isPassphraseSet, isTrue);
+      expect(result.owners[0].type, TaprootParticipantType.keyPath);
 
       expect(repository.vaultList, hasLength(1));
       expect(repository.vaultList.single, same(result));
@@ -158,16 +158,16 @@ void main() {
       expect(result.name, 'taproot wallet with external signer');
       expect(result.vaultType, WalletType.taproot);
       expect(result.keyPathSeedInfos, hasLength(1));
-      expect(result.keyPathParticipants, hasLength(2));
-      expect(result.beneficiaryParticipants, hasLength(0));
-      final seedStoredKeyPathIndex = result.keyPathParticipants.indexWhere((p) => p.isSeedStored);
-      final noSeedKeyPathIndex = result.keyPathParticipants.indexWhere((p) => !p.isSeedStored);
-      expect(result.keyPathParticipants[seedStoredKeyPathIndex].isSeedStored, isTrue);
-      expect(result.keyPathParticipants[seedStoredKeyPathIndex].isPassphraseSet, isTrue);
-      expect(result.keyPathParticipants[seedStoredKeyPathIndex].type, TaprootParticipantType.keyPath);
-      expect(result.keyPathParticipants[noSeedKeyPathIndex].isSeedStored, isFalse);
-      expect(result.keyPathParticipants[noSeedKeyPathIndex].isPassphraseSet, isFalse);
-      expect(result.keyPathParticipants[noSeedKeyPathIndex].type, TaprootParticipantType.keyPath);
+      expect(result.owners, hasLength(2));
+      expect(result.beneficiaries, hasLength(0));
+      final seedStoredKeyPathIndex = result.owners.indexWhere((p) => p.isSeedStored);
+      final noSeedKeyPathIndex = result.owners.indexWhere((p) => !p.isSeedStored);
+      expect(result.owners[seedStoredKeyPathIndex].isSeedStored, isTrue);
+      expect(result.owners[seedStoredKeyPathIndex].isPassphraseSet, isTrue);
+      expect(result.owners[seedStoredKeyPathIndex].type, TaprootParticipantType.keyPath);
+      expect(result.owners[noSeedKeyPathIndex].isSeedStored, isFalse);
+      expect(result.owners[noSeedKeyPathIndex].isPassphraseSet, isFalse);
+      expect(result.owners[noSeedKeyPathIndex].type, TaprootParticipantType.keyPath);
 
       expect(repository.vaultList, hasLength(1));
       expect(repository.vaultList.single, same(result));
@@ -217,16 +217,16 @@ void main() {
       expect(result.name, 'taproot wallet with external signer');
       expect(result.vaultType, WalletType.taproot);
       expect(result.keyPathSeedInfos, hasLength(1));
-      expect(result.keyPathParticipants, hasLength(2));
-      expect(result.beneficiaryParticipants, hasLength(0));
-      final seedStoredKeyPathIndex = result.keyPathParticipants.indexWhere((p) => p.isSeedStored);
-      final noSeedKeyPathIndex = result.keyPathParticipants.indexWhere((p) => !p.isSeedStored);
-      expect(result.keyPathParticipants[seedStoredKeyPathIndex].isSeedStored, isTrue);
-      expect(result.keyPathParticipants[seedStoredKeyPathIndex].isPassphraseSet, isTrue);
-      expect(result.keyPathParticipants[seedStoredKeyPathIndex].type, TaprootParticipantType.keyPath);
-      expect(result.keyPathParticipants[noSeedKeyPathIndex].isSeedStored, isFalse);
-      expect(result.keyPathParticipants[noSeedKeyPathIndex].isPassphraseSet, isFalse);
-      expect(result.keyPathParticipants[noSeedKeyPathIndex].type, TaprootParticipantType.keyPath);
+      expect(result.owners, hasLength(2));
+      expect(result.beneficiaries, hasLength(0));
+      final seedStoredKeyPathIndex = result.owners.indexWhere((p) => p.isSeedStored);
+      final noSeedKeyPathIndex = result.owners.indexWhere((p) => !p.isSeedStored);
+      expect(result.owners[seedStoredKeyPathIndex].isSeedStored, isTrue);
+      expect(result.owners[seedStoredKeyPathIndex].isPassphraseSet, isTrue);
+      expect(result.owners[seedStoredKeyPathIndex].type, TaprootParticipantType.keyPath);
+      expect(result.owners[noSeedKeyPathIndex].isSeedStored, isFalse);
+      expect(result.owners[noSeedKeyPathIndex].isPassphraseSet, isFalse);
+      expect(result.owners[noSeedKeyPathIndex].type, TaprootParticipantType.keyPath);
 
       expect(repository.vaultList, hasLength(1));
       expect(repository.vaultList.single, same(result));
@@ -278,20 +278,20 @@ void main() {
       expect(result.vaultType, WalletType.taproot);
       expect(result.keyPathSeedInfos, hasLength(1));
       expect(result.scriptPathSeedInfos, hasLength(1));
-      expect(result.keyPathParticipants, hasLength(2));
-      expect(result.beneficiaryParticipants, hasLength(1));
-      final seedStoredKeyPathIndex = result.keyPathParticipants.indexWhere((p) => p.isSeedStored);
-      final noSeedKeyPathIndex = result.keyPathParticipants.indexWhere((p) => !p.isSeedStored);
-      expect(result.keyPathParticipants[seedStoredKeyPathIndex].isSeedStored, isTrue);
-      expect(result.keyPathParticipants[seedStoredKeyPathIndex].isPassphraseSet, isTrue);
-      expect(result.keyPathParticipants[seedStoredKeyPathIndex].type, TaprootParticipantType.keyPath);
-      expect(result.keyPathParticipants[noSeedKeyPathIndex].isSeedStored, isFalse);
-      expect(result.keyPathParticipants[noSeedKeyPathIndex].isPassphraseSet, isFalse);
-      expect(result.keyPathParticipants[noSeedKeyPathIndex].type, TaprootParticipantType.keyPath);
-      expect(result.beneficiaryParticipants.first.isSeedStored, isTrue);
-      expect(result.beneficiaryParticipants.first.isPassphraseSet, isTrue);
-      expect(result.beneficiaryParticipants.first.type, TaprootParticipantType.beneficiary);
-      expect(result.beneficiaryParticipants.first.masterFingerprint, isNotEmpty);
+      expect(result.owners, hasLength(2));
+      expect(result.beneficiaries, hasLength(1));
+      final seedStoredKeyPathIndex = result.owners.indexWhere((p) => p.isSeedStored);
+      final noSeedKeyPathIndex = result.owners.indexWhere((p) => !p.isSeedStored);
+      expect(result.owners[seedStoredKeyPathIndex].isSeedStored, isTrue);
+      expect(result.owners[seedStoredKeyPathIndex].isPassphraseSet, isTrue);
+      expect(result.owners[seedStoredKeyPathIndex].type, TaprootParticipantType.keyPath);
+      expect(result.owners[noSeedKeyPathIndex].isSeedStored, isFalse);
+      expect(result.owners[noSeedKeyPathIndex].isPassphraseSet, isFalse);
+      expect(result.owners[noSeedKeyPathIndex].type, TaprootParticipantType.keyPath);
+      expect(result.beneficiaries.first.isSeedStored, isTrue);
+      expect(result.beneficiaries.first.isPassphraseSet, isTrue);
+      expect(result.beneficiaries.first.type, TaprootParticipantType.beneficiary);
+      expect(result.beneficiaries.first.masterFingerprint, isNotEmpty);
 
       expect(repository.vaultList, hasLength(1));
       expect(repository.vaultList.single, same(result));
@@ -363,20 +363,20 @@ void main() {
       );
       expect(loaded.single.scriptPathSeedInfos!.single.seedInfos.single.isPassphraseSet, isTrue);
 
-      expect(loaded.single.keyPathParticipants, hasLength(2));
-      expect(loaded.single.beneficiaryParticipants, hasLength(1));
-      final seedStoredKeyPathIndex = loaded.single.keyPathParticipants.indexWhere((p) => p.isSeedStored);
-      final noSeedKeyPathIndex = loaded.single.keyPathParticipants.indexWhere((p) => !p.isSeedStored);
-      expect(loaded.single.keyPathParticipants[seedStoredKeyPathIndex].isSeedStored, isTrue);
-      expect(loaded.single.keyPathParticipants[seedStoredKeyPathIndex].isPassphraseSet, isFalse);
-      expect(loaded.single.keyPathParticipants[seedStoredKeyPathIndex].type, TaprootParticipantType.keyPath);
-      expect(loaded.single.keyPathParticipants[noSeedKeyPathIndex].isSeedStored, isFalse);
-      expect(loaded.single.keyPathParticipants[noSeedKeyPathIndex].isPassphraseSet, isFalse);
-      expect(loaded.single.keyPathParticipants[noSeedKeyPathIndex].type, TaprootParticipantType.keyPath);
-      expect(loaded.single.beneficiaryParticipants.first.isSeedStored, isTrue);
-      expect(loaded.single.beneficiaryParticipants.first.isPassphraseSet, isTrue);
-      expect(loaded.single.beneficiaryParticipants.first.type, TaprootParticipantType.beneficiary);
-      expect(loaded.single.beneficiaryParticipants.first.lockTime, 500000000);
+      expect(loaded.single.owners, hasLength(2));
+      expect(loaded.single.beneficiaries, hasLength(1));
+      final seedStoredKeyPathIndex = loaded.single.owners.indexWhere((p) => p.isSeedStored);
+      final noSeedKeyPathIndex = loaded.single.owners.indexWhere((p) => !p.isSeedStored);
+      expect(loaded.single.owners[seedStoredKeyPathIndex].isSeedStored, isTrue);
+      expect(loaded.single.owners[seedStoredKeyPathIndex].isPassphraseSet, isFalse);
+      expect(loaded.single.owners[seedStoredKeyPathIndex].type, TaprootParticipantType.keyPath);
+      expect(loaded.single.owners[noSeedKeyPathIndex].isSeedStored, isFalse);
+      expect(loaded.single.owners[noSeedKeyPathIndex].isPassphraseSet, isFalse);
+      expect(loaded.single.owners[noSeedKeyPathIndex].type, TaprootParticipantType.keyPath);
+      expect(loaded.single.beneficiaries.first.isSeedStored, isTrue);
+      expect(loaded.single.beneficiaries.first.isPassphraseSet, isTrue);
+      expect(loaded.single.beneficiaries.first.type, TaprootParticipantType.beneficiary);
+      expect(loaded.single.beneficiaries.first.lockTime, 500000000);
     });
 
     test('SigningOnly / persists taproot wallet with keyPathSignerBsmses and inheritanceLeaves', () async {
@@ -416,20 +416,20 @@ void main() {
       expect(result.vaultType, WalletType.taproot);
       expect(result.keyPathSeedInfos, hasLength(1));
       expect(result.scriptPathSeedInfos, hasLength(1));
-      expect(result.keyPathParticipants, hasLength(2));
-      expect(result.beneficiaryParticipants, hasLength(1));
-      final seedStoredKeyPathIndex = result.keyPathParticipants.indexWhere((p) => p.isSeedStored);
-      final noSeedKeyPathIndex = result.keyPathParticipants.indexWhere((p) => !p.isSeedStored);
-      expect(result.keyPathParticipants[seedStoredKeyPathIndex].isSeedStored, isTrue);
-      expect(result.keyPathParticipants[seedStoredKeyPathIndex].isPassphraseSet, isTrue);
-      expect(result.keyPathParticipants[seedStoredKeyPathIndex].type, TaprootParticipantType.keyPath);
-      expect(result.keyPathParticipants[noSeedKeyPathIndex].isSeedStored, isFalse);
-      expect(result.keyPathParticipants[noSeedKeyPathIndex].isPassphraseSet, isFalse);
-      expect(result.keyPathParticipants[noSeedKeyPathIndex].type, TaprootParticipantType.keyPath);
-      expect(result.beneficiaryParticipants.first.isSeedStored, isTrue);
-      expect(result.beneficiaryParticipants.first.isPassphraseSet, isTrue);
-      expect(result.beneficiaryParticipants.first.type, TaprootParticipantType.beneficiary);
-      expect(result.beneficiaryParticipants.first.masterFingerprint, isNotEmpty);
+      expect(result.owners, hasLength(2));
+      expect(result.beneficiaries, hasLength(1));
+      final seedStoredKeyPathIndex = result.owners.indexWhere((p) => p.isSeedStored);
+      final noSeedKeyPathIndex = result.owners.indexWhere((p) => !p.isSeedStored);
+      expect(result.owners[seedStoredKeyPathIndex].isSeedStored, isTrue);
+      expect(result.owners[seedStoredKeyPathIndex].isPassphraseSet, isTrue);
+      expect(result.owners[seedStoredKeyPathIndex].type, TaprootParticipantType.keyPath);
+      expect(result.owners[noSeedKeyPathIndex].isSeedStored, isFalse);
+      expect(result.owners[noSeedKeyPathIndex].isPassphraseSet, isFalse);
+      expect(result.owners[noSeedKeyPathIndex].type, TaprootParticipantType.keyPath);
+      expect(result.beneficiaries.first.isSeedStored, isTrue);
+      expect(result.beneficiaries.first.isPassphraseSet, isTrue);
+      expect(result.beneficiaries.first.type, TaprootParticipantType.beneficiary);
+      expect(result.beneficiaries.first.masterFingerprint, isNotEmpty);
 
       expect(repository.vaultList, hasLength(1));
       expect(repository.vaultList.single, same(result));
@@ -498,19 +498,19 @@ void main() {
         added.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
       );
 
-      expect(loaded.single.keyPathParticipants, hasLength(1));
-      expect(loaded.single.beneficiaryParticipants, hasLength(1));
-      final seedStoredKeyPathIndex = loaded.single.keyPathParticipants.indexWhere((p) => p.isSeedStored);
-      final noSeedKeyPathIndex = loaded.single.keyPathParticipants.indexWhere((p) => !p.isSeedStored);
+      expect(loaded.single.owners, hasLength(1));
+      expect(loaded.single.beneficiaries, hasLength(1));
+      final seedStoredKeyPathIndex = loaded.single.owners.indexWhere((p) => p.isSeedStored);
+      final noSeedKeyPathIndex = loaded.single.owners.indexWhere((p) => !p.isSeedStored);
       expect(seedStoredKeyPathIndex, equals(0));
       expect(noSeedKeyPathIndex, -1);
-      expect(loaded.single.keyPathParticipants[seedStoredKeyPathIndex].isSeedStored, isTrue);
-      expect(loaded.single.keyPathParticipants[seedStoredKeyPathIndex].isPassphraseSet, isTrue);
-      expect(loaded.single.keyPathParticipants[seedStoredKeyPathIndex].type, TaprootParticipantType.keyPath);
-      expect(loaded.single.beneficiaryParticipants.first.isSeedStored, isTrue);
-      expect(loaded.single.beneficiaryParticipants.first.isPassphraseSet, isFalse);
-      expect(loaded.single.beneficiaryParticipants.first.type, TaprootParticipantType.beneficiary);
-      expect(loaded.single.beneficiaryParticipants.first.lockTime, 500000000);
+      expect(loaded.single.owners[seedStoredKeyPathIndex].isSeedStored, isTrue);
+      expect(loaded.single.owners[seedStoredKeyPathIndex].isPassphraseSet, isTrue);
+      expect(loaded.single.owners[seedStoredKeyPathIndex].type, TaprootParticipantType.keyPath);
+      expect(loaded.single.beneficiaries.first.isSeedStored, isTrue);
+      expect(loaded.single.beneficiaries.first.isPassphraseSet, isFalse);
+      expect(loaded.single.beneficiaries.first.type, TaprootParticipantType.beneficiary);
+      expect(loaded.single.beneficiaries.first.lockTime, 500000000);
     });
 
     test('SecureStorage / deletes loaded taproot inheritance wallet data', () async {
@@ -930,13 +930,10 @@ void main() {
       );
 
       final added = await repository.addTaprootWallet(walletCreateDto);
-      final keyPathSecret = await repository.getTaprootSecret(
-        added.id,
-        added.keyPathParticipants.single.seedKeyIdentifier,
-      );
+      final keyPathSecret = await repository.getTaprootSecret(added.id, added.owners.single.seedKeyIdentifier);
       final scriptPathSecret = await repository.getTaprootSecret(
         added.id,
-        added.beneficiaryParticipants.single.seedKeyIdentifier,
+        added.beneficiaries.single.seedKeyIdentifier,
       );
 
       expect(keyPathSecret, keyPathSeed.mnemonic);
@@ -972,7 +969,7 @@ void main() {
       final added = await repository.addTaprootWallet(walletCreateDto);
       final restoredSeed = await repository.getTaprootSeedInSigningOnlyMode(
         added.id,
-        added.keyPathParticipants.single.seedKeyIdentifier,
+        added.owners.single.seedKeyIdentifier,
       );
       final restoredKeyStore = KeyStore.fromSeed(restoredSeed, AddressType.p2tr);
       final expectedKeyStore = KeyStore.fromSeed(
@@ -984,7 +981,7 @@ void main() {
 
       final restoredBeneficiarySeed = await repository.getTaprootSeedInSigningOnlyMode(
         added.id,
-        added.beneficiaryParticipants.single.seedKeyIdentifier,
+        added.beneficiaries.single.seedKeyIdentifier,
       );
       final restoredBeneficiaryKeyStore = KeyStore.fromSeed(restoredBeneficiarySeed, AddressType.p2tr);
       final expectedBeneficiaryKeyStore = KeyStore.fromSeed(
