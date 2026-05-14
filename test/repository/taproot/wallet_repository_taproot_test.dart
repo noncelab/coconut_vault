@@ -6,6 +6,7 @@ import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
+import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_participant.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
@@ -993,6 +994,66 @@ void main() {
         restoredBeneficiaryKeyStore.extendedPublicKey.serialize(),
         expectedBeneficiaryKeyStore.extendedPublicKey.serialize(),
       );
+    });
+  });
+
+  // coconut_lib toMiniscript()에 의존하므로 라이브러리 업데이트 이후 변경되지 않았는지 확인
+  group('ScriptKey 불변 확인', () {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      await SharedPrefsRepository().init();
+    });
+
+    test('ScriptPathSeedInfo.generateKey is stable for recreated inheritance policy', () async {
+      final storage = _FakeSecureStorageRepository();
+      final secureZone = _FakeSecureZoneRepository();
+      final repository = WalletRepository(storageService: storage, secureZoneRepository: secureZone);
+      final keyPathSeed = _seedSource(
+        'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+        '',
+      );
+      final beneficiarySeed = _seedSource(
+        'legal winner thank year wave sausage worth useful legal winner thank yellow',
+        'beneficiary-passphrase',
+      );
+      const lockTime = 500000000;
+      final walletCreateDto = TaprootWalletCreateDto(
+        null,
+        'taproot script key stability',
+        1,
+        2,
+        [keyPathSeed],
+        null,
+        [InheritanceLeaf(secret: beneficiarySeed, lockTime: lockTime)],
+      );
+
+      final added = await repository.addTaprootWallet(walletCreateDto);
+      final storedScriptPathSeedInfo = added.scriptPathSeedInfos.single;
+      final beneficiaryKeyStore = KeyStore.fromSeed(
+        Seed.fromMnemonic(beneficiarySeed.mnemonic, passphrase: beneficiarySeed.passphrase),
+        AddressType.p2tr,
+      );
+      final beneficiaryDescriptor = TaprootVault.fromKeyStoreList([beneficiaryKeyStore], []).descriptor;
+      final recreatedPolicyA = InheritancePolicy.fromDescriptorAndLocktime(beneficiaryDescriptor, lockTime);
+      final recreatedPolicyB = InheritancePolicy.fromDescriptorAndLocktime(beneficiaryDescriptor, lockTime);
+      final differentPolicy = InheritancePolicy.fromDescriptorAndLocktime(beneficiaryDescriptor, lockTime + 1);
+
+      final scriptKeyA = ScriptPathSeedInfo.generateKey(recreatedPolicyA);
+      final scriptKeyB = ScriptPathSeedInfo.generateKey(recreatedPolicyB);
+      final expectedStorageKey = WalletStorageKeys.taprootScriptPathSeedKey(
+        added.id,
+        scriptKeyA,
+        beneficiaryKeyStore.extendedPublicKey.serialize(),
+      );
+
+      final scriptKeyC = ScriptPathSeedInfo.generateKey(differentPolicy);
+
+      expect(scriptKeyA, '0f4b50131aa61179141f7475d9cf74339a1ecd5f760d2e1ca7bb8c57e0ead4eb');
+      expect(scriptKeyA, scriptKeyB);
+      expect(scriptKeyA, added.beneficiaries.single.scriptKey);
+      expect(scriptKeyA, storedScriptPathSeedInfo.key);
+      expect(scriptKeyC, '890b2a8bedc5da899ca0a49a57819c71bc6490ec6dfe0a5b5e35f2cfa52bb618');
+      expect(secureZone.encryptedPlaintexts.keys, contains(expectedStorageKey));
     });
   });
 }
