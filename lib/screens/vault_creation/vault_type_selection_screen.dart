@@ -89,7 +89,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                     _buildOption(t.multisig_wallet, t.select_vault_type_screen.multisig, onTapMultisigWallet, true),
                     CoconutLayout.spacing_300h,
                     _buildOption(
-                      t.taproot.parent_creation_screen.taproot_inheritance_wallet,
+                      t.taproot.taproot_inheritance_wallet,
                       t.select_vault_type_screen.taproot,
                       onTapTaprootWallet,
                       true,

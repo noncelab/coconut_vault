@@ -74,8 +74,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     MenuGrid(
       children: [
         SelectableOptionCard(
-          title: t.taproot.child_creation_screen.step2.option1_title,
-          description: t.taproot.child_creation_screen.step2.option1_desc,
+          title: t.taproot.common.prepare_key_option1_title,
+          description: t.taproot.common.prepare_key_option1_desc,
           bottomAssetPath: 'assets/png/wallet.png',
           imageScale: 4.0,
           imageWidth: 100,
@@ -86,8 +86,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           },
         ),
         SelectableOptionCard(
-          title: t.taproot.child_creation_screen.step2.option2_title,
-          description: t.taproot.child_creation_screen.step2.option2_desc,
+          title: t.taproot.common.prepare_key_option2_title,
+          description: t.taproot.common.prepare_key_option2_desc,
           bottomAssetPath: 'assets/png/key-holder.png',
           imageScale: 4.0,
           imageWidth: 100,
@@ -103,7 +103,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         ? MenuGrid(
           children: [
             SelectableOptionCard(
-              title: t.taproot.child_creation_screen.step3.new_option1,
+              title: t.taproot.common.new_option1,
               bottomAssetPath: 'assets/png/coin.png',
               imageScale: 4.0,
               imageWidth: 67,
@@ -114,7 +114,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
               },
             ),
             SelectableOptionCard(
-              title: t.taproot.child_creation_screen.step3.new_option2,
+              title: t.taproot.common.new_option2,
               bottomAssetPath: 'assets/png/dice.png',
               imageScale: 4.0,
               imageWidth: 67,
@@ -125,7 +125,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
               },
             ),
             SelectableOptionCard(
-              title: t.taproot.child_creation_screen.step3.new_option3,
+              title: t.taproot.common.new_option3,
               bottomAssetPath: 'assets/png/gear.png',
               imageScale: 4.0,
               imageWidth: 67,
@@ -140,7 +140,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         : MenuGrid(
           children: [
             SelectableOptionCard(
-              title: t.taproot.child_creation_screen.step3.existing_option1,
+              title: t.taproot.common.existing_option1,
               bottomAssetPath: 'assets/png/finger-picking.png',
               imageScale: 4.0,
               imageWidth: 67,
@@ -151,7 +151,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
               },
             ),
             SelectableOptionCard(
-              title: t.taproot.child_creation_screen.step3.existing_option2,
+              title: t.taproot.common.existing_option2,
               bottomAssetPath: 'assets/png/word.png',
               imageScale: 4.0,
               imageWidth: 67,
@@ -162,7 +162,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
               },
             ),
             SelectableOptionCard(
-              title: t.taproot.child_creation_screen.step3.existing_option3,
+              title: t.taproot.common.existing_option3,
               bottomAssetPath: 'assets/png/scan-qr.png',
               imageScale: 4.0,
               imageWidth: 67,
@@ -210,7 +210,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           CoconutLayout.spacing_500h,
           InfoBox(
             infoList: [
-              MapEntry(t.wallet_type, t.taproot.taproot_single_sig_wallet),
+              MapEntry(t.wallet_type, t.taproot.child_creation_screen.step4.taproot_single_sig_wallet),
               MapEntry(t.mfp, viewModel.masterFingerprint ?? '00000000'),
             ],
           ),
