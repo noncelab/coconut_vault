@@ -87,7 +87,7 @@ abstract class WalletWriteOps {
   Future<void> persistTaprootAdd({
     required int id,
     required List<TaprootSeedInfoForSave> keyPathSeedInfosForAdd,
-    required List<ScriptPathSeedInfoForSave>? scriptSeedInfosForAdd,
+    required List<ScriptPathSeedInfoForSave> scriptSeedInfosForAdd,
     required TaprootVaultListItem item,
   });
 

@@ -79,13 +79,13 @@ class SigningOnlyStrategy implements WalletPersistenceStrategy {
   Future<void> _saveTaprootSecrets(
     int walletId,
     List<TaprootSeedInfoForSave> keyPathSeeds,
-    List<ScriptPathSeedInfoForSave>? scriptPathSeeds,
+    List<ScriptPathSeedInfoForSave> scriptPathSeeds,
   ) async {
     for (final seedInfo in keyPathSeeds) {
       final keyString = WalletStorageKeys.taprootKeyPathSeedKey(walletId, seedInfo.extendedPublicKey);
       await _saveTaprootSeed(walletId, keyString, seedInfo);
     }
-    for (final scriptPath in scriptPathSeeds ?? const <ScriptPathSeedInfoForSave>[]) {
+    for (final scriptPath in scriptPathSeeds) {
       for (final seedInfo in scriptPath.seedInfos) {
         final keyString = WalletStorageKeys.taprootScriptPathSeedKey(
           walletId,
@@ -117,7 +117,6 @@ class SigningOnlyStrategy implements WalletPersistenceStrategy {
   Future<void> _deleteTaprootSeedByKey(String seedKey) async {
     await _storageService.delete(key: seedKey);
     await _secureZoneRepository.deleteKey(alias: seedKey);
-    await _storageService.delete(key: WalletStorageKeys.taprootSeedPassphraseEnabledKey(seedKey));
   }
 
   Future<List<String>> _readTaprootSeedIndex(int walletId) async {
@@ -162,7 +161,7 @@ class _SigningOnlyOps implements WalletWriteOps {
   Future<void> persistTaprootAdd({
     required int id,
     required List<TaprootSeedInfoForSave> keyPathSeedInfosForAdd,
-    required List<ScriptPathSeedInfoForSave>? scriptSeedInfosForAdd,
+    required List<ScriptPathSeedInfoForSave> scriptSeedInfosForAdd,
     required TaprootVaultListItem item,
   }) async {
     // Privacy info is not persisted in signing-only mode; only the secret matters.

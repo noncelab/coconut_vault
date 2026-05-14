@@ -16,8 +16,16 @@ import 'package:coconut_vault/model/taproot/seed_source.dart';
 import 'package:coconut_vault/model/taproot/taproot_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
+import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
+
+typedef TaprootCreationResult =
+    ({
+      TaprootVaultListItem vault,
+      List<TaprootSeedInfoForSave> keyPathSaves,
+      List<ScriptPathSeedInfoForSave> scriptPathSaves,
+    });
 
 class WalletIsolates {
   static void setNetworkType() {
@@ -84,16 +92,27 @@ class WalletIsolates {
     );
   }
 
-  static TaprootVaultListItem createTaprootVault(Map<String, dynamic> data) {
+  static TaprootCreationResult createTaprootVault(Map<String, dynamic> data) {
     setNetworkType();
 
     final wallet = TaprootWalletCreateDto.fromJson(data);
-    List<KeyStore> keyStoreList = [];
-    List<TaprootSeedInfo> keyPathSeedInfos = [];
+    final keyStoreList = <KeyStore>[];
+    final keyPathSeedInfos = <TaprootSeedInfo>[];
+    final keyPathSaves = <TaprootSeedInfoForSave>[];
     if (wallet.keyPathSeeds != null) {
       for (final seed in wallet.keyPathSeeds!) {
         final (seedInfo, keyStore) = _createSeedInfo(seed);
         keyPathSeedInfos.add(seedInfo);
+        // seed.wipe() 이후에도 살아남도록 사본을 들고 save 모델 구성.
+        keyPathSaves.add(
+          TaprootSeedInfoForSave(
+            secretPassphrasePair: (
+              secret: Uint8List.fromList(seed.mnemonic),
+              passphrase: seed.passphrase.isEmpty ? null : Uint8List.fromList(seed.passphrase),
+            ),
+            extendedPublicKey: seedInfo.extendedPublicKey,
+          ),
+        );
         final taprootVault = TaprootVault.fromKeyStoreList([keyStore], []);
 
         /// seed가 제거된 keystore를 얻기 위해
@@ -110,28 +129,43 @@ class WalletIsolates {
       }
     }
 
-    List<Policy> policyList = [];
-    List<ScriptPathSeedInfo> scriptPathSeedInfos = [];
+    final policyList = <Policy>[];
+    final scriptPathSeedInfos = <ScriptPathSeedInfo>[];
+    final scriptPathSaves = <ScriptPathSeedInfoForSave>[];
     if (wallet.inheritanceLeaves != null) {
       for (final leaf in wallet.inheritanceLeaves!) {
         if (leaf.descriptor != null) {
           policyList.add(InheritancePolicy.fromDescriptorAndLocktime(leaf.descriptor!, leaf.lockTime));
         } else {
-          final (seedInfo, keyStore) = _createSeedInfo(leaf.secret!);
+          final secret = leaf.secret!;
+          final (seedInfo, keyStore) = _createSeedInfo(secret);
           final taprootVault = TaprootVault.fromKeyStoreList([keyStore], []);
           final inheritancePolicy = InheritancePolicy.fromDescriptorAndLocktime(taprootVault.descriptor, leaf.lockTime);
           policyList.add(inheritancePolicy);
           Logger.log('--> inheritance policy miniscript: ${inheritancePolicy.toMiniscript()}');
+          final scriptKey = hashString(inheritancePolicy.toMiniscript());
           scriptPathSeedInfos.add(
-            ScriptPathSeedInfo(
-              key: hashString(inheritancePolicy.toMiniscript()),
+            ScriptPathSeedInfo(key: scriptKey, role: ScriptPathRole.beneficiary, seedInfos: [seedInfo]),
+          );
+          // miniscript hash(=scriptKey)와 seed를 같은 분기 안에서 페어링하여 save 모델 구성.
+          scriptPathSaves.add(
+            ScriptPathSeedInfoForSave(
+              key: scriptKey,
               role: ScriptPathRole.beneficiary,
-              seedInfos: [seedInfo],
+              seedInfos: [
+                TaprootSeedInfoForSave(
+                  secretPassphrasePair: (
+                    secret: Uint8List.fromList(secret.mnemonic),
+                    passphrase: secret.passphrase.isEmpty ? null : Uint8List.fromList(secret.passphrase),
+                  ),
+                  extendedPublicKey: seedInfo.extendedPublicKey,
+                ),
+              ],
             ),
           );
           // seed 정보 정리
           keyStore.wipeSeed();
-          leaf.secret!.wipe();
+          secret.wipe();
         }
       }
     }
@@ -150,7 +184,7 @@ class WalletIsolates {
     );
 
     wallet.wipe();
-    return newTaprootVault;
+    return (vault: newTaprootVault, keyPathSaves: keyPathSaves, scriptPathSaves: scriptPathSaves);
   }
 
   static Future<VaultListItemBase> initializeWallet(Map<String, dynamic> data) async {

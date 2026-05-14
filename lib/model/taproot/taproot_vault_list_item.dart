@@ -22,8 +22,8 @@ class TaprootVaultListItem extends VaultListItemBase {
   final List<TaprootSeedInfo> _keyPathSeedInfos;
   List<TaprootSeedInfo> get keyPathSeedInfos => _keyPathSeedInfos;
   @JsonKey(name: fieldScriptPathSeedInfos)
-  final List<ScriptPathSeedInfo> _scriptPathSeedInfos;
-  List<ScriptPathSeedInfo> get scriptPathSeedInfos => _scriptPathSeedInfos;
+  final List<ScriptPathSeedInfo>? _scriptPathSeedInfos;
+  List<ScriptPathSeedInfo>? get scriptPathSeedInfos => _scriptPathSeedInfos;
 
   late final bool _hasKeyPathSeed;
 
