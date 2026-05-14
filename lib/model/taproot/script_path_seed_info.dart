@@ -1,5 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/model/taproot/taproot_seed_info.dart';
+import 'package:coconut_vault/model/taproot/stored_taproot_seed_info.dart';
 import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -12,7 +12,7 @@ enum ScriptPathRole { beneficiary }
 class ScriptPathSeedInfo {
   final String key;
   final ScriptPathRole role;
-  final List<TaprootSeedInfo> seedInfos;
+  final List<StoredTaprootSeedInfo> seedInfos;
 
   ScriptPathSeedInfo({required this.key, required this.role, required this.seedInfos});
 

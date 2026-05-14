@@ -4,7 +4,7 @@ import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
 import 'package:collection/collection.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/taproot/taproot_participant.dart';
-import 'package:coconut_vault/model/taproot/taproot_seed_info.dart';
+import 'package:coconut_vault/model/taproot/stored_taproot_seed_info.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'taproot_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
@@ -18,8 +18,8 @@ class TaprootVaultListItem extends VaultListItemBase {
   @JsonKey(name: fieldDescriptor)
   final String descriptor;
   @JsonKey(name: fieldKeyPathSeedInfos)
-  final List<TaprootSeedInfo> _keyPathSeedInfos;
-  List<TaprootSeedInfo> get keyPathSeedInfos => _keyPathSeedInfos;
+  final List<StoredTaprootSeedInfo> _keyPathSeedInfos;
+  List<StoredTaprootSeedInfo> get keyPathSeedInfos => _keyPathSeedInfos;
   @JsonKey(name: fieldScriptPathSeedInfos)
   final List<ScriptPathSeedInfo> _scriptPathSeedInfos;
   List<ScriptPathSeedInfo> get scriptPathSeedInfos => _scriptPathSeedInfos;
@@ -36,7 +36,7 @@ class TaprootVaultListItem extends VaultListItemBase {
     required super.iconIndex,
     required super.createdAt,
     required this.descriptor,
-    required List<TaprootSeedInfo> keyPathSeedInfos,
+    required List<StoredTaprootSeedInfo> keyPathSeedInfos,
     required List<ScriptPathSeedInfo> scriptPathSeedInfos,
   }) : _keyPathSeedInfos = List.unmodifiable(keyPathSeedInfos),
        _scriptPathSeedInfos = List.unmodifiable(scriptPathSeedInfos),
@@ -44,10 +44,18 @@ class TaprootVaultListItem extends VaultListItemBase {
     coconutVault = TaprootVault.fromDescriptor(descriptor);
 
     final taprootVault = (coconutVault as TaprootVault);
+    _owners = _buildOwners(taprootVault, keyPathSeedInfos);
+    _beneficiaries = _buildBeneficiaries(taprootVault, scriptPathSeedInfos);
+  }
+
+  static List<TaprootParticipant> _buildOwners(
+    TaprootVault taprootVault,
+    List<StoredTaprootSeedInfo> keyPathSeedInfos,
+  ) {
     final List<TaprootParticipant> owners = [];
     for (final keyStore in taprootVault.keyStoreList) {
       final extendedPubKey = keyStore.extendedPublicKey.serialize();
-      final TaprootSeedInfo? seedInfo = keyPathSeedInfos.firstWhereOrNull(
+      final StoredTaprootSeedInfo? seedInfo = keyPathSeedInfos.firstWhereOrNull(
         (seedInfo) => seedInfo.extendedPublicKey == extendedPubKey,
       );
       owners.add(
@@ -61,6 +69,13 @@ class TaprootVaultListItem extends VaultListItemBase {
       );
     }
 
+    return owners;
+  }
+
+  static List<TaprootBeneficiaryParticipant> _buildBeneficiaries(
+    TaprootVault taprootVault,
+    List<ScriptPathSeedInfo> scriptPathSeedInfos,
+  ) {
     final List<TaprootBeneficiaryParticipant> beneficiaries = [];
     for (final policy in taprootVault.policyList) {
       if (policy is! InheritancePolicy) continue;
@@ -87,8 +102,7 @@ class TaprootVaultListItem extends VaultListItemBase {
       );
     }
 
-    _owners = owners;
-    _beneficiaries = beneficiaries;
+    return beneficiaries;
   }
 
   List<TaprootParticipant> get owners => List.unmodifiable(_owners);
@@ -124,7 +138,7 @@ class TaprootVaultListItem extends VaultListItemBase {
       descriptor: json[fieldDescriptor] as String,
       keyPathSeedInfos:
           (json[fieldKeyPathSeedInfos] as List<dynamic>)
-              .map((e) => TaprootSeedInfo.fromJson(e as Map<String, dynamic>))
+              .map((e) => StoredTaprootSeedInfo.fromJson(e as Map<String, dynamic>))
               .toList(),
       scriptPathSeedInfos:
           (json[fieldScriptPathSeedInfos] as List<dynamic>)
