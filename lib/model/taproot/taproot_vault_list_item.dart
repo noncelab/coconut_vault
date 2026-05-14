@@ -1,7 +1,6 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
-import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:collection/collection.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/taproot/taproot_participant.dart';
@@ -70,8 +69,9 @@ class TaprootVaultListItem extends VaultListItemBase {
 
       final keyStore = policy.beneficiaryKeyStore;
       final extendedPubKey = keyStore.extendedPublicKey.serialize();
+      final scriptKey = ScriptPathSeedInfo.generateKey(policy);
       final ScriptPathSeedInfo? seedInfo = scriptPathSeedInfos.firstWhereOrNull(
-        (seedInfo) => seedInfo.role == ScriptPathRole.beneficiary && seedInfo.key == hashString(policy.toMiniscript()),
+        (seedInfo) => seedInfo.role == ScriptPathRole.beneficiary && seedInfo.key == scriptKey,
       );
       beneficiaries.add(
         TaprootBeneficiaryParticipant(
@@ -81,6 +81,7 @@ class TaprootVaultListItem extends VaultListItemBase {
           isSeedStored: seedInfo != null,
           isPassphraseSet: seedInfo?.seedInfos[0].isPassphraseSet ?? false,
           lockTime: policy.locktime,
+          scriptKey: scriptKey,
         ),
       );
     }

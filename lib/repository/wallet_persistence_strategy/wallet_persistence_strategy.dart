@@ -5,6 +5,7 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
+import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
@@ -24,7 +25,16 @@ class WalletStorageKeys {
   static String taprootScriptPathSeedKey(int walletId, String scriptKey, String extendedPublicKey) =>
       hashString('$walletId - $scriptKey - $extendedPublicKey');
 
-  static String taprootSeedPassphraseEnabledKey(String seedKey) => _passphraseEnabledFlagKey(seedKey);
+  /// seed 식별자 종류에 맞는 저장 키로 위임한다.
+  static String taprootSeedKey(int walletId, TaprootSeedKeyIdentifier identifier) => switch (identifier) {
+    KeyPathSeedKeyIdentifier(:final extendedPublicKey) => taprootKeyPathSeedKey(walletId, extendedPublicKey),
+    ScriptPathSeedKeyIdentifier(:final scriptKey, :final extendedPublicKey) => taprootScriptPathSeedKey(
+      walletId,
+      scriptKey,
+      extendedPublicKey,
+    ),
+  };
+
   // 탭루트 지갑을 구성하는 Seed 저장한 Key 목록
   static String taprootSeedIndexKey(int walletId) => hashString("$walletId - taprootSeedIndex");
 }

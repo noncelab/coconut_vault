@@ -156,9 +156,6 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
     final result = await _secureZoneRepository.encrypt(alias: keyString, plaintext: plainText);
     await _storageService.write(key: keyString, value: result.toCombinedBase64());
 
-    final flagKey = WalletStorageKeys.taprootSeedPassphraseEnabledKey(keyString);
-    final hasPassphrase = pair.passphrase != null && pair.passphrase!.isNotEmpty;
-    await _storageService.write(key: flagKey, value: hasPassphrase ? "true" : "false");
     await _appendTaprootSeedIndex(walletId, keyString);
   }
 
@@ -180,7 +177,6 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
   Future<void> _deleteTaprootSeedByKey(String seedKey) async {
     await _storageService.delete(key: seedKey);
     await _secureZoneRepository.deleteKey(alias: seedKey);
-    await _storageService.delete(key: WalletStorageKeys.taprootSeedPassphraseEnabledKey(seedKey));
   }
 
   Future<List<String>> _readTaprootSeedIndex(int walletId) async {

@@ -69,7 +69,8 @@ void main() {
       expect(SharedPrefsRepository().getInt(SharedPrefsKeys.kNextIdField), 2);
       expect(secureZone.generatedAliases, hasLength(2));
       expect(secureZone.encryptedPlaintexts, hasLength(2));
-      expect(storage.values.values.where((value) => value == 'true'), hasLength(2));
+      // taproot hasPassphrase 저장 로직 제거함 PrivacyInfo에 포함되어있음
+      expect(storage.values.values.where((value) => value == 'true'), hasLength(0));
       expect(storage.values.keys.where((key) => key.contains('privacy')), isNotEmpty);
 
       final keyPathPlaintext = secureZone.encryptedPlaintexts[secureZone.generatedAliases.first]!;
@@ -173,7 +174,8 @@ void main() {
       expect(SharedPrefsRepository().getInt(SharedPrefsKeys.kNextIdField), 2);
       expect(secureZone.generatedAliases, hasLength(1));
       expect(secureZone.encryptedPlaintexts, hasLength(1));
-      expect(storage.values.values.where((value) => value == 'true'), hasLength(1));
+      // taproot hasPassphrase 저장 로직 제거함 PrivacyInfo에 포함되어있음
+      expect(storage.values.values.where((value) => value == 'true'), hasLength(0));
       expect(storage.values.keys, contains(WalletStorageKeys.taprootSeedIndexKey(result.id)));
       expect(storage.values.keys.where((key) => key.contains('privacy')), isNotEmpty);
 
@@ -296,7 +298,8 @@ void main() {
       expect(SharedPrefsRepository().getInt(SharedPrefsKeys.kNextIdField), 2);
       expect(secureZone.generatedAliases, hasLength(2));
       expect(secureZone.encryptedPlaintexts, hasLength(2));
-      expect(storage.values.values.where((value) => value == 'true'), hasLength(2));
+      // taproot hasPassphrase 저장 로직 제거함 PrivacyInfo에 포함되어있음
+      expect(storage.values.values.where((value) => value == 'true'), hasLength(0));
       expect(storage.values.keys, contains(WalletStorageKeys.taprootSeedIndexKey(result.id)));
       expect(storage.values.keys.where((key) => key.contains('privacy')), isNotEmpty);
 
@@ -562,9 +565,7 @@ void main() {
       expect(reloadedRepository.vaultList, isEmpty);
       expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), '[]');
       expect(storage.deletedKeys, contains(keyPathSeedKey));
-      expect(storage.deletedKeys, contains(WalletStorageKeys.taprootSeedPassphraseEnabledKey(keyPathSeedKey)));
       expect(storage.deletedKeys, contains(beneficiarySeedKey));
-      expect(storage.deletedKeys, contains(WalletStorageKeys.taprootSeedPassphraseEnabledKey(beneficiarySeedKey)));
       expect(storage.deletedKeys, contains(privacyInfoKey));
       expect(storage.deletedKeys, contains(seedIndexKey));
       expect(secureZone.deletedAliases, contains(keyPathSeedKey));
@@ -625,12 +626,7 @@ void main() {
       expect(repository.vaultList, isEmpty);
       expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isEmpty);
       expect(storage.deletedKeys, contains(keyPathSeedKey));
-      expect(storage.deletedKeys, isNot(contains(WalletStorageKeys.taprootSeedPassphraseEnabledKey(keyPathSeedKey))));
       expect(storage.deletedKeys, contains(beneficiarySeedKey));
-      expect(
-        storage.deletedKeys,
-        isNot(contains(WalletStorageKeys.taprootSeedPassphraseEnabledKey(beneficiarySeedKey))),
-      );
       expect(storage.deletedKeys, contains(seedIndexKey));
       expect(secureZone.deletedAliases, contains(keyPathSeedKey));
       expect(secureZone.deletedAliases, contains(beneficiarySeedKey));
@@ -910,6 +906,97 @@ void main() {
       final ownKey = WalletStorageKeys.taprootScriptPathSeedKey(added.id, scriptKey, ks.extendedPublicKey.serialize());
       expect(secureZone.encryptedPlaintexts.keys, contains(ownKey));
     });
+
+    test('SecureStorage / getTaprootSecret returns keyPath and scriptPath secrets', () async {
+      final storage = _FakeSecureStorageRepository();
+      final secureZone = _FakeSecureZoneRepository();
+      final repository = WalletRepository(storageService: storage, secureZoneRepository: secureZone);
+      final keyPathSeed = _seedSource(
+        'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+        'key-passphrase',
+      );
+      final beneficiarySeed = _seedSource(
+        'legal winner thank year wave sausage worth useful legal winner thank yellow',
+        'beneficiary-passphrase',
+      );
+      final walletCreateDto = TaprootWalletCreateDto(
+        null,
+        'taproot wallet',
+        1,
+        2,
+        [keyPathSeed],
+        null,
+        [InheritanceLeaf(secret: beneficiarySeed, lockTime: 500000000)],
+      );
+
+      final added = await repository.addTaprootWallet(walletCreateDto);
+      final keyPathSecret = await repository.getTaprootSecret(
+        added.id,
+        added.keyPathParticipants.single.seedKeyIdentifier,
+      );
+      final scriptPathSecret = await repository.getTaprootSecret(
+        added.id,
+        added.beneficiaryParticipants.single.seedKeyIdentifier,
+      );
+
+      expect(keyPathSecret, keyPathSeed.mnemonic);
+      expect(scriptPathSecret, beneficiarySeed.mnemonic);
+    });
+
+    test('SigningOnly / getTaprootSeedInSigningOnlyMode returns seed with passphrase', () async {
+      final storage = _FakeSecureStorageRepository();
+      final secureZone = _FakeSecureZoneRepository();
+      final repository = WalletRepository(
+        isSigningOnlyMode: true,
+        storageService: storage,
+        secureZoneRepository: secureZone,
+      );
+      final keyPathSeed = _seedSource(
+        'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+        'signing-only-passphrase',
+      );
+      final beneficiarySeed = _seedSource(
+        'legal winner thank year wave sausage worth useful legal winner thank yellow',
+        'beneficiary-passphrase',
+      );
+      final walletCreateDto = TaprootWalletCreateDto(
+        null,
+        'taproot wallet',
+        1,
+        2,
+        [keyPathSeed],
+        null,
+        [InheritanceLeaf(secret: beneficiarySeed, lockTime: 500000000)],
+      );
+
+      final added = await repository.addTaprootWallet(walletCreateDto);
+      final restoredSeed = await repository.getTaprootSeedInSigningOnlyMode(
+        added.id,
+        added.keyPathParticipants.single.seedKeyIdentifier,
+      );
+      final restoredKeyStore = KeyStore.fromSeed(restoredSeed, AddressType.p2tr);
+      final expectedKeyStore = KeyStore.fromSeed(
+        Seed.fromMnemonic(keyPathSeed.mnemonic, passphrase: keyPathSeed.passphrase),
+        AddressType.p2tr,
+      );
+
+      expect(restoredKeyStore.extendedPublicKey.serialize(), expectedKeyStore.extendedPublicKey.serialize());
+
+      final restoredBeneficiarySeed = await repository.getTaprootSeedInSigningOnlyMode(
+        added.id,
+        added.beneficiaryParticipants.single.seedKeyIdentifier,
+      );
+      final restoredBeneficiaryKeyStore = KeyStore.fromSeed(restoredBeneficiarySeed, AddressType.p2tr);
+      final expectedBeneficiaryKeyStore = KeyStore.fromSeed(
+        Seed.fromMnemonic(beneficiarySeed.mnemonic, passphrase: beneficiarySeed.passphrase),
+        AddressType.p2tr,
+      );
+
+      expect(
+        restoredBeneficiaryKeyStore.extendedPublicKey.serialize(),
+        expectedBeneficiaryKeyStore.extendedPublicKey.serialize(),
+      );
+    });
   });
 }
 
@@ -1023,6 +1110,6 @@ class _FakeSecureZoneRepository implements SecureZoneRepositoryContract {
     required Uint8List iv,
     bool autoAuth = true,
   }) async {
-    return null;
+    return encryptedPlaintexts[alias];
   }
 }

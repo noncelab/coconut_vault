@@ -2,7 +2,6 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
-import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 
 class TaprootInheritanceIsolates {
@@ -38,7 +37,7 @@ class TaprootInheritanceIsolates {
     final leafVault = TaprootVault.fromKeyStoreList([keyStore], []);
     final inheritancePolicy = InheritancePolicy.fromDescriptorAndLocktime(leafVault.descriptor, leaf.lockTime);
     Logger.log('--> inheritance policy miniscript: ${inheritancePolicy.toMiniscript()}');
-    final scriptKey = hashString(inheritancePolicy.toMiniscript());
+    final scriptKey = ScriptPathSeedInfo.generateKey(inheritancePolicy);
     final save = ScriptPathSeedInfoForSave(
       key: scriptKey,
       role: ScriptPathRole.beneficiary,

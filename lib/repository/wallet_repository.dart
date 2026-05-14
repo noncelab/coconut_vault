@@ -15,6 +15,7 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/repository/migration/data_schema_migration_runner.dart';
@@ -376,13 +377,13 @@ class WalletRepository {
     return _decryptSeed(key, autoAuth: autoAuth);
   }
 
-  // secure storage mode
   Future<Uint8List> getTaprootSecret(int id, TaprootSeedKeyIdentifier seedIdentifier, {bool autoAuth = true}) async {
     final parsed = await _decryptTaprootSeed(id, seedIdentifier, autoAuth: autoAuth);
     return parsed.secret;
   }
 
   Future<Seed> getTaprootSeedInSigningOnlyMode(int id, TaprootSeedKeyIdentifier seedIdentifier) async {
+    if (!_isSigningOnlyMode) throw StateError('getTaprootSeedInSigningOnlyMode can only called on signing only mode.');
     final parsed = await _decryptTaprootSeed(id, seedIdentifier);
     final Uint8List secret = parsed.secret;
     final Uint8List? passphrase = parsed.passphrase;
@@ -391,6 +392,7 @@ class WalletRepository {
   }
 
   Future<bool> hasPassphrase(int walletId) async {
+    assert(getVaultById(walletId) is SingleSigVaultListItem);
     return _strategy.hasPassphrase(walletId);
   }
 
