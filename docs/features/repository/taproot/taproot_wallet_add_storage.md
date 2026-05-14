@@ -1,22 +1,71 @@
 # Taproot 지갑 추가 시 저장 데이터 구조
 
-> `addTaprootWallet(TaprootWalletCreateDto)` 호출 시 모드별로 저장되는 데이터와 키 생성 방식을 도식화한 문서입니다.
+> `WalletRepository.addTaprootWallet(TaprootWalletCreateDto)` 호출 시 현재 구현 기준으로 저장되는 데이터와 키 생성 방식을 정리한 문서입니다.
 
 ---
 
-## 키 생성 규칙 (WalletStorageKeys)
+## 관련 구현 위치
 
+- `WalletRepository.addTaprootWallet()`
+- `WalletPersistenceStrategy.mutate()`
+- `WalletWriteOps.persistTaprootAdd()`
+- `SecureStorageStrategy._saveTaprootSecrets()`
+- `SecureStorageStrategy._saveTaprootPrivacy()`
+- `SigningOnlyStrategy._saveTaprootSecrets()`
+- `WalletStorageKeys`
+
+---
+
+## 키 생성 규칙
+
+```dart
+// WalletStorageKeys
+taprootKeyPathSeedKey(walletId, extendedPublicKey)
+  = hash("$walletId - $extendedPublicKey")
+
+taprootScriptPathSeedKey(walletId, scriptKey, extendedPublicKey)
+  = hash("$walletId - $scriptKey - $extendedPublicKey")
+
+taprootSeedKey(walletId, identifier)
+  = KeyPathSeedKeyIdentifier
+      ? taprootKeyPathSeedKey(walletId, extendedPublicKey)
+      : taprootScriptPathSeedKey(walletId, scriptKey, extendedPublicKey)
+
+taprootSeedIndexKey(walletId)
+  = hash("$walletId - taprootSeedIndex")
+
+walletKey(walletId, WalletType.taproot)
+  = hash("$walletId - taproot")
+
+privacyInfoKey(walletKey)
+  = "privacy_" + hash(walletKey)
 ```
-taprootSeedKey       = hash("${walletId} - ${seedInfo.extendedPublicKey} - ${seedInfo.role.name}")
-                         role.name = "parent" | "beneficiary"
 
-taprootSeedPassphraseEnabledKey = hash("${taprootSeedKey} - passphraseEnabled")
+현재 Taproot seed에는 별도 `passphraseEnabledKey`를 저장하지 않습니다.
+PrivacyInfo로 secure storage 영역에 저장하는 TaprootSeedInfo, ScriptPathSeedInfo에 isPassphraseSet 필드로 대신 관리합니다.
 
-taprootSeedIndexKey  = hash("${walletId} - taprootSeedIndex")
+---
 
-walletKey            = hash("${walletId} - taproot")
-privacyInfoKey       = "privacy_" + hash(walletKey)
+## 저장 대상 seed 구분
+
+Taproot 지갑 생성 isolate는 다음 데이터를 반환합니다.
+
+```dart
+typedef TaprootCreationResult = ({
+  TaprootVaultListItem vault,
+  List<TaprootSeedInfoForSave> keyPathSaves,
+  List<ScriptPathSeedInfoForSave> scriptPathSaves,
+});
 ```
+
+저장되는 seed는 두 종류입니다.
+
+| 종류 | 저장 키 |
+|---|---|
+| Key path seed | `taprootKeyPathSeedKey(walletId, extendedPublicKey)` |
+| Script path seed | `taprootScriptPathSeedKey(walletId, scriptPath.key, extendedPublicKey)` |
+
+모든 seed key는 저장 후 `taprootSeedIndexKey(walletId)`에 JSON 배열로 누적됩니다.
 
 ---
 
@@ -25,38 +74,55 @@ privacyInfoKey       = "privacy_" + hash(walletKey)
 ```mermaid
 flowchart TD
     START(["addTaprootWallet()"])
-    START --> SEEDS["allSeeds = keyPathSeedInfos + beneficiarySeedInfos"]
+    START --> CREATE["compute(WalletIsolates.createTaprootVault)"]
+    CREATE --> RESULT["TaprootCreationResult\nvault\nkeyPathSaves\nscriptPathSaves"]
+    RESULT --> ADD["vaults.add(newTaprootVault)"]
+    ADD --> MUTATE["_strategy.mutate()"]
 
-    SEEDS --> LOOP["for each seedInfo in allSeeds"]
+    MUTATE --> PERSIST["ops.persistTaprootAdd()"]
+    PERSIST --> SAVE_SEEDS["_saveTaprootSecrets()"]
 
-    LOOP --> KEY["taprootSeedKey\n= hash(walletId + xpub + role)"]
+    SAVE_SEEDS --> KP_LOOP["for seedInfo in keyPathSaves"]
+    KP_LOOP --> KP_KEY["taprootKeyPathSeedKey\n= hash(walletId - xpub)"]
+    KP_KEY --> SAVE_KP["_saveTaprootSeed()"]
 
-    KEY --> SZ1[("SecureZone\n(Keystore)")]
-    KEY --> SS1[("SecureStorage\n(Encrypted Storage)")]
+    SAVE_SEEDS --> SP_LOOP["for scriptPath in scriptPathSaves\nfor seedInfo in scriptPath.seedInfos"]
+    SP_LOOP --> SP_KEY["taprootScriptPathSeedKey\n= hash(walletId - scriptKey - xpub)"]
+    SP_KEY --> SAVE_SP["_saveTaprootSeed()"]
 
-    SZ1 -- "generateKey(alias=taprootSeedKey,\nuserAuthRequired=true)" --> SZ1_STORED["[taprootSeedKey]\n암호화 키 생성 및 저장"]
+    SAVE_KP --> SZ[("SecureZone")]
+    SAVE_SP --> SZ
+    SZ -- "generateKey(alias=seedKey,\nuserAuthRequired=true)" --> SZ_STORED["Keystore alias 생성"]
 
-    SS1 -- "write(key=taprootSeedKey)" --> SS1_STORED["[taprootSeedKey]\nencrypt(secret only)\n※ passphrase 미포함"]
+    SAVE_KP --> SS_SEED[("SecureStorage")]
+    SAVE_SP --> SS_SEED
+    SS_SEED -- "write(key=seedKey)" --> SEED_STORED["encrypt(secret)\npassphrase 미포함"]
 
-    KEY --> PKEY["taprootSeedPassphraseEnabledKey\n= hash(taprootSeedKey + 'passphraseEnabled')"]
-    PKEY --> SS2[("SecureStorage")]
-    SS2 -- "write(key=passphraseEnabledKey)" --> SS2_STORED["[taprootSeedPassphraseEnabledKey]\n'true' | 'false'"]
+    SAVE_KP --> INDEX["taprootSeedIndexKey"]
+    SAVE_SP --> INDEX
+    INDEX --> SS_INDEX[("SecureStorage")]
+    SS_INDEX -- "write(indexKey)" --> INDEX_STORED["[seedKey, ...]\nJSON Array"]
 
-    KEY --> IKEY["taprootSeedIndexKey\n= hash(walletId + 'taprootSeedIndex')"]
-    IKEY --> SS3[("SecureStorage")]
-    SS3 -- "write(key=seedIndexKey)" --> SS3_STORED["[taprootSeedIndexKey]\n[taprootSeedKey, ...] (JSON Array)"]
+    PERSIST --> PRIVACY["_saveTaprootPrivacy()"]
+    PRIVACY --> PKEY["privacyInfoKey\n= 'privacy_' + hash(walletKey)"]
+    PKEY --> SS_PRIVACY[("SecureStorage")]
+    SS_PRIVACY -- "write(privacyInfoKey)" --> PRIVACY_STORED["TaprootWalletPrivacyInfo JSON"]
 
-    LOOP -- "반복 완료" --> PRIVACY
-
-    PRIVACY["_saveTaprootPrivacy()"]
-    PRIVACY --> WKEY["walletKey = hash(walletId + 'taproot')\nprivacyInfoKey = 'privacy_' + hash(walletKey)"]
-    WKEY --> SS4[("SecureStorage")]
-    SS4 -- "write(key=privacyInfoKey)" --> SS4_STORED["[privacyInfoKey]\nTaprootWalletPrivacyInfo (JSON)\n{\n  descriptor,\n  keyPathSeedInfos: [{xpub, isPassphraseSet}, ...],\n  beneficiarySeedInfos: [{xpub, isPassphraseSet}, ...]\n}"]
-
-    PRIVACY --> PUB["savePublicVaultList()"]
-    PUB --> SP[("SharedPreferences")]
-    SP -- "setString(kVaultListField)" --> SP_STORED["[kVaultListField]\nPublic Vault List (JSON Array)\n※ descriptor, seedInfos 제외"]
+    MUTATE --> PUBLIC["savePublicVaultList(snapshot())"]
+    PUBLIC --> SPREF[("SharedPreferences")]
+    SPREF -- "setString(kVaultListField)" --> PUBLIC_STORED["Public vault list JSON\nTaproot descriptor/seedInfos 제외"]
 ```
+
+### SecureStorage 모드 저장 순서
+
+1. `addTaprootWallet()`에서 `TaprootCreationResult` 생성
+2. 메모리의 `vaults`에 `TaprootVaultListItem` 추가
+3. `SecureStorageStrategy.mutate()` 실행
+4. `persistTaprootAdd()`에서 seed 저장
+5. seed 저장 성공 후 privacy info 저장
+6. `mutate()`가 마지막에 public vault list 저장
+
+`_saveTaprootPrivacy()` 실패 시, 방금 저장한 Taproot seed들을 삭제한 뒤 예외를 다시 던집니다.
 
 ---
 
@@ -65,28 +131,43 @@ flowchart TD
 ```mermaid
 flowchart TD
     START(["addTaprootWallet()"])
-    START --> SEEDS["allSeeds = keyPathSeedInfos + beneficiarySeedInfos"]
+    START --> CREATE["compute(WalletIsolates.createTaprootVault)"]
+    CREATE --> RESULT["TaprootCreationResult\nvault\nkeyPathSaves\nscriptPathSaves"]
+    RESULT --> ADD["vaults.add(newTaprootVault)"]
+    ADD --> MUTATE["_strategy.mutate()"]
 
-    SEEDS --> LOOP["for each seedInfo in allSeeds"]
+    MUTATE --> PERSIST["ops.persistTaprootAdd()"]
+    PERSIST --> SAVE_SEEDS["_saveTaprootSecrets()"]
 
-    LOOP --> KEY["taprootSeedKey\n= hash(walletId + xpub + role)"]
+    SAVE_SEEDS --> KP_LOOP["for seedInfo in keyPathSaves"]
+    KP_LOOP --> KP_KEY["taprootKeyPathSeedKey\n= hash(walletId - xpub)"]
+    KP_KEY --> SAVE_KP["_saveTaprootSeed()"]
 
-    KEY --> SZ1[("SecureZone\n(Keystore)")]
-    KEY --> SS1[("SecureStorage\n(Encrypted Storage)")]
+    SAVE_SEEDS --> SP_LOOP["for scriptPath in scriptPathSaves\nfor seedInfo in scriptPath.seedInfos"]
+    SP_LOOP --> SP_KEY["taprootScriptPathSeedKey\n= hash(walletId - scriptKey - xpub)"]
+    SP_KEY --> SAVE_SP["_saveTaprootSeed()"]
 
-    SZ1 -- "generateKey(alias=taprootSeedKey,\nuserAuthRequired=true)" --> SZ1_STORED["[taprootSeedKey]\n암호화 키 생성 및 저장"]
+    SAVE_KP --> SZ[("SecureZone")]
+    SAVE_SP --> SZ
+    SZ -- "generateKey(alias=seedKey,\nuserAuthRequired=true)" --> SZ_STORED["Keystore alias 생성"]
 
-    SS1 -- "write(key=taprootSeedKey)" --> SS1_STORED["[taprootSeedKey]\nencrypt(secret + passphrase)\n※ passphrase 페이로드에 포함"]
+    SAVE_KP --> SS_SEED[("SecureStorage")]
+    SAVE_SP --> SS_SEED
+    SS_SEED -- "write(key=seedKey)" --> SEED_STORED["encrypt(secret + passphrase)\npassphrase 페이로드 포함"]
 
-    KEY --> IKEY["taprootSeedIndexKey\n= hash(walletId + 'taprootSeedIndex')"]
-    IKEY --> SS3[("SecureStorage")]
-    SS3 -- "write(key=seedIndexKey)" --> SS3_STORED["[taprootSeedIndexKey]\n[taprootSeedKey, ...] (JSON Array)"]
+    SAVE_KP --> INDEX["taprootSeedIndexKey"]
+    SAVE_SP --> INDEX
+    INDEX --> SS_INDEX[("SecureStorage")]
+    SS_INDEX -- "write(indexKey)" --> INDEX_STORED["[seedKey, ...]\nJSON Array"]
 
-    LOOP -- "반복 완료" --> NOOP
+    PERSIST --> NO_PRIVACY["privacy info 미저장"]
+    MUTATE --> NO_PUBLIC["savePublicVaultList() no-op"]
 
-    NOOP["_saveTaprootPrivacy() → 미저장\nsavePublicVaultList()    → 미저장\n(SigningOnly 정책: 공개 정보 비영속)"]
-    style NOOP fill:#f5f5f5,stroke:#999,color:#666
+    style NO_PRIVACY fill:#f5f5f5,stroke:#999,color:#666
+    style NO_PUBLIC fill:#f5f5f5,stroke:#999,color:#666
 ```
+
+SigningOnly 모드는 공개 vault list와 privacy info를 디스크에 영속하지 않습니다.
 
 ---
 
@@ -94,44 +175,135 @@ flowchart TD
 
 | 저장소 | 키 | 값 | SecureStorage | SigningOnly |
 |---|---|---|:---:|:---:|
-| **SecureZone** | `taprootSeedKey` | 암호화 키 (Keystore alias) | O | O |
-| **SecureStorage** | `taprootSeedKey` | `encrypt(secret)` | O | O |
-| **SecureStorage** | `taprootSeedKey` (payload) | passphrase 포함 여부 | 미포함 | **포함** |
-| **SecureStorage** | `taprootSeedPassphraseEnabledKey` | `"true"` \| `"false"` | O | **X** |
-| **SecureStorage** | `taprootSeedIndexKey` | seed key 목록 `[...]` | O | O |
-| **SecureStorage** | `privacyInfoKey` | `TaprootWalletPrivacyInfo` JSON | O | **X** |
-| **SharedPreferences** | `kVaultListField` | Public vault list JSON | O | **X** |
+| **SecureZone** | `taprootKeyPathSeedKey` | Key path seed 암호화 키 alias | O | O |
+| **SecureZone** | `taprootScriptPathSeedKey` | Script path seed 암호화 키 alias | O | O |
+| **SecureStorage** | `taprootKeyPathSeedKey` | 암호화된 key path seed payload | O | O |
+| **SecureStorage** | `taprootScriptPathSeedKey` | 암호화된 script path seed payload | O | O |
+| **SecureStorage** | seed payload | passphrase 포함 여부 | 미포함 | **포함** |
+| **SecureStorage** | `taprootSeedIndexKey` | seed key 목록 JSON 배열 | O | O |
+| **SecureStorage** | `passphraseEnabledKey` | Taproot에서는 미사용 | X | X |
+| **SecureStorage** | `privacyInfoKey` | `TaprootWalletPrivacyInfo` JSON | O | X |
+| **SharedPreferences** | `kVaultListField` | Public vault list JSON | O | X |
 
 ### 핵심 차이점
 
-- **SecureStorage 모드**: passphrase는 암호화 페이로드에 포함하지 않고, 별도의 `passphraseEnabledKey`로 플래그만 저장. Privacy info와 Public vault list를 모두 영속.
-- **SigningOnly 모드**: passphrase를 암호화 페이로드(secret) 내에 함께 포함하여 저장. `passphraseEnabledKey` 미저장. Privacy info 및 Public vault list 영속하지 않음.
+- **SecureStorage 모드**: Taproot seed payload에는 passphrase를 포함하지 않습니다. `TaprootWalletPrivacyInfo`와 public vault list를 영속합니다.
+- **SigningOnly 모드**: Taproot seed payload에 passphrase를 함께 포함합니다. Privacy info와 public vault list는 영속하지 않습니다.
+- **Taproot passphrase flag**: 현재 Taproot seed에 대해 별도 `passphraseEnabledKey`는 저장하지 않습니다.
 
 ---
 
 ## 저장 데이터 상세
 
-### SecureZone (taprootSeedKey)
-시스템 Keystore에 AES 암호화 키를 생성. `userAuthRequired=true`로 생기기 때문에 생체 인증 또는 PIN 인증 후에만 사용 가능.
+### SecureZone
 
-### SecureStorage (taprootSeedKey)
-`SecureZonePayloadCodec.buildPlaintext()`로 구성된 페이로드를 SecureZone 키로 암호화한 결과(`toCombinedBase64()`)를 저장.
+각 Taproot seed key를 alias로 사용해 시스템 Keystore에 암호화 키를 생성합니다.
 
-| 모드 | 페이로드 구성 |
+```dart
+generateKey(alias: seedKey, userAuthRequired: true)
+```
+
+따라서 복호화 시 생체 인증 또는 PIN 인증이 필요합니다.
+
+### SecureStorage seed payload
+
+`SecureZonePayloadCodec.buildPlaintext()`로 구성한 payload를 SecureZone 키로 암호화한 결과(`toCombinedBase64()`)를 저장합니다.
+
+| 모드 | payload 구성 |
 |---|---|
-| SecureStorage | `{ secret: Uint8List }` |
+| SecureStorage | `{ secret: Uint8List, passphrase: null }` |
 | SigningOnly | `{ secret: Uint8List, passphrase: Uint8List? }` |
 
-### SecureStorage (privacyInfoKey) — SecureStorage 모드 전용
+### SecureStorage `taprootSeedIndexKey`
+
+Taproot 지갑은 seed가 여러 개일 수 있으므로 삭제/정리 시 사용할 seed key 목록을 별도로 저장합니다.
+
+```json
+[
+  "keyPathSeedKeyHash",
+  "scriptPathSeedKeyHash"
+]
+```
+
+### SecureStorage `privacyInfoKey` — SecureStorage 모드 전용
+
+`TaprootWalletPrivacyInfo`가 JSON으로 저장됩니다.
 
 ```json
 {
   "descriptor": "tr(...)",
   "keyPathSeedInfos": [
-    { "extendedPublicKey": "xpub...", "isPassphraseSet": true }
+    {
+      "extendedPublicKey": "xpub...",
+      "isPassphraseSet": true
+    }
   ],
-  "beneficiarySeedInfos": [
-    { "extendedPublicKey": "xpub...", "isPassphraseSet": false }
+  "scriptPathSeedInfos": [
+    {
+      "key": "scriptPathKeyHash",
+      "role": "beneficiary",
+      "seedInfos": [
+        {
+          "extendedPublicKey": "xpub...",
+          "isPassphraseSet": false
+        }
+      ]
+    }
   ]
 }
 ```
+
+### SharedPreferences `kVaultListField` — SecureStorage 모드 전용
+
+`TaprootVaultListItem.toPublicJson()` 결과가 public vault list에 포함됩니다.
+
+Public JSON에서는 다음 필드가 제거됩니다.
+
+- `descriptor`
+- `keyPathSeedInfos`
+- `scriptPathSeedInfos`
+
+---
+
+## 삭제 및 롤백
+
+### 지갑 삭제
+
+`deleteWallet()` 또는 `deleteWallets()`는 `ops.deleteWalletData(id, WalletType.taproot)`를 통해 Taproot 데이터를 삭제합니다.
+
+SecureStorage 모드에서는 다음이 삭제됩니다.
+
+- `taprootSeedIndexKey`에 기록된 모든 seed payload
+- 각 seed payload의 SecureZone alias
+- `taprootSeedIndexKey`
+- `privacyInfoKey`
+
+SigningOnly 모드에서는 다음이 삭제됩니다.
+
+- `taprootSeedIndexKey`에 기록된 모든 seed payload
+- 각 seed payload의 SecureZone alias
+- `taprootSeedIndexKey`
+
+### 추가 실패 롤백
+
+`addTaprootWallet()` 중 저장 실패가 발생하면 메모리의 마지막 vault를 제거하고 `deleteWalletData(nextId, WalletType.taproot)`로 부분 저장 데이터를 정리합니다.
+
+`SecureStorageStrategy.persistTaprootAdd()`에서는 seed 저장 후 privacy info 저장에 실패하면, 방금 저장한 seed key 목록을 계산해 seed payload와 SecureZone alias를 삭제합니다.
+
+---
+
+## SigningOnly → SecureStorage 전환
+
+`WalletRepository.updateIsSigningOnlyMode(false)` 호출 시 `_changeToSecureStorageMode()`가 실행됩니다.
+
+Taproot 지갑의 경우:
+
+1. `TaprootVaultListItem.keyPathSeedInfos`를 순회
+2. `KeyPathSeedKeyIdentifier`로 signing-only seed 복호화
+3. `TaprootSeedInfoForSave`로 변환
+4. `TaprootVaultListItem.scriptPathSeedInfos`를 순회
+5. `ScriptPathSeedKeyIdentifier`로 signing-only seed 복호화
+6. `ScriptPathSeedInfoForSave`로 변환
+7. `SecureStorageStrategy.persistTaprootAdd()`로 secure-storage 방식 재저장
+
+전환 후 SecureStorage 모드에서는 seed payload에 passphrase가 포함되지 않고, privacy info와 public vault list가 저장됩니다.
