@@ -41,6 +41,7 @@ class ParentCreationScreen extends StatefulWidget {
 }
 
 class _ParentCreationScreenState extends State<ParentCreationScreen> {
+  static const int _initialStepCount = 2;
   static const int _progressTotalStep = 6;
 
   final ParentCreationViewModel _viewModel = ParentCreationViewModel();
@@ -697,12 +698,26 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     );
   }
 
+  void _handleBackPressed() {
+    if (_currentStep <= 1) {
+      Navigator.pop(context);
+      return;
+    }
+
+    _returnToPreviousStep();
+  }
+
   void _returnToPreviousStep() {
     if (_currentStep <= 1) {
       return;
     }
 
     setState(() {
+      if (_currentStep <= _initialStepCount) {
+        _currentStep -= 1;
+        return;
+      }
+
       final currentStepIndex = _currentStep - 1;
       _titleList.removeAt(currentStepIndex);
       _bodyList.removeAt(currentStepIndex);
@@ -811,29 +826,39 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: _viewModel,
-      child: Scaffold(
-        backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(
-          title: t.taproot.parent_creation_screen.title,
-          context: context,
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) {
+            return;
+          }
+          _handleBackPressed();
+        },
+        child: Scaffold(
           backgroundColor: CoconutColors.white,
-        ),
-        body: SafeArea(
-          child: Stack(
-            children: [
-              TaprootCreationBody(
-                titleLines: _titleLines(),
-                onBottomButtonPressed: _onNextPressed,
-                ignoreChildHorizontalPadding: _ignoreBodyHorizontalPaddingList[_currentStep - 1],
-                showHeader: !_isProgressPaused,
-                scrollChild: !_isProgressPaused && _scrollChildList[_currentStep - 1],
-                child:
-                    _isProgressPaused
-                        ? _bodyList[_currentStep - 1].first
-                        : Column(children: _bodyList[_currentStep - 1]),
-              ),
-              TopProgressBar(visible: !_isProgressPaused, total: _progressTotalStep, current: _progressCurrentStep),
-            ],
+          appBar: CoconutAppBar.build(
+            title: t.taproot.parent_creation_screen.title,
+            context: context,
+            backgroundColor: CoconutColors.white,
+            onBackPressed: _handleBackPressed,
+          ),
+          body: SafeArea(
+            child: Stack(
+              children: [
+                TaprootCreationBody(
+                  titleLines: _titleLines(),
+                  onBottomButtonPressed: _onNextPressed,
+                  ignoreChildHorizontalPadding: _ignoreBodyHorizontalPaddingList[_currentStep - 1],
+                  showHeader: !_isProgressPaused,
+                  scrollChild: !_isProgressPaused && _scrollChildList[_currentStep - 1],
+                  child:
+                      _isProgressPaused
+                          ? _bodyList[_currentStep - 1].first
+                          : Column(children: _bodyList[_currentStep - 1]),
+                ),
+                TopProgressBar(visible: !_isProgressPaused, total: _progressTotalStep, current: _progressCurrentStep),
+              ],
+            ),
           ),
         ),
       ),
