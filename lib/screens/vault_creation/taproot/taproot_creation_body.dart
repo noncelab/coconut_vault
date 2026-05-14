@@ -143,33 +143,10 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   @override
   Widget build(BuildContext context) {
     final showBottomButton = widget.showBottomButton && !_isContentTransitioning;
-    final content = widget.scrollChild ? SingleChildScrollView(child: widget.child) : widget.child;
 
     return Stack(
       children: [
-        Positioned.fill(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              if (widget.showHeader)
-                Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: _buildAnimatedHeader()),
-              Expanded(
-                child: Padding(
-                  padding:
-                      widget.ignoreChildHorizontalPadding
-                          ? EdgeInsets.zero
-                          : const EdgeInsets.symmetric(horizontal: 16),
-                  child: AnimatedOpacity(
-                    opacity: _isContentVisible ? 1 : 0,
-                    duration: _isContentVisible ? _contentFadeInDuration : _contentFadeOutDuration,
-                    curve: _isContentVisible ? Curves.easeOut : Curves.easeIn,
-                    child: content,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        Positioned.fill(child: widget.scrollChild ? _buildScrollableContent() : _buildFixedContent()),
         if (widget.onBottomButtonPressed != null)
           AnimatedOpacity(
             opacity: showBottomButton ? 1.0 : 0.0,
@@ -184,6 +161,49 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
               ),
             ),
           ),
+      ],
+    );
+  }
+
+  Widget _buildScrollableContent() {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          if (widget.showHeader)
+            Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: _buildAnimatedHeader()),
+          Padding(
+            padding: widget.ignoreChildHorizontalPadding ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 16),
+            child: AnimatedOpacity(
+              opacity: _isContentVisible ? 1 : 0,
+              duration: _isContentVisible ? _contentFadeInDuration : _contentFadeOutDuration,
+              curve: _isContentVisible ? Curves.easeOut : Curves.easeIn,
+              child: widget.child,
+            ),
+          ),
+          if (widget.onBottomButtonPressed != null) const SizedBox(height: 120),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFixedContent() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        if (widget.showHeader)
+          Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: _buildAnimatedHeader()),
+        Expanded(
+          child: Padding(
+            padding: widget.ignoreChildHorizontalPadding ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 16),
+            child: AnimatedOpacity(
+              opacity: _isContentVisible ? 1 : 0,
+              duration: _isContentVisible ? _contentFadeInDuration : _contentFadeOutDuration,
+              curve: _isContentVisible ? Curves.easeOut : Curves.easeIn,
+              child: widget.child,
+            ),
+          ),
+        ),
       ],
     );
   }

@@ -745,6 +745,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
                         isSelectable: true,
                         isSelected: viewModel.selectedExistingVaultId == vault.id,
                       ),
+                      if (index == vaultList.length - 1) CoconutLayout.spacing_2000h,
                     ],
                   ),
                 );
