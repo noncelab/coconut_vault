@@ -132,19 +132,22 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     return Stack(
       children: [
         Positioned.fill(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                _buildAnimatedHeader(),
-                AnimatedOpacity(
-                  opacity: _isContentVisible ? 1 : 0,
-                  duration: _isContentVisible ? _contentFadeInDuration : _contentFadeOutDuration,
-                  curve: _isContentVisible ? Curves.easeOut : Curves.easeIn,
-                  child: SingleChildScrollView(child: widget.child),
-                ),
-              ],
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  _buildAnimatedHeader(),
+                  AnimatedOpacity(
+                    opacity: _isContentVisible ? 1 : 0,
+                    duration: _isContentVisible ? _contentFadeInDuration : _contentFadeOutDuration,
+                    curve: _isContentVisible ? Curves.easeOut : Curves.easeIn,
+                    child: widget.child,
+                  ),
+                  if (widget.onBottomButtonPressed != null) const SizedBox(height: 150),
+                ],
+              ),
             ),
           ),
         ),
