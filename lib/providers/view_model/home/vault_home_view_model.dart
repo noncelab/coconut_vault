@@ -35,8 +35,7 @@ class VaultHomeViewModel extends ChangeNotifier {
     final taproot = _walletProvider.vaultList.whereType<TaprootVaultListItem>();
     if (taproot.isEmpty) return false;
     for (final wallet in taproot) {
-      if (wallet.keyPathSeedInfos.isNotEmpty ||
-          (wallet.scriptPathSeedInfos != null && wallet.scriptPathSeedInfos!.isNotEmpty)) {
+      if (wallet.keyPathSeedInfos.isNotEmpty || wallet.scriptPathSeedInfos.isNotEmpty) {
         return true;
       }
     }

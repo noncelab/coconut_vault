@@ -358,10 +358,10 @@ void main() {
       expect(loaded.single.keyPathSeedInfos.single.extendedPublicKey, added.keyPathSeedInfos.single.extendedPublicKey);
       expect(loaded.single.keyPathSeedInfos.single.isPassphraseSet, isFalse);
       expect(
-        loaded.single.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
-        added.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
+        loaded.single.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
+        added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
       );
-      expect(loaded.single.scriptPathSeedInfos!.single.seedInfos.single.isPassphraseSet, isTrue);
+      expect(loaded.single.scriptPathSeedInfos.single.seedInfos.single.isPassphraseSet, isTrue);
 
       expect(loaded.single.owners, hasLength(2));
       expect(loaded.single.beneficiaries, hasLength(1));
@@ -494,8 +494,8 @@ void main() {
       expect(loaded.single.scriptPathSeedInfos, hasLength(1));
       expect(loaded.single.keyPathSeedInfos.single.extendedPublicKey, added.keyPathSeedInfos.single.extendedPublicKey);
       expect(
-        loaded.single.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
-        added.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
+        loaded.single.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
+        added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
       );
 
       expect(loaded.single.owners, hasLength(1));
@@ -552,8 +552,8 @@ void main() {
       );
       final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
         added.id,
-        added.scriptPathSeedInfos!.single.key,
-        added.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
+        added.scriptPathSeedInfos.single.key,
+        added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
       );
       final walletKey = WalletStorageKeys.walletKey(added.id, WalletType.taproot);
       final privacyInfoKey = WalletStorageKeys.privacyInfoKey(walletKey);
@@ -615,8 +615,8 @@ void main() {
       );
       final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
         added.id,
-        added.scriptPathSeedInfos!.single.key,
-        added.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
+        added.scriptPathSeedInfos.single.key,
+        added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
       );
       final seedIndexKey = WalletStorageKeys.taprootSeedIndexKey(added.id);
 
@@ -674,8 +674,8 @@ void main() {
       );
       final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
         added.id,
-        added.scriptPathSeedInfos!.single.key,
-        added.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
+        added.scriptPathSeedInfos.single.key,
+        added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
       );
 
       expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isNotEmpty);
@@ -728,8 +728,8 @@ void main() {
       );
       final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
         added.id,
-        added.scriptPathSeedInfos!.single.key,
-        added.scriptPathSeedInfos!.single.seedInfos.single.extendedPublicKey,
+        added.scriptPathSeedInfos.single.key,
+        added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
       );
       expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isEmpty);
       expect(SharedPrefsRepository().getInt(SharedPrefsKeys.kNextIdField), isNotNull);

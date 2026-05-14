@@ -48,8 +48,7 @@ class SecureZoneManager {
         await walletProvider.getSecret(singleSig.id, autoAuth: false);
       } else if (taproots.isNotEmpty) {
         for (final taprootVault in taproots) {
-          if (taprootVault.keyPathSeedInfos.isEmpty &&
-              (taprootVault.scriptPathSeedInfos == null || taprootVault.scriptPathSeedInfos!.isEmpty)) {
+          if (taprootVault.keyPathSeedInfos.isEmpty && taprootVault.scriptPathSeedInfos.isEmpty) {
             continue;
           }
 

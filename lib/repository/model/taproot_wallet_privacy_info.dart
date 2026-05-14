@@ -10,7 +10,7 @@ part 'taproot_wallet_privacy_info.g.dart';
 class TaprootWalletPrivacyInfo extends WalletPrivacyInfo {
   final String descriptor;
   final List<TaprootSeedInfo> keyPathSeedInfos;
-  final List<ScriptPathSeedInfo>? scriptPathSeedInfos;
+  final List<ScriptPathSeedInfo> scriptPathSeedInfos;
 
   TaprootWalletPrivacyInfo({
     required this.descriptor,

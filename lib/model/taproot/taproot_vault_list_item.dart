@@ -21,8 +21,8 @@ class TaprootVaultListItem extends VaultListItemBase {
   final List<TaprootSeedInfo> _keyPathSeedInfos;
   List<TaprootSeedInfo> get keyPathSeedInfos => _keyPathSeedInfos;
   @JsonKey(name: fieldScriptPathSeedInfos)
-  final List<ScriptPathSeedInfo>? _scriptPathSeedInfos;
-  List<ScriptPathSeedInfo>? get scriptPathSeedInfos => _scriptPathSeedInfos;
+  final List<ScriptPathSeedInfo> _scriptPathSeedInfos;
+  List<ScriptPathSeedInfo> get scriptPathSeedInfos => _scriptPathSeedInfos;
 
   /// Key Path spending에 참여하는 서명자 목록.
   /// 이 키들은 MuSig2로 aggregate되어 단일 internal key를 구성함.
@@ -71,13 +71,16 @@ class TaprootVaultListItem extends VaultListItemBase {
       final ScriptPathSeedInfo? seedInfo = scriptPathSeedInfos.firstWhereOrNull(
         (seedInfo) => seedInfo.role == ScriptPathRole.beneficiary && seedInfo.key == scriptKey,
       );
+      assert(seedInfo == null || seedInfo.seedInfos.isNotEmpty);
+      final bool isPassphraseSet = seedInfo?.seedInfos[0].isPassphraseSet ?? false;
+
       beneficiaries.add(
         TaprootBeneficiaryParticipant(
           masterFingerprint: keyStore.masterFingerprint,
           type: TaprootParticipantType.beneficiary,
           extendedPublicKey: extendedPubKey,
           isSeedStored: seedInfo != null,
-          isPassphraseSet: seedInfo?.seedInfos[0].isPassphraseSet ?? false,
+          isPassphraseSet: isPassphraseSet,
           lockTime: policy.locktime,
           scriptKey: scriptKey,
         ),
