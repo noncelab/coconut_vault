@@ -15,6 +15,7 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
@@ -453,11 +454,10 @@ class WalletRepository {
       singleSigVault.name = newName;
       singleSigVault.colorIndex = colorIndex;
       singleSigVault.iconIndex = iconIndex;
-    } else if (target.vaultType == WalletType.multiSignature) {
-      MultisigVaultListItem ssv = target as MultisigVaultListItem;
-      ssv.name = newName;
-      ssv.colorIndex = colorIndex;
-      ssv.iconIndex = iconIndex;
+    } else if (target.vaultType == WalletType.multiSignature || target.vaultType == WalletType.taproot) {
+      target.name = newName;
+      target.colorIndex = colorIndex;
+      target.iconIndex = iconIndex;
     } else {
       throw '[wallet_list_manager/updateWallet]: _vaultList[$index] has wrong type: ${target.vaultType}';
     }
