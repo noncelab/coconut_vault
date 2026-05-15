@@ -13,6 +13,15 @@ import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/child_creation_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_auto_gen_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_coinflip_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_dice_roll_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_verify_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
 
 class ChildCreationScreen extends StatelessWidget {
   const ChildCreationScreen({super.key});
@@ -31,11 +40,28 @@ class _ChildCreationScreenContent extends StatefulWidget {
 }
 
 class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent> {
-  static const int _totalStep = 5;
+  static const int _baseTotalStep = 5;
   int _currentStep = 1;
+  final List<Widget> _embeddedWidgets = [];
+
+  int get _totalStep => _baseTotalStep + _embeddedWidgets.length;
+
+  int get _progressCurrentStep {
+    if (_currentStep <= 3) return _currentStep - 1;
+    if (_currentStep <= 3 + _embeddedWidgets.length) return 2;
+    return _currentStep - _embeddedWidgets.length - 1;
+  }
 
   List<TextSpan> _titleLines(ChildCreationViewModel viewModel) {
-    final textList = _titleList(viewModel)[_currentStep - 1];
+    List<TextSpan> textList;
+    if (_currentStep <= 3) {
+      textList = _titleList(viewModel)[_currentStep - 1];
+    } else if (_currentStep <= 3 + _embeddedWidgets.length) {
+      return [const TextSpan(text: '')];
+    } else {
+      textList = _titleList(viewModel)[_currentStep - _embeddedWidgets.length - 1];
+    }
+
     if (textList.length == 1) {
       return [const TextSpan(text: ''), textList[0], const TextSpan(text: '')];
     }
@@ -197,6 +223,16 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     ),
   ];
 
+  Widget _getCurrentChild(ChildCreationViewModel viewModel) {
+    if (_currentStep <= 3) {
+      return _childList(viewModel)[_currentStep - 1];
+    }
+    if (_currentStep <= 3 + _embeddedWidgets.length) {
+      return _embeddedWidgets[_currentStep - 4];
+    }
+    return _childList(viewModel)[_currentStep - _embeddedWidgets.length - 1];
+  }
+
   Widget _buildQrSection(ChildCreationViewModel viewModel) {
     return Padding(
       padding: const EdgeInsets.only(top: 21),
@@ -220,6 +256,9 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   bool _isNextButtonVisible(ChildCreationViewModel viewModel) {
+    if (_currentStep > 3 && _currentStep <= 3 + _embeddedWidgets.length) {
+      return false;
+    }
     if (_currentStep == 2) {
       return viewModel.selectedKeyPreparationType != ChildKeyPreparationType.none;
     }
@@ -233,62 +272,144 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     return true;
   }
 
+  void _addEmbeddedStep(Widget widget) {
+    setState(() {
+      _embeddedWidgets.add(widget);
+      _currentStep += 1;
+    });
+  }
+
+  void _onChildWalletSet(ChildCreationViewModel viewModel) {
+    final taprootProvider = context.read<TaprootWalletCreationProvider>();
+    try {
+      viewModel.generateKeyData(taprootProvider.secret, taprootProvider.passphrase);
+      setState(() {
+        _currentStep += 1;
+      });
+    } catch (e) {
+      Logger.error('Failed to generate child wallet: $e');
+    }
+  }
+
+  void _addMnemonicConfirmationStep() {
+    final viewModel = context.read<ChildCreationViewModel>();
+    final calledFrom = switch (viewModel.selectedNewKeyCreationType) {
+      ChildNewKeyCreationType.coinFlip => AppRoutes.mnemonicCoinflip,
+      ChildNewKeyCreationType.diceRoll => AppRoutes.mnemonicDiceRoll,
+      ChildNewKeyCreationType.autoGenerate => AppRoutes.mnemonicVerify,
+      ChildNewKeyCreationType.none => AppRoutes.mnemonicAutoGen,
+    };
+
+    if (calledFrom == AppRoutes.mnemonicVerify) {
+      _addMnemonicVerifyStep();
+      return;
+    }
+
+    _addEmbeddedStep(
+      MnemonicConfirmationScreen(
+        calledFrom: calledFrom,
+        isEmbedded: true,
+        isTaprootChild: true,
+        onMnemonicReady: _addMnemonicVerifyStep,
+      ),
+    );
+  }
+
+  void _addMnemonicVerifyStep() {
+    _addEmbeddedStep(
+      MnemonicVerifyScreen(
+        isEmbedded: true,
+        isTaprootChild: true,
+        onVerificationSuccess: _addVerifiedMnemonicConfirmationStep,
+      ),
+    );
+  }
+
+  void _addVerifiedMnemonicConfirmationStep() {
+    _addEmbeddedStep(
+      MnemonicConfirmationScreen(
+        calledFrom: AppRoutes.mnemonicVerify,
+        isEmbedded: true,
+        isTaprootChild: true,
+        onMnemonicReady: () {
+          final viewModel = context.read<ChildCreationViewModel>();
+          _onChildWalletSet(viewModel);
+        },
+      ),
+    );
+  }
+
+  void _addFirstEmbeddedScreenForCreation(ChildCreationViewModel viewModel) {
+    Widget? firstEmbeddedScreen;
+    switch (viewModel.selectedNewKeyCreationType) {
+      case ChildNewKeyCreationType.coinFlip:
+        firstEmbeddedScreen = MnemonicCoinflipScreen(
+          entropyType: EntropyType.manual,
+          isEmbedded: true,
+          isTaprootChild: true,
+          onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
+        );
+        break;
+      case ChildNewKeyCreationType.diceRoll:
+        firstEmbeddedScreen = MnemonicDiceRollScreen(
+          entropyType: EntropyType.manual,
+          isEmbedded: true,
+          isTaprootChild: true,
+          onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
+        );
+        break;
+      case ChildNewKeyCreationType.autoGenerate:
+        firstEmbeddedScreen = MnemonicAutoGenScreen(
+          entropyType: EntropyType.auto,
+          isEmbedded: true,
+          isTaprootChild: true,
+          onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
+        );
+        break;
+      case ChildNewKeyCreationType.none:
+        return;
+    }
+    _addEmbeddedStep(firstEmbeddedScreen);
+  }
+
   void _onNextPressed(ChildCreationViewModel viewModel) async {
     final taprootProvider = context.read<TaprootWalletCreationProvider>();
 
     if (_currentStep == 3) {
       if (viewModel.isCreateKeySelected) {
-        String? route;
-        switch (viewModel.selectedNewKeyCreationType) {
-          case ChildNewKeyCreationType.coinFlip:
-            route = AppRoutes.mnemonicCoinflip;
-            break;
-          case ChildNewKeyCreationType.diceRoll:
-            route = AppRoutes.mnemonicDiceRoll;
-            break;
-          case ChildNewKeyCreationType.autoGenerate:
-            route = AppRoutes.mnemonicAutoGen;
-            break;
-          case ChildNewKeyCreationType.none:
-            break;
-        }
-
-        if (route != null) {
-          final passedCheck = await Navigator.pushNamed(
-            context,
-            AppRoutes.securitySelfCheck,
-            arguments: () {
-              Navigator.pop(context, true);
+        taprootProvider.setIsChildWalletCreation(true);
+        _addEmbeddedStep(
+          SecuritySelfCheckScreen(
+            isEmbedded: true,
+            onNextPressed: () {
+              _addFirstEmbeddedScreenForCreation(viewModel);
             },
-          );
-          if (passedCheck == true) {
-            if (!mounted) return;
-
-            taprootProvider.setIsChildWalletCreation(true);
-
-            final result = await Navigator.pushNamed(context, route);
-            if (result == true) {
-              if (!mounted) return;
-              try {
-                viewModel.generateKeyData(taprootProvider.secret, taprootProvider.passphrase);
-                setState(() {
-                  _currentStep += 1;
-                });
-              } catch (e) {
-                Logger.error('Failed to generate child wallet: $e');
-              }
-            }
-          }
-          return;
-        }
+          ),
+        );
+        return;
       } else if (viewModel.isImportKeySelected) {
         taprootProvider.setIsChildWalletCreation(true);
 
         if (viewModel.isMnemonicInputSelected) {
-          Navigator.pushNamed(context, AppRoutes.mnemonicImport);
+          _addEmbeddedStep(
+            MnemonicImportScreen(
+              isEmbedded: true,
+              isTaprootChild: true,
+              onCompleted: () => _onChildWalletSet(viewModel),
+            ),
+          );
           return;
         } else if (viewModel.isSeedQrScanSelected) {
-          Navigator.pushNamed(context, AppRoutes.seedQrImport);
+          _addEmbeddedStep(
+            SeedQrImportScreen(
+              isEmbedded: true,
+              isTaprootChild: true,
+              onMnemonicConfirmationRequested: (secret, passphrase) {
+                taprootProvider.setSecretAndPassphrase(secret, passphrase);
+                _onChildWalletSet(viewModel);
+              },
+            ),
+          );
           return;
         }
       }
@@ -303,19 +424,29 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     });
   }
 
+  void _handleBackPressed() {
+    if (_currentStep > 1) {
+      setState(() {
+        if (_currentStep > 3 && _currentStep <= 3 + _embeddedWidgets.length) {
+          _embeddedWidgets.removeLast();
+        }
+        _currentStep -= 1;
+      });
+    } else {
+      Navigator.maybePop(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<ChildCreationViewModel>();
+    final isEmbeddedActive = _currentStep > 3 && _currentStep <= 3 + _embeddedWidgets.length;
 
     return PopScope(
-      canPop: _currentStep == 1,
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-        if (_currentStep > 1) {
-          setState(() {
-            _currentStep -= 1;
-          });
-        }
+        _handleBackPressed();
       },
       child: Scaffold(
         backgroundColor: CoconutColors.white,
@@ -323,15 +454,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           title: t.taproot.child_creation_screen.title,
           context: context,
           backgroundColor: CoconutColors.white,
-          onBackPressed: () {
-            if (_currentStep > 1) {
-              setState(() {
-                _currentStep -= 1;
-              });
-            } else {
-              Navigator.maybePop(context);
-            }
-          },
+          onBackPressed: _handleBackPressed,
         ),
         body: SafeArea(
           child: Stack(
@@ -340,10 +463,13 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
                 key: ValueKey(_currentStep),
                 titleLines: _titleLines(viewModel),
                 showBottomButton: _isNextButtonVisible(viewModel),
+                ignoreChildHorizontalPadding: isEmbeddedActive,
+                showHeader: !isEmbeddedActive,
+                scrollChild: !isEmbeddedActive,
                 onBottomButtonPressed: () => _onNextPressed(viewModel),
-                child: Container(child: _childList(viewModel)[_currentStep - 1]),
+                child: Container(child: _getCurrentChild(viewModel)),
               ),
-              TopProgressBar(visible: true, total: _totalStep - 1, current: _currentStep - 1),
+              TopProgressBar(visible: !isEmbeddedActive, total: _baseTotalStep - 1, current: _progressCurrentStep),
             ],
           ),
         ),
