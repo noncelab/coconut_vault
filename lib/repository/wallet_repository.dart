@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
-import 'package:coconut_vault/isolates/wallet_isolates.dart';
+import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
@@ -15,15 +15,21 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
+import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/repository/migration/data_schema_migration_runner.dart';
 import 'package:coconut_vault/repository/model/multisig_wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/model/single_sig_wallet_privacy_info.dart';
+import 'package:coconut_vault/repository/model/taproot_wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/model/wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/secure_zone_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/repository/wallet_linker.dart';
-import 'package:coconut_vault/repository/wallet_persistence_strategy.dart';
+import 'package:coconut_vault/repository/wallet_persistence_strategy/secure_storage_strategy.dart';
+import 'package:coconut_vault/repository/wallet_persistence_strategy/signing_only_strategy.dart';
+import 'package:coconut_vault/repository/wallet_persistence_strategy/wallet_persistence_strategy.dart';
 import 'package:coconut_vault/repository/wallet_storage_cleaner.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_payload_codec.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -36,9 +42,9 @@ class WalletRepository {
   static const int currentDataSchemeVersion = 2;
   static String vaultTypeField = VaultListItemBase.vaultTypeField;
 
-  final SecureStorageRepository _storageService = SecureStorageRepository();
-  final SharedPrefsRepository _sharedPrefs = SharedPrefsRepository();
-  final SecureZoneRepository _secureZoneRepository = SecureZoneRepository();
+  final SecureStorageRepositoryContract _storageService;
+  final SharedPrefsRepository _sharedPrefs;
+  final SecureZoneRepositoryContract _secureZoneRepository;
 
   List<VaultListItemBase>? _vaultList;
   late bool _isSigningOnlyMode;
@@ -47,9 +53,19 @@ class WalletRepository {
 
   Completer<void>? _walletLoadCancelToken;
 
-  WalletRepository({bool isSigningOnlyMode = false}) {
+  WalletRepository({
+    bool isSigningOnlyMode = false,
+    SecureStorageRepositoryContract? storageService,
+    SharedPrefsRepository? sharedPrefs,
+    SecureZoneRepositoryContract? secureZoneRepository,
+  }) : _storageService = storageService ?? SecureStorageRepository(),
+       _sharedPrefs = sharedPrefs ?? SharedPrefsRepository(),
+       _secureZoneRepository = secureZoneRepository ?? SecureZoneRepository() {
     _isSigningOnlyMode = isSigningOnlyMode;
-    _strategy = isSigningOnlyMode ? SigningOnlyStrategy() : SecureStorageStrategy();
+    _strategy =
+        isSigningOnlyMode
+            ? SigningOnlyStrategy(storageService: _storageService, secureZoneRepository: _secureZoneRepository)
+            : SecureStorageStrategy(storageService: _storageService, secureZoneRepository: _secureZoneRepository);
   }
 
   int? _getSavedDataSchemeVersion() {
@@ -137,6 +153,9 @@ class WalletRepository {
       case WalletType.multiSignature:
         _applyMultisigPrivacyToJson(json, privacyInfo as MultisigWalletPrivacyInfo);
         break;
+      case WalletType.taproot:
+        _applyTaprootPrivacyToJson(json, privacyInfo as TaprootWalletPrivacyInfo);
+        break;
     }
 
     return json;
@@ -160,6 +179,14 @@ class WalletRepository {
     }
   }
 
+  void _applyTaprootPrivacyToJson(Map<String, dynamic> json, TaprootWalletPrivacyInfo privacyInfo) {
+    json[TaprootVaultListItem.fieldDescriptor] = privacyInfo.descriptor;
+    json[TaprootVaultListItem.fieldKeyPathSeedInfos] =
+        privacyInfo.keyPathSeedInfos.map((seedInfo) => seedInfo.toJson()).toList();
+    json[TaprootVaultListItem.fieldScriptPathSeedInfos] =
+        privacyInfo.scriptPathSeedInfos?.map((seedInfo) => seedInfo.toJson()).toList() ?? [];
+  }
+
   Future<void> _loadVaultList() async {
     final jsonList = await loadVaultListJsonArrayString() ?? [];
     await loadAndEmitEachWallet(jsonList, (VaultListItemBase wallet) {});
@@ -172,7 +199,7 @@ class WalletRepository {
     final int nextId = _getNextWalletId();
     wallet.id = nextId;
     final Map<String, dynamic> vaultData = wallet.toJson();
-    List<SingleSigVaultListItem> vaultListResult = await compute(WalletIsolates.addVault, vaultData);
+    List<SingleSigVaultListItem> vaultListResult = await compute(WalletIsolates.createSingleSigVault, vaultData);
 
     linker.linkNewSinglesigWallet(vaultListResult.first);
     vaults.add(vaultListResult[0]);
@@ -203,40 +230,6 @@ class WalletRepository {
     return vaultListResult[0];
   }
 
-  Future<WalletPrivacyInfo> _getPrivacyInfo(int id, WalletType walletType) async {
-    final key = WalletStorageKeys.privacyInfoKey(WalletStorageKeys.walletKey(id, walletType));
-    final String? privacyInfoString = await _storageService.read(key: key);
-    if (privacyInfoString == null) {
-      throw "Privacy data cannot be found";
-    }
-
-    if (walletType == WalletType.singleSignature) {
-      return SingleSigWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
-    } else if (walletType == WalletType.multiSignature) {
-      return MultisigWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
-    }
-    throw "Unsupported wallet type";
-  }
-
-  /// Ensures the vault list is loaded, lazy-loading on first access.
-  /// Use in entry-point write methods that can be called before any explicit load.
-  Future<List<VaultListItemBase>> _ensureLoaded() async {
-    if (_vaultList == null) {
-      await _loadVaultList();
-    }
-    return _vaultList!;
-  }
-
-  /// Asserts the vault list has already been loaded.
-  /// Use in methods whose preconditions guarantee a prior load.
-  List<VaultListItemBase> _requireLoaded() {
-    final list = _vaultList;
-    if (list == null) {
-      throw StateError('WalletRepository: vault list has not been loaded yet');
-    }
-    return list;
-  }
-
   Future<MultisigVaultListItem> addMultisigWallet(
     MultisigWallet wallet, {
     bool shouldAttachInnerVaultMetadata = false,
@@ -252,7 +245,7 @@ class WalletRepository {
       }
     }
     final Map<String, dynamic> data = wallet.toJson();
-    MultisigVaultListItem newMultisigVault = await compute(WalletIsolates.addMultisigVault, data);
+    MultisigVaultListItem newMultisigVault = await compute(WalletIsolates.createMultisigVault, data);
     Logger.logLongString('${newMultisigVault.toJson()}');
     linker.linkNewMultisigWallet(nextId, wallet.signers!);
     vaults.add(newMultisigVault);
@@ -274,6 +267,57 @@ class WalletRepository {
     return newMultisigVault;
   }
 
+  Future<TaprootVaultListItem> addTaprootWallet(TaprootWalletCreateDto walletCreateDto) async {
+    final vaults = await _ensureLoaded();
+
+    final int nextId = _getNextWalletId();
+    walletCreateDto.id = nextId;
+
+    final Map<String, dynamic> data = walletCreateDto.toJson();
+    final TaprootCreationResult result = await compute(WalletIsolates.createTaprootVault, data);
+    final newTaprootVault = result.vault;
+    Logger.logLongString('${newTaprootVault.toJson()}');
+    vaults.add(newTaprootVault);
+    try {
+      await _strategy.mutate(
+        execute:
+            (ops) => ops.persistTaprootAdd(
+              id: nextId,
+              item: newTaprootVault,
+              keyPathSeedInfosForAdd: result.keyPathSaves,
+              scriptSeedInfosForAdd: result.scriptPathSaves,
+            ),
+        snapshot: () => vaults,
+      );
+    } catch (error) {
+      vaults.removeLast();
+      await _strategy.mutate(
+        execute: (ops) => ops.deleteWalletData(nextId, WalletType.taproot),
+        snapshot: () => vaults,
+      );
+      rethrow;
+    }
+    await _recordNextWalletId();
+    return newTaprootVault;
+  }
+
+  Future<WalletPrivacyInfo> _getPrivacyInfo(int id, WalletType walletType) async {
+    final key = WalletStorageKeys.privacyInfoKey(WalletStorageKeys.walletKey(id, walletType));
+    final String? privacyInfoString = await _storageService.read(key: key);
+    if (privacyInfoString == null) {
+      throw "Privacy data cannot be found";
+    }
+
+    switch (walletType) {
+      case WalletType.singleSignature:
+        return SingleSigWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
+      case WalletType.multiSignature:
+        return MultisigWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
+      case WalletType.taproot:
+        return TaprootWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
+    }
+  }
+
   int _getNextWalletId() {
     return _sharedPrefs.getInt(SharedPrefsKeys.kNextIdField) ?? 1;
   }
@@ -283,8 +327,7 @@ class WalletRepository {
     await _sharedPrefs.setInt(SharedPrefsKeys.kNextIdField, nextId + 1);
   }
 
-  Future<({Uint8List secret, Uint8List? passphrase})> _decryptSecret(int id, {bool autoAuth = true}) async {
-    final key = WalletStorageKeys.walletKey(id, WalletType.singleSignature);
+  Future<({Uint8List secret, Uint8List? passphrase})> _decryptSeed(String key, {bool autoAuth = true}) async {
     final combinedBase64 = await _storageService.read(key: key);
     if (combinedBase64 == null && Platform.isIOS) {
       throw SeedInvalidatedException();
@@ -305,13 +348,43 @@ class WalletRepository {
     return parsed;
   }
 
-  Future<Uint8List> getSecret(int id, {bool autoAuth = true}) async {
-    final parsed = await _decryptSecret(id, autoAuth: autoAuth);
+  Future<({Uint8List secret, Uint8List? passphrase})> _decryptSingleSigSeed(int id, {bool autoAuth = true}) async {
+    assert(getVaultById(id) is SingleSigVaultListItem);
+    final key = WalletStorageKeys.walletKey(id, WalletType.singleSignature);
+    return _decryptSeed(key, autoAuth: autoAuth);
+  }
+
+  Future<Uint8List> getSingleSigSecret(int id, {bool autoAuth = true}) async {
+    final parsed = await _decryptSingleSigSeed(id, autoAuth: autoAuth);
     return parsed.secret;
   }
 
-  Future<Seed> getSeedInSigningOnlyMode(int id) async {
-    final parsed = await _decryptSecret(id);
+  Future<Seed> getSingleSigSeedInSigningOnlyMode(int id) async {
+    final parsed = await _decryptSingleSigSeed(id);
+    final Uint8List secret = parsed.secret;
+    final Uint8List? passphrase = parsed.passphrase;
+
+    return Seed.fromMnemonic(secret, passphrase: passphrase);
+  }
+
+  Future<({Uint8List secret, Uint8List? passphrase})> _decryptTaprootSeed(
+    int id,
+    TaprootSeedKeyIdentifier seedIdentifier, {
+    bool autoAuth = true,
+  }) async {
+    assert(getVaultById(id) is TaprootVaultListItem);
+    final key = WalletStorageKeys.taprootSeedKey(id, seedIdentifier);
+    return _decryptSeed(key, autoAuth: autoAuth);
+  }
+
+  Future<Uint8List> getTaprootSecret(int id, TaprootSeedKeyIdentifier seedIdentifier, {bool autoAuth = true}) async {
+    final parsed = await _decryptTaprootSeed(id, seedIdentifier, autoAuth: autoAuth);
+    return parsed.secret;
+  }
+
+  Future<Seed> getTaprootSeedInSigningOnlyMode(int id, TaprootSeedKeyIdentifier seedIdentifier) async {
+    if (!_isSigningOnlyMode) throw StateError('getTaprootSeedInSigningOnlyMode can only called on signing only mode.');
+    final parsed = await _decryptTaprootSeed(id, seedIdentifier);
     final Uint8List secret = parsed.secret;
     final Uint8List? passphrase = parsed.passphrase;
 
@@ -319,6 +392,7 @@ class WalletRepository {
   }
 
   Future<bool> hasPassphrase(int walletId) async {
+    assert(getVaultById(walletId) is SingleSigVaultListItem);
     return _strategy.hasPassphrase(walletId);
   }
 
@@ -425,7 +499,11 @@ class WalletRepository {
   }
 
   Future<void> resetAll() async {
-    await WalletStorageCleaner.clearAll(wallets: _vaultList);
+    await WalletStorageCleaner.clearAll(
+      wallets: _vaultList,
+      storageService: _storageService,
+      secureZoneRepository: _secureZoneRepository,
+    );
   }
 
   Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {
@@ -456,7 +534,7 @@ class WalletRepository {
           }
 
           final singleSigWallet = vault as SingleSigVaultListItem;
-          final Seed seed = await getSeedInSigningOnlyMode(vault.id);
+          final Seed seed = await getSingleSigSeedInSigningOnlyMode(vault.id);
           await ops.persistSinglesigAdd(
             id: vault.id,
             secret: seed.mnemonic,
@@ -483,8 +561,7 @@ class WalletRepository {
     }
 
     final currentCoconutVault = existingVault.coconutVault as SingleSignatureVault;
-
-    final parsed = await _decryptSecret(id);
+    final parsed = await _decryptSingleSigSeed(id);
     final passphrase = _strategy.passphraseStoredWithSecret ? parsed.passphrase : inputPassphrase;
 
     final derivedNewAccountVault = await compute(WalletIsolates.deriveNewAccountVault, {
@@ -518,6 +595,25 @@ class WalletRepository {
 
     await _strategy.updateSinglesigPrivacy(id, updatedItem as SingleSigVaultListItem);
     await _strategy.savePublicVaultList(vaults);
+  }
+
+  /// Ensures the vault list is loaded, lazy-loading on first access.
+  /// Use in entry-point write methods that can be called before any explicit load.
+  Future<List<VaultListItemBase>> _ensureLoaded() async {
+    if (_vaultList == null) {
+      await _loadVaultList();
+    }
+    return _vaultList!;
+  }
+
+  /// Asserts the vault list has already been loaded.
+  /// Use in methods whose preconditions guarantee a prior load.
+  List<VaultListItemBase> _requireLoaded() {
+    final list = _vaultList;
+    if (list == null) {
+      throw StateError('WalletRepository: vault list has not been loaded yet');
+    }
+    return list;
   }
 
   void dispose() {
