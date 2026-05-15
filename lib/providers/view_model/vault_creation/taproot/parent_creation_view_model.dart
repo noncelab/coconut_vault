@@ -10,6 +10,8 @@ enum ParentExistingKeyImportType { none, currentVault, mnemonicInput, seedQrScan
 
 enum ParentAddScriptPathType { none, create, import }
 
+enum ParentSelectionResetScope { walletType, keyPreparation, keyCreationOrImportOption }
+
 class ParentCreationViewModel extends ChangeNotifier {
   ParentWalletType _selectedWalletType = ParentWalletType.none;
   ParentKeyPreparationType _selectedKeyPreparationType = ParentKeyPreparationType.none;
@@ -56,6 +58,19 @@ class ParentCreationViewModel extends ChangeNotifier {
 
   void setSelectedExistingVaultId(int vaultId) {
     _selectedExistingVaultId = _selectedExistingVaultId == vaultId ? null : vaultId;
+    notifyListeners();
+  }
+
+  void resetSelection(ParentSelectionResetScope scope) {
+    if (scope == ParentSelectionResetScope.walletType) {
+      _selectedWalletType = ParentWalletType.none;
+    }
+
+    if (scope == ParentSelectionResetScope.walletType || scope == ParentSelectionResetScope.keyPreparation) {
+      _selectedKeyPreparationType = ParentKeyPreparationType.none;
+    }
+
+    _resetKeyOptionSelection();
     notifyListeners();
   }
 

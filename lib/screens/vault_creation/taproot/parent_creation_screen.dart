@@ -52,6 +52,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   late final List<bool> _pauseProgressList;
   late final List<bool> _scrollChildList;
   int _currentStep = 1;
+  int? _keyPreparationStep;
   int? _keyCreationOrImportOptionStep;
   int? _childWalletSetupStep;
 
@@ -301,7 +302,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         },
       ),
     ];
-    _addStep(
+    _keyPreparationStep = _addStep(
       titleList: titleLines,
       bodyList: bodyList,
       nextButtonAction: () {
@@ -761,6 +762,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _currentStep = targetStep;
       _childWalletSetupStep = null;
     });
+    _resetSelectionForBackNavigation();
   }
 
   void _returnToPreviousStep() {
@@ -768,6 +770,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return;
     }
 
+    final previousStep = _currentStep;
     setState(() {
       if (_currentStep <= _initialStepCount) {
         _currentStep -= 1;
@@ -783,6 +786,29 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _scrollChildList.removeAt(currentStepIndex);
       _currentStep -= 1;
     });
+    _resetSelectionForBackNavigation(previousStep: previousStep);
+  }
+
+  void _resetSelectionForBackNavigation({int? previousStep}) {
+    if (_currentStep <= 2 || previousStep == 2) {
+      _viewModel.resetSelection(ParentSelectionResetScope.walletType);
+      _keyPreparationStep = null;
+      _keyCreationOrImportOptionStep = null;
+      _childWalletSetupStep = null;
+      return;
+    }
+
+    if (_currentStep == _keyPreparationStep || previousStep == _keyPreparationStep) {
+      _viewModel.resetSelection(ParentSelectionResetScope.keyPreparation);
+      _keyCreationOrImportOptionStep = null;
+      _childWalletSetupStep = null;
+      return;
+    }
+
+    if (_currentStep == _keyCreationOrImportOptionStep || previousStep == _keyCreationOrImportOptionStep) {
+      _viewModel.resetSelection(ParentSelectionResetScope.keyCreationOrImportOption);
+      _childWalletSetupStep = null;
+    }
   }
 
   Widget _buildExistingVaultSelectionBody() {
