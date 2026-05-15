@@ -320,10 +320,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
         listen: false,
       ).setSecretAndPassphrase(Uint8List.fromList(_mnemonic), Uint8List.fromList(_passphrase));
     } else {
-      Provider.of<WalletCreationProvider>(
-        context,
-        listen: false,
-      ).setSecretAndPassphrase(Uint8List.fromList(_mnemonic), Uint8List.fromList(_passphrase));
+      Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
     }
   }
 
