@@ -376,8 +376,9 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     final taprootProvider = context.read<TaprootWalletCreationProvider>();
 
     if (_currentStep == 3) {
+      taprootProvider.setIsChildWalletCreation(true);
+
       if (viewModel.isCreateKeySelected) {
-        taprootProvider.setIsChildWalletCreation(true);
         _addEmbeddedStep(
           SecuritySelfCheckScreen(
             isEmbedded: true,
@@ -388,8 +389,6 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         );
         return;
       } else if (viewModel.isImportKeySelected) {
-        taprootProvider.setIsChildWalletCreation(true);
-
         if (viewModel.isMnemonicInputSelected) {
           _addEmbeddedStep(
             MnemonicImportScreen(

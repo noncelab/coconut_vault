@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/utils/logger.dart';
 
 enum ChildKeyPreparationType { none, create, import }
 
@@ -18,22 +19,28 @@ class ChildCreationViewModel extends ChangeNotifier {
   ChildCreationViewModel();
 
   void generateKeyData(Uint8List secret, Uint8List? passphrase) {
-    if (secret.isNotEmpty) {
+    if (secret.isEmpty) return;
+
+    try {
+      final seed = Seed.fromMnemonic(
+        secret,
+        passphrase: (passphrase != null && passphrase.isNotEmpty) ? passphrase : Uint8List(0),
+      );
+
       try {
-        final seed = Seed.fromMnemonic(
-          secret,
-          passphrase: (passphrase != null && passphrase.isNotEmpty) ? passphrase : Uint8List(0),
-        );
         final keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
 
         _masterFingerprint = keyStore.masterFingerprint;
         _qrData = keyStore.extendedPublicKey.serialize();
-      } catch (e) {
-        _masterFingerprint = '00000000';
-        _qrData = '';
+      } finally {
+        seed.wipe();
       }
-      notifyListeners();
+    } catch (e) {
+      Logger.error('Failed to generate key data: $e');
+      _masterFingerprint = '00000000';
+      _qrData = '';
     }
+    notifyListeners();
   }
 
   ChildKeyPreparationType get selectedKeyPreparationType => _selectedKeyPreparationType;
