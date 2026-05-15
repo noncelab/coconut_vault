@@ -462,7 +462,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         isTaprootChild: true,
         onMnemonicReady: () {
           final walletCreationProvider = context.read<WalletCreationProvider>();
-          _onParentWalletSet(secret: walletCreationProvider.secret, passphrase: walletCreationProvider.passphrase);
+          _onParentWalletSet(walletCreationProvider.secret, passphrase: walletCreationProvider.passphrase);
         },
       ),
     );
@@ -522,7 +522,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
             isEmbedded: true,
             isTaprootChild: true,
             onMnemonicConfirmationRequested: (secret, passphrase) {
-              _onParentWalletSet(secret: secret, passphrase: passphrase);
+              _onParentWalletSet(secret, passphrase: passphrase);
             },
           ),
           ParentExistingKeyImportType.none => null,
@@ -571,7 +571,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
               }
 
               _onParentWalletSet(
-                secret: mnemonicViewState.mnemonic,
+                mnemonicViewState.mnemonic,
                 passphrase: Uint8List.fromList(utf8.encode(mnemonicViewState.passphrase)),
               );
             },
@@ -589,12 +589,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   /// STEP 2: 부모 지갑 설정 완료 -> 자식 지갑 설정 차례 진입
-  void _onParentWalletSet({Uint8List? secret, Uint8List? passphrase}) {
+  void _onParentWalletSet(Uint8List secret, {Uint8List? passphrase}) {
     debugPrint('Step2로 이동');
     final taprootWalletCreationProvider = context.read<TaprootWalletCreationProvider>();
-    if (secret != null) {
-      taprootWalletCreationProvider.setSecretAndPassphrase(secret, passphrase);
-    }
+    taprootWalletCreationProvider.setSecretAndPassphrase(secret, passphrase);
 
     /// TODO: TaprootWalletCreationProvider에 선택한 기존 니모닉 정보 저장 로직 추가
     debugPrint(taprootWalletCreationProvider.secret.toString());
@@ -656,7 +654,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
                   ? Uint8List.fromList(utf8.encode(mnemonicViewState.passphrase))
                   : walletCreationProvider.passphrase;
 
-          _onParentWalletSet(secret: mnemonicViewState.mnemonic, passphrase: passphrase);
+          _onParentWalletSet(mnemonicViewState.mnemonic, passphrase: passphrase);
         },
       ),
     );
