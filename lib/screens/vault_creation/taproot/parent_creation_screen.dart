@@ -52,6 +52,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   late final List<bool> _pauseProgressList;
   late final List<bool> _scrollChildList;
   int _currentStep = 1;
+  int? _keyCreationOrImportOptionStep;
+  int? _childWalletSetupStep;
 
   bool get _hasNextBuiltStep => _currentStep < _titleList.length;
 
@@ -237,7 +239,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     );
   }
 
-  void _addStep({
+  int _addStep({
     required List<TextSpan> titleList,
     required List<Widget> bodyList,
     required VoidCallback? nextButtonAction,
@@ -245,6 +247,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     bool pauseProgress = false,
     bool scrollChild = true,
   }) {
+    final addedStep = _titleList.length + 1;
     setState(() {
       _titleList.add(titleList);
       _bodyList.add(bodyList);
@@ -254,6 +257,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _scrollChildList.add(scrollChild);
       _currentStep += 1;
     });
+    return addedStep;
   }
 
   void _onWalletTypeGuideConfirmed() {
@@ -395,7 +399,11 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       ParentKeyPreparationType.none => [const SizedBox.shrink()],
     };
 
-    _addStep(titleList: titleLines, bodyList: bodyList, nextButtonAction: _onKeyCreationOrImportOptionSelected);
+    _keyCreationOrImportOptionStep = _addStep(
+      titleList: titleLines,
+      bodyList: bodyList,
+      nextButtonAction: _onKeyCreationOrImportOptionSelected,
+    );
   }
 
   void _onKeyCreationOrImportOptionSelected() {
@@ -631,7 +639,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         },
       ),
     ];
-    _addStep(titleList: titleList, bodyList: bodyList, nextButtonAction: () {});
+    _childWalletSetupStep = _addStep(titleList: titleList, bodyList: bodyList, nextButtonAction: () {});
   }
 
   void _addImportedMnemonicViewStep() {
@@ -702,7 +710,57 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return;
     }
 
+    if (_currentStep == _childWalletSetupStep) {
+      _showParentWalletResetDialog();
+      return;
+    }
+
     _returnToPreviousStep();
+  }
+
+  void _showParentWalletResetDialog() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
+          title: t.taproot.parent_creation_screen.step_2.return_dialog_title,
+          description: t.taproot.parent_creation_screen.step_2.return_dialog_description,
+          leftButtonText: t.cancel,
+          rightButtonText: t.confirm,
+          onTapLeft: () => Navigator.pop(dialogContext),
+          onTapRight: () {
+            Navigator.pop(dialogContext);
+            _resetParentWalletAndReturnToKeyOptionStep();
+          },
+        );
+      },
+    );
+  }
+
+  void _resetParentWalletAndReturnToKeyOptionStep() {
+    final targetStep = _keyCreationOrImportOptionStep;
+    if (targetStep == null || targetStep < 1 || targetStep > _titleList.length) {
+      _returnToPreviousStep();
+      return;
+    }
+
+    context.read<TaprootWalletCreationProvider>().resetSecretAndPassphrase();
+
+    setState(() {
+      while (_titleList.length > targetStep) {
+        final lastIndex = _titleList.length - 1;
+        _titleList.removeAt(lastIndex);
+        _bodyList.removeAt(lastIndex);
+        _nextButtonActions.removeAt(lastIndex);
+        _ignoreBodyHorizontalPaddingList.removeAt(lastIndex);
+        _pauseProgressList.removeAt(lastIndex);
+        _scrollChildList.removeAt(lastIndex);
+      }
+
+      _currentStep = targetStep;
+      _childWalletSetupStep = null;
+    });
   }
 
   void _returnToPreviousStep() {

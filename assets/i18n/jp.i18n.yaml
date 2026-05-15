@@ -576,6 +576,8 @@ taproot:
       multisig_internal_key_prepared_title_1: "マルチシグ親ウォレットの"
       multisig_internal_key_prepared_title_2: "準備ができました"
     step_2:
+      return_dialog_title: "前のステップに戻る"
+      return_dialog_description: "作成したばかりの親ウォレットがリセットされます。本当に続けますか？"
       creation_script_path_intro_title_1: "相続に使う"
       creation_script_path_intro_title_2: "子ウォレットを追加してください"
       creation_script_path_import: "取り込み"
