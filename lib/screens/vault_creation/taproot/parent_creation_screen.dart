@@ -55,6 +55,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   int _currentStep = 1;
   int? _keyPreparationStep;
   int? _keyCreationOrImportOptionStep;
+  int? _currentVaultSelectionStep;
   int? _childWalletSetupStep;
   Timer? _titleAnimationTimer;
   bool _isTitleAnimationCompleted = false;
@@ -168,6 +169,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   bool get _canRunCurrentStepAction {
+    if (_currentStep == _currentVaultSelectionStep) {
+      return _viewModel.selectedExistingVaultId != null;
+    }
+
     return switch (_currentStep) {
       1 => true,
       2 => _viewModel.selectedWalletType != ParentWalletType.none,
@@ -607,7 +612,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     ];
     final bodyList = [Expanded(child: _buildExistingVaultSelectionBody())];
 
-    _addStep(
+    _currentVaultSelectionStep = _addStep(
       titleList: titleList,
       bodyList: bodyList,
       nextButtonAction: _onCurrentVaultSelected,
@@ -855,6 +860,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _viewModel.resetSelection(ParentSelectionResetScope.walletType);
       _keyPreparationStep = null;
       _keyCreationOrImportOptionStep = null;
+      _currentVaultSelectionStep = null;
       _childWalletSetupStep = null;
       return;
     }
@@ -862,12 +868,14 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     if (_currentStep == _keyPreparationStep || previousStep == _keyPreparationStep) {
       _viewModel.resetSelection(ParentSelectionResetScope.keyPreparation);
       _keyCreationOrImportOptionStep = null;
+      _currentVaultSelectionStep = null;
       _childWalletSetupStep = null;
       return;
     }
 
     if (_currentStep == _keyCreationOrImportOptionStep || previousStep == _keyCreationOrImportOptionStep) {
       _viewModel.resetSelection(ParentSelectionResetScope.keyCreationOrImportOption);
+      _currentVaultSelectionStep = null;
       _childWalletSetupStep = null;
     }
   }
