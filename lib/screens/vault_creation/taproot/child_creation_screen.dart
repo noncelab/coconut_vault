@@ -432,6 +432,14 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         }
         _currentStep -= 1;
       });
+
+      final viewModel = context.read<ChildCreationViewModel>();
+      if (_currentStep == 1) {
+        viewModel.setKeyPreparationType(ChildKeyPreparationType.none);
+      } else if (_currentStep == 2) {
+        viewModel.setNewKeyCreationType(ChildNewKeyCreationType.none);
+        viewModel.setExistingKeyImportType(ChildExistingKeyImportType.none);
+      }
     } else {
       Navigator.pop(context);
     }
