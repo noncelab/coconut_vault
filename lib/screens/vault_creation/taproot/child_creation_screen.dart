@@ -433,7 +433,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         _currentStep -= 1;
       });
     } else {
-      Navigator.maybePop(context);
+      Navigator.pop(context);
     }
   }
 
