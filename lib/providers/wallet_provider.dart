@@ -9,6 +9,9 @@ import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
+import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -125,6 +128,14 @@ class WalletProvider extends ChangeNotifier {
     return vault;
   }
 
+  // TODO: TaprootWalletCreateDto 매개변수 넘겨준 곳에서 wipe 호출
+  Future<TaprootVaultListItem> addTaprootVault(TaprootWalletCreateDto wallet) async {
+    final vault = await _service.addTaproot(wallet);
+    _setVaultList(_service.vaultSnapshot);
+    notifyListeners();
+    return vault;
+  }
+
   Future<bool> hasPassphrase(int walletId) => _service.hasPassphrase(walletId);
 
   Future<void> updateSingleSigAccount(int id, int newAccountIndex, {Uint8List? passphrase}) async {
@@ -207,10 +218,19 @@ class WalletProvider extends ChangeNotifier {
     }
   }
 
-  Future<Uint8List> getSecret(int id, {bool autoAuth = true}) => _service.getSecret(id, autoAuth: autoAuth);
+  // TODO: rename to 'getSingleSigSecret'
+  Future<Uint8List> getSecret(int id, {bool autoAuth = true}) => _service.getSingleSigSecret(id, autoAuth: autoAuth);
 
   // 서명 전용 모드
-  Future<Seed> getSeedInSigningOnlyMode(int id) => _service.getSeedInSigningOnlyMode(id);
+  // TODO: rename to 'getSingleSigSeedInSigningOnlyMode'
+  Future<Seed> getSeedInSigningOnlyMode(int id) => _service.getSingleSigSeedInSigningOnlyMode(id);
+
+  Future<Uint8List> getTaprootSecret(int id, TaprootSeedKeyIdentifier seedIdentifier, {bool autoAuth = true}) =>
+      _service.getTaprootSecret(id, seedIdentifier, autoAuth: autoAuth);
+
+  // 서명 전용 모드
+  Future<Seed> getTaprootSeedInSigningOnlyMode(int id, TaprootSeedKeyIdentifier seedIdentifier) =>
+      _service.getTaprootSeedInSigningOnlyMode(id, seedIdentifier);
 
   Future<void> updateIsSigningOnlyMode(bool isSigningOnlyMode) async {
     if (_isSigningOnlyMode == isSigningOnlyMode) return;

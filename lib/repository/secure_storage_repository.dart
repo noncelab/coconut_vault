@@ -4,7 +4,17 @@ import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class SecureStorageRepository {
+abstract class SecureStorageRepositoryContract {
+  Future<void> write({required String key, required String value});
+  Future<String?> read({required String key});
+  Future<void> writeBytes({required String key, required Uint8List value});
+  Future<Uint8List?> readBytes({required String key});
+  Future<void> delete({required String key});
+  Future<List<String>> getAllKeys();
+  Future<void> deleteAll();
+}
+
+class SecureStorageRepository implements SecureStorageRepositoryContract {
   SecureStorageRepository._internal();
 
   static final SecureStorageRepository _instance = SecureStorageRepository._internal();
@@ -21,6 +31,7 @@ class SecureStorageRepository {
     return _instance;
   }
 
+  @override
   Future<void> write({required String key, required String value}) async {
     try {
       await _storage.write(key: key, value: value);
@@ -35,6 +46,7 @@ class SecureStorageRepository {
     }
   }
 
+  @override
   Future<String?> read({required String key}) async {
     try {
       return await _storage.read(key: key);
@@ -44,6 +56,7 @@ class SecureStorageRepository {
     }
   }
 
+  @override
   Future<void> writeBytes({required String key, required Uint8List value}) async {
     try {
       await _storage.write(key: key, value: utf8.decode(value));
@@ -58,21 +71,25 @@ class SecureStorageRepository {
     }
   }
 
+  @override
   Future<Uint8List?> readBytes({required String key}) async {
     String? decoded = await _storage.read(key: key);
     if (decoded == null) return null;
     return utf8.encode(decoded);
   }
 
+  @override
   Future<void> delete({required String key}) async {
     await _storage.delete(key: key);
   }
 
+  @override
   Future<List<String>> getAllKeys() async {
     final Map<String, String> allValues = await _storage.readAll();
     return allValues.keys.toList();
   }
 
+  @override
   Future<void> deleteAll() async {
     await _storage.deleteAll();
   }

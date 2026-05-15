@@ -10,6 +10,9 @@ import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
+import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -147,6 +150,20 @@ class WalletService {
     );
   }
 
+  Future<TaprootVaultListItem> addTaproot(TaprootWalletCreateDto wallet) async {
+    // HardwareBackedKeystorePlugin.encrypt 내부에서 AUTH_NEEDED 에러 발생 시 생체인증 시도
+    // 하지만 ios에서도 지갑 저장 중 라이프사이클 이벤트 호출로 중단되는 것을 방지하기 위해 operation 등록
+    _lifecycle.startOperation(AppLifecycleOperations.hwBasedEncryption);
+    try {
+      wallet.name = _query.getUnduplicatedName(wallet.name!);
+      final vault = await _repo.addTaprootWallet(wallet);
+      await _syncAfterAdd(vault.id);
+      return vault;
+    } finally {
+      _lifecycle.endOperation(AppLifecycleOperations.hwBasedEncryption);
+    }
+  }
+
   // ---- update ----
 
   Future<void> updateSinglesigAccount(int id, int newAccountIndex, {Uint8List? passphrase}) async {
@@ -208,11 +225,11 @@ class WalletService {
 
   // ---- secret / passphrase ----
 
-  Future<Uint8List> getSecret(int id, {bool autoAuth = true}) async {
+  Future<Uint8List> getSingleSigSecret(int id, {bool autoAuth = true}) async {
     // TEE 접근 시작 - inactive 상태 전환 무시
     _lifecycle.startOperation(AppLifecycleOperations.hwBasedDecryption);
     try {
-      return await _repo.getSecret(id, autoAuth: autoAuth);
+      return await _repo.getSingleSigSecret(id, autoAuth: autoAuth);
     } finally {
       // TEE 접근 완료 - inactive 상태 전환 허용
       // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
@@ -221,16 +238,38 @@ class WalletService {
   }
 
   /// 서명 전용 모드 전용
-  Future<Seed> getSeedInSigningOnlyMode(int id) async {
+  Future<Seed> getSingleSigSeedInSigningOnlyMode(int id) async {
     _lifecycle.startOperation(AppLifecycleOperations.hwBasedDecryption);
     try {
-      return await _repo.getSeedInSigningOnlyMode(id);
+      return await _repo.getSingleSigSeedInSigningOnlyMode(id);
     } finally {
       _lifecycle.endOperation(AppLifecycleOperations.hwBasedDecryption, delay: const Duration(milliseconds: 1500));
     }
   }
 
   Future<bool> hasPassphrase(int walletId) => _repo.hasPassphrase(walletId);
+
+  Future<Uint8List> getTaprootSecret(int id, TaprootSeedKeyIdentifier seedIdentifier, {bool autoAuth = true}) async {
+    // TEE 접근 시작 - inactive 상태 전환 무시
+    _lifecycle.startOperation(AppLifecycleOperations.hwBasedDecryption);
+    try {
+      return await _repo.getTaprootSecret(id, seedIdentifier, autoAuth: autoAuth);
+    } finally {
+      // TEE 접근 완료 - inactive 상태 전환 허용
+      // 작업 완료 후 지연을 두어 라이프사이클 이벤트와의 타이밍 조정
+      _lifecycle.endOperation(AppLifecycleOperations.hwBasedDecryption, delay: const Duration(milliseconds: 1500));
+    }
+  }
+
+  /// 서명 전용 모드 전용
+  Future<Seed> getTaprootSeedInSigningOnlyMode(int id, TaprootSeedKeyIdentifier seedIdentifier) async {
+    _lifecycle.startOperation(AppLifecycleOperations.hwBasedDecryption);
+    try {
+      return await _repo.getTaprootSeedInSigningOnlyMode(id, seedIdentifier);
+    } finally {
+      _lifecycle.endOperation(AppLifecycleOperations.hwBasedDecryption, delay: const Duration(milliseconds: 1500));
+    }
+  }
 
   // ---- mode ----
 

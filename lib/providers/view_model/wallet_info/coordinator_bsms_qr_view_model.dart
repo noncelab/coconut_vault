@@ -168,17 +168,12 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
   String _generateDescriptor(MultisigVaultListItem vault) {
     String derivationPath = vault.signers.first.getSignerDerivationPath().replaceAll('m/', '').replaceAll("'", "h");
 
-    List<String> publicKeyList =
-        vault.signers.map((signer) => signer.keyStore.extendedPublicKey.serialize(toXpub: true)).toList();
-
-    List<String> fingerprintList =
-        vault.signers.map((signer) => signer.keyStore.masterFingerprint.toLowerCase()).toList();
+    List<KeyStore> keyStoreList = vault.signers.map((signer) => signer.keyStore).toList();
 
     Descriptor descriptor = Descriptor.forMultisignature(
       AddressType.p2wsh,
-      publicKeyList,
+      keyStoreList,
       derivationPath,
-      fingerprintList,
       vault.requiredSignatureCount,
     );
 
