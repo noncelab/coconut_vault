@@ -50,6 +50,8 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   bool _isContentVisible = true;
   bool _isContentTransitioning = false;
   bool _isHeaderFadingOut = false;
+  bool _isApplyingBottomButtonAction = false;
+  int _transitionGeneration = 0;
   late List<TextSpan> _displayedTitleLines;
   late bool _displayedIsError;
 
@@ -63,14 +65,27 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   @override
   void didUpdateWidget(covariant TaprootCreationBody oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_isContentTransitioning) {
+    final hasHeaderChanged = oldWidget.titleLines != widget.titleLines || oldWidget.isError != widget.isError;
+    if (!hasHeaderChanged) {
       return;
     }
 
-    if (oldWidget.titleLines != widget.titleLines || oldWidget.isError != widget.isError) {
+    if (_isContentTransitioning) {
+      if (_isApplyingBottomButtonAction) {
+        return;
+      }
+
+      _transitionGeneration++;
       _displayedTitleLines = widget.titleLines;
       _displayedIsError = widget.isError;
+      _isHeaderFadingOut = false;
+      _isContentVisible = true;
+      _isContentTransitioning = false;
+      return;
     }
+
+    _displayedTitleLines = widget.titleLines;
+    _displayedIsError = widget.isError;
   }
 
   Future<void> _onBottomButtonPressed() async {
@@ -86,11 +101,12 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     setState(() {
       _isContentTransitioning = true;
     });
+    final transitionGeneration = ++_transitionGeneration;
 
     widget.onBeforeBottomButtonFadeOut?.call();
 
     await Future<void>.delayed(widget.bottomButtonFadeOutDelay);
-    if (!mounted) {
+    if (!mounted || transitionGeneration != _transitionGeneration) {
       return;
     }
 
@@ -100,14 +116,18 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     });
 
     await Future<void>.delayed(_fadeOutWaitDuration);
-    if (!mounted) {
+    if (!mounted || transitionGeneration != _transitionGeneration) {
       return;
     }
 
-    onBottomButtonPressed();
-
-    await WidgetsBinding.instance.endOfFrame;
-    if (!mounted) {
+    _isApplyingBottomButtonAction = true;
+    try {
+      onBottomButtonPressed();
+      await WidgetsBinding.instance.endOfFrame;
+    } finally {
+      _isApplyingBottomButtonAction = false;
+    }
+    if (!mounted || transitionGeneration != _transitionGeneration) {
       return;
     }
 
@@ -119,7 +139,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     });
 
     await Future<void>.delayed(_fadeInWaitDuration);
-    if (!mounted) {
+    if (!mounted || transitionGeneration != _transitionGeneration) {
       return;
     }
 
