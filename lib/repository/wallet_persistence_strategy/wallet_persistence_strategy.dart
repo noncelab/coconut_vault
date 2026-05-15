@@ -35,7 +35,7 @@ class WalletStorageKeys {
     ),
   };
 
-  // 탭루트 지갑을 구성하는 Seed 저장한 Key 목록
+  // 탭루트 지갑 구성하는 SeedKey 목록을 저장하는 키
   static String taprootSeedIndexKey(int walletId) => hashString("$walletId - taprootSeedIndex");
 }
 
