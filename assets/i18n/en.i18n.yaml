@@ -580,6 +580,8 @@ taproot:
       multisig_internal_key_prepared_title_1: "The multisig parent wallet"
       multisig_internal_key_prepared_title_2: "is ready"
     step_2:
+      return_dialog_title: "Go back?"
+      return_dialog_description: "The parent wallet you just created will be reset. Do you really want to continue?"
       creation_script_path_intro_title_1: "Add a child wallet"
       creation_script_path_intro_title_2: "For inheritance"
       creation_script_path_import: "Import"

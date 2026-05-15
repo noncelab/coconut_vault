@@ -581,6 +581,8 @@ taproot:
       multisig_internal_key_prepared_title_1: "다중 서명 부모 지갑이"
       multisig_internal_key_prepared_title_2: "준비됐어요"
     step_2:
+      return_dialog_title: "이전 단계로 돌아가기"
+      return_dialog_description: "방금 만든 부모 지갑이 초기화됩니다. 정말 계속하시겠어요?"
       creation_script_path_intro_title_1: "상속에 사용할"
       creation_script_path_intro_title_2: "자식 지갑을 추가하세요"
       creation_script_path_import: "가져오기"
