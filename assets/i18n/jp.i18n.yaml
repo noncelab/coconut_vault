@@ -539,6 +539,7 @@ taproot:
     new_option2: "サイコロ振り"
     new_option3: "自動生成"
     existing_option1: "現在のVaultから\n選択"
+    existing_option1_toast: "取り込めるシングルシグウォレットがありません"
     existing_option2: "ニーモニック入力"
     existing_option3: "シードQRスキャン"
   taproot_creation_option:

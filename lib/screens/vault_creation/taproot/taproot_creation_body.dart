@@ -51,6 +51,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   bool _isContentTransitioning = false;
   bool _isHeaderFadingOut = false;
   bool _isApplyingBottomButtonAction = false;
+  bool _isHeaderHiddenForStepUpdate = false;
   int _transitionGeneration = 0;
   late List<TextSpan> _displayedTitleLines;
   late bool _displayedIsError;
@@ -65,13 +66,18 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   @override
   void didUpdateWidget(covariant TaprootCreationBody oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final hasHeaderChanged = oldWidget.titleLines != widget.titleLines || oldWidget.isError != widget.isError;
+    final hasHeaderChanged =
+        _titleKeyForLines(oldWidget.titleLines) != _titleKeyForLines(widget.titleLines) ||
+        oldWidget.isError != widget.isError;
     if (!hasHeaderChanged) {
       return;
     }
 
     if (_isContentTransitioning) {
       if (_isApplyingBottomButtonAction) {
+        _displayedTitleLines = widget.titleLines;
+        _displayedIsError = widget.isError;
+        _isHeaderHiddenForStepUpdate = true;
         return;
       }
 
@@ -81,11 +87,13 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
       _isHeaderFadingOut = false;
       _isContentVisible = true;
       _isContentTransitioning = false;
+      _isHeaderHiddenForStepUpdate = false;
       return;
     }
 
     _displayedTitleLines = widget.titleLines;
     _displayedIsError = widget.isError;
+    _isHeaderHiddenForStepUpdate = false;
   }
 
   Future<void> _onBottomButtonPressed() async {
@@ -136,6 +144,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
       _displayedIsError = widget.isError;
       _isHeaderFadingOut = false;
       _isContentVisible = true;
+      _isHeaderHiddenForStepUpdate = false;
     });
 
     await Future<void>.delayed(_fadeInWaitDuration);
@@ -235,7 +244,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     }
 
     final titleKey = _titleKeyForLines(lines);
-    return MediaQuery(
+    final header = MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
       child: Padding(
         padding: const EdgeInsets.only(top: 56),
@@ -258,6 +267,12 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
         ),
       ),
     );
+
+    if (_isHeaderHiddenForStepUpdate) {
+      return Opacity(opacity: 0, child: header);
+    }
+
+    return header;
   }
 
   Widget _buildAnimatedErrorIcon(String text) {
