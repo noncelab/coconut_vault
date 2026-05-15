@@ -538,6 +538,7 @@ taproot:
     new_option2: "주사위 굴리기"
     new_option3: "자동 생성하기"
     existing_option1: "현재 볼트에서\n선택하기"
+    existing_option1_toast: "가져올 수 있는 단일서명 지갑이 없어요"
     existing_option2: "니모닉 입력하기"
     existing_option3: "시드 QR 스캔하기"
   taproot_creation_option:

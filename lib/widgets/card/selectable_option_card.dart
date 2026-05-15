@@ -11,6 +11,7 @@ class SelectableOptionCard extends StatelessWidget {
   final double? imageWidth;
   final bool isSelected;
   final VoidCallback onTap;
+  final VoidCallback? onDisabledTap;
   final double width;
   final double height;
   final bool isDisabled;
@@ -24,6 +25,7 @@ class SelectableOptionCard extends StatelessWidget {
     this.imageWidth,
     required this.isSelected,
     required this.onTap,
+    this.onDisabledTap,
     this.width = double.infinity,
     required this.height,
     this.isDisabled = false,
@@ -31,13 +33,15 @@ class SelectableOptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final canHandleTap = !isDisabled || onDisabledTap != null;
+
     return ShrinkAnimationButton(
-      onPressed: onTap,
+      onPressed: isDisabled ? onDisabledTap ?? () {} : onTap,
       defaultColor: CoconutColors.white,
       pressedColor: CoconutColors.gray150,
       borderRadius: 20,
       border: Border.all(color: Colors.transparent, width: 0.0),
-      isActive: isDisabled ? false : true,
+      isActive: canHandleTap,
       child: SizedBox(
         width: width,
         height: height,

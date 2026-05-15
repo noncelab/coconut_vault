@@ -363,15 +363,28 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       ParentKeyPreparationType.import => [
         Consumer<ParentCreationViewModel>(
           builder: (context, viewModel, child) {
+            final hasNoSingleSigVault = context.select<WalletProvider, bool>(
+              (walletProvider) => walletProvider.getVaultsByWalletType(WalletType.singleSignature).isEmpty,
+            );
+
             return MenuGrid(
               children: [
                 SelectableOptionCard(
                   title: t.taproot.common.existing_option1,
+                  isDisabled: hasNoSingleSigVault,
                   bottomAssetPath: 'assets/png/finger-picking.png',
                   imageScale: 4.0,
                   imageWidth: 67,
                   isSelected: viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.currentVault,
                   height: 118,
+                  onDisabledTap: () {
+                    CoconutToast.showToast(
+                      context: context,
+                      level: CoconutToastLevel.info,
+                      isVisibleIcon: true,
+                      text: t.taproot.common.existing_option1_toast,
+                    );
+                  },
                   onTap: () => viewModel.setExistingKeyImportType(ParentExistingKeyImportType.currentVault),
                 ),
                 SelectableOptionCard(

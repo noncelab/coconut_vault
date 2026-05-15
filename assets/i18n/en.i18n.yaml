@@ -537,6 +537,7 @@ taproot:
     new_option2: "Dice roll"
     new_option3: "Auto generate"
     existing_option1: "Select from\ncurrent Vault"
+    existing_option1_toast: "No single-signature wallet available to import"
     existing_option2: "Enter mnemonic"
     existing_option3: "Scan Seed QR"
   taproot_creation_option:
