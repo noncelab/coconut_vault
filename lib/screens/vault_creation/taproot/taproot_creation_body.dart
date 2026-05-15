@@ -5,23 +5,35 @@ import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 
 class TaprootCreationBody extends StatefulWidget {
+  static const Duration defaultBottomButtonFadeOutDelay = Duration(milliseconds: 100);
+
   final VoidCallback? onBottomButtonPressed;
+  final VoidCallback? onBeforeBottomButtonFadeOut;
   final Widget child;
   final Widget? fixedBottomSubWidget;
   final String? bottomButtonText;
   final List<TextSpan> titleLines;
+  final Duration bottomButtonFadeOutDelay;
   final bool showBottomButton;
   final bool isError;
+  final bool ignoreChildHorizontalPadding;
+  final bool showHeader;
+  final bool scrollChild;
 
   const TaprootCreationBody({
     super.key,
     required this.titleLines,
     required this.child,
     this.onBottomButtonPressed,
+    this.onBeforeBottomButtonFadeOut,
     this.fixedBottomSubWidget,
     this.bottomButtonText,
+    this.bottomButtonFadeOutDelay = defaultBottomButtonFadeOutDelay,
     this.showBottomButton = true,
     this.isError = false,
+    this.ignoreChildHorizontalPadding = false,
+    this.showHeader = true,
+    this.scrollChild = true,
   });
 
   @override
@@ -29,16 +41,17 @@ class TaprootCreationBody extends StatefulWidget {
 }
 
 class _TaprootCreationBodyState extends State<TaprootCreationBody> {
+  static const Duration _contentFadeInDuration = Duration(milliseconds: 1500);
   static const Duration _contentFadeOutDuration = Duration(milliseconds: 180);
-  static const Duration _contentFadeInDuration = Duration(milliseconds: 520);
   static const Duration _headerLineFadeInDuration = Duration(milliseconds: 700);
   static const Duration _headerLineFadeOutDuration = Duration(milliseconds: 180);
   static const Duration _headerInitialDelay = Duration(milliseconds: 200);
-  static const Duration _fadeOutDelay = Duration(milliseconds: 300);
 
   bool _isContentVisible = true;
   bool _isContentTransitioning = false;
   bool _isHeaderFadingOut = false;
+  bool _isApplyingBottomButtonAction = false;
+  int _transitionGeneration = 0;
   late List<TextSpan> _displayedTitleLines;
   late bool _displayedIsError;
 
@@ -52,14 +65,27 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   @override
   void didUpdateWidget(covariant TaprootCreationBody oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_isContentTransitioning) {
+    final hasHeaderChanged = oldWidget.titleLines != widget.titleLines || oldWidget.isError != widget.isError;
+    if (!hasHeaderChanged) {
       return;
     }
 
-    if (oldWidget.titleLines != widget.titleLines || oldWidget.isError != widget.isError) {
+    if (_isContentTransitioning) {
+      if (_isApplyingBottomButtonAction) {
+        return;
+      }
+
+      _transitionGeneration++;
       _displayedTitleLines = widget.titleLines;
       _displayedIsError = widget.isError;
+      _isHeaderFadingOut = false;
+      _isContentVisible = true;
+      _isContentTransitioning = false;
+      return;
     }
+
+    _displayedTitleLines = widget.titleLines;
+    _displayedIsError = widget.isError;
   }
 
   Future<void> _onBottomButtonPressed() async {
@@ -75,9 +101,12 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     setState(() {
       _isContentTransitioning = true;
     });
+    final transitionGeneration = ++_transitionGeneration;
 
-    await Future<void>.delayed(_fadeOutDelay);
-    if (!mounted) {
+    widget.onBeforeBottomButtonFadeOut?.call();
+
+    await Future<void>.delayed(widget.bottomButtonFadeOutDelay);
+    if (!mounted || transitionGeneration != _transitionGeneration) {
       return;
     }
 
@@ -87,14 +116,18 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     });
 
     await Future<void>.delayed(_fadeOutWaitDuration);
-    if (!mounted) {
+    if (!mounted || transitionGeneration != _transitionGeneration) {
       return;
     }
 
-    onBottomButtonPressed();
-
-    await WidgetsBinding.instance.endOfFrame;
-    if (!mounted) {
+    _isApplyingBottomButtonAction = true;
+    try {
+      onBottomButtonPressed();
+      await WidgetsBinding.instance.endOfFrame;
+    } finally {
+      _isApplyingBottomButtonAction = false;
+    }
+    if (!mounted || transitionGeneration != _transitionGeneration) {
       return;
     }
 
@@ -106,7 +139,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     });
 
     await Future<void>.delayed(_fadeInWaitDuration);
-    if (!mounted) {
+    if (!mounted || transitionGeneration != _transitionGeneration) {
       return;
     }
 
@@ -129,34 +162,17 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
 
   @override
   Widget build(BuildContext context) {
+    final showBottomButton = widget.showBottomButton && !_isContentTransitioning;
+
     return Stack(
       children: [
-        Positioned.fill(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  _buildAnimatedHeader(),
-                  AnimatedOpacity(
-                    opacity: _isContentVisible ? 1 : 0,
-                    duration: _isContentVisible ? _contentFadeInDuration : _contentFadeOutDuration,
-                    curve: _isContentVisible ? Curves.easeOut : Curves.easeIn,
-                    child: widget.child,
-                  ),
-                  if (widget.onBottomButtonPressed != null) const SizedBox(height: 150),
-                ],
-              ),
-            ),
-          ),
-        ),
+        Positioned.fill(child: widget.scrollChild ? _buildScrollableContent() : _buildFixedContent()),
         if (widget.onBottomButtonPressed != null)
           AnimatedOpacity(
-            opacity: widget.showBottomButton ? 1.0 : 0.0,
+            opacity: showBottomButton ? 1.0 : 0.0,
             duration: const Duration(milliseconds: 300),
             child: IgnorePointer(
-              ignoring: !widget.showBottomButton,
+              ignoring: !showBottomButton,
               child: FixedBottomButton(
                 onButtonClicked: _onBottomButtonPressed,
                 text: widget.bottomButtonText ?? t.next,
@@ -165,6 +181,49 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
               ),
             ),
           ),
+      ],
+    );
+  }
+
+  Widget _buildScrollableContent() {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          if (widget.showHeader)
+            Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: _buildAnimatedHeader()),
+          Padding(
+            padding: widget.ignoreChildHorizontalPadding ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 16),
+            child: AnimatedOpacity(
+              opacity: _isContentVisible ? 1 : 0,
+              duration: _isContentVisible ? _contentFadeInDuration : _contentFadeOutDuration,
+              curve: _isContentVisible ? Curves.easeOut : Curves.easeIn,
+              child: widget.child,
+            ),
+          ),
+          if (widget.onBottomButtonPressed != null) const SizedBox(height: 120),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFixedContent() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        if (widget.showHeader)
+          Padding(padding: const EdgeInsets.symmetric(horizontal: 16), child: _buildAnimatedHeader()),
+        Expanded(
+          child: Padding(
+            padding: widget.ignoreChildHorizontalPadding ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: 16),
+            child: AnimatedOpacity(
+              opacity: _isContentVisible ? 1 : 0,
+              duration: _isContentVisible ? _contentFadeInDuration : _contentFadeOutDuration,
+              curve: _isContentVisible ? Curves.easeOut : Curves.easeIn,
+              child: widget.child,
+            ),
+          ),
+        ),
       ],
     );
   }
