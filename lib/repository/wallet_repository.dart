@@ -15,6 +15,7 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
@@ -22,6 +23,7 @@ import 'package:coconut_vault/repository/migration/data_schema_migration_runner.
 import 'package:coconut_vault/repository/model/multisig_wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/model/single_sig_wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/model/taproot_wallet_privacy_info.dart';
+import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
 import 'package:coconut_vault/repository/model/wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/secure_zone_repository.dart';
@@ -509,10 +511,10 @@ class WalletRepository {
     if (_isSigningOnlyMode == isSigningOnlyMode) return;
     if (!isSigningOnlyMode) {
       await _changeToSecureStorageMode();
-      _strategy = SecureStorageStrategy();
+      _strategy = SecureStorageStrategy(storageService: _storageService, secureZoneRepository: _secureZoneRepository);
     } else {
       await deleteWallets();
-      _strategy = SigningOnlyStrategy();
+      _strategy = SigningOnlyStrategy(storageService: _storageService, secureZoneRepository: _secureZoneRepository);
     }
     _isSigningOnlyMode = isSigningOnlyMode;
   }
@@ -523,12 +525,66 @@ class WalletRepository {
       return;
     }
 
-    final secureStrategy = SecureStorageStrategy();
+    final secureStrategy = SecureStorageStrategy(
+      storageService: _storageService,
+      secureZoneRepository: _secureZoneRepository,
+    );
     await secureStrategy.mutate(
       execute: (ops) async {
         for (final vault in _vaultList!) {
           if (vault is MultisigVaultListItem) {
             await ops.persistMultisigAdd(id: vault.id, item: vault);
+            continue;
+          }
+
+          if (vault is TaprootVaultListItem) {
+            final keyPathSeedInfosForAdd = <TaprootSeedInfoForSave>[];
+            for (final seedInfo in vault.keyPathSeedInfos) {
+              final seed = await getTaprootSeedInSigningOnlyMode(
+                vault.id,
+                KeyPathSeedKeyIdentifier(extendedPublicKey: seedInfo.extendedPublicKey),
+              );
+              keyPathSeedInfosForAdd.add(
+                TaprootSeedInfoForSave(
+                  secretPassphrasePair: (secret: seed.mnemonic, passphrase: null),
+                  extendedPublicKey: seedInfo.extendedPublicKey,
+                ),
+              );
+            }
+
+            final scriptSeedInfosForAdd = <ScriptPathSeedInfoForSave>[];
+            for (final scriptPathSeedInfo in vault.scriptPathSeedInfos) {
+              final seedInfosForAdd = <TaprootSeedInfoForSave>[];
+              for (final seedInfo in scriptPathSeedInfo.seedInfos) {
+                final seed = await getTaprootSeedInSigningOnlyMode(
+                  vault.id,
+                  ScriptPathSeedKeyIdentifier(
+                    scriptKey: scriptPathSeedInfo.key,
+                    extendedPublicKey: seedInfo.extendedPublicKey,
+                  ),
+                );
+                seedInfosForAdd.add(
+                  TaprootSeedInfoForSave(
+                    secretPassphrasePair: (secret: seed.mnemonic, passphrase: null),
+                    extendedPublicKey: seedInfo.extendedPublicKey,
+                  ),
+                );
+              }
+              scriptSeedInfosForAdd.add(
+                ScriptPathSeedInfoForSave(
+                  key: scriptPathSeedInfo.key,
+                  role: scriptPathSeedInfo.role,
+                  seedInfos: seedInfosForAdd,
+                ),
+              );
+            }
+
+            await ops.persistTaprootAdd(
+              id: vault.id,
+              item: vault,
+              keyPathSeedInfosForAdd: keyPathSeedInfosForAdd,
+              scriptSeedInfosForAdd: scriptSeedInfosForAdd,
+            );
             continue;
           }
 

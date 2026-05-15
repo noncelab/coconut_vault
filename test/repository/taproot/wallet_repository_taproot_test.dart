@@ -1066,6 +1066,256 @@ void main() {
     );
   });
 
+  group('WalletRepository test when changing mode (taproot)', () {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      await SharedPrefsRepository().init();
+    });
+
+    test(
+      'SigningOnly -> SecureStorage / two taproot wallets / migrates only stored seed infos and drops passphrases',
+      () async {
+        final storage = _FakeSecureStorageRepository();
+        final secureZone = _FakeSecureZoneRepository();
+        final repository = WalletRepository(
+          isSigningOnlyMode: true,
+          storageService: storage,
+          secureZoneRepository: secureZone,
+        );
+
+        final firstKeyPathSeed = _seedSource(
+          'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+          'first-key-passphrase',
+        );
+        final firstBeneficiarySeed = _seedSource(
+          'letter advice cage absurd amount doctor acoustic avoid letter advice cage above',
+          'first-beneficiary-passphrase',
+        );
+        final firstExternalKeyPathSigner = _taprootSignerBsms(
+          'legal winner thank year wave sausage worth useful legal winner thank yellow',
+          'external-key-passphrase',
+        );
+        final secondKeyPathSeed = _seedSource(
+          'zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong',
+          'second-key-passphrase',
+        );
+        final secondExternalBeneficiary = _externalInheritancePolicyDescriptor(
+          'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+          'external-beneficiary-passphrase',
+          500000001,
+        );
+
+        final firstWallet = await repository.addTaprootWallet(
+          TaprootWalletCreateDto(
+            null,
+            'taproot with stored beneficiary',
+            1,
+            2,
+            [firstKeyPathSeed],
+            [firstExternalKeyPathSigner],
+            [InheritanceLeaf(secret: firstBeneficiarySeed, lockTime: 500000000)],
+          ),
+        );
+        final secondWallet = await repository.addTaprootWallet(
+          TaprootWalletCreateDto(
+            null,
+            'taproot with external beneficiary',
+            3,
+            4,
+            [secondKeyPathSeed],
+            null,
+            [InheritanceLeaf(descriptor: secondExternalBeneficiary, lockTime: 500000001)],
+          ),
+        );
+
+        // 전환 전: signing-only 모드는 공개 vault list를 저장하지 않고, seed payload에 passphrase를 함께 보관한다.
+        // 첫 번째 지갑은 local key-path + external key-path + local beneficiary 구성이다.
+        // 두 번째 지갑은 local key-path + descriptor-only beneficiary 구성이라 scriptPathSeedInfo가 없어야 한다.
+        expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isEmpty);
+        expect(firstWallet.keyPathSeedInfos, hasLength(1));
+        expect(firstWallet.scriptPathSeedInfos, hasLength(1));
+        expect(firstWallet.owners, hasLength(2));
+        expect(firstWallet.beneficiaries, hasLength(1));
+        expect(secondWallet.keyPathSeedInfos, hasLength(1));
+        expect(secondWallet.scriptPathSeedInfos, isEmpty);
+        expect(secondWallet.owners, hasLength(1));
+        expect(secondWallet.beneficiaries, hasLength(1));
+        expect(secondWallet.beneficiaries.single.isSeedStored, isFalse);
+
+        // signing-only에서 secure-storage 모드로 전환하며 Taproot seed와 privacy info를 다시 저장한다.
+        await repository.updateIsSigningOnlyMode(false);
+
+        // 전환 후: secure-storage 모드는 public json을 SharedPreferences에 저장하되,
+        // descriptor와 seed info 같은 privacy 필드는 public json에 포함하지 않는다.
+        final publicVaultListJson = SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField);
+        expect(publicVaultListJson, isNotEmpty);
+        final publicVaultList = jsonDecode(publicVaultListJson) as List<dynamic>;
+        expect(publicVaultList, hasLength(2));
+        expect(
+          publicVaultList.any(
+            (json) =>
+                (json as Map<String, dynamic>).containsKey(TaprootVaultListItem.fieldDescriptor) ||
+                json.containsKey(TaprootVaultListItem.fieldKeyPathSeedInfos) ||
+                json.containsKey(TaprootVaultListItem.fieldScriptPathSeedInfos),
+          ),
+          isFalse,
+        );
+
+        final firstWalletKey = WalletStorageKeys.walletKey(firstWallet.id, WalletType.taproot);
+        final secondWalletKey = WalletStorageKeys.walletKey(secondWallet.id, WalletType.taproot);
+        expect(storage.values.keys, contains(WalletStorageKeys.privacyInfoKey(firstWalletKey)));
+        expect(storage.values.keys, contains(WalletStorageKeys.privacyInfoKey(secondWalletKey)));
+
+        // 저장 대상 seed key를 TaprootVaultListItem의 seed info에서 계산한다.
+        // seed info가 없는 external key-path signer와 descriptor-only beneficiary는 저장 대상이 아니다.
+        final firstKeyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
+          firstWallet.id,
+          firstWallet.keyPathSeedInfos.single.extendedPublicKey,
+        );
+        final firstBeneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
+          firstWallet.id,
+          firstWallet.scriptPathSeedInfos.single.key,
+          firstWallet.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
+        );
+        final secondKeyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
+          secondWallet.id,
+          secondWallet.keyPathSeedInfos.single.extendedPublicKey,
+        );
+
+        // seed index에는 실제로 저장된 seed key만 들어가야 한다.
+        // 첫 번째 지갑은 key-path 1개 + beneficiary 1개, 두 번째 지갑은 key-path 1개만 저장한다.
+        final firstSeedIndex = List<String>.from(
+          jsonDecode(storage.values[WalletStorageKeys.taprootSeedIndexKey(firstWallet.id)]!),
+        );
+        final secondSeedIndex = List<String>.from(
+          jsonDecode(storage.values[WalletStorageKeys.taprootSeedIndexKey(secondWallet.id)]!),
+        );
+        expect(firstSeedIndex, unorderedEquals([firstKeyPathSeedKey, firstBeneficiarySeedKey]));
+        expect(secondSeedIndex, unorderedEquals([secondKeyPathSeedKey]));
+
+        void expectSecretMigratedWithoutPassphrase(String key, Uint8List expectedSecret) {
+          final plaintext = secureZone.encryptedPlaintexts[key];
+          expect(plaintext, isNotNull, reason: 'no encrypted payload at $key');
+          final payload = SecureZonePayloadCodec.parsePlaintext(plaintext!);
+          expect(payload.secret, expectedSecret);
+          expect(payload.passphrase, isNull);
+        }
+
+        // secure-storage 모드로 옮긴 Taproot seed payload에는 mnemonic만 남기고 passphrase는 저장하지 않는다.
+        expectSecretMigratedWithoutPassphrase(firstKeyPathSeedKey, firstKeyPathSeed.mnemonic);
+        expectSecretMigratedWithoutPassphrase(firstBeneficiarySeedKey, firstBeneficiarySeed.mnemonic);
+        expectSecretMigratedWithoutPassphrase(secondKeyPathSeedKey, secondKeyPathSeed.mnemonic);
+        expect(
+          secureZone.encryptedPlaintexts.keys,
+          unorderedEquals([firstKeyPathSeedKey, firstBeneficiarySeedKey, secondKeyPathSeedKey]),
+        );
+        expect(storage.values.values.where((value) => value == 'true'), isEmpty);
+      },
+    );
+
+    test('SecureStorage -> SigningOnly / two taproot wallets / deletes all existing wallet data', () async {
+      final storage = _FakeSecureStorageRepository();
+      final secureZone = _FakeSecureZoneRepository();
+      final repository = WalletRepository(storageService: storage, secureZoneRepository: secureZone);
+
+      final firstKeyPathSeed = _seedSource(
+        'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+        'first-key-passphrase',
+      );
+      final firstBeneficiarySeed = _seedSource(
+        'letter advice cage absurd amount doctor acoustic avoid letter advice cage above',
+        'first-beneficiary-passphrase',
+      );
+      final firstExternalKeyPathSigner = _taprootSignerBsms(
+        'legal winner thank year wave sausage worth useful legal winner thank yellow',
+        'external-key-passphrase',
+      );
+      final secondKeyPathSeed = _seedSource(
+        'zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong',
+        'second-key-passphrase',
+      );
+      final secondExternalBeneficiary = _externalInheritancePolicyDescriptor(
+        'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+        'external-beneficiary-passphrase',
+        500000001,
+      );
+
+      final firstWallet = await repository.addTaprootWallet(
+        TaprootWalletCreateDto(
+          null,
+          'taproot with stored beneficiary',
+          1,
+          2,
+          [firstKeyPathSeed],
+          [firstExternalKeyPathSigner],
+          [InheritanceLeaf(secret: firstBeneficiarySeed, lockTime: 500000000)],
+        ),
+      );
+      final secondWallet = await repository.addTaprootWallet(
+        TaprootWalletCreateDto(
+          null,
+          'taproot with external beneficiary',
+          3,
+          4,
+          [secondKeyPathSeed],
+          null,
+          [InheritanceLeaf(descriptor: secondExternalBeneficiary, lockTime: 500000001)],
+        ),
+      );
+
+      final firstWalletKey = WalletStorageKeys.walletKey(firstWallet.id, WalletType.taproot);
+      final secondWalletKey = WalletStorageKeys.walletKey(secondWallet.id, WalletType.taproot);
+      final firstKeyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
+        firstWallet.id,
+        firstWallet.keyPathSeedInfos.single.extendedPublicKey,
+      );
+      final firstBeneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
+        firstWallet.id,
+        firstWallet.scriptPathSeedInfos.single.key,
+        firstWallet.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
+      );
+      final secondKeyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
+        secondWallet.id,
+        secondWallet.keyPathSeedInfos.single.extendedPublicKey,
+      );
+      final firstPrivacyInfoKey = WalletStorageKeys.privacyInfoKey(firstWalletKey);
+      final secondPrivacyInfoKey = WalletStorageKeys.privacyInfoKey(secondWalletKey);
+      final firstSeedIndexKey = WalletStorageKeys.taprootSeedIndexKey(firstWallet.id);
+      final secondSeedIndexKey = WalletStorageKeys.taprootSeedIndexKey(secondWallet.id);
+
+      // 전환 전: secure-storage 모드는 public vault list와 Taproot privacy info, local seed만 저장한다.
+      // external key-path signer와 descriptor-only beneficiary는 seed info가 없어 저장 대상이 아니다.
+      expect(repository.vaultList, hasLength(2));
+      expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isNotEmpty);
+      expect(storage.values.keys, contains(firstPrivacyInfoKey));
+      expect(storage.values.keys, contains(secondPrivacyInfoKey));
+      expect(storage.values.keys, contains(firstSeedIndexKey));
+      expect(storage.values.keys, contains(secondSeedIndexKey));
+      expect(storage.values.keys, contains(firstKeyPathSeedKey));
+      expect(storage.values.keys, contains(firstBeneficiarySeedKey));
+      expect(storage.values.keys, contains(secondKeyPathSeedKey));
+
+      // secure-storage에서 signing-only 모드로 전환하면 기존 지갑 목록을 모두 삭제한다.
+      // 이때 지갑별 seed, seed index, privacy info, public vault list가 함께 정리되어야 한다.
+      await repository.updateIsSigningOnlyMode(true);
+
+      expect(repository.vaultList, isEmpty);
+      expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), '[]');
+      expect(storage.values, isEmpty);
+      expect(storage.deletedKeys, contains(firstPrivacyInfoKey));
+      expect(storage.deletedKeys, contains(secondPrivacyInfoKey));
+      expect(storage.deletedKeys, contains(firstSeedIndexKey));
+      expect(storage.deletedKeys, contains(secondSeedIndexKey));
+      expect(storage.deletedKeys, contains(firstKeyPathSeedKey));
+      expect(storage.deletedKeys, contains(firstBeneficiarySeedKey));
+      expect(storage.deletedKeys, contains(secondKeyPathSeedKey));
+      expect(secureZone.deletedAliases, contains(firstKeyPathSeedKey));
+      expect(secureZone.deletedAliases, contains(firstBeneficiarySeedKey));
+      expect(secureZone.deletedAliases, contains(secondKeyPathSeedKey));
+      expect(secureZone.encryptedPlaintexts, isEmpty);
+    });
+  });
+
   // coconut_lib toMiniscript()에 의존하므로 라이브러리 업데이트 이후 변경되지 않았는지 확인
   group('ScriptKey 불변 확인', () {
     setUp(() async {
@@ -1219,11 +1469,15 @@ class _FakeSecureZoneRepository implements SecureZoneRepositoryContract {
   @override
   Future<void> deleteKey({required String alias}) async {
     deletedAliases.add(alias);
+    encryptedPlaintexts.remove(alias);
   }
 
   @override
   Future<void> deleteKeys({required List<String> aliasList}) async {
     deletedAliases.addAll(aliasList);
+    for (final alias in aliasList) {
+      encryptedPlaintexts.remove(alias);
+    }
   }
 
   @override
