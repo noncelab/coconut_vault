@@ -14,7 +14,6 @@ import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
 import 'package:crypto/crypto.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +25,20 @@ import 'package:permission_handler/permission_handler.dart';
 class SeedQrImportScreen extends StatefulWidget {
   final MultisigSigner? externalSigner;
   final int? multisigVaultIdOfExternalSigner;
-  const SeedQrImportScreen({super.key, this.externalSigner, this.multisigVaultIdOfExternalSigner});
+  final bool isEmbedded;
+  final bool isTaprootChild;
+  final VoidCallback? onCompleted;
+  final void Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
+
+  const SeedQrImportScreen({
+    super.key,
+    this.externalSigner,
+    this.multisigVaultIdOfExternalSigner,
+    this.isEmbedded = false,
+    this.isTaprootChild = false,
+    this.onCompleted,
+    this.onMnemonicConfirmationRequested,
+  });
 
   @override
   State<SeedQrImportScreen> createState() => _SeedQrImportScreenState();
@@ -106,50 +118,53 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CoconutColors.white,
-      appBar: CoconutAppBar.build(
-        context: context,
-        title: t.seed_qr_import_screen.title,
-        backgroundColor: CoconutColors.white,
-        actionButtonList: [
-          IconButton(
-            icon: SvgPicture.asset(
-              'assets/svg/arrow-reload.svg',
-              width: 20,
-              height: 20,
-              colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+    final body = Stack(
+      children: [
+        if (_hasPermission) _buildQrView(context) else const Center(child: CircularProgressIndicator()),
+        CustomTooltip.buildInfoTooltip(
+          context,
+          richText: RichText(
+            text: TextSpan(
+              style: CoconutTypography.body2_14,
+              children: [
+                TextSpan(
+                  text: t.seed_qr_import_screen.guide,
+                  style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
+                ),
+              ],
             ),
-            color: CoconutColors.black,
-            onPressed: () {
-              controller?.flipCamera();
-            },
           ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          if (_hasPermission) _buildQrView(context) else const Center(child: CircularProgressIndicator()),
-
-          CustomTooltip.buildInfoTooltip(
-            context,
-            richText: RichText(
-              text: TextSpan(
-                style: CoconutTypography.body2_14,
-                children: [
-                  TextSpan(
-                    text: t.seed_qr_import_screen.guide,
-                    style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
-                  ),
-                ],
-              ),
-            ),
-            paddingTop: 20,
-            isBackgroundWhite: false,
-          ),
-        ],
-      ),
+          paddingTop: 20,
+          isBackgroundWhite: false,
+        ),
+      ],
     );
+
+    return widget.isEmbedded
+        ? body
+        : Scaffold(
+          backgroundColor: CoconutColors.white,
+          appBar: CoconutAppBar.build(
+            context: context,
+            title: t.seed_qr_import_screen.title,
+            backgroundColor: CoconutColors.white,
+            actionButtonList: [
+              IconButton(
+                icon: SvgPicture.asset(
+                  'assets/svg/arrow-reload.svg',
+                  width: 20,
+                  height: 20,
+                  colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+                ),
+                color: CoconutColors.black,
+                onPressed: () {
+                  controller?.flipCamera();
+                },
+              ),
+            ],
+          ),
+          body: body,
+        );
   }
 
   Widget _buildQrView(BuildContext context) {
@@ -243,9 +258,16 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
                     scannedData: utf8.encode(words!.join(' ')),
                     externalSigner: widget.externalSigner,
                     multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
+                    isTaprootChild: widget.isTaprootChild,
+                    onCompleted: widget.onCompleted,
+                    onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
                   ),
             ),
-          ).then((_) {
+          ).then((result) {
+            if (result == true && widget.isTaprootChild && mounted) {
+              Navigator.pop(context, true);
+              return;
+            }
             // 2. 돌아왔을 때 카메라 재개하기
             if (mounted) {
               controller.resumeCamera();

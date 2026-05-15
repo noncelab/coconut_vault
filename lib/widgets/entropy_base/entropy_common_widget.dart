@@ -115,28 +115,39 @@ class EntropyPassphraseInput extends StatelessWidget {
     VoidCallback? onEditingComplete,
   }) {
     return CoconutTextField(
+      key: ValueKey('$placeholder-$obscure'),
       focusNode: focusNode,
       controller: controller,
       placeholderText: placeholder,
       onEditingComplete: onEditingComplete,
+      height: 58,
+      padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
       onChanged: (_) {},
       maxLines: 1,
       obscureText: obscure,
-      suffix: Row(
-        children: [
-          if (controller.text.isNotEmpty)
-            GestureDetector(
-              onTap: onClear,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                child: SvgPicture.asset(
-                  'assets/svg/text-field-clear.svg',
-                  colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+      suffix: AnimatedBuilder(
+        animation: controller,
+        builder: (context, child) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (controller.text.isNotEmpty)
+                GestureDetector(
+                  onTap: onClear,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    child: SvgPicture.asset(
+                      'assets/svg/text-field-clear.svg',
+                      width: 20,
+                      height: 20,
+                      colorFilter: const ColorFilter.mode(CoconutColors.gray400, BlendMode.srcIn),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          CoconutLayout.spacing_200w,
-        ],
+              CoconutLayout.spacing_200w,
+            ],
+          );
+        },
       ),
       maxLength: 100,
     );

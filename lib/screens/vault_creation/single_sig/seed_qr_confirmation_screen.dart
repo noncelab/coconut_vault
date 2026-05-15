@@ -23,12 +23,18 @@ class SeedQrConfirmationScreen extends StatefulWidget {
   final Uint8List scannedData;
   final MultisigSigner? externalSigner;
   final int? multisigVaultIdOfExternalSigner;
+  final bool isTaprootChild;
+  final VoidCallback? onCompleted;
+  final void Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
 
   const SeedQrConfirmationScreen({
     super.key,
     required this.scannedData, // 필수 매개변수로 설정
     this.externalSigner,
     this.multisigVaultIdOfExternalSigner,
+    this.isTaprootChild = false,
+    this.onCompleted,
+    this.onMnemonicConfirmationRequested,
   });
 
   @override
@@ -175,6 +181,22 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
       final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
       final externalSigner = widget.externalSigner;
 
+      if (widget.isTaprootChild) {
+        _walletCreationProvider.setSecretAndPassphrase(Uint8List.fromList(secret), Uint8List.fromList(passphrase));
+
+        final onMnemonicConfirmationRequested = widget.onMnemonicConfirmationRequested;
+        if (onMnemonicConfirmationRequested != null) {
+          Navigator.pop(context);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            onMnemonicConfirmationRequested(secret, passphrase);
+          });
+          return;
+        }
+
+        widget.onCompleted?.call();
+        return;
+      }
+
       if (externalSigner != null) {
         if (!mounted) return;
         context.loaderOverlay.show();
@@ -202,6 +224,12 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
 
       if (mounted) {
         context.loaderOverlay.hide();
+
+        if (widget.onCompleted != null) {
+          widget.onCompleted!();
+          return;
+        }
+
         Navigator.pushNamed(context, AppRoutes.vaultNameSetup);
       }
     } catch (e) {
@@ -268,17 +296,21 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
           maxLines: 1,
           isLengthVisible: false,
           obscureText: _passphraseObscured,
-          suffix: CupertinoButton(
-            onPressed: () {
-              setState(() {
-                _passphraseObscured = !_passphraseObscured;
-              });
-            },
-            child:
-                _passphraseObscured
-                    ? const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18)
-                    : const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
+          suffix: SizedBox(
+            width: 44,
+            height: 44,
+            child: CupertinoButton(
+              padding: EdgeInsets.zero,
+              minSize: 0,
+              onPressed: () => setState(() => _passphraseObscured = !_passphraseObscured),
+              child: Icon(
+                _passphraseObscured ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+                color: CoconutColors.gray800,
+                size: 18,
+              ),
+            ),
           ),
+
           maxLength: 100,
         ),
       ),

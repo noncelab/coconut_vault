@@ -12,8 +12,13 @@ import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:flutter_svg/svg.dart';
 
 class MnemonicDiceRollScreen extends BaseMnemonicEntropyScreen {
-  final bool isTaprootChild;
-  const MnemonicDiceRollScreen({super.key, required super.entropyType, this.isTaprootChild = false});
+  const MnemonicDiceRollScreen({
+    super.key,
+    required super.entropyType,
+    super.isEmbedded,
+    super.isTaprootChild,
+    super.onMnemonicConfirmationRequested,
+  });
 
   @override
   State<MnemonicDiceRollScreen> createState() => _MnemonicDiceRollScreenState();
@@ -30,6 +35,8 @@ class _MnemonicDiceRollScreenState extends BaseMnemonicEntropyScreenState<Mnemon
       onReset: onReset,
       entropyType: EntropyType.manual,
       isTaprootChild: widget.isTaprootChild,
+      isEmbedded: widget.isEmbedded,
+      onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
     );
   }
 }
@@ -42,6 +49,8 @@ class DiceRoll extends BaseEntropyWidget {
     required super.usePassphrase,
     required super.onReset,
     required super.entropyType,
+    super.isEmbedded,
+    super.onMnemonicConfirmationRequested,
     this.isTaprootChild = false,
   });
 
@@ -77,6 +86,11 @@ class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
 
   @override
   void onNavigateToNext() async {
+    if (widget.isEmbedded) {
+      widget.onMnemonicConfirmationRequested?.call();
+      return;
+    }
+
     final result = await Navigator.pushNamed(
       context,
       AppRoutes.mnemonicConfirmation,

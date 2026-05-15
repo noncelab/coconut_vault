@@ -18,7 +18,16 @@ import 'package:provider/provider.dart';
 class MnemonicConfirmationScreen extends StatefulWidget {
   final String calledFrom;
   final bool isTaprootChild;
-  const MnemonicConfirmationScreen({super.key, required this.calledFrom, this.isTaprootChild = false});
+  final bool isEmbedded;
+  final VoidCallback? onMnemonicReady;
+
+  const MnemonicConfirmationScreen({
+    super.key,
+    required this.calledFrom,
+    this.isTaprootChild = false,
+    this.isEmbedded = false,
+    this.onMnemonicReady,
+  });
 
   @override
   State<MnemonicConfirmationScreen> createState() => _MnemonicConfirmationScreenState();
@@ -75,86 +84,92 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
             ? t.mnemonic_view_screen.security_guide
             : t.mnemonic_confirm_screen.description;
 
+    final body = Stack(
+      children: [
+        SingleChildScrollView(
+          controller: _scrollController,
+          child: Column(
+            children: [
+              buildStepIndicator(),
+              step == 0
+                  ? MnemonicList(mnemonic: _mnemonic, guideText: screenDescription)
+                  : Padding(padding: const EdgeInsets.symmetric(horizontal: 16.0), child: _passphraseGridViewWidget()),
+              const SizedBox(height: 100),
+            ],
+          ),
+        ),
+        FixedBottomButton(
+          isActive: _getNextButtonState().isActive && !_isWarningVisible,
+          text: _getNextButtonState().text,
+          backgroundColor: CoconutColors.black,
+          onButtonClicked: _onNextButtonClicked,
+        ),
+        WarningWidget(
+          visible: true,
+          onWarningDismissed: () {
+            setState(() {
+              _isWarningVisible = false;
+            });
+          },
+        ),
+      ],
+    );
+
     return PopScope(
       canPop: false,
       child: GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();
         },
-        child: Scaffold(
-          appBar: CoconutAppBar.build(title: screenTitle, context: context),
-          backgroundColor: CoconutColors.white,
-          body: SafeArea(
-            child: Stack(
-              children: [
-                SingleChildScrollView(
-                  controller: _scrollController,
-                  child: Column(
-                    children: [
-                      buildStepIndicator(),
-                      step == 0
-                          ? MnemonicList(mnemonic: _mnemonic, guideText: screenDescription)
-                          : Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: _passphraseGridViewWidget(),
-                          ),
-                      const SizedBox(height: 100),
-                    ],
-                  ),
+        child:
+            widget.isEmbedded
+                ? body
+                : Scaffold(
+                  appBar: CoconutAppBar.build(title: screenTitle, context: context),
+                  backgroundColor: CoconutColors.white,
+                  body: SafeArea(child: body),
                 ),
-                FixedBottomButton(
-                  isActive: _getNextButtonState().isActive && !_isWarningVisible,
-                  text: _getNextButtonState().text,
-                  backgroundColor: CoconutColors.black,
-                  onButtonClicked: () async {
-                    if (step == 0 && (_passphrase?.isNotEmpty ?? false)) {
-                      setState(() {
-                        // 패스프레이즈 확인 단계로 이동
-                        step = 1;
-                      });
-                      return;
-                    }
-                    if (widget.calledFrom == AppRoutes.mnemonicCoinflip ||
-                        widget.calledFrom == AppRoutes.mnemonicDiceRoll) {
-                      if (widget.isTaprootChild) {
-                        final result = await Navigator.pushNamed(
-                          context,
-                          AppRoutes.mnemonicVerify,
-                          arguments: {'isTaprootChild': widget.isTaprootChild},
-                        );
-                        if (result == true && mounted) {
-                          Navigator.pop(context, true);
-                        }
-                      } else {
-                        Navigator.pushReplacementNamed(
-                          context,
-                          AppRoutes.mnemonicVerify,
-                          arguments: {'isTaprootChild': widget.isTaprootChild},
-                        );
-                      }
-                    } else {
-                      if (widget.isTaprootChild) {
-                        Navigator.pop(context, true);
-                      } else {
-                        Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
-                      }
-                    }
-                  },
-                ),
-                WarningWidget(
-                  visible: true,
-                  onWarningDismissed: () {
-                    setState(() {
-                      _isWarningVisible = false;
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
+  }
+
+  Future<void> _onNextButtonClicked() async {
+    if (step == 0 && (_passphrase?.isNotEmpty ?? false)) {
+      setState(() {
+        step = 1;
+      });
+      return;
+    }
+
+    if (widget.isEmbedded) {
+      widget.onMnemonicReady?.call();
+      return;
+    }
+
+    if (widget.calledFrom == AppRoutes.mnemonicCoinflip || widget.calledFrom == AppRoutes.mnemonicDiceRoll) {
+      if (widget.isTaprootChild) {
+        final result = await Navigator.pushNamed(
+          context,
+          AppRoutes.mnemonicVerify,
+          arguments: {'isTaprootChild': widget.isTaprootChild},
+        );
+        if (result == true && mounted) {
+          Navigator.pop(context, true);
+        }
+      } else {
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.mnemonicVerify,
+          arguments: {'isTaprootChild': widget.isTaprootChild},
+        );
+      }
+    } else {
+      if (widget.isTaprootChild) {
+        Navigator.pop(context, true);
+      } else {
+        Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
+      }
+    }
   }
 
   Widget buildStepIndicator() {

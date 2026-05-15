@@ -7,8 +7,9 @@ import 'package:coconut_vault/widgets/check_list.dart';
 
 class SecuritySelfCheckScreen extends StatefulWidget {
   final VoidCallback? onNextPressed;
+  final bool isEmbedded;
 
-  const SecuritySelfCheckScreen({super.key, this.onNextPressed});
+  const SecuritySelfCheckScreen({super.key, this.onNextPressed, this.isEmbedded = false});
 
   @override
   State<SecuritySelfCheckScreen> createState() => _SecuritySelfCheckScreenState();
@@ -44,6 +45,53 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final body = Stack(
+      children: [
+        SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                  decoration: BoxDecoration(borderRadius: CoconutBorder.defaultRadius, color: CoconutColors.hotPink),
+                  child: Text(
+                    t.security_self_check_screen.guidance,
+                    style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.white),
+                  ),
+                ),
+              ),
+              CoconutLayout.spacing_400h,
+              ..._items.asMap().entries.map((entry) {
+                int index = entry.key;
+                ChecklistItem item = entry.value;
+                return ChecklistTile(
+                  item: item,
+                  onChanged: (bool? value) {
+                    _onChecklistItemChanged(value, index);
+                  },
+                );
+              }),
+              CoconutLayout.spacing_2500h,
+            ],
+          ),
+        ),
+        FixedBottomButton(
+          onButtonClicked: widget.onNextPressed!,
+          text: t.next,
+          textColor: CoconutColors.white,
+          showGradient: true,
+          isActive: _allItemsChecked,
+          backgroundColor: CoconutColors.black,
+        ),
+      ],
+    );
+
+    if (widget.isEmbedded) {
+      return body;
+    }
+
     return Scaffold(
       backgroundColor: CoconutColors.white,
       appBar:
@@ -56,53 +104,7 @@ class _SecuritySelfCheckScreenState extends State<SecuritySelfCheckScreen> {
                   Navigator.of(context).pop();
                 },
               ),
-      body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                      decoration: BoxDecoration(
-                        borderRadius: CoconutBorder.defaultRadius,
-                        color: CoconutColors.hotPink,
-                      ),
-                      child: Text(
-                        t.security_self_check_screen.guidance,
-                        style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.white),
-                      ),
-                    ),
-                  ),
-                  CoconutLayout.spacing_400h,
-                  ..._items.asMap().entries.map((entry) {
-                    int index = entry.key;
-                    ChecklistItem item = entry.value;
-                    return ChecklistTile(
-                      item: item,
-                      onChanged: (bool? value) {
-                        _onChecklistItemChanged(value, index);
-                      },
-                    );
-                  }),
-                  CoconutLayout.spacing_2500h,
-                ],
-              ),
-            ),
-            FixedBottomButton(
-              onButtonClicked: widget.onNextPressed!,
-              text: t.next,
-              textColor: CoconutColors.white,
-              showGradient: true,
-              isActive: _allItemsChecked,
-              backgroundColor: CoconutColors.black,
-            ),
-          ],
-        ),
-      ),
+      body: SafeArea(child: body),
     );
   }
 }

@@ -26,6 +26,8 @@ abstract class BaseEntropyWidget extends StatefulWidget {
   final Uint8List? mnemonic;
   final ValueNotifier<int>? stepNotifier; // 니모닉 or 패스프레이즈 입력 단계
   final bool isTaprootChild;
+  final bool isEmbedded;
+  final VoidCallback? onMnemonicConfirmationRequested;
 
   const BaseEntropyWidget({
     super.key,
@@ -36,6 +38,8 @@ abstract class BaseEntropyWidget extends StatefulWidget {
     this.mnemonic,
     this.stepNotifier,
     this.isTaprootChild = false,
+    this.isEmbedded = false,
+    this.onMnemonicConfirmationRequested,
   });
 }
 

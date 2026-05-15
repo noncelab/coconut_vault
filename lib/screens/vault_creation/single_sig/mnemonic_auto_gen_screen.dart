@@ -11,8 +11,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class MnemonicAutoGenScreen extends BaseMnemonicEntropyScreen {
-  final bool isTaprootChild;
-  const MnemonicAutoGenScreen({super.key, required super.entropyType, this.isTaprootChild = false});
+  const MnemonicAutoGenScreen({
+    super.key,
+    required super.entropyType,
+    super.isEmbedded,
+    super.isTaprootChild,
+    super.onMnemonicConfirmationRequested,
+  });
 
   @override
   State<MnemonicAutoGenScreen> createState() => _MnemonicAutoGenScreenState();
@@ -36,6 +41,8 @@ class _MnemonicAutoGenScreenState extends BaseMnemonicEntropyScreenState<Mnemoni
       onReset: onReset,
       entropyType: EntropyType.auto,
       isTaprootChild: widget.isTaprootChild,
+      isEmbedded: widget.isEmbedded,
+      onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
     );
   }
 }
@@ -49,6 +56,8 @@ class GeneratedWords extends BaseEntropyWidget {
     required super.usePassphrase,
     required super.onReset,
     required super.entropyType,
+    super.isEmbedded,
+    super.onMnemonicConfirmationRequested,
     this.customMnemonic,
     super.isTaprootChild = false,
   });
@@ -95,6 +104,11 @@ class _GeneratedWordsState extends BaseEntropyWidgetState<GeneratedWords> {
 
   @override
   void onNavigateToNext() async {
+    if (widget.isEmbedded) {
+      widget.onMnemonicConfirmationRequested?.call();
+      return;
+    }
+
     final result = await Navigator.pushNamed(
       context,
       AppRoutes.mnemonicVerify,
