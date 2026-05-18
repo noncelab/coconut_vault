@@ -16,7 +16,7 @@ class MnemonicDiceRollScreen extends BaseMnemonicEntropyScreen {
     super.key,
     required super.entropyType,
     super.isEmbedded,
-    super.isTaprootChild,
+    super.isTaproot,
     super.onMnemonicConfirmationRequested,
   });
 
@@ -34,7 +34,7 @@ class _MnemonicDiceRollScreenState extends BaseMnemonicEntropyScreenState<Mnemon
       usePassphrase: usePassphrase,
       onReset: onReset,
       entropyType: EntropyType.manual,
-      isTaprootChild: widget.isTaprootChild,
+      isTaproot: widget.isTaproot,
       isEmbedded: widget.isEmbedded,
       onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
     );
@@ -42,7 +42,7 @@ class _MnemonicDiceRollScreenState extends BaseMnemonicEntropyScreenState<Mnemon
 }
 
 class DiceRoll extends BaseEntropyWidget {
-  final bool isTaprootChild;
+  final bool isTaproot;
   const DiceRoll({
     super.key,
     required super.wordsCount,
@@ -51,7 +51,7 @@ class DiceRoll extends BaseEntropyWidget {
     required super.entropyType,
     super.isEmbedded,
     super.onMnemonicConfirmationRequested,
-    this.isTaprootChild = false,
+    this.isTaproot = false,
   });
 
   @override

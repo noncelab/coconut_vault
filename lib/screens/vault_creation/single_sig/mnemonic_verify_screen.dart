@@ -11,16 +11,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class MnemonicVerifyScreen extends StatefulWidget {
-  final bool isTaprootChild;
+  final bool isTaproot;
   final bool isEmbedded;
   final VoidCallback? onVerificationSuccess;
 
-  const MnemonicVerifyScreen({
-    super.key,
-    this.isTaprootChild = false,
-    this.isEmbedded = false,
-    this.onVerificationSuccess,
-  });
+  const MnemonicVerifyScreen({super.key, this.isTaproot = false, this.isEmbedded = false, this.onVerificationSuccess});
 
   @override
   State<MnemonicVerifyScreen> createState() => _MnemonicVerifyScreenState();
@@ -56,7 +51,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
 
   void _initializeQuiz() {
     final secret =
-        widget.isTaprootChild
+        widget.isTaproot
             ? Provider.of<TaprootWalletCreationProvider>(context, listen: false).secret
             : Provider.of<WalletCreationProvider>(context, listen: false).secret;
 
@@ -190,11 +185,11 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
       return;
     }
 
-    if (widget.isTaprootChild) {
+    if (widget.isTaproot) {
       final result = await Navigator.pushNamed(
         context,
         AppRoutes.mnemonicConfirmation,
-        arguments: {'calledFrom': AppRoutes.mnemonicVerify, 'isTaprootChild': widget.isTaprootChild},
+        arguments: {'calledFrom': AppRoutes.mnemonicVerify, 'isTaproot': widget.isTaproot},
       );
       if (result == true && mounted) {
         Navigator.pop(context, true);
@@ -203,7 +198,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
       Navigator.pushReplacementNamed(
         context,
         AppRoutes.mnemonicConfirmation,
-        arguments: {'calledFrom': AppRoutes.mnemonicVerify, 'isTaprootChild': widget.isTaprootChild},
+        arguments: {'calledFrom': AppRoutes.mnemonicVerify, 'isTaproot': widget.isTaproot},
       );
     }
   }

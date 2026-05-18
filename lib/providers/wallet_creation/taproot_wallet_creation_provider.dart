@@ -2,32 +2,54 @@ import 'dart:typed_data';
 
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 
+enum TaprootCreationType { parent, child }
+
 class TaprootWalletCreationProvider {
-  ({Uint8List secret, Uint8List? passphrase}) _keyData = (secret: Uint8List(0), passphrase: Uint8List(0));
+  ({Uint8List secret, Uint8List? passphrase}) _parentKeyData = (secret: Uint8List(0), passphrase: Uint8List(0));
+  ({Uint8List secret, Uint8List? passphrase}) _childKeyData = (secret: Uint8List(0), passphrase: Uint8List(0));
 
-  bool _isChildWalletCreation = false;
+  TaprootCreationType _creationType = TaprootCreationType.parent;
 
-  Uint8List get secret => _keyData.secret;
-  Uint8List? get passphrase =>
-      _keyData.passphrase != null && _keyData.passphrase!.isNotEmpty ? _keyData.passphrase : null;
-  bool get isChildWalletCreation => _isChildWalletCreation;
+  TaprootCreationType get creationType => _creationType;
 
-  void setSecretAndPassphrase(Uint8List secret, Uint8List? passphrase) {
-    _keyData = (secret: secret, passphrase: passphrase ?? Uint8List(0));
+  Uint8List get secret => _creationType == TaprootCreationType.parent ? _parentKeyData.secret : _childKeyData.secret;
+
+  Uint8List? get passphrase {
+    final pass = _creationType == TaprootCreationType.parent ? _parentKeyData.passphrase : _childKeyData.passphrase;
+    return pass != null && pass.isNotEmpty ? pass : null;
   }
 
-  void setIsChildWalletCreation(bool value) {
-    _isChildWalletCreation = value;
+  void setSecretAndPassphrase(Uint8List secret, Uint8List? passphrase) {
+    if (_creationType == TaprootCreationType.parent) {
+      _parentKeyData = (secret: secret, passphrase: passphrase ?? Uint8List(0));
+    } else {
+      _childKeyData = (secret: secret, passphrase: passphrase ?? Uint8List(0));
+    }
+  }
+
+  void setCreationType(TaprootCreationType type) {
+    _creationType = type;
   }
 
   void resetSecretAndPassphrase() {
-    _keyData.secret.wipe();
-    _keyData.passphrase?.wipe();
-    _keyData = (secret: Uint8List(0), passphrase: Uint8List(0));
+    if (_creationType == TaprootCreationType.parent) {
+      _parentKeyData.secret.wipe();
+      _parentKeyData.passphrase?.wipe();
+      _parentKeyData = (secret: Uint8List(0), passphrase: Uint8List(0));
+    } else {
+      _childKeyData.secret.wipe();
+      _childKeyData.passphrase?.wipe();
+      _childKeyData = (secret: Uint8List(0), passphrase: Uint8List(0));
+    }
   }
 
   void resetAll() {
-    _isChildWalletCreation = false;
-    resetSecretAndPassphrase();
+    _creationType = TaprootCreationType.parent;
+    _parentKeyData.secret.wipe();
+    _parentKeyData.passphrase?.wipe();
+    _parentKeyData = (secret: Uint8List(0), passphrase: Uint8List(0));
+    _childKeyData.secret.wipe();
+    _childKeyData.passphrase?.wipe();
+    _childKeyData = (secret: Uint8List(0), passphrase: Uint8List(0));
   }
 }

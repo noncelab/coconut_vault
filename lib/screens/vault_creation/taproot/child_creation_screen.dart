@@ -309,7 +309,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       MnemonicConfirmationScreen(
         calledFrom: calledFrom,
         isEmbedded: true,
-        isTaprootChild: true,
+        isTaproot: true,
         onMnemonicReady: _addMnemonicVerifyStep,
       ),
     );
@@ -319,7 +319,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     _addEmbeddedStep(
       MnemonicVerifyScreen(
         isEmbedded: true,
-        isTaprootChild: true,
+        isTaproot: true,
         onVerificationSuccess: _addVerifiedMnemonicConfirmationStep,
       ),
     );
@@ -330,7 +330,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       MnemonicConfirmationScreen(
         calledFrom: AppRoutes.mnemonicVerify,
         isEmbedded: true,
-        isTaprootChild: true,
+        isTaproot: true,
         onMnemonicReady: () {
           final viewModel = context.read<ChildCreationViewModel>();
           _onChildWalletSet(viewModel);
@@ -346,7 +346,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         firstEmbeddedScreen = MnemonicCoinflipScreen(
           entropyType: EntropyType.manual,
           isEmbedded: true,
-          isTaprootChild: true,
+          isTaproot: true,
           onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
         );
         break;
@@ -354,7 +354,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         firstEmbeddedScreen = MnemonicDiceRollScreen(
           entropyType: EntropyType.manual,
           isEmbedded: true,
-          isTaprootChild: true,
+          isTaproot: true,
           onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
         );
         break;
@@ -362,7 +362,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         firstEmbeddedScreen = MnemonicAutoGenScreen(
           entropyType: EntropyType.auto,
           isEmbedded: true,
-          isTaprootChild: true,
+          isTaproot: true,
           onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
         );
         break;
@@ -376,7 +376,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     final taprootProvider = context.read<TaprootWalletCreationProvider>();
 
     if (_currentStep == 3) {
-      taprootProvider.setIsChildWalletCreation(true);
+      taprootProvider.setCreationType(TaprootCreationType.child);
 
       if (viewModel.isCreateKeySelected) {
         _addEmbeddedStep(
@@ -391,18 +391,14 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       } else if (viewModel.isImportKeySelected) {
         if (viewModel.isMnemonicInputSelected) {
           _addEmbeddedStep(
-            MnemonicImportScreen(
-              isEmbedded: true,
-              isTaprootChild: true,
-              onCompleted: () => _onChildWalletSet(viewModel),
-            ),
+            MnemonicImportScreen(isEmbedded: true, isTaproot: true, onCompleted: () => _onChildWalletSet(viewModel)),
           );
           return;
         } else if (viewModel.isSeedQrScanSelected) {
           _addEmbeddedStep(
             SeedQrImportScreen(
               isEmbedded: true,
-              isTaprootChild: true,
+              isTaproot: true,
               onMnemonicConfirmationRequested: (secret, passphrase) {
                 taprootProvider.setSecretAndPassphrase(secret, passphrase);
                 _onChildWalletSet(viewModel);

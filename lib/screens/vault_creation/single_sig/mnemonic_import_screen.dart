@@ -29,7 +29,7 @@ class MnemonicImportScreen extends StatefulWidget {
   final MultisigSigner? externalSigner;
   final int? multisigVaultIdOfExternalSigner;
   final bool isEmbedded;
-  final bool isTaprootChild;
+  final bool isTaproot;
   final VoidCallback? onCompleted;
 
   const MnemonicImportScreen({
@@ -37,7 +37,7 @@ class MnemonicImportScreen extends StatefulWidget {
     this.externalSigner,
     this.multisigVaultIdOfExternalSigner,
     this.isEmbedded = false,
-    this.isTaprootChild = false,
+    this.isTaproot = false,
     this.onCompleted,
   });
 
@@ -600,7 +600,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
       final externalSigner = widget.externalSigner;
 
-      if (widget.isTaprootChild) {
+      if (widget.isTaproot) {
         final taprootWalletCreationProvider = context.read<TaprootWalletCreationProvider>();
 
         taprootWalletCreationProvider.setSecretAndPassphrase(secret, passphrase);

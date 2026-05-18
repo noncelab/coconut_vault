@@ -511,7 +511,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       MnemonicConfirmationScreen(
         calledFrom: calledFrom,
         isEmbedded: true,
-        isTaprootChild: false,
+        isTaproot: true,
         onMnemonicReady: _addMnemonicVerifyStep,
       ),
     );
@@ -521,7 +521,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     _addEmbeddedStep(
       MnemonicVerifyScreen(
         isEmbedded: true,
-        isTaprootChild: false,
+        isTaproot: true,
         onVerificationSuccess: _addVerifiedMnemonicConfirmationStep,
       ),
     );
@@ -532,10 +532,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       MnemonicConfirmationScreen(
         calledFrom: AppRoutes.mnemonicVerify,
         isEmbedded: true,
-        isTaprootChild: false,
+        isTaproot: true,
         onMnemonicReady: () {
-          final walletCreationProvider = context.read<WalletCreationProvider>();
-          _onParentWalletSet(walletCreationProvider.secret, passphrase: walletCreationProvider.passphrase);
+          final taprootProvider = context.read<TaprootWalletCreationProvider>();
+          _onParentWalletSet(taprootProvider.secret, passphrase: taprootProvider.passphrase);
         },
       ),
     );
@@ -566,19 +566,19 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
           ParentNewKeyCreationType.coinFlip => MnemonicCoinflipScreen(
             entropyType: EntropyType.manual,
             isEmbedded: true,
-            isTaprootChild: false,
+            isTaproot: true,
             onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
           ),
           ParentNewKeyCreationType.diceRoll => MnemonicDiceRollScreen(
             entropyType: EntropyType.manual,
             isEmbedded: true,
-            isTaprootChild: false,
+            isTaproot: true,
             onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
           ),
           ParentNewKeyCreationType.autoGenerate => MnemonicAutoGenScreen(
             entropyType: EntropyType.auto,
             isEmbedded: true,
-            isTaprootChild: false,
+            isTaproot: true,
             onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
           ),
           ParentNewKeyCreationType.none => null,
@@ -588,12 +588,12 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
           ParentExistingKeyImportType.currentVault => null,
           ParentExistingKeyImportType.mnemonicInput => MnemonicImportScreen(
             isEmbedded: true,
-            isTaprootChild: false,
+            isTaproot: true,
             onCompleted: _addImportedMnemonicViewStep,
           ),
           ParentExistingKeyImportType.seedQrScan => SeedQrImportScreen(
             isEmbedded: true,
-            isTaprootChild: false,
+            isTaproot: true,
             onMnemonicConfirmationRequested: (secret, passphrase) {
               _onParentWalletSet(secret, passphrase: passphrase);
             },
@@ -721,11 +721,11 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
             return;
           }
 
-          final walletCreationProvider = context.read<WalletCreationProvider>();
+          final taprootProvider = context.read<TaprootWalletCreationProvider>();
           final passphrase =
               mnemonicViewState.passphrase.isNotEmpty
                   ? Uint8List.fromList(utf8.encode(mnemonicViewState.passphrase))
-                  : walletCreationProvider.passphrase;
+                  : taprootProvider.passphrase;
 
           _onParentWalletSet(mnemonicViewState.mnemonic, passphrase: passphrase);
         },
