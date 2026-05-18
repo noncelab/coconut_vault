@@ -263,6 +263,21 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     });
   }
 
+  void _switchToMnemonicImport() {
+    final currentBody = _bodyList.last;
+    if (currentBody.isEmpty || currentBody.first is! SeedQrImportScreen) {
+      return;
+    }
+
+    setState(() {
+      _viewModel.setExistingKeyImportType(ParentExistingKeyImportType.mnemonicInput);
+
+      final newBody = _buildEmbeddedScreen();
+      if (newBody == null) return;
+      _bodyList[_currentStep - 1] = [newBody];
+    });
+  }
+
   void _confirmWalletType() {
     switch (_viewModel.selectedWalletType) {
       case ParentWalletType.singleSig:
@@ -996,6 +1011,11 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         _bodyList.length >= _currentStep &&
         _bodyList[_currentStep - 1].isNotEmpty &&
         _bodyList[_currentStep - 1].first is MnemonicImportScreen;
+    final isSeedQrImportActive =
+        _isProgressPaused &&
+        _bodyList.length >= _currentStep &&
+        _bodyList[_currentStep - 1].isNotEmpty &&
+        _bodyList[_currentStep - 1].first is SeedQrImportScreen;
 
     return ChangeNotifierProvider.value(
       value: _viewModel,
@@ -1025,6 +1045,17 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
                   ),
                   onPressed: _switchToSeedQrImport,
                   tooltip: t.taproot.common.existing_option3,
+                ),
+              if (isSeedQrImportActive)
+                IconButton(
+                  icon: SvgPicture.asset(
+                    'assets/svg/paste.svg',
+                    width: 24,
+                    height: 24,
+                    colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+                  ),
+                  onPressed: _switchToMnemonicImport,
+                  tooltip: t.taproot.common.existing_option2,
                 ),
             ],
           ),

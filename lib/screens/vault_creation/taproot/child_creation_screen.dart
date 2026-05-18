@@ -655,6 +655,21 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     });
   }
 
+  void _switchToMnemonicImport(ChildCreationViewModel viewModel) {
+    if (_embeddedWidgets.isEmpty || _embeddedWidgets.last is! SeedQrImportScreen) {
+      return;
+    }
+
+    setState(() {
+      _embeddedWidgets.removeLast();
+      viewModel.setExistingKeyImportType(ChildExistingKeyImportType.mnemonicInput);
+
+      _embeddedWidgets.add(
+        MnemonicImportScreen(isEmbedded: true, isTaproot: true, onCompleted: () => _onChildWalletSet(viewModel)),
+      );
+    });
+  }
+
   void _onCurrentVaultSelected(ChildCreationViewModel viewModel) {
     final selectedExistingVaultId = viewModel.selectedExistingVaultId;
     if (selectedExistingVaultId == null) {
@@ -751,6 +766,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       currentEmbeddedWidget = _embeddedWidgets[_currentStep - embeddedStartIndex - 1];
     }
     final bool showScanButton = currentEmbeddedWidget is MnemonicImportScreen;
+    final bool showTypeButton = currentEmbeddedWidget is SeedQrImportScreen;
 
     return PopScope(
       canPop: false,
@@ -772,10 +788,21 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
                   'assets/svg/scan.svg',
                   width: 24,
                   height: 24,
-                  colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
+                  colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
                 ),
                 onPressed: () => _switchToSeedQrImport(viewModel),
                 tooltip: t.taproot.common.existing_option3,
+              ),
+            if (showTypeButton)
+              IconButton(
+                icon: SvgPicture.asset(
+                  'assets/svg/paste.svg',
+                  width: 24,
+                  height: 24,
+                  colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+                ),
+                onPressed: () => _switchToMnemonicImport(viewModel),
+                tooltip: t.taproot.common.existing_option2,
               ),
           ],
         ),
