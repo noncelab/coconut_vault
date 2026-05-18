@@ -384,6 +384,20 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     );
   }
 
+  void _addImportedMnemonicConfirmationStep() {
+    _addEmbeddedStep(
+      MnemonicConfirmationScreen(
+        calledFrom: AppRoutes.mnemonicImport,
+        isEmbedded: true,
+        isTaproot: true,
+        onMnemonicReady: () {
+          final viewModel = context.read<ChildCreationViewModel>();
+          _onChildWalletSet(viewModel);
+        },
+      ),
+    );
+  }
+
   void _addMnemonicVerifyStep() {
     _addEmbeddedStep(
       MnemonicVerifyScreen(
@@ -475,7 +489,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           return;
         } else if (viewModel.isMnemonicInputSelected) {
           _addEmbeddedStep(
-            MnemonicImportScreen(isEmbedded: true, isTaproot: true, onCompleted: () => _onChildWalletSet(viewModel)),
+            MnemonicImportScreen(isEmbedded: true, isTaproot: true, onCompleted: _addImportedMnemonicConfirmationStep),
           );
           return;
         } else if (viewModel.isSeedQrScanSelected) {
@@ -665,7 +679,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       viewModel.setExistingKeyImportType(ChildExistingKeyImportType.mnemonicInput);
 
       _embeddedWidgets.add(
-        MnemonicImportScreen(isEmbedded: true, isTaproot: true, onCompleted: () => _onChildWalletSet(viewModel)),
+        MnemonicImportScreen(isEmbedded: true, isTaproot: true, onCompleted: _addImportedMnemonicConfirmationStep),
       );
     });
   }

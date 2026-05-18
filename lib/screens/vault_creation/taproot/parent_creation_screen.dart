@@ -620,7 +620,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
           ParentExistingKeyImportType.mnemonicInput => MnemonicImportScreen(
             isEmbedded: true,
             isTaproot: true,
-            onCompleted: _addImportedMnemonicViewStep,
+            onCompleted: _addImportedMnemonicConfirmationStep,
           ),
           ParentExistingKeyImportType.seedQrScan => SeedQrImportScreen(
             isEmbedded: true,
@@ -738,27 +738,15 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     _childWalletSetupStep = _addStep(titleList: titleList, bodyList: bodyList, nextButtonAction: () {});
   }
 
-  void _addImportedMnemonicViewStep() {
-    final mnemonicViewKey = GlobalKey<MnemonicViewScreenState>();
+  void _addImportedMnemonicConfirmationStep() {
     _addEmbeddedStep(
-      MnemonicViewScreen(
-        key: mnemonicViewKey,
-        initialMnemonic: context.read<WalletCreationProvider>().secret,
-        autoLoadMnemonic: false,
+      MnemonicConfirmationScreen(
+        calledFrom: AppRoutes.mnemonicImport,
         isEmbedded: true,
-        onNextButtonPressed: () {
-          final mnemonicViewState = mnemonicViewKey.currentState;
-          if (mnemonicViewState == null) {
-            return;
-          }
-
+        isTaproot: true,
+        onMnemonicReady: () {
           final taprootProvider = context.read<TaprootWalletCreationProvider>();
-          final passphrase =
-              mnemonicViewState.passphrase.isNotEmpty
-                  ? Uint8List.fromList(utf8.encode(mnemonicViewState.passphrase))
-                  : taprootProvider.passphrase;
-
-          _onParentWalletSet(mnemonicViewState.mnemonic, passphrase: passphrase);
+          _onParentWalletSet(taprootProvider.secret, passphrase: taprootProvider.passphrase);
         },
       ),
     );
