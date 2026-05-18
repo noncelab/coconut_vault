@@ -33,6 +33,7 @@ import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_verify_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class ChildCreationScreen extends StatelessWidget {
   const ChildCreationScreen({super.key});
@@ -631,6 +632,29 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     });
   }
 
+  void _switchToSeedQrImport(ChildCreationViewModel viewModel) {
+    if (_embeddedWidgets.isEmpty || _embeddedWidgets.last is! MnemonicImportScreen) {
+      return;
+    }
+
+    setState(() {
+      _embeddedWidgets.removeLast();
+      viewModel.setExistingKeyImportType(ChildExistingKeyImportType.seedQrScan);
+
+      final taprootProvider = context.read<TaprootWalletCreationProvider>();
+      _embeddedWidgets.add(
+        SeedQrImportScreen(
+          isEmbedded: true,
+          isTaproot: true,
+          onMnemonicConfirmationRequested: (secret, passphrase) {
+            taprootProvider.setSecretAndPassphrase(secret, passphrase);
+            _onChildWalletSet(viewModel);
+          },
+        ),
+      );
+    });
+  }
+
   void _onCurrentVaultSelected(ChildCreationViewModel viewModel) {
     final selectedExistingVaultId = viewModel.selectedExistingVaultId;
     if (selectedExistingVaultId == null) {
@@ -722,6 +746,12 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     final isEmbeddedActive =
         _currentStep > embeddedStartIndex && _currentStep <= embeddedStartIndex + _embeddedWidgets.length;
 
+    Widget? currentEmbeddedWidget;
+    if (isEmbeddedActive) {
+      currentEmbeddedWidget = _embeddedWidgets[_currentStep - embeddedStartIndex - 1];
+    }
+    final bool showScanButton = currentEmbeddedWidget is MnemonicImportScreen;
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -735,6 +765,19 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           context: context,
           backgroundColor: CoconutColors.white,
           onBackPressed: _handleBackPressed,
+          actionButtonList: [
+            if (showScanButton)
+              IconButton(
+                icon: SvgPicture.asset(
+                  'assets/svg/scan.svg',
+                  width: 24,
+                  height: 24,
+                  colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
+                ),
+                onPressed: () => _switchToSeedQrImport(viewModel),
+                tooltip: t.taproot.common.existing_option3,
+              ),
+          ],
         ),
         body: SafeArea(
           child: Stack(

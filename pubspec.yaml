@@ -280,6 +280,7 @@ flutter:
     - assets/png/word.png
     - assets/png/scan-qr.png
     - assets/png/scan-qr-big.png
+    - assets/svg/scan.svg
 
   fonts:
     - family: SpaceGrotesk

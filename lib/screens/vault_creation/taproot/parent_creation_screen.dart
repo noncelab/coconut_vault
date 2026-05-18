@@ -32,6 +32,7 @@ import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class ParentCreationScreen extends StatefulWidget {
@@ -245,6 +246,21 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _currentStep += 1;
     });
     _scheduleTitleAnimationCompletion();
+  }
+
+  void _switchToSeedQrImport() {
+    final currentBody = _bodyList.last;
+    if (currentBody.isEmpty || currentBody.first is! MnemonicImportScreen) {
+      return;
+    }
+
+    setState(() {
+      _viewModel.setExistingKeyImportType(ParentExistingKeyImportType.seedQrScan);
+
+      final newBody = _buildEmbeddedScreen();
+      if (newBody == null) return;
+      _bodyList[_currentStep - 1] = [newBody];
+    });
   }
 
   void _confirmWalletType() {
@@ -975,6 +991,12 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isMnemonicImportActive =
+        _isProgressPaused &&
+        _bodyList.length >= _currentStep &&
+        _bodyList[_currentStep - 1].isNotEmpty &&
+        _bodyList[_currentStep - 1].first is MnemonicImportScreen;
+
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: PopScope(
@@ -992,6 +1014,19 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
             context: context,
             backgroundColor: CoconutColors.white,
             onBackPressed: _handleBackPressed,
+            actionButtonList: [
+              if (isMnemonicImportActive)
+                IconButton(
+                  icon: SvgPicture.asset(
+                    'assets/svg/scan.svg',
+                    width: 24,
+                    height: 24,
+                    colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+                  ),
+                  onPressed: _switchToSeedQrImport,
+                  tooltip: t.taproot.common.existing_option3,
+                ),
+            ],
           ),
           body: SafeArea(
             child: Stack(
