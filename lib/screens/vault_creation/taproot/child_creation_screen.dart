@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -11,6 +13,15 @@ import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/child_creation_view_model.dart';
+import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/single_sig_menu/mnemonic_view_screen.dart';
+import 'package:coconut_vault/widgets/bottom_sheet.dart';
+import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
@@ -40,26 +51,38 @@ class _ChildCreationScreenContent extends StatefulWidget {
 }
 
 class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent> {
-  static const int _baseTotalStep = 5;
   int _currentStep = 1;
   final List<Widget> _embeddedWidgets = [];
+  int? _currentVaultSelectionStep;
+  bool _isProcessing = false;
+
+  int get _baseTotalStep => _currentVaultSelectionStep != null ? 6 : 5;
 
   int get _totalStep => _baseTotalStep + _embeddedWidgets.length;
 
   int get _progressCurrentStep {
-    if (_currentStep <= 3) return _currentStep - 1;
-    if (_currentStep <= 3 + _embeddedWidgets.length) return 2;
+    int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
+
+    if (_currentStep <= embeddedStartIndex) {
+      return _currentStep - 1;
+    }
+    if (_currentStep <= embeddedStartIndex + _embeddedWidgets.length) {
+      return embeddedStartIndex - 1;
+    }
     return _currentStep - _embeddedWidgets.length - 1;
   }
 
   List<TextSpan> _titleLines(ChildCreationViewModel viewModel) {
+    int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
+    final titles = _buildTitleList(viewModel);
+
     List<TextSpan> textList;
-    if (_currentStep <= 3) {
-      textList = _titleList(viewModel)[_currentStep - 1];
-    } else if (_currentStep <= 3 + _embeddedWidgets.length) {
+    if (_currentStep <= embeddedStartIndex) {
+      textList = titles[_currentStep - 1];
+    } else if (_currentStep <= embeddedStartIndex + _embeddedWidgets.length) {
       return [const TextSpan(text: '')];
     } else {
-      textList = _titleList(viewModel)[_currentStep - _embeddedWidgets.length - 1];
+      textList = titles[_currentStep - _embeddedWidgets.length - 1];
     }
 
     if (textList.length == 1) {
@@ -71,166 +94,207 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     return textList;
   }
 
-  List<List<TextSpan>> _titleList(ChildCreationViewModel viewModel) => [
-    [
-      TextSpan(text: t.taproot.child_creation_screen.step1.title1),
-      TextSpan(text: t.taproot.child_creation_screen.step1.title2),
-    ],
-    [
-      TextSpan(text: t.taproot.child_creation_screen.step2.title1),
-      TextSpan(text: t.taproot.child_creation_screen.step2.title2),
-    ],
-    viewModel.isCreateKeySelected
-        ? [TextSpan(text: t.taproot.child_creation_screen.step3.title_new)]
-        : [TextSpan(text: t.taproot.child_creation_screen.step3.title_existing)],
-    [
-      TextSpan(text: t.taproot.child_creation_screen.step4.title1),
-      TextSpan(text: t.taproot.child_creation_screen.step4.title2, style: CoconutTypography.body1_16),
-      TextSpan(text: t.taproot.child_creation_screen.step4.title3, style: CoconutTypography.body1_16),
-    ],
-    [
-      TextSpan(text: t.taproot.child_creation_screen.step5.title1),
-      TextSpan(text: t.taproot.child_creation_screen.step5.title2),
-    ],
-    [TextSpan(text: t.taproot.child_creation_screen.step6.title1)],
-  ];
+  List<List<TextSpan>> _buildTitleList(ChildCreationViewModel viewModel) {
+    List<List<TextSpan>> list = [
+      [
+        TextSpan(text: t.taproot.child_creation_screen.step1.title1),
+        TextSpan(text: t.taproot.child_creation_screen.step1.title2),
+      ],
+      [
+        TextSpan(text: t.taproot.child_creation_screen.step2.title1),
+        TextSpan(text: t.taproot.child_creation_screen.step2.title2),
+      ],
+      viewModel.isCreateKeySelected
+          ? [TextSpan(text: t.taproot.child_creation_screen.step3.title_new)]
+          : [TextSpan(text: t.taproot.child_creation_screen.step3.title_existing)],
+    ];
 
-  List<Widget> _childList(ChildCreationViewModel viewModel) => [
-    Center(child: Image.asset('assets/png/load-wallet.png', scale: 4.0, width: 210)),
-    MenuGrid(
-      children: [
-        SelectableOptionCard(
-          title: t.taproot.common.prepare_key_option1_title,
-          description: t.taproot.common.prepare_key_option1_desc,
-          bottomAssetPath: 'assets/png/wallet.png',
-          imageScale: 4.0,
-          imageWidth: 100,
-          isSelected: viewModel.isCreateKeySelected,
-          height: 217,
-          onTap: () {
-            viewModel.setKeyPreparationType(ChildKeyPreparationType.create);
-          },
-        ),
-        SelectableOptionCard(
-          title: t.taproot.common.prepare_key_option2_title,
-          description: t.taproot.common.prepare_key_option2_desc,
-          bottomAssetPath: 'assets/png/key-holder.png',
-          imageScale: 4.0,
-          imageWidth: 100,
-          isSelected: viewModel.isImportKeySelected,
-          height: 217,
-          onTap: () {
-            viewModel.setKeyPreparationType(ChildKeyPreparationType.import);
-          },
-        ),
+    if (_currentVaultSelectionStep != null) {
+      list.add([
+        TextSpan(text: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_title_1),
+        TextSpan(text: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_title_2),
+      ]);
+    }
+
+    list.addAll([
+      [
+        TextSpan(text: t.taproot.child_creation_screen.step4.title1),
+        TextSpan(text: t.taproot.child_creation_screen.step4.title2, style: CoconutTypography.body1_16),
+        TextSpan(text: t.taproot.child_creation_screen.step4.title3, style: CoconutTypography.body1_16),
       ],
-    ),
-    viewModel.isCreateKeySelected
-        ? MenuGrid(
-          children: [
-            SelectableOptionCard(
-              title: t.taproot.common.new_option1,
-              bottomAssetPath: 'assets/png/coin.png',
-              imageScale: 4.0,
-              imageWidth: 67,
-              isSelected: viewModel.isCoinFlipSelected,
-              height: 118,
-              onTap: () {
-                viewModel.setNewKeyCreationType(ChildNewKeyCreationType.coinFlip);
-              },
-            ),
-            SelectableOptionCard(
-              title: t.taproot.common.new_option2,
-              bottomAssetPath: 'assets/png/dice.png',
-              imageScale: 4.0,
-              imageWidth: 67,
-              isSelected: viewModel.isDiceRollSelected,
-              height: 118,
-              onTap: () {
-                viewModel.setNewKeyCreationType(ChildNewKeyCreationType.diceRoll);
-              },
-            ),
-            SelectableOptionCard(
-              title: t.taproot.common.new_option3,
-              bottomAssetPath: 'assets/png/gear.png',
-              imageScale: 4.0,
-              imageWidth: 67,
-              isSelected: viewModel.isAutoGenerateSelected,
-              height: 118,
-              onTap: () {
-                viewModel.setNewKeyCreationType(ChildNewKeyCreationType.autoGenerate);
-              },
-            ),
-          ],
-        )
-        : MenuGrid(
-          children: [
-            SelectableOptionCard(
-              title: t.taproot.common.existing_option1,
-              bottomAssetPath: 'assets/png/finger-picking.png',
-              imageScale: 4.0,
-              imageWidth: 67,
-              isSelected: viewModel.isCurrentVaultSelected,
-              height: 118,
-              onTap: () {
-                viewModel.setExistingKeyImportType(ChildExistingKeyImportType.currentVault);
-              },
-            ),
-            SelectableOptionCard(
-              title: t.taproot.common.existing_option2,
-              bottomAssetPath: 'assets/png/word.png',
-              imageScale: 4.0,
-              imageWidth: 67,
-              isSelected: viewModel.isMnemonicInputSelected,
-              height: 118,
-              onTap: () {
-                viewModel.setExistingKeyImportType(ChildExistingKeyImportType.mnemonicInput);
-              },
-            ),
-            SelectableOptionCard(
-              title: t.taproot.common.existing_option3,
-              bottomAssetPath: 'assets/png/scan-qr.png',
-              imageScale: 4.0,
-              imageWidth: 67,
-              isSelected: viewModel.isSeedQrScanSelected,
-              height: 118,
-              onTap: () {
-                viewModel.setExistingKeyImportType(ChildExistingKeyImportType.seedQrScan);
-              },
-            ),
-          ],
-        ),
-    _buildQrSection(viewModel),
-    const TimelineStepIndicator(
-      timelineStepItemList: [
-        TimelineStepItem(
-          title: '부모 지갑 연결',
-          description: '단일 서명 지갑과 연결됨 (MFP: 000000)',
-          status: TimelineStepStatus.current,
-        ),
-        TimelineStepItem(
-          title: '자식 지갑 설정',
-          description: '탭루트 자식 지갑 (MFP: 000000)',
-          status: TimelineStepStatus.upcoming,
-        ),
-        TimelineStepItem(title: '기간 설정', description: '2030년 2월 16일 오전 09:21', status: TimelineStepStatus.upcoming),
-        TimelineStepItem(
-          title: '자식 지갑 활성화',
-          description: '2030년 2월 16일 오전 09:21 이후',
-          status: TimelineStepStatus.future,
-        ),
+      [
+        TextSpan(text: t.taproot.child_creation_screen.step5.title1),
+        TextSpan(text: t.taproot.child_creation_screen.step5.title2),
       ],
-    ),
-  ];
+      [TextSpan(text: t.taproot.child_creation_screen.step6.title1)],
+    ]);
+
+    return list;
+  }
+
+  List<Widget> _buildChildList(ChildCreationViewModel viewModel) {
+    List<Widget> list = [
+      Center(child: Image.asset('assets/png/load-wallet.png', scale: 4.0, width: 210)),
+      MenuGrid(
+        children: [
+          SelectableOptionCard(
+            title: t.taproot.common.prepare_key_option1_title,
+            description: t.taproot.common.prepare_key_option1_desc,
+            bottomAssetPath: 'assets/png/wallet.png',
+            imageScale: 4.0,
+            imageWidth: 100,
+            isSelected: viewModel.isCreateKeySelected,
+            height: 217,
+            onTap: () {
+              viewModel.setKeyPreparationType(ChildKeyPreparationType.create);
+            },
+          ),
+          SelectableOptionCard(
+            title: t.taproot.common.prepare_key_option2_title,
+            description: t.taproot.common.prepare_key_option2_desc,
+            bottomAssetPath: 'assets/png/key-holder.png',
+            imageScale: 4.0,
+            imageWidth: 100,
+            isSelected: viewModel.isImportKeySelected,
+            height: 217,
+            onTap: () {
+              viewModel.setKeyPreparationType(ChildKeyPreparationType.import);
+            },
+          ),
+        ],
+      ),
+      viewModel.isCreateKeySelected
+          ? MenuGrid(
+            children: [
+              SelectableOptionCard(
+                title: t.taproot.common.new_option1,
+                bottomAssetPath: 'assets/png/coin.png',
+                imageScale: 4.0,
+                imageWidth: 67,
+                isSelected: viewModel.isCoinFlipSelected,
+                height: 118,
+                onTap: () {
+                  viewModel.setNewKeyCreationType(ChildNewKeyCreationType.coinFlip);
+                },
+              ),
+              SelectableOptionCard(
+                title: t.taproot.common.new_option2,
+                bottomAssetPath: 'assets/png/dice.png',
+                imageScale: 4.0,
+                imageWidth: 67,
+                isSelected: viewModel.isDiceRollSelected,
+                height: 118,
+                onTap: () {
+                  viewModel.setNewKeyCreationType(ChildNewKeyCreationType.diceRoll);
+                },
+              ),
+              SelectableOptionCard(
+                title: t.taproot.common.new_option3,
+                bottomAssetPath: 'assets/png/gear.png',
+                imageScale: 4.0,
+                imageWidth: 67,
+                isSelected: viewModel.isAutoGenerateSelected,
+                height: 118,
+                onTap: () {
+                  viewModel.setNewKeyCreationType(ChildNewKeyCreationType.autoGenerate);
+                },
+              ),
+            ],
+          )
+          : Consumer<WalletProvider>(
+            builder: (context, walletProvider, child) {
+              final hasNoSingleSigVault = walletProvider.getVaultsByWalletType(WalletType.singleSignature).isEmpty;
+              return MenuGrid(
+                children: [
+                  SelectableOptionCard(
+                    title: t.taproot.common.existing_option1,
+                    isDisabled: hasNoSingleSigVault,
+                    bottomAssetPath: 'assets/png/finger-picking.png',
+                    imageScale: 4.0,
+                    imageWidth: 67,
+                    isSelected: viewModel.isCurrentVaultSelected,
+                    height: 118,
+                    onDisabledTap: () {
+                      CoconutToast.showToast(
+                        context: context,
+                        level: CoconutToastLevel.info,
+                        isVisibleIcon: true,
+                        text: t.taproot.common.existing_option1_toast,
+                      );
+                    },
+                    onTap: () {
+                      viewModel.setExistingKeyImportType(ChildExistingKeyImportType.currentVault);
+                    },
+                  ),
+                  SelectableOptionCard(
+                    title: t.taproot.common.existing_option2,
+                    bottomAssetPath: 'assets/png/word.png',
+                    imageScale: 4.0,
+                    imageWidth: 67,
+                    isSelected: viewModel.isMnemonicInputSelected,
+                    height: 118,
+                    onTap: () {
+                      viewModel.setExistingKeyImportType(ChildExistingKeyImportType.mnemonicInput);
+                    },
+                  ),
+                  SelectableOptionCard(
+                    title: t.taproot.common.existing_option3,
+                    bottomAssetPath: 'assets/png/scan-qr.png',
+                    imageScale: 4.0,
+                    imageWidth: 67,
+                    isSelected: viewModel.isSeedQrScanSelected,
+                    height: 118,
+                    onTap: () {
+                      viewModel.setExistingKeyImportType(ChildExistingKeyImportType.seedQrScan);
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+    ];
+
+    if (_currentVaultSelectionStep != null) {
+      list.add(_buildExistingVaultSelectionBody(viewModel));
+    }
+
+    list.addAll([
+      _buildQrSection(viewModel),
+      const TimelineStepIndicator(
+        timelineStepItemList: [
+          TimelineStepItem(
+            title: '부모 지갑 연결',
+            description: '단일 서명 지갑과 연결됨 (MFP: 000000)',
+            status: TimelineStepStatus.current,
+          ),
+          TimelineStepItem(
+            title: '자식 지갑 설정',
+            description: '탭루트 자식 지갑 (MFP: 000000)',
+            status: TimelineStepStatus.upcoming,
+          ),
+          TimelineStepItem(title: '기간 설정', description: '2030년 2월 16일 오전 09:21', status: TimelineStepStatus.upcoming),
+          TimelineStepItem(
+            title: '자식 지갑 활성화',
+            description: '2030년 2월 16일 오전 09:21 이후',
+            status: TimelineStepStatus.future,
+          ),
+        ],
+      ),
+    ]);
+
+    return list;
+  }
 
   Widget _getCurrentChild(ChildCreationViewModel viewModel) {
-    if (_currentStep <= 3) {
-      return _childList(viewModel)[_currentStep - 1];
+    int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
+
+    if (_currentStep <= embeddedStartIndex) {
+      return _buildChildList(viewModel)[_currentStep - 1];
     }
-    if (_currentStep <= 3 + _embeddedWidgets.length) {
-      return _embeddedWidgets[_currentStep - 4];
+    if (_currentStep <= embeddedStartIndex + _embeddedWidgets.length) {
+      return _embeddedWidgets[_currentStep - embeddedStartIndex - 1];
     }
-    return _childList(viewModel)[_currentStep - _embeddedWidgets.length - 1];
+    return _buildChildList(viewModel)[_currentStep - _embeddedWidgets.length - 1];
   }
 
   Widget _buildQrSection(ChildCreationViewModel viewModel) {
@@ -256,7 +320,11 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   bool _isNextButtonVisible(ChildCreationViewModel viewModel) {
-    if (_currentStep > 3 && _currentStep <= 3 + _embeddedWidgets.length) {
+    if (_currentStep == _currentVaultSelectionStep) {
+      return viewModel.selectedExistingVaultId != null;
+    }
+    int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
+    if (_currentStep > embeddedStartIndex && _currentStep <= embeddedStartIndex + _embeddedWidgets.length) {
       return false;
     }
     if (_currentStep == 2) {
@@ -373,6 +441,18 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   void _onNextPressed(ChildCreationViewModel viewModel) async {
+    if (_isProcessing) return;
+
+    if (_currentStep == _currentVaultSelectionStep) {
+      if (viewModel.selectedExistingVaultId != null) {
+        setState(() {
+          _isProcessing = true;
+        });
+        _onCurrentVaultSelected(viewModel);
+      }
+      return;
+    }
+
     final taprootProvider = context.read<TaprootWalletCreationProvider>();
 
     if (_currentStep == 3) {
@@ -389,7 +469,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         );
         return;
       } else if (viewModel.isImportKeySelected) {
-        if (viewModel.isMnemonicInputSelected) {
+        if (viewModel.isCurrentVaultSelected) {
+          _addCurrentVaultSelectionStep(viewModel);
+          return;
+        } else if (viewModel.isMnemonicInputSelected) {
           _addEmbeddedStep(
             MnemonicImportScreen(isEmbedded: true, isTaproot: true, onCompleted: () => _onChildWalletSet(viewModel)),
           );
@@ -422,10 +505,17 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   void _handleBackPressed() {
     if (_currentStep > 1) {
       setState(() {
-        if (_currentStep > 3 && _currentStep <= 3 + _embeddedWidgets.length) {
+        int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
+
+        if (_currentStep > embeddedStartIndex && _currentStep <= embeddedStartIndex + _embeddedWidgets.length) {
           _embeddedWidgets.removeLast();
         }
         _currentStep -= 1;
+
+        if (_currentVaultSelectionStep != null && _currentStep < _currentVaultSelectionStep!) {
+          _currentVaultSelectionStep = null;
+        }
+        _isProcessing = false;
       });
 
       final viewModel = context.read<ChildCreationViewModel>();
@@ -440,10 +530,197 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     }
   }
 
+  Widget _buildExistingVaultSelectionBody(ChildCreationViewModel viewModel) {
+    const gradientHeight = 36.0;
+
+    return Consumer<WalletProvider>(
+      builder: (context, walletProvider, child) {
+        final vaultList = walletProvider.getVaultsByWalletType(WalletType.singleSignature);
+
+        return Stack(
+          children: [
+            ListView.separated(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.only(top: gradientHeight, bottom: gradientHeight),
+              itemCount: vaultList.length,
+              separatorBuilder: (context, index) => CoconutLayout.spacing_300h,
+              itemBuilder: (context, index) {
+                final vault = vaultList[index];
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                      VaultRowItem(
+                        vault: vault,
+                        onSelected: () {
+                          if (_isProcessing) return;
+                          viewModel.setSelectedExistingVaultId(vault.id);
+                        },
+                        isNextIconVisible: false,
+                        isKeyBorderVisible: true,
+                        isSelectable: !_isProcessing,
+                        isSelected: viewModel.selectedExistingVaultId == vault.id,
+                      ),
+                      if (index == vaultList.length - 1) CoconutLayout.spacing_2000h,
+                    ],
+                  ),
+                );
+              },
+            ),
+            const Positioned(
+              left: 0,
+              top: 0,
+              right: 0,
+              height: gradientHeight,
+              child: IgnorePointer(
+                ignoring: true,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        CoconutColors.white,
+                        CoconutColors.white,
+                        Color(0xE6FFFFFF),
+                        Color(0x99FFFFFF),
+                        Color(0x33FFFFFF),
+                      ],
+                      stops: [0.0, 0.16, 0.36, 0.62, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: gradientHeight,
+              child: IgnorePointer(
+                ignoring: true,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        CoconutColors.white,
+                        CoconutColors.white,
+                        Color(0xE6FFFFFF),
+                        Color(0x99FFFFFF),
+                        Color(0x33FFFFFF),
+                      ],
+                      stops: [0.0, 0.16, 0.36, 0.62, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _addCurrentVaultSelectionStep(ChildCreationViewModel viewModel) {
+    setState(() {
+      _currentVaultSelectionStep = 4;
+      _currentStep = 4;
+    });
+  }
+
+  void _onCurrentVaultSelected(ChildCreationViewModel viewModel) {
+    final selectedExistingVaultId = viewModel.selectedExistingVaultId;
+    if (selectedExistingVaultId == null) {
+      return;
+    }
+
+    final mnemonicViewKey = GlobalKey<MnemonicViewScreenState>();
+    _addEmbeddedStep(
+      Stack(
+        children: [
+          MnemonicViewScreen(
+            key: mnemonicViewKey,
+            walletId: selectedExistingVaultId,
+            autoLoadMnemonic: false,
+            isEmbedded: true,
+            onAuthCanceled: () {
+              _handleBackPressed();
+            },
+            onNextButtonPressed: () {
+              final mnemonicViewState = mnemonicViewKey.currentState;
+              if (mnemonicViewState == null) {
+                return;
+              }
+
+              final taprootProvider = context.read<TaprootWalletCreationProvider>();
+              taprootProvider.setSecretAndPassphrase(
+                mnemonicViewState.mnemonic,
+                mnemonicViewState.passphrase.isNotEmpty
+                    ? Uint8List.fromList(utf8.encode(mnemonicViewState.passphrase))
+                    : null,
+              );
+              _onChildWalletSet(viewModel);
+            },
+          ),
+        ],
+      ),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _showDeviceAuthDialog(mnemonicViewKey);
+    });
+  }
+
+  void _showDeviceAuthDialog(GlobalKey<MnemonicViewScreenState> mnemonicViewKey) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
+          title: '기기 인증 진행',
+          description: '기기 보안 영역에 저장된 니모닉에 접근하기 위해 기기 인증을 진행합니다.',
+          rightButtonText: t.confirm,
+          onTapRight: () async {
+            final pinCheckResult = await _showPinCheckBottomSheet();
+            if (pinCheckResult != true || !context.mounted) {
+              return;
+            }
+
+            Navigator.of(context).pop();
+            mnemonicViewKey.currentState?.setMnemonic();
+          },
+        );
+      },
+    );
+  }
+
+  Future<bool?> _showPinCheckBottomSheet() async {
+    return await MyBottomSheet.showBottomSheet_90<bool>(
+      context: context,
+      child: CustomLoadingOverlay(
+        child: PinCheckScreen(
+          pinCheckContext: PinCheckContextEnum.sensitiveAction,
+          onSuccess: () => Navigator.pop(context, true),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<ChildCreationViewModel>();
-    final isEmbeddedActive = _currentStep > 3 && _currentStep <= 3 + _embeddedWidgets.length;
+    final isVaultSelectionStep = _currentStep == _currentVaultSelectionStep;
+
+    int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
+    final isEmbeddedActive =
+        _currentStep > embeddedStartIndex && _currentStep <= embeddedStartIndex + _embeddedWidgets.length;
 
     return PopScope(
       canPop: false,
@@ -466,11 +743,11 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
                 key: ValueKey(_currentStep),
                 titleLines: _titleLines(viewModel),
                 showBottomButton: _isNextButtonVisible(viewModel),
-                ignoreChildHorizontalPadding: isEmbeddedActive,
+                ignoreChildHorizontalPadding: isEmbeddedActive || isVaultSelectionStep,
                 showHeader: !isEmbeddedActive,
-                scrollChild: !isEmbeddedActive,
+                scrollChild: !isEmbeddedActive && !isVaultSelectionStep,
                 onBottomButtonPressed: () => _onNextPressed(viewModel),
-                child: Container(child: _getCurrentChild(viewModel)),
+                child: _getCurrentChild(viewModel),
               ),
               TopProgressBar(visible: !isEmbeddedActive, total: _baseTotalStep - 1, current: _progressCurrentStep),
             ],

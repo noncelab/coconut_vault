@@ -640,6 +640,8 @@ taproot:
     step3:
       title_new: "지갑을 어떻게 만들까요?"
       title_existing: "어떤 기존 니모닉을 사용할까요?"
+      single_sig_select_from_vault_title_1: "현재 볼트에 보관 중인"
+      single_sig_select_from_vault_title_2: "니모닉을 선택하세요"
       new_option1: "동전 던지기"
       new_option2: "주사위 굴리기"
       new_option3: "자동 생성하기"

@@ -638,6 +638,8 @@ taproot:
     step3:
       title_new: "ウォレットをどのように作成しますか？"
       title_existing: "どの既存のニーモニックを使用しますか？"
+      single_sig_select_from_vault_title_1: "現在ボルトに保管されている"
+      single_sig_select_from_vault_title_2: "ニーモニックを選択してください"
       new_option1: "コイン投げ"
       new_option2: "サイコロ振り"
       new_option3: "自動生成"
