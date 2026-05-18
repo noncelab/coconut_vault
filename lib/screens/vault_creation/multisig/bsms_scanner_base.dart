@@ -45,6 +45,8 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   /// 툴팁 RichText
   List<TextSpan> buildTooltipRichText(BuildContext context, VisibilityProvider visibilityProvider);
 
+  Widget? buildTopGuideWidget(BuildContext context) => null;
+
   /// 실제 스캔 정보 처리 로직
   void onBarcodeDetected(BarcodeCapture capture);
 
@@ -118,7 +120,8 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
 
     // WidgetsBinding.instance.addPostFrameCallback((_) async {
     //   await Future.delayed(const Duration(milliseconds: 1000));
-    //   // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아 progress hide 합니다. 현재는 1초 후 hide
+    //   // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아
+    //   // progress hide 합니다. 현재는 1초 후 hide
     //   if (!mounted) return;
     //   setState(() {
     //     isProcessing = false;
@@ -170,21 +173,21 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   }
 
   Widget _buildChild(BuildContext context) {
-    final tooltipTextSpan = TextSpan(
-      style: CoconutTypography.body2_14,
-      children: buildTooltipRichText(context, visibilityProvider),
-    );
+    final topGuideWidget = buildTopGuideWidget(context);
+    final tooltipTextSpan =
+        topGuideWidget == null
+            ? TextSpan(style: CoconutTypography.body2_14, children: buildTooltipRichText(context, visibilityProvider))
+            : null;
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final Size layoutSize = constraints.biggest;
         // ScannerOverlay와 동일한 크기의 정사각형 스캔 영역 계산
         final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context, tooltipTextSpan: tooltipTextSpan);
-        final Rect scanWindow = Rect.fromCenter(
-          center: layoutSize.center(Offset.zero),
-          width: scanAreaSize,
-          height: scanAreaSize,
-        );
+        final Rect? scanWindow =
+            topGuideWidget == null
+                ? Rect.fromCenter(center: layoutSize.center(Offset.zero), width: scanAreaSize, height: scanAreaSize)
+                : null;
 
         return Stack(
           children: [
@@ -192,6 +195,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
               controller: controller,
               scanWindow: scanWindow,
               onDetect: (capture) {
+                debugPrint('BSMS scanner detected barcode count: ${capture.barcodes.length}');
                 if (isProcessing) return;
                 if (!mounted) return;
                 onBarcodeDetected(capture);
@@ -202,7 +206,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
                   WidgetsBinding.instance.addPostFrameCallback((_) async {
                     if (!mounted) return;
                     await _showCameraPermissionDialog();
-                    if (!mounted) return;
+                    if (!mounted || !context.mounted) return;
                     Navigator.pop(context);
                   });
                 }
@@ -210,14 +214,15 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
               },
             ),
             ScannerOverlay(tooltipTextSpan: tooltipTextSpan),
-            _buildProgressOverlay(context, tooltipTextSpan),
+            _buildProgressOverlay(context, tooltipTextSpan: tooltipTextSpan),
 
-            CustomTooltip.buildInfoTooltip(
-              context,
-              richText: RichText(text: tooltipTextSpan),
-              isBackgroundWhite: false,
-              paddingTop: 20,
-            ),
+            topGuideWidget ??
+                CustomTooltip.buildInfoTooltip(
+                  context,
+                  richText: RichText(text: tooltipTextSpan!),
+                  isBackgroundWhite: false,
+                  paddingTop: 20,
+                ),
             _buildLoadingOverlay(context),
             if (showBottomButton)
               FixedBottomButton(
@@ -264,7 +269,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
     );
   }
 
-  Widget _buildProgressOverlay(BuildContext context, TextSpan tooltipTextSpan) {
+  Widget _buildProgressOverlay(BuildContext context, {TextSpan? tooltipTextSpan}) {
     final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context, tooltipTextSpan: tooltipTextSpan);
     final scanAreaTop = (MediaQuery.of(context).size.height - scanAreaSize) / 2;
     final scanAreaBottom = scanAreaTop + scanAreaSize;

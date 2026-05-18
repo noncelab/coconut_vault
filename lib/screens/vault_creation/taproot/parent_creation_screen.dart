@@ -24,8 +24,12 @@ import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_verify_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/multisig/signer_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/mnemonic_view_screen.dart';
+import 'package:coconut_vault/utils/bip/signer_bsms.dart';
+import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
+import 'package:coconut_vault/widgets/button/assignable_pill_button.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
@@ -44,6 +48,7 @@ class ParentCreationScreen extends StatefulWidget {
 class _ParentCreationScreenState extends State<ParentCreationScreen> {
   static const int _initialStepCount = 2;
   static const int _progressTotalStep = 6;
+  static const Color _parentWalletActiveColor = CoconutColors.purple;
 
   final ParentCreationViewModel _viewModel = ParentCreationViewModel();
   late final List<List<TextSpan>> _titleList;
@@ -56,6 +61,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   int? _keyPreparationStep;
   int? _keyCreationOrImportOptionStep;
   int? _currentVaultSelectionStep;
+  int? _multisigParentImportStep;
+  int? _multisigParentListStep;
   int? _childWalletSetupStep;
   Timer? _titleAnimationTimer;
   bool _isTitleAnimationCompleted = false;
@@ -165,12 +172,16 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   bool get _showBottomButton {
-    return _isTitleAnimationCompleted && _canRunCurrentStepAction;
+    return _onNextPressed != null && _isTitleAnimationCompleted;
   }
 
   bool get _canRunCurrentStepAction {
     if (_currentStep == _currentVaultSelectionStep) {
       return _viewModel.selectedExistingVaultId != null;
+    }
+
+    if (_currentStep == _multisigParentListStep) {
+      return context.read<TaprootWalletCreationProvider>().externalMultisigParentSignerBsms != null;
     }
 
     return switch (_currentStep) {
@@ -530,12 +541,13 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         isEmbedded: true,
         isTaprootChild: true,
         onMnemonicReady: () {
+          final walletCreationProvider = context.read<WalletCreationProvider>();
           if (_viewModel.selectedWalletType == ParentWalletType.multisig) {
-            _addMultisigParentImportStep();
+            _setParentWalletSecret(walletCreationProvider.secret, passphrase: walletCreationProvider.passphrase);
+            _addMultisigParentExportStep();
             return;
           }
 
-          final walletCreationProvider = context.read<WalletCreationProvider>();
           _onParentWalletSet(walletCreationProvider.secret, passphrase: walletCreationProvider.passphrase);
         },
       ),
@@ -599,7 +611,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
               // Seed QR로 부모 키를 가져온 경우
 
               if (_viewModel.selectedWalletType == ParentWalletType.multisig) {
-                _addMultisigParentImportStep();
+                _setParentWalletSecret(secret, passphrase: passphrase);
+                _addMultisigParentExportStep();
                 return;
               }
 
@@ -653,7 +666,11 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
               // 현재 Vault에서 부모 키를 선택한 경우
 
               if (_viewModel.selectedWalletType == ParentWalletType.multisig) {
-                _addMultisigParentImportStep();
+                _setParentWalletSecret(
+                  mnemonicViewState.mnemonic,
+                  passphrase: Uint8List.fromList(utf8.encode(mnemonicViewState.passphrase)),
+                );
+                _addMultisigParentExportStep();
                 return;
               }
 
@@ -678,9 +695,16 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   /// STEP 2: 부모 지갑 설정 완료 -> 자식 지갑 설정 차례 진입
   void _onParentWalletSet(Uint8List secret, {Uint8List? passphrase}) {
     debugPrint('Step2로 이동');
-    final taprootWalletCreationProvider = context.read<TaprootWalletCreationProvider>();
-    taprootWalletCreationProvider.setSecretAndPassphrase(secret, passphrase);
+    _setParentWalletSecret(secret, passphrase: passphrase);
+    _addChildWalletSetupStep();
+  }
 
+  void _onMultisigParentsSet() {
+    debugPrint('Step2로 이동');
+    _addChildWalletSetupStep();
+  }
+
+  void _addChildWalletSetupStep() {
     final titleList = [
       TextSpan(text: t.taproot.parent_creation_screen.step_2.creation_script_path_intro_title_1),
       TextSpan(text: t.taproot.parent_creation_screen.step_2.creation_script_path_intro_title_2),
@@ -718,43 +742,181 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     _childWalletSetupStep = _addStep(titleList: titleList, bodyList: bodyList, nextButtonAction: () {});
   }
 
-  void _addMultisigParentImportStep() {
-    // 다른 볼트의 다중 서명 부모 지갑 정보 가져오기
+  void _setParentWalletSecret(Uint8List secret, {Uint8List? passphrase}) {
+    context.read<TaprootWalletCreationProvider>().setSecretAndPassphrase(secret, passphrase);
+  }
+
+  void _addMultisigParentExportStep() {
+    // 내 부모 지갑 정보 보여주기
     final titleList = [
       TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_qr_title_1),
       TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_qr_title_2),
     ];
+    final bodyList = [_buildMultisigParentExportQr()];
+    _multisigParentImportStep = _addStep(
+      titleList: titleList,
+      bodyList: bodyList,
+      nextButtonAction: _addMultisigListStep,
+    );
+  }
+
+  void _addMultisigListStep() {
+    // 다른 볼트의 다중 서명 부모 지갑 정보 가져오기
+    final titleList = [
+      TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_list_title_1),
+      TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_list_title_2),
+    ];
     final bodyList = [
-      Consumer<ParentCreationViewModel>(
-        builder: (context, viewModel, child) {
-          return MenuGrid(
+      Consumer<TaprootWalletCreationProvider>(
+        builder: (context, provider, child) {
+          final masterFingerprint = provider.masterFingerprint;
+          final externalParentMasterFingerprint = provider.externalMultisigParentMasterFingerprint;
+          return Column(
             children: [
-              SelectableOptionCard(
-                title: t.taproot.parent_creation_screen.step_2.creation_script_path_import,
-                description: t.taproot.parent_creation_screen.step_2.creation_script_path_import_description,
-                bottomAssetPath: 'assets/png/scan-qr-big.png',
-                imageScale: 3.8,
-                isSelected: false,
-                onTap: () {},
-                imageWidth: 100,
-                height: 195,
+              AssignablePillButton(
+                text: _parentWalletText(index: 1, masterFingerprint: masterFingerprint),
+                isAssigned: true,
+                activeColor: _parentWalletActiveColor,
+                width: double.infinity,
+                height: 64,
+                iconWidget: _buildCurrentWalletBadge(),
+                onPressed: _showMultisigParentExportBottomSheet,
               ),
-              SelectableOptionCard(
-                title: t.taproot.parent_creation_screen.step_2.creation_script_path_create,
-                description: t.taproot.parent_creation_screen.step_2.creation_script_path_create_description,
-                bottomAssetPath: 'assets/png/load-wallet.png',
-                imageScale: 3.8,
-                isSelected: false,
-                onTap: () {},
-                imageWidth: 100,
-                height: 195,
+              CoconutLayout.spacing_500h,
+              AssignablePillButton(
+                text: _parentWalletText(index: 2, masterFingerprint: externalParentMasterFingerprint),
+                isAssigned: externalParentMasterFingerprint != null,
+                activeColor: _parentWalletActiveColor,
+                width: double.infinity,
+                height: 64,
+                onPressed: _showMultisigParentScannerBottomSheet,
               ),
             ],
           );
         },
       ),
     ];
-    _addStep(titleList: titleList, bodyList: bodyList, nextButtonAction: () {});
+    _multisigParentListStep = _addStep(
+      titleList: titleList,
+      bodyList: bodyList,
+      nextButtonAction: _onMultisigParentsSet,
+    );
+  }
+
+  void _showMultisigParentExportBottomSheet() {
+    MyBottomSheet.showBottomSheet_ratio(
+      context: context,
+      ratio: 0.8,
+      showDragHandle: true,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        child: Column(
+          children: [
+            CoconutLayout.spacing_700h,
+            Text(
+              '${t.taproot.parent_creation_screen.step_1.multisig_qr_title_1}\n'
+              '${t.taproot.parent_creation_screen.step_1.multisig_qr_title_2}',
+              style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.black),
+              textAlign: TextAlign.center,
+            ),
+            CoconutLayout.spacing_2100h,
+            _buildMultisigParentExportQr(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showMultisigParentScannerBottomSheet() async {
+    final guideText = Text(
+      '${t.taproot.parent_creation_screen.step_1.multisig_scanner_title_1}\n'
+      '${t.taproot.parent_creation_screen.step_1.multisig_scanner_title_2}',
+      style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.white),
+      textAlign: TextAlign.center,
+    );
+    final SignerBsms? importedParent = await MyBottomSheet.showDraggableScrollableSheet<SignerBsms>(
+      context: context,
+      topWidget: true,
+      physics: const ClampingScrollPhysics(),
+      enableSingleChildScroll: false,
+      hideAppBar: true,
+      child: SignerBsmsScannerScreen(topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText)),
+    );
+
+    if (importedParent == null) {
+      debugPrint('Multisig parent wallet scan canceled or failed.');
+      return;
+    }
+
+    debugPrint('Scanned multisig parent wallet data: $importedParent');
+    if (!mounted) {
+      return;
+    }
+    final myMasterFingerprint = context.read<TaprootWalletCreationProvider>().masterFingerprint;
+    if (myMasterFingerprint != null && importedParent.fingerprint.toLowerCase() == myMasterFingerprint.toLowerCase()) {
+      final shouldScanAgain = await _showSameParentWalletDialog();
+      if (shouldScanAgain == true && mounted) {
+        await _showMultisigParentScannerBottomSheet();
+      }
+      return;
+    }
+
+    if (mounted) {
+      context.read<TaprootWalletCreationProvider>().setExternalMultisigParent(
+        signerBsms: importedParent.getSignerBsms(includesLabel: false),
+        masterFingerprint: importedParent.fingerprint,
+      );
+      setState(() {});
+    }
+  }
+
+  Future<bool?> _showSameParentWalletDialog() {
+    return showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
+          title: t.taproot.parent_creation_screen.step_1.same_parent_wallet_dialog_title,
+          description: t.taproot.parent_creation_screen.step_1.same_parent_wallet_dialog_description,
+          leftButtonText: t.cancel,
+          rightButtonText: t.confirm,
+          onTapLeft: () => Navigator.pop(dialogContext, false),
+          onTapRight: () => Navigator.pop(dialogContext, true),
+        );
+      },
+    );
+  }
+
+  Widget _buildMultisigParentExportQr() {
+    return Consumer<TaprootWalletCreationProvider>(
+      builder: (context, provider, child) {
+        final qrData = provider.qrData;
+        if (qrData == null || qrData.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return AdaptiveQrImage(qrData: qrData);
+      },
+    );
+  }
+
+  String _parentWalletText({required int index, String? masterFingerprint}) {
+    final masterFingerprintSuffix =
+        masterFingerprint == null || masterFingerprint.isEmpty ? '' : ' - $masterFingerprint';
+    return t.taproot.parent_creation_screen.step_1.parent_wallet(
+      index: index,
+      masterFingerprintSuffix: masterFingerprintSuffix,
+    );
+  }
+
+  Widget _buildCurrentWalletBadge() {
+    return Container(
+      width: 20,
+      height: 20,
+      decoration: BoxDecoration(color: _parentWalletActiveColor, borderRadius: BorderRadius.circular(8)),
+      alignment: Alignment.center,
+      child: Text(t.taproot.participant_card.me, style: CoconutTypography.body3_12.setColor(CoconutColors.white)),
+    );
   }
 
   void _addImportedMnemonicViewStep() {
@@ -779,7 +941,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
           // 니모닉 직접 입력으로 부모 키를 가져온 경우
 
           if (_viewModel.selectedWalletType == ParentWalletType.multisig) {
-            _addMultisigParentImportStep();
+            _setParentWalletSecret(mnemonicViewState.mnemonic, passphrase: passphrase);
+            _addMultisigParentExportStep();
             return;
           }
 
@@ -796,8 +959,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       builder: (context) {
         return CoconutPopup(
           languageCode: context.read<VisibilityProvider>().language,
-          title: '기기 인증 진행',
-          description: '기기 보안 영역에 저장된 니모닉에 접근하기 위해 기기 인증을 진행합니다.',
+          title: t.taproot.parent_creation_screen.step_1.device_auth_dialog_title,
+          description: t.taproot.parent_creation_screen.step_1.device_auth_dialog_description,
           rightButtonText: t.confirm,
           onTapRight: () async {
             final pinCheckResult = await _showPinCheckBottomSheet();
@@ -836,6 +999,11 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return;
     }
 
+    if (_currentStep == _multisigParentImportStep || _currentStep == _multisigParentListStep) {
+      _showParentWalletResetDialog();
+      return;
+    }
+
     _returnToPreviousStep();
   }
 
@@ -860,13 +1028,19 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   void _resetParentWalletAndReturnToKeyOptionStep() {
+    _returnToKeyCreationOrImportOptionStep(resetParentWallet: true);
+  }
+
+  void _returnToKeyCreationOrImportOptionStep({required bool resetParentWallet}) {
     final targetStep = _keyCreationOrImportOptionStep;
     if (targetStep == null || targetStep < 1 || targetStep > _titleList.length) {
       _returnToPreviousStep();
       return;
     }
 
-    context.read<TaprootWalletCreationProvider>().resetSecretAndPassphrase();
+    if (resetParentWallet) {
+      context.read<TaprootWalletCreationProvider>().resetSecretAndPassphrase();
+    }
 
     setState(() {
       while (_titleList.length > targetStep) {
@@ -880,6 +1054,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       }
 
       _currentStep = targetStep;
+      _multisigParentImportStep = null;
+      _multisigParentListStep = null;
       _childWalletSetupStep = null;
     });
     _resetSelectionForBackNavigation();
@@ -917,6 +1093,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _keyPreparationStep = null;
       _keyCreationOrImportOptionStep = null;
       _currentVaultSelectionStep = null;
+      _multisigParentImportStep = null;
+      _multisigParentListStep = null;
       _childWalletSetupStep = null;
       return;
     }
@@ -925,6 +1103,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _viewModel.resetSelection(ParentSelectionResetScope.keyPreparation);
       _keyCreationOrImportOptionStep = null;
       _currentVaultSelectionStep = null;
+      _multisigParentImportStep = null;
+      _multisigParentListStep = null;
       _childWalletSetupStep = null;
       return;
     }
@@ -932,6 +1112,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     if (_currentStep == _keyCreationOrImportOptionStep || previousStep == _keyCreationOrImportOptionStep) {
       _viewModel.resetSelection(ParentSelectionResetScope.keyCreationOrImportOption);
       _currentVaultSelectionStep = null;
+      _multisigParentImportStep = null;
+      _multisigParentListStep = null;
       _childWalletSetupStep = null;
     }
   }

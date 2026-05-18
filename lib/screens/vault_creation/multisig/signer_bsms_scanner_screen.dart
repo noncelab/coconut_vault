@@ -18,7 +18,14 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 class SignerBsmsScannerScreen extends StatefulWidget {
   final int? id;
   final HardwareWalletType? hardwareWalletType;
-  const SignerBsmsScannerScreen({super.key, this.id, this.hardwareWalletType = HardwareWalletType.coconutVault});
+  final Widget? topGuideWidget;
+
+  const SignerBsmsScannerScreen({
+    super.key,
+    this.id,
+    this.hardwareWalletType = HardwareWalletType.coconutVault,
+    this.topGuideWidget,
+  });
 
   @override
   State<SignerBsmsScannerScreen> createState() => _SignerBsmsScannerScreenState();
@@ -45,6 +52,9 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
   String get appBarTitle => widget.hardwareWalletType!.displayName;
 
   @override
+  Widget? buildTopGuideWidget(BuildContext context) => widget.topGuideWidget;
+
+  @override
   void onBarcodeDetected(BarcodeCapture capture) async {
     final codes = capture.barcodes;
     if (codes.isEmpty) {
@@ -56,6 +66,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
     }
 
     final scanData = barcode.rawValue!;
+    Logger.log('--> SignerBsmsScannerScreen: detected raw data: $scanData');
 
     SignerBsms? signerBsms;
     String? scanResult;
@@ -193,6 +204,11 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
       return TextSpan(children: children);
     }
 
+    final kruxNetworkGuide =
+        NetworkType.currentNetworkType.isTestnet
+            ? t.bsms_scanner_screen.krux.guide2_7_regtest
+            : t.bsms_scanner_screen.krux.guide2_7;
+
     switch (widget.hardwareWalletType) {
       case HardwareWalletType.keystone:
         return [
@@ -309,7 +325,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
               buildTextSpan('\n'),
               buildStep(
                 '5. ',
-                '${t.bsms_scanner_screen.krux.guide2_6} → ${NetworkType.currentNetworkType.isTestnet ? t.bsms_scanner_screen.krux.guide2_7_regtest : t.bsms_scanner_screen.krux.guide2_7}',
+                '${t.bsms_scanner_screen.krux.guide2_6} → $kruxNetworkGuide',
                 t.bsms_scanner_screen.select,
               ),
             ],
