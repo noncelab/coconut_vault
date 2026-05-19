@@ -1,5 +1,6 @@
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -24,8 +25,24 @@ class VaultHomeViewModel extends ChangeNotifier {
   bool get isVaultInitialized => false;
   bool get isVaultsLoaded => _walletProvider.isVaultsLoaded;
   int get vaultCount => _walletProvider.vaultList.length;
-  bool get hasSingleSigVault =>
-      _walletProvider.vaultList.whereType<VaultListItemBase>().any((v) => v.vaultType == WalletType.singleSignature);
+  bool get hasSeed {
+    if (_walletProvider.vaultList.whereType<VaultListItemBase>().any(
+      (v) => v.vaultType == WalletType.singleSignature,
+    )) {
+      return true;
+    }
+
+    final taproot = _walletProvider.vaultList.whereType<TaprootVaultListItem>();
+    if (taproot.isEmpty) return false;
+    for (final wallet in taproot) {
+      if (wallet.keyPathSeedInfos.isNotEmpty || wallet.scriptPathSeedInfos.isNotEmpty) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   List<int> get favoriteVaultIds => _favoriteVaultIds;
   bool get isSigningOnlyMode => _preferenceProvider.isSigningOnlyMode;
 

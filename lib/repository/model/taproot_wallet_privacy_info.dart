@@ -1,5 +1,5 @@
 import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
-import 'package:coconut_vault/model/taproot/taproot_seed_info.dart';
+import 'package:coconut_vault/model/taproot/stored_taproot_seed_info.dart';
 import 'package:coconut_vault/repository/model/wallet_privacy_info.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -9,8 +9,8 @@ part 'taproot_wallet_privacy_info.g.dart';
 @JsonSerializable()
 class TaprootWalletPrivacyInfo extends WalletPrivacyInfo {
   final String descriptor;
-  final List<TaprootSeedInfo> keyPathSeedInfos;
-  final List<ScriptPathSeedInfo>? scriptPathSeedInfos;
+  final List<StoredTaprootSeedInfo> keyPathSeedInfos;
+  final List<ScriptPathSeedInfo> scriptPathSeedInfos;
 
   TaprootWalletPrivacyInfo({
     required this.descriptor,
