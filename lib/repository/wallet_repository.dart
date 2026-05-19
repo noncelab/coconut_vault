@@ -279,13 +279,18 @@ class WalletRepository {
     final newTaprootVault = result.vault;
     Logger.logLongString('${newTaprootVault.toJson()}');
     vaults.add(newTaprootVault);
+    final seedInfosForAdd = [...result.keyPathSaves, ...result.scriptPathSaves];
+    assert(
+      seedInfosForAdd.map((e) => e.extendedPublicKey).toSet().length == seedInfosForAdd.length,
+      'Duplicate extendedPublicKey detected in taproot seedInfosForAdd',
+    );
     try {
       await _strategy.mutate(
         execute:
             (ops) => ops.persistTaprootAdd(
               id: nextId,
               item: newTaprootVault,
-              seedInfosForAdd: [...result.keyPathSaves, ...result.scriptPathSaves],
+              seedInfosForAdd: seedInfosForAdd,
             ),
         snapshot: () => vaults,
       );
