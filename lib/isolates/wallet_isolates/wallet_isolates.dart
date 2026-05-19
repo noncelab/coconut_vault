@@ -26,7 +26,7 @@ typedef TaprootCreationResult =
     ({
       TaprootVaultListItem vault,
       List<TaprootSeedInfoForSave> keyPathSaves,
-      List<ScriptPathSeedInfoForSave> scriptPathSaves,
+      List<TaprootSeedInfoForSave> scriptPathSaves,
     });
 
 class WalletIsolates {
@@ -139,11 +139,11 @@ class WalletIsolates {
 
   /// inheritance leaf 목록을 policy 목록과 scriptPath seedInfo/save 모델로 변환한다.
   /// secret을 보유한 leaf는 내부에서 wipe되므로 호출 후 해당 leaf의 secret은 사용할 수 없다.
-  static ({List<Policy> policies, List<ScriptPathSeedInfo> seedInfos, List<ScriptPathSeedInfoForSave> saves})
+  static ({List<Policy> policies, List<ScriptPathSeedInfo> seedInfos, List<TaprootSeedInfoForSave> saves})
   _buildScriptPathEntries(List<InheritanceLeaf>? inheritanceleaves) {
     final policies = <Policy>[];
     final seedInfos = <ScriptPathSeedInfo>[];
-    final saves = <ScriptPathSeedInfoForSave>[];
+    final saves = <TaprootSeedInfoForSave>[];
 
     if (inheritanceleaves != null) {
       final result = TaprootInheritanceIsolates.buildScriptPathEntries(inheritanceleaves);

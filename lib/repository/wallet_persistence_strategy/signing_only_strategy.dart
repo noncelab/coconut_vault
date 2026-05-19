@@ -5,7 +5,6 @@ import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
-import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
@@ -78,18 +77,11 @@ class SigningOnlyStrategy implements WalletPersistenceStrategy {
 
   Future<void> _saveTaprootSecrets(
     int walletId,
-    List<TaprootSeedInfoForSave> keyPathSeeds,
-    List<ScriptPathSeedInfoForSave> scriptPathSeeds,
+    List<TaprootSeedInfoForSave> secrets,
   ) async {
-    for (final seedInfo in keyPathSeeds) {
+    for (final seedInfo in secrets) {
       final keyString = WalletStorageKeys.taprootSeedKey(walletId, seedInfo.extendedPublicKey);
       await _saveTaprootSeed(walletId, keyString, seedInfo);
-    }
-    for (final scriptPath in scriptPathSeeds) {
-      for (final seedInfo in scriptPath.seedInfos) {
-        final keyString = WalletStorageKeys.taprootSeedKey(walletId, seedInfo.extendedPublicKey);
-        await _saveTaprootSeed(walletId, keyString, seedInfo);
-      }
     }
   }
 
@@ -163,18 +155,15 @@ class _SigningOnlyOps implements WalletWriteOps {
   @override
   Future<void> persistTaprootAdd({
     required int id,
-    required List<TaprootSeedInfoForSave> keyPathSeedInfosForAdd,
-    required List<ScriptPathSeedInfoForSave> scriptSeedInfosForAdd,
+    required List<TaprootSeedInfoForSave> seedInfosForAdd,
     required TaprootVaultListItem item,
   }) async {
     // Privacy info is not persisted in signing-only mode; only the secret matters.
     try {
-      await _s._saveTaprootSecrets(id, keyPathSeedInfosForAdd, scriptSeedInfosForAdd);
+      await _s._saveTaprootSecrets(id, seedInfosForAdd);
     } catch (_) {
       await _s._deleteTaprootSeeds(id, [
-        for (final seedInfo in keyPathSeedInfosForAdd) WalletStorageKeys.taprootSeedKey(id, seedInfo.extendedPublicKey),
-        for (final scriptPath in scriptSeedInfosForAdd)
-          for (final seedInfo in scriptPath.seedInfos) WalletStorageKeys.taprootSeedKey(id, seedInfo.extendedPublicKey),
+        for (final seedInfo in seedInfosForAdd) WalletStorageKeys.taprootSeedKey(id, seedInfo.extendedPublicKey),
       ]);
       rethrow;
     }
