@@ -736,6 +736,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
             walletId: selectedExistingVaultId,
             autoLoadMnemonic: false,
             isEmbedded: true,
+            buildPassphraseToggle: context.read<VisibilityProvider>().isPassphraseUseEnabled,
             onAuthCanceled: () {
               _handleBackPressed();
             },
