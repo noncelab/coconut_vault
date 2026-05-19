@@ -14,7 +14,7 @@ import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
-import 'package:coconut_vault/model/taproot/taproot_seed_info.dart';
+import 'package:coconut_vault/model/taproot/stored_taproot_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
@@ -26,7 +26,7 @@ typedef TaprootCreationResult =
     ({
       TaprootVaultListItem vault,
       List<TaprootSeedInfoForSave> keyPathSaves,
-      List<ScriptPathSeedInfoForSave> scriptPathSaves,
+      List<TaprootSeedInfoForSave> scriptPathSaves,
     });
 
 class WalletIsolates {
@@ -83,10 +83,10 @@ class WalletIsolates {
     return newMultisigVault;
   }
 
-  static (TaprootSeedInfo, KeyStore) createSeedInfo(SeedSource seed) {
+  static (StoredTaprootSeedInfo, KeyStore) createSeedInfo(SeedSource seed) {
     final keystore = KeyStore.fromSeed(Seed.fromMnemonic(seed.mnemonic, passphrase: seed.passphrase), AddressType.p2tr);
     return (
-      TaprootSeedInfo(
+      StoredTaprootSeedInfo(
         extendedPublicKey: keystore.extendedPublicKey.serialize(),
         isPassphraseSet: seed.passphrase.isNotEmpty,
       ),
@@ -107,10 +107,10 @@ class WalletIsolates {
 
   /// keyPath seed/signerBsms를 keyStore 목록과 seedInfo/save 모델로 변환한다.
   /// [seeds]가 있는 경우 내부에서 각 seed를 wipe하므로 호출 후에는 사용할 수 없다.
-  static ({List<KeyStore> keyStores, List<TaprootSeedInfo> seedInfos, List<TaprootSeedInfoForSave> saves})
+  static ({List<KeyStore> keyStores, List<StoredTaprootSeedInfo> seedInfos, List<TaprootSeedInfoForSave> saves})
   _buildKeyPathEntries(List<SeedSource>? seeds, List<String>? signerBsmses) {
     final keyStores = <KeyStore>[];
-    final seedInfos = <TaprootSeedInfo>[];
+    final seedInfos = <StoredTaprootSeedInfo>[];
     final saves = <TaprootSeedInfoForSave>[];
 
     if (seeds != null) {
@@ -139,11 +139,11 @@ class WalletIsolates {
 
   /// inheritance leaf 목록을 policy 목록과 scriptPath seedInfo/save 모델로 변환한다.
   /// secret을 보유한 leaf는 내부에서 wipe되므로 호출 후 해당 leaf의 secret은 사용할 수 없다.
-  static ({List<Policy> policies, List<ScriptPathSeedInfo> seedInfos, List<ScriptPathSeedInfoForSave> saves})
+  static ({List<Policy> policies, List<ScriptPathSeedInfo> seedInfos, List<TaprootSeedInfoForSave> saves})
   _buildScriptPathEntries(List<InheritanceLeaf>? inheritanceleaves) {
     final policies = <Policy>[];
     final seedInfos = <ScriptPathSeedInfo>[];
-    final saves = <ScriptPathSeedInfoForSave>[];
+    final saves = <TaprootSeedInfoForSave>[];
 
     if (inheritanceleaves != null) {
       final result = TaprootInheritanceIsolates.buildScriptPathEntries(inheritanceleaves);
