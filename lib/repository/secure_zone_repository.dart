@@ -68,7 +68,20 @@ class EncryptResult {
   }
 }
 
-class SecureZoneRepository {
+abstract class SecureZoneRepositoryContract {
+  Future<void> generateKey({required String alias, bool userAuthRequired = false, bool perUseAuth = false});
+  Future<void> deleteKey({required String alias});
+  Future<void> deleteKeys({required List<String> aliasList});
+  Future<EncryptResult> encrypt({required String alias, required Uint8List plaintext});
+  Future<Uint8List?> decrypt({
+    required String alias,
+    required Uint8List ciphertext,
+    required Uint8List iv,
+    bool autoAuth = true,
+  });
+}
+
+class SecureZoneRepository implements SecureZoneRepositoryContract {
   // Singleton
   static final SecureZoneRepository _instance = SecureZoneRepository._internal();
   factory SecureZoneRepository() => _instance;
@@ -79,6 +92,7 @@ class SecureZoneRepository {
   late final SecureZoneKeystore _secureZoneKeystore;
 
   // Public Methods
+  @override
   Future<void> generateKey({required String alias, bool userAuthRequired = false, bool perUseAuth = false}) async {
     return await _secureZoneKeystore.generateKey(
       alias: alias,
@@ -87,14 +101,17 @@ class SecureZoneRepository {
     );
   }
 
+  @override
   Future<void> deleteKey({required String alias}) async {
     return await _secureZoneKeystore.deleteKey(alias: alias);
   }
 
+  @override
   Future<void> deleteKeys({required List<String> aliasList}) async {
     return await _secureZoneKeystore.deleteKeys(aliasList: aliasList);
   }
 
+  @override
   Future<EncryptResult> encrypt({required String alias, required Uint8List plaintext}) async {
     final Map<String, dynamic> result = await _secureZoneKeystore.encrypt(alias: alias, plaintext: plaintext);
     final iv = result['iv'] ?? Uint8List(0);
@@ -108,6 +125,7 @@ class SecureZoneRepository {
     return EncryptResult(ciphertext: result['ciphertext'] as Uint8List, iv: iv, extra: extra);
   }
 
+  @override
   Future<Uint8List?> decrypt({
     required String alias,
     required Uint8List ciphertext,

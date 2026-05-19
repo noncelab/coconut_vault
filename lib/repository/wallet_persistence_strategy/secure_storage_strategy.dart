@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
@@ -6,86 +7,31 @@ import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/repository/model/multisig_wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/model/single_sig_wallet_privacy_info.dart';
+import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
+import 'package:coconut_vault/repository/model/taproot_wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/model/wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/secure_zone_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/repository/wallet_persistence_strategy/wallet_persistence_strategy.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_payload_codec.dart';
-import 'package:coconut_vault/utils/hash_util.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/print_util.dart';
-import 'package:flutter/foundation.dart';
-
-/// Storage key derivation helpers shared by repository & strategies.
-class WalletStorageKeys {
-  static String walletKey(int id, WalletType type) => hashString("${id.toString()} - ${type.name}");
-  static String passphraseEnabledKey(String walletKey) => hashString("$walletKey - passphraseEnabled");
-  static String privacyInfoKey(String walletKey) => "privacy_${hashString(walletKey)}";
-}
-
-/// Persistence behavior that differs between secure-storage mode and signing-only mode.
-///
-/// Wallet-list mutations MUST go through [mutate], which guarantees the public vault list is
-/// persisted exactly once after the body succeeds. This makes it impossible to forget the
-/// `savePublicVaultList` call and naturally batches multiple writes (e.g., bulk delete) into
-/// a single public-list save.
-abstract class WalletPersistenceStrategy {
-  bool get isSigningOnlyMode;
-
-  /// Whether the singlesig secret payload carries the passphrase.
-  bool get passphraseStoredWithSecret;
-
-  Future<bool> hasPassphrase(int walletId);
-
-  /// Single entry point for any mutation that affects the wallet list.
-  ///
-  /// [execute] performs writes through [WalletWriteOps]. When it returns successfully,
-  /// the public vault list is persisted exactly once using the result of [snapshot] (lazily
-  /// evaluated so it observes mutations made inside [execute]).
-  ///
-  /// If [execute] throws, [snapshot] is NOT called and no public list save occurs; callers are
-  /// responsible for reverting in-memory state and (if needed) calling [mutate] again to clean
-  /// up partial disk writes.
-  Future<T> mutate<T>({
-    required Future<T> Function(WalletWriteOps ops) execute,
-    required List<VaultListItemBase> Function() snapshot,
-  });
-
-  /// Update privacy info for an existing singlesig wallet (e.g., after account derivation change).
-  /// Caller is responsible for following up with [savePublicVaultList] if the public json changed.
-  Future<void> updateSinglesigPrivacy(int id, SingleSigVaultListItem item);
-
-  /// Persist the public vault list snapshot. No-op in signing-only mode by policy.
-  Future<void> savePublicVaultList(List<VaultListItemBase> items);
-}
-
-/// Wallet-level write operations available inside a [WalletPersistenceStrategy.mutate] body.
-///
-/// Implementations are library-private and can only be obtained via [WalletPersistenceStrategy.mutate],
-/// which guarantees the public vault list save runs after the body.
-abstract class WalletWriteOps {
-  /// Atomically persist a new singlesig wallet (secret + privacy info).
-  /// On a partial failure, rolls back internally before rethrowing.
-  Future<void> persistSinglesigAdd({
-    required int id,
-    required Uint8List secret,
-    Uint8List? passphrase,
-    required SingleSigVaultListItem item,
-  });
-
-  /// Atomically persist a new multisig wallet (privacy info only).
-  Future<void> persistMultisigAdd({required int id, required MultisigVaultListItem item});
-
-  /// Remove all data for the wallet (secret if singlesig + privacy info). Idempotent.
-  Future<void> deleteWalletData(int id, WalletType type);
-}
 
 /// Persistence behavior used when the user runs in normal (secure-storage) mode.
 class SecureStorageStrategy implements WalletPersistenceStrategy {
-  final SecureStorageRepository _storageService = SecureStorageRepository();
-  final SecureZoneRepository _secureZoneRepository = SecureZoneRepository();
+  final SecureStorageRepositoryContract _storageService;
+  final SecureZoneRepositoryContract _secureZoneRepository;
   final SharedPrefsRepository _sharedPrefs = SharedPrefsRepository();
+
+  SecureStorageStrategy({
+    SecureStorageRepositoryContract? storageService,
+    SecureZoneRepositoryContract? secureZoneRepository,
+  }) : _storageService = storageService ?? SecureStorageRepository(),
+       _secureZoneRepository = secureZoneRepository ?? SecureZoneRepository();
 
   @override
   bool get isSigningOnlyMode => false;
@@ -180,6 +126,73 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
     await writePrivacyInfo(id, WalletType.multiSignature, info);
   }
 
+  Future<void> _saveTaprootSecrets(
+    int walletId,
+    List<TaprootSeedInfoForSave> secrets,
+  ) async {
+    for (final seedInfo in secrets) {
+      final keyString = WalletStorageKeys.taprootSeedKey(walletId, seedInfo.extendedPublicKey);
+      await _saveTaprootSeed(walletId, keyString, seedInfo);
+    }
+  }
+
+  Future<void> _saveTaprootSeed(int walletId, String keyString, TaprootSeedInfoForSave seedInfo) async {
+    Logger.log('--> taproot seed key: $keyString');
+    await _secureZoneRepository.generateKey(alias: keyString, userAuthRequired: true);
+    final pair = seedInfo.secretPassphrasePair;
+    final plainText = SecureZonePayloadCodec.buildPlaintext(secret: pair.secret, passphrase: null);
+    final result = await _secureZoneRepository.encrypt(alias: keyString, plaintext: plainText);
+    await _storageService.write(key: keyString, value: result.toCombinedBase64());
+
+    await _appendTaprootSeedIndex(walletId, keyString);
+  }
+
+  Future<void> _deleteTaprootSecrets(int walletId) async {
+    final seedKeys = await _readTaprootSeedIndex(walletId);
+    for (final seedKey in seedKeys) {
+      await _deleteTaprootSeedByKey(seedKey);
+    }
+    await _storageService.delete(key: WalletStorageKeys.taprootSeedIndexKey(walletId));
+  }
+
+  Future<void> _deleteTaprootSeeds(int walletId, List<String> seedKeys) async {
+    for (final keyString in seedKeys) {
+      await _deleteTaprootSeedByKey(keyString);
+    }
+    await _storageService.delete(key: WalletStorageKeys.taprootSeedIndexKey(walletId));
+  }
+
+  Future<void> _deleteTaprootSeedByKey(String seedKey) async {
+    await _storageService.delete(key: seedKey);
+    await _secureZoneRepository.deleteKey(alias: seedKey);
+  }
+
+  Future<List<String>> _readTaprootSeedIndex(int walletId) async {
+    final indexJson = await _storageService.read(key: WalletStorageKeys.taprootSeedIndexKey(walletId));
+    if (indexJson == null) {
+      return [];
+    }
+    return List<String>.from(jsonDecode(indexJson));
+  }
+
+  Future<void> _appendTaprootSeedIndex(int walletId, String seedKey) async {
+    final seedKeys = await _readTaprootSeedIndex(walletId);
+    if (!seedKeys.contains(seedKey)) {
+      seedKeys.add(seedKey);
+      await _storageService.write(key: WalletStorageKeys.taprootSeedIndexKey(walletId), value: jsonEncode(seedKeys));
+    }
+  }
+
+  Future<void> _saveTaprootPrivacy(int id, TaprootVaultListItem item) async {
+    // TODO: 확인 필요
+    final info = TaprootWalletPrivacyInfo(
+      descriptor: item.descriptor,
+      keyPathSeedInfos: item.keyPathSeedInfos,
+      scriptPathSeedInfos: item.scriptPathSeedInfos,
+    );
+    await writePrivacyInfo(id, WalletType.taproot, info);
+  }
+
   Future<void> _deletePrivacyInfo(int id, WalletType type) async {
     final walletKey = WalletStorageKeys.walletKey(id, type);
     await _storageService.delete(key: WalletStorageKeys.privacyInfoKey(walletKey));
@@ -213,98 +226,29 @@ class _SecureStorageOps implements WalletWriteOps {
   }
 
   @override
+  Future<void> persistTaprootAdd({
+    required int id,
+    required List<TaprootSeedInfoForSave> seedInfosForAdd,
+    required TaprootVaultListItem item,
+  }) async {
+    try {
+      await _s._saveTaprootSecrets(id, seedInfosForAdd);
+      await _s._saveTaprootPrivacy(id, item);
+    } catch (_) {
+      await _s._deleteTaprootSeeds(id, [
+        for (final seedInfo in seedInfosForAdd) WalletStorageKeys.taprootSeedKey(id, seedInfo.extendedPublicKey),
+      ]);
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> deleteWalletData(int id, WalletType type) async {
     if (type == WalletType.singleSignature) {
       await _s._deleteSinglesigSecret(id);
+    } else if (type == WalletType.taproot) {
+      await _s._deleteTaprootSecrets(id);
     }
     await _s._deletePrivacyInfo(id, type);
-  }
-}
-
-/// Persistence behavior used in signing-only mode.
-///
-/// Public/privacy info is intentionally not persisted; the secret payload carries the passphrase
-/// so that signing flows can recover it without user input.
-class SigningOnlyStrategy implements WalletPersistenceStrategy {
-  final SecureStorageRepository _storageService = SecureStorageRepository();
-  final SecureZoneRepository _secureZoneRepository = SecureZoneRepository();
-
-  @override
-  bool get isSigningOnlyMode => true;
-
-  @override
-  bool get passphraseStoredWithSecret => true;
-
-  @override
-  Future<bool> hasPassphrase(int walletId) async {
-    // Not used in signing-only mode (call sites guard with isSigningOnlyMode).
-    assert(false, 'hasPassphrase must not be called in signing-only mode');
-    return false;
-  }
-
-  @override
-  Future<T> mutate<T>({
-    required Future<T> Function(WalletWriteOps ops) execute,
-    required List<VaultListItemBase> Function() snapshot,
-  }) async {
-    final result = await execute(_SigningOnlyOps(this));
-    await savePublicVaultList(snapshot()); // no-op, kept for API symmetry
-    return result;
-  }
-
-  @override
-  Future<void> updateSinglesigPrivacy(int id, SingleSigVaultListItem item) async {
-    // No-op: privacy info is not persisted in signing-only mode.
-  }
-
-  @override
-  Future<void> savePublicVaultList(List<VaultListItemBase> items) async {
-    // No-op: signing-only mode does not persist the public vault list to disk.
-  }
-
-  // --- library-private granular ops ---
-
-  Future<void> _saveSinglesigSecret(int walletId, Uint8List secret, Uint8List? passphrase) async {
-    final keyString = WalletStorageKeys.walletKey(walletId, WalletType.singleSignature);
-    await _secureZoneRepository.generateKey(alias: keyString, userAuthRequired: true);
-    final plainText = SecureZonePayloadCodec.buildPlaintext(secret: secret, passphrase: passphrase);
-    final result = await _secureZoneRepository.encrypt(alias: keyString, plaintext: plainText);
-    await _storageService.write(key: keyString, value: result.toCombinedBase64());
-  }
-
-  Future<void> _deleteSinglesigSecret(int walletId) async {
-    final keyString = WalletStorageKeys.walletKey(walletId, WalletType.singleSignature);
-    await _storageService.delete(key: keyString);
-    await _secureZoneRepository.deleteKey(alias: keyString);
-  }
-}
-
-/// Library-private write-ops impl bound to a [SigningOnlyStrategy].
-class _SigningOnlyOps implements WalletWriteOps {
-  final SigningOnlyStrategy _s;
-  _SigningOnlyOps(this._s);
-
-  @override
-  Future<void> persistSinglesigAdd({
-    required int id,
-    required Uint8List secret,
-    Uint8List? passphrase,
-    required SingleSigVaultListItem item,
-  }) async {
-    // Privacy info is not persisted in signing-only mode; only the secret matters.
-    await _s._saveSinglesigSecret(id, secret, passphrase);
-  }
-
-  @override
-  Future<void> persistMultisigAdd({required int id, required MultisigVaultListItem item}) async {
-    // No-op: privacy info is not persisted in signing-only mode.
-  }
-
-  @override
-  Future<void> deleteWalletData(int id, WalletType type) async {
-    if (type == WalletType.singleSignature) {
-      await _s._deleteSinglesigSecret(id);
-    }
-    // Privacy info was never persisted; nothing to delete.
   }
 }
