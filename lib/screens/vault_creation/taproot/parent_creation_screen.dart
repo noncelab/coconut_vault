@@ -636,6 +636,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
             walletId: selectedExistingVaultId,
             autoLoadMnemonic: false,
             isEmbedded: true,
+            buildPassphraseToggle: true,
             onAuthCanceled: _returnToPreviousStep,
             onNextButtonPressed: () {
               final mnemonicViewState = mnemonicViewKey.currentState;
@@ -740,8 +741,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       builder: (context) {
         return CoconutPopup(
           languageCode: context.read<VisibilityProvider>().language,
-          title: '기기 인증 진행',
-          description: '기기 보안 영역에 저장된 니모닉에 접근하기 위해 기기 인증을 진행합니다.',
+          title: t.taproot.parent_creation_screen.step_1.device_auth_dialog_title,
+          description: t.taproot.parent_creation_screen.step_1.device_auth_dialog_description,
           rightButtonText: t.confirm,
           onTapRight: () async {
             final pinCheckResult = await _showPinCheckBottomSheet();

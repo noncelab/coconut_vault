@@ -21,6 +21,7 @@ class MnemonicViewScreen extends StatefulWidget {
     this.initialMnemonic,
     this.autoLoadMnemonic = true,
     this.isEmbedded = false,
+    this.buildPassphraseToggle = false,
     this.onAuthCanceled,
     this.onNextButtonPressed,
   }) : assert(walletId != null || initialMnemonic != null);
@@ -31,6 +32,7 @@ class MnemonicViewScreen extends StatefulWidget {
   final bool isEmbedded;
   final VoidCallback? onAuthCanceled;
   final VoidCallback? onNextButtonPressed;
+  final bool buildPassphraseToggle;
 
   @override
   State<MnemonicViewScreen> createState() => MnemonicViewScreenState();
@@ -190,16 +192,19 @@ class MnemonicViewScreenState extends State<MnemonicViewScreen> with TickerProvi
                           (provider) => provider.isPassphraseUseEnabled,
                         )) ...[
                           CoconutLayout.spacing_600h,
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: _buildPassphraseToggle(),
-                          ),
-                          if (_usePassphrase)
+                          if (widget.buildPassphraseToggle) ...[
+                            // buildPassphraseToggle은 provider.isPassphraseUseEnabled값보다 우선순위가 낮습니다: 화면 표시 용
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: _buildPassphraseTextField(),
+                              child: _buildPassphraseToggle(),
                             ),
-                          CoconutLayout.spacing_2500h,
+                            if (_usePassphrase)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                child: _buildPassphraseTextField(),
+                              ),
+                            CoconutLayout.spacing_2500h,
+                          ],
                         ],
                       ],
                     ),
