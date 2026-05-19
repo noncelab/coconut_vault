@@ -286,12 +286,7 @@ class WalletRepository {
     );
     try {
       await _strategy.mutate(
-        execute:
-            (ops) => ops.persistTaprootAdd(
-              id: nextId,
-              item: newTaprootVault,
-              seedInfosForAdd: seedInfosForAdd,
-            ),
+        execute: (ops) => ops.persistTaprootAdd(id: nextId, item: newTaprootVault, seedInfosForAdd: seedInfosForAdd),
         snapshot: () => vaults,
       );
     } catch (error) {
@@ -569,11 +564,7 @@ class WalletRepository {
               }
             }
 
-            await ops.persistTaprootAdd(
-              id: vault.id,
-              item: vault,
-              seedInfosForAdd: seedInfosForAdd,
-            );
+            await ops.persistTaprootAdd(id: vault.id, item: vault, seedInfosForAdd: seedInfosForAdd);
             continue;
           }
 
