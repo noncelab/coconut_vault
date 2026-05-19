@@ -574,6 +574,8 @@ taproot:
       multisig_how_to_prepare_key_title_2: "키는 어떻게 준비할까요?"
       multisig_qr_title_1: "다른 볼트에서 사용할 수 있도록"
       multisig_qr_title_2: "준비된 부모 지갑 정보를 보여줘요"
+      device_auth_dialog_title: "기기 인증 진행"
+      device_auth_dialog_description: "기기 보안 영역에 저장된 니모닉에 접근하기 위해 기기 인증을 진행합니다."
       multisig_scanner_title_1: "다른 볼트에서 만든 부모 지갑을 스캔해 주세요"
       multisig_scanner_title_2: "준비된 부모 지갑을 순서대로 연결해요"
       multisig_internal_key_prepared_title_1: "다중 서명 부모 지갑이"

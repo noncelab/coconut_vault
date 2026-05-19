@@ -573,6 +573,8 @@ taproot:
       multisig_how_to_prepare_key_title_2: "for the multisig parent wallet?"
       multisig_qr_title_1: "Show the prepared parent wallet info"
       multisig_qr_title_2: "so another Vault can use it"
+      device_auth_dialog_title: "Device authentication"
+      device_auth_dialog_description: "Authenticate this device to access the mnemonic stored in the secure area."
       multisig_scanner_title_1: "Scan the parent wallet from another Vault"
       multisig_scanner_title_2: "Import prepared parent wallets in order"
       multisig_internal_key_prepared_title_1: "The multisig parent wallet"
