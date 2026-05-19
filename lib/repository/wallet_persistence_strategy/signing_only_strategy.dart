@@ -82,16 +82,12 @@ class SigningOnlyStrategy implements WalletPersistenceStrategy {
     List<ScriptPathSeedInfoForSave> scriptPathSeeds,
   ) async {
     for (final seedInfo in keyPathSeeds) {
-      final keyString = WalletStorageKeys.taprootKeyPathSeedKey(walletId, seedInfo.extendedPublicKey);
+      final keyString = WalletStorageKeys.taprootSeedKey(walletId, seedInfo.extendedPublicKey);
       await _saveTaprootSeed(walletId, keyString, seedInfo);
     }
     for (final scriptPath in scriptPathSeeds) {
       for (final seedInfo in scriptPath.seedInfos) {
-        final keyString = WalletStorageKeys.taprootScriptPathSeedKey(
-          walletId,
-          scriptPath.key,
-          seedInfo.extendedPublicKey,
-        );
+        final keyString = WalletStorageKeys.taprootSeedKey(walletId, seedInfo.extendedPublicKey);
         await _saveTaprootSeed(walletId, keyString, seedInfo);
       }
     }
@@ -110,6 +106,13 @@ class SigningOnlyStrategy implements WalletPersistenceStrategy {
     final seedKeys = await _readTaprootSeedIndex(walletId);
     for (final seedKey in seedKeys) {
       await _deleteTaprootSeedByKey(seedKey);
+    }
+    await _storageService.delete(key: WalletStorageKeys.taprootSeedIndexKey(walletId));
+  }
+
+  Future<void> _deleteTaprootSeeds(int walletId, List<String> seedKeys) async {
+    for (final keyString in seedKeys) {
+      await _deleteTaprootSeedByKey(keyString);
     }
     await _storageService.delete(key: WalletStorageKeys.taprootSeedIndexKey(walletId));
   }
@@ -165,7 +168,16 @@ class _SigningOnlyOps implements WalletWriteOps {
     required TaprootVaultListItem item,
   }) async {
     // Privacy info is not persisted in signing-only mode; only the secret matters.
-    await _s._saveTaprootSecrets(id, keyPathSeedInfosForAdd, scriptSeedInfosForAdd);
+    try {
+      await _s._saveTaprootSecrets(id, keyPathSeedInfosForAdd, scriptSeedInfosForAdd);
+    } catch (_) {
+      await _s._deleteTaprootSeeds(id, [
+        for (final seedInfo in keyPathSeedInfosForAdd) WalletStorageKeys.taprootSeedKey(id, seedInfo.extendedPublicKey),
+        for (final scriptPath in scriptSeedInfosForAdd)
+          for (final seedInfo in scriptPath.seedInfos) WalletStorageKeys.taprootSeedKey(id, seedInfo.extendedPublicKey),
+      ]);
+      rethrow;
+    }
   }
 
   @override

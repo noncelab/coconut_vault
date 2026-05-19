@@ -133,16 +133,12 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
     List<ScriptPathSeedInfoForSave> scriptPathSecrets,
   ) async {
     for (final seedInfo in keyPathSecrets) {
-      final keyString = WalletStorageKeys.taprootKeyPathSeedKey(walletId, seedInfo.extendedPublicKey);
+      final keyString = WalletStorageKeys.taprootSeedKey(walletId, seedInfo.extendedPublicKey);
       await _saveTaprootSeed(walletId, keyString, seedInfo);
     }
     for (final scriptPath in scriptPathSecrets) {
       for (final seedInfo in scriptPath.seedInfos) {
-        final keyString = WalletStorageKeys.taprootScriptPathSeedKey(
-          walletId,
-          scriptPath.key,
-          seedInfo.extendedPublicKey,
-        );
+        final keyString = WalletStorageKeys.taprootSeedKey(walletId, seedInfo.extendedPublicKey);
         await _saveTaprootSeed(walletId, keyString, seedInfo);
       }
     }
@@ -244,16 +240,14 @@ class _SecureStorageOps implements WalletWriteOps {
     required List<ScriptPathSeedInfoForSave> scriptSeedInfosForAdd,
     required TaprootVaultListItem item,
   }) async {
-    await _s._saveTaprootSecrets(id, keyPathSeedInfosForAdd, scriptSeedInfosForAdd);
     try {
+      await _s._saveTaprootSecrets(id, keyPathSeedInfosForAdd, scriptSeedInfosForAdd);
       await _s._saveTaprootPrivacy(id, item);
     } catch (_) {
       await _s._deleteTaprootSeeds(id, [
-        for (final seedInfo in keyPathSeedInfosForAdd)
-          WalletStorageKeys.taprootKeyPathSeedKey(id, seedInfo.extendedPublicKey),
+        for (final seedInfo in keyPathSeedInfosForAdd) WalletStorageKeys.taprootSeedKey(id, seedInfo.extendedPublicKey),
         for (final scriptPath in scriptSeedInfosForAdd)
-          for (final seedInfo in scriptPath.seedInfos)
-            WalletStorageKeys.taprootScriptPathSeedKey(id, scriptPath.key, seedInfo.extendedPublicKey),
+          for (final seedInfo in scriptPath.seedInfos) WalletStorageKeys.taprootSeedKey(id, seedInfo.extendedPublicKey),
       ]);
       rethrow;
     }

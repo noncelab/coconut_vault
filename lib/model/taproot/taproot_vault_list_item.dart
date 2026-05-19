@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
@@ -114,7 +116,27 @@ class TaprootVaultListItem extends VaultListItemBase {
   Future<bool> canSign(String psbt) async => false;
 
   @override
-  String getWalletSyncString() => '';
+  String getWalletSyncString() {
+    return jsonEncode({
+      VaultListItemBase.fieldName: name,
+      VaultListItemBase.fieldColorIndex: colorIndex,
+      VaultListItemBase.fieldIconIndex: iconIndex,
+      fieldDescriptor: descriptor,
+      fieldKeyPathSeedInfos: _keyPathSeedInfos.map((seedInfo) => seedInfo.extendedPublicKey).toList(),
+      fieldScriptPathSeedInfos:
+          _scriptPathSeedInfos
+              .map(
+                (seedInfo) => {
+                  'miniscript': (coconutVault as TaprootVault)
+                      .policyList
+                      .firstWhereOrNull((p) => ScriptPathSeedInfo.generateKey(p) == seedInfo.key)
+                      ?.toMiniscript(),
+                  'extendedPublicKeys': seedInfo.seedInfos.map((s) => s.extendedPublicKey).toList(),
+                },
+              )
+              .toList(),
+    });
+  }
 
   @override
   Map<String, dynamic> toJson() => _$TaprootVaultListItemToJson(this);

@@ -16,7 +16,6 @@ import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/repository/wallet_persistence_strategy/wallet_persistence_strategy.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_payload_codec.dart';
-import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -585,13 +584,12 @@ void main() {
 
         await reloadedRepository.loadAndEmitEachWallet(jsonList!, (_) {});
 
-        final keyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
+        final keyPathSeedKey = WalletStorageKeys.taprootSeedKey(
           added.id,
           added.keyPathSeedInfos.single.extendedPublicKey,
         );
-        final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
+        final beneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
           added.id,
-          added.scriptPathSeedInfos.single.key,
           added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
         );
         final walletKey = WalletStorageKeys.walletKey(added.id, WalletType.taproot);
@@ -651,13 +649,12 @@ void main() {
 
         final added = await repository.addTaprootWallet(walletCreateDto);
 
-        final keyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
+        final keyPathSeedKey = WalletStorageKeys.taprootSeedKey(
           added.id,
           added.keyPathSeedInfos.single.extendedPublicKey,
         );
-        final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
+        final beneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
           added.id,
-          added.scriptPathSeedInfos.single.key,
           added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
         );
         final seedIndexKey = WalletStorageKeys.taprootSeedIndexKey(added.id);
@@ -713,13 +710,12 @@ void main() {
         );
 
         final added = await repository.addTaprootWallet(walletCreateDto);
-        final keyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
+        final keyPathSeedKey = WalletStorageKeys.taprootSeedKey(
           added.id,
           added.keyPathSeedInfos.single.extendedPublicKey,
         );
-        final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
+        final beneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
           added.id,
-          added.scriptPathSeedInfos.single.key,
           added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
         );
 
@@ -770,13 +766,12 @@ void main() {
         );
 
         final added = await repository.addTaprootWallet(walletCreateDto);
-        final keyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
+        final keyPathSeedKey = WalletStorageKeys.taprootSeedKey(
           added.id,
           added.keyPathSeedInfos.single.extendedPublicKey,
         );
-        final beneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
+        final beneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
           added.id,
-          added.scriptPathSeedInfos.single.key,
           added.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
         );
         expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isEmpty);
@@ -878,28 +873,13 @@ void main() {
               AddressType.p2tr,
             ).extendedPublicKey.serialize();
 
-        String scriptKeyOf(SeedSource s, int lockTime) {
-          final ks = KeyStore.fromSeed(Seed.fromMnemonic(s.mnemonic, passphrase: s.passphrase), AddressType.p2tr);
-          final v = TaprootVault.fromKeyStoreList([ks], []);
-          final policy = InheritancePolicy.fromDescriptorAndLocktime(v.descriptor, lockTime);
-          return hashString(policy.toMiniscript());
-        }
-
-        final kpAKey = WalletStorageKeys.taprootKeyPathSeedKey(added.id, xpubOf(keyPathSeedA));
-        final kpBKey = WalletStorageKeys.taprootKeyPathSeedKey(added.id, xpubOf(keyPathSeedB));
+        final kpAKey = WalletStorageKeys.taprootSeedKey(added.id, xpubOf(keyPathSeedA));
+        final kpBKey = WalletStorageKeys.taprootSeedKey(added.id, xpubOf(keyPathSeedB));
         expectSeedStoredAt(kpAKey, keyPathSeedA.mnemonic);
         expectSeedStoredAt(kpBKey, keyPathSeedB.mnemonic);
 
-        final bnAKey = WalletStorageKeys.taprootScriptPathSeedKey(
-          added.id,
-          scriptKeyOf(beneficiarySeedA, 500000000),
-          xpubOf(beneficiarySeedA),
-        );
-        final bnBKey = WalletStorageKeys.taprootScriptPathSeedKey(
-          added.id,
-          scriptKeyOf(beneficiarySeedB, 500000001),
-          xpubOf(beneficiarySeedB),
-        );
+        final bnAKey = WalletStorageKeys.taprootSeedKey(added.id, xpubOf(beneficiarySeedA));
+        final bnBKey = WalletStorageKeys.taprootSeedKey(added.id, xpubOf(beneficiarySeedB));
         expectSeedStoredAt(bnAKey, beneficiarySeedA.mnemonic);
         expectSeedStoredAt(bnBKey, beneficiarySeedB.mnemonic);
 
@@ -958,13 +938,8 @@ void main() {
           Seed.fromMnemonic(ownBeneficiarySeed.mnemonic, passphrase: ownBeneficiarySeed.passphrase),
           AddressType.p2tr,
         );
-        final v = TaprootVault.fromKeyStoreList([ks], []);
-        final scriptKey = hashString(
-          InheritancePolicy.fromDescriptorAndLocktime(v.descriptor, 500000001).toMiniscript(),
-        );
-        final ownKey = WalletStorageKeys.taprootScriptPathSeedKey(
+        final ownKey = WalletStorageKeys.taprootSeedKey(
           added.id,
-          scriptKey,
           ks.extendedPublicKey.serialize(),
         );
         expect(secureZone.encryptedPlaintexts.keys, contains(ownKey));
@@ -1168,16 +1143,15 @@ void main() {
 
         // 저장 대상 seed key를 TaprootVaultListItem의 seed info에서 계산한다.
         // seed info가 없는 external key-path signer와 descriptor-only beneficiary는 저장 대상이 아니다.
-        final firstKeyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
+        final firstKeyPathSeedKey = WalletStorageKeys.taprootSeedKey(
           firstWallet.id,
           firstWallet.keyPathSeedInfos.single.extendedPublicKey,
         );
-        final firstBeneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
+        final firstBeneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
           firstWallet.id,
-          firstWallet.scriptPathSeedInfos.single.key,
           firstWallet.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
         );
-        final secondKeyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
+        final secondKeyPathSeedKey = WalletStorageKeys.taprootSeedKey(
           secondWallet.id,
           secondWallet.keyPathSeedInfos.single.extendedPublicKey,
         );
@@ -1265,16 +1239,15 @@ void main() {
 
       final firstWalletKey = WalletStorageKeys.walletKey(firstWallet.id, WalletType.taproot);
       final secondWalletKey = WalletStorageKeys.walletKey(secondWallet.id, WalletType.taproot);
-      final firstKeyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
+      final firstKeyPathSeedKey = WalletStorageKeys.taprootSeedKey(
         firstWallet.id,
         firstWallet.keyPathSeedInfos.single.extendedPublicKey,
       );
-      final firstBeneficiarySeedKey = WalletStorageKeys.taprootScriptPathSeedKey(
+      final firstBeneficiarySeedKey = WalletStorageKeys.taprootSeedKey(
         firstWallet.id,
-        firstWallet.scriptPathSeedInfos.single.key,
         firstWallet.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
       );
-      final secondKeyPathSeedKey = WalletStorageKeys.taprootKeyPathSeedKey(
+      final secondKeyPathSeedKey = WalletStorageKeys.taprootSeedKey(
         secondWallet.id,
         secondWallet.keyPathSeedInfos.single.extendedPublicKey,
       );
@@ -1358,9 +1331,8 @@ void main() {
       final differentPolicy = InheritancePolicy.fromDescriptorAndLocktime(beneficiaryDescriptor, lockTime + 1);
       final scriptKeyA = ScriptPathSeedInfo.generateKey(recreatedPolicyA);
       final scriptKeyB = ScriptPathSeedInfo.generateKey(recreatedPolicyB);
-      final expectedStorageKey = WalletStorageKeys.taprootScriptPathSeedKey(
+      final expectedStorageKey = WalletStorageKeys.taprootSeedKey(
         added.id,
-        scriptKeyA,
         beneficiaryKeyStore.extendedPublicKey.serialize(),
       );
 

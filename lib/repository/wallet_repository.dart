@@ -375,7 +375,7 @@ class WalletRepository {
     bool autoAuth = true,
   }) async {
     assert(getVaultById(id) is TaprootVaultListItem);
-    final key = WalletStorageKeys.taprootSeedKey(id, seedIdentifier);
+    final key = WalletStorageKeys.taprootSeedKey(id, seedIdentifier.extendedPublicKey);
     return _decryptSeed(key, autoAuth: autoAuth);
   }
 
@@ -542,7 +542,7 @@ class WalletRepository {
             for (final seedInfo in vault.keyPathSeedInfos) {
               final seed = await getTaprootSeedInSigningOnlyMode(
                 vault.id,
-                KeyPathSeedKeyIdentifier(extendedPublicKey: seedInfo.extendedPublicKey),
+                TaprootSeedKeyIdentifier(extendedPublicKey: seedInfo.extendedPublicKey),
               );
               keyPathSeedInfosForAdd.add(
                 TaprootSeedInfoForSave(
@@ -558,10 +558,7 @@ class WalletRepository {
               for (final seedInfo in scriptPathSeedInfo.seedInfos) {
                 final seed = await getTaprootSeedInSigningOnlyMode(
                   vault.id,
-                  ScriptPathSeedKeyIdentifier(
-                    scriptKey: scriptPathSeedInfo.key,
-                    extendedPublicKey: seedInfo.extendedPublicKey,
-                  ),
+                  TaprootSeedKeyIdentifier(extendedPublicKey: seedInfo.extendedPublicKey),
                 );
                 seedInfosForAdd.add(
                   TaprootSeedInfoForSave(
