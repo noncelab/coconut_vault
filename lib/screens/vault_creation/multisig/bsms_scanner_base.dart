@@ -7,7 +7,6 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/app_settings_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
@@ -38,6 +37,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   String get appBarTitle => t.bsms_scanner_screen.import_bsms;
   bool get useBottomAppBar => false;
   bool get showBackButton => true;
+  bool get showAppBar => true;
   bool get showBottomButton => false;
 
   bool _isShowedCameraPermissionDialog = false;
@@ -56,16 +56,24 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
       // INFO: 꼭 로딩 UI가 보일 필요는 없지만 프롬프트가 닫히기 전까지 onBarcodeDetected 방지
       isProcessing = true;
     }
-    await showAlertDialog(
+    await showDialog(
       context: context,
-      content: message,
-      onConfirmPressed: () {
-        if (!mounted) return;
-        if (isProcessing) {
-          setState(() {
-            isProcessing = false;
-          });
-        }
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return CoconutPopup(
+          languageCode: visibilityProvider.language,
+          title: t.coordinator_bsms_config_scanner_screen.error_title,
+          description: message,
+          rightButtonText: t.confirm,
+          onTapRight: () {
+            if (mounted && isProcessing) {
+              setState(() {
+                isProcessing = false;
+              });
+            }
+            Navigator.pop(dialogContext);
+          },
+        );
       },
     );
   }
@@ -151,22 +159,25 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   Widget build(BuildContext context) {
     return CustomLoadingOverlay(
       child: Scaffold(
-        appBar: CoconutAppBar.build(
-          title: appBarTitle,
-          backgroundColor: CoconutColors.white,
-          context: context,
-          isBackButton: showBackButton,
-          isBottom: useBottomAppBar,
-          actionButtonList: [
-            IconButton(
-              icon: const Icon(CupertinoIcons.camera_rotate, size: 22),
-              color: CoconutColors.black,
-              onPressed: () {
-                controller?.switchCamera();
-              },
-            ),
-          ],
-        ),
+        appBar:
+            showAppBar
+                ? CoconutAppBar.build(
+                  title: appBarTitle,
+                  backgroundColor: CoconutColors.white,
+                  context: context,
+                  isBackButton: showBackButton,
+                  isBottom: useBottomAppBar,
+                  actionButtonList: [
+                    IconButton(
+                      icon: const Icon(CupertinoIcons.camera_rotate, size: 22),
+                      color: CoconutColors.black,
+                      onPressed: () {
+                        controller?.switchCamera();
+                      },
+                    ),
+                  ],
+                )
+                : null,
         body: SafeArea(top: false, child: _buildChild(context)),
       ),
     );

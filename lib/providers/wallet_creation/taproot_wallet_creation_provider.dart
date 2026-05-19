@@ -13,6 +13,8 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
   String? _masterFingerprint;
   String? _externalMultisigParentSignerBsms;
   String? _externalMultisigParentMasterFingerprint;
+  String? _childWalletDescriptor;
+  String? _childWalletMasterFingerprint;
 
   Uint8List get secret => _secret;
   Uint8List? get passphrase => _passphrase.isNotEmpty ? _passphrase : null;
@@ -21,24 +23,30 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
   String? get masterFingerprint => _masterFingerprint;
   String? get externalMultisigParentSignerBsms => _externalMultisigParentSignerBsms;
   String? get externalMultisigParentMasterFingerprint => _externalMultisigParentMasterFingerprint;
+  String? get childWalletDescriptor => _childWalletDescriptor;
+  String? get childWalletMasterFingerprint => _childWalletMasterFingerprint;
 
-  void setSecretAndPassphrase(Uint8List secret, Uint8List? passphrase) {
+  void setSecretAndPassphrase(Uint8List secret, Uint8List? passphrase, {bool useTaprootDescriptorQr = false}) {
     _secret = secret;
     _passphrase = passphrase ?? Uint8List(0);
 
     try {
       final seed = Seed.fromMnemonic(_secret, passphrase: _passphrase.isNotEmpty ? _passphrase : Uint8List(0));
 
-      final keyStore = KeyStore.fromSeed(seed, AddressType.p2trKeyPathSpending);
-      final signerKeyStore = KeyStore.fromSeed(seed, AddressType.p2wsh);
+      final keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
 
       _masterFingerprint = keyStore.masterFingerprint;
-      final derivationPath = WalletUtility.getDerivationPath(AddressType.p2wsh, 0).replaceAll('m/', '');
-      _qrData = SignerBsms(
-        fingerprint: signerKeyStore.masterFingerprint,
-        derivationPath: derivationPath,
-        extendedKey: signerKeyStore.extendedPublicKey.serialize(),
-      ).getSignerBsms(includesLabel: false);
+      if (useTaprootDescriptorQr) {
+        _qrData = TaprootVault.fromKeyStoreList([keyStore], []).descriptor;
+      } else {
+        final signerKeyStore = KeyStore.fromSeed(seed, AddressType.p2wsh);
+        final derivationPath = WalletUtility.getDerivationPath(AddressType.p2wsh, 0).replaceAll('m/', '');
+        _qrData = SignerBsms(
+          fingerprint: signerKeyStore.masterFingerprint,
+          derivationPath: derivationPath,
+          extendedKey: signerKeyStore.extendedPublicKey.serialize(),
+        ).getSignerBsms(includesLabel: false);
+      }
     } catch (e) {
       _masterFingerprint = '00000000';
       _qrData = '';
@@ -58,6 +66,18 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setChildWallet({required String descriptor, required String masterFingerprint}) {
+    _childWalletDescriptor = descriptor;
+    _childWalletMasterFingerprint = masterFingerprint;
+    notifyListeners();
+  }
+
+  void resetChildWallet() {
+    _childWalletDescriptor = null;
+    _childWalletMasterFingerprint = null;
+    notifyListeners();
+  }
+
   void resetSecretAndPassphrase() {
     _secret.wipe();
     _passphrase.wipe();
@@ -68,6 +88,8 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
     _masterFingerprint = null;
     _externalMultisigParentSignerBsms = null;
     _externalMultisigParentMasterFingerprint = null;
+    _childWalletDescriptor = null;
+    _childWalletMasterFingerprint = null;
     notifyListeners();
   }
 

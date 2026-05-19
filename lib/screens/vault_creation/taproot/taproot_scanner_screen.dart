@@ -13,19 +13,27 @@ import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/signer_bsms_
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-// 멀티시그 서명 지갑 생성 시 HWW으로부터
-// Signer bsms 및 descriptor 정보를 스캔합니다.
-class SignerBsmsScannerScreen extends StatefulWidget {
+class TaprootScannerScreen extends StatefulWidget {
   final int? id;
   final HardwareWalletType? hardwareWalletType;
+  final Widget? topGuideWidget;
+  final bool Function(TaprootVault)? onTaprootVaultScanned;
+  final bool hasAppbar;
 
-  const SignerBsmsScannerScreen({super.key, this.id, this.hardwareWalletType = HardwareWalletType.coconutVault});
+  const TaprootScannerScreen({
+    super.key,
+    this.id,
+    this.hardwareWalletType = HardwareWalletType.coconutVault,
+    this.topGuideWidget,
+    this.onTaprootVaultScanned,
+    this.hasAppbar = true,
+  });
 
   @override
-  State<SignerBsmsScannerScreen> createState() => _SignerBsmsScannerScreenState();
+  State<TaprootScannerScreen> createState() => _TaprootScannerScreenState();
 }
 
-class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScreen> {
+class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
   static final String networkMismatchMessage = t.errors.invalid_network_type_error;
   late final SignerBsmsQrDataHandler _qrDataHandler;
   bool _isFirstScanData = true;
@@ -43,10 +51,19 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
   bool get useBottomAppBar => true;
 
   @override
+  bool get showAppBar => widget.hasAppbar;
+
+  @override
   String get appBarTitle => widget.hardwareWalletType!.displayName;
 
   @override
-  Widget? buildTopGuideWidget(BuildContext context) => null;
+  Widget? buildTopGuideWidget(BuildContext context) => widget.topGuideWidget;
+
+  @override
+  Future<void> onFailedScanning(String message) async {
+    await super.onFailedScanning(message);
+    await _restartScanner();
+  }
 
   @override
   void onBarcodeDetected(BarcodeCapture capture) async {
@@ -61,6 +78,26 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
 
     final scanData = barcode.rawValue!;
     Logger.log('--> SignerBsmsScannerScreen: detected raw data: $scanData');
+
+    if (widget.hardwareWalletType == HardwareWalletType.coconutVault) {
+      try {
+        setState(() => isProcessing = true);
+        final beneficiaryVault = TaprootVault.fromDescriptor(scanData);
+        if (!mounted) return;
+        final onTaprootVaultScanned = widget.onTaprootVaultScanned;
+        if (onTaprootVaultScanned != null) {
+          final didHandleScan = onTaprootVaultScanned(beneficiaryVault);
+          if (!didHandleScan && mounted) {
+            setState(() => isProcessing = false);
+          }
+        } else {
+          Navigator.pop(context, beneficiaryVault);
+        }
+      } catch (e) {
+        _handleScanFailure(wrongFormatMessage);
+      }
+      return;
+    }
 
     SignerBsms? signerBsms;
     String? scanResult;
@@ -161,6 +198,22 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
     }
 
     onFailedScanning(message);
+  }
+
+  Future<void> _restartScanner() async {
+    if (!mounted) {
+      return;
+    }
+
+    try {
+      await controller?.stop();
+      if (!mounted) {
+        return;
+      }
+      await controller?.start();
+    } catch (e) {
+      debugPrint('Taproot scanner restart failed: $e');
+    }
   }
 
   @override

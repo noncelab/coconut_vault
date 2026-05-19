@@ -12,17 +12,21 @@ enum ParentAddScriptPathType { none, create, import }
 
 enum ParentSelectionResetScope { walletType, keyPreparation, keyCreationOrImportOption }
 
+enum ChildWalletSetupType { none, import, create }
+
 class ParentCreationViewModel extends ChangeNotifier {
   ParentWalletType _selectedWalletType = ParentWalletType.none;
   ParentKeyPreparationType _selectedKeyPreparationType = ParentKeyPreparationType.none;
   ParentNewKeyCreationType _selectedNewKeyCreationType = ParentNewKeyCreationType.none;
   ParentExistingKeyImportType _selectedExistingKeyImportType = ParentExistingKeyImportType.none;
+  ChildWalletSetupType _selectedChildWalletSetupType = ChildWalletSetupType.none;
   int? _selectedExistingVaultId;
 
   ParentWalletType get selectedWalletType => _selectedWalletType;
   ParentKeyPreparationType get selectedKeyPreparationType => _selectedKeyPreparationType;
   ParentNewKeyCreationType get selectedNewKeyCreationType => _selectedNewKeyCreationType;
   ParentExistingKeyImportType get selectedExistingKeyImportType => _selectedExistingKeyImportType;
+  ChildWalletSetupType get selectedChildWalletSetupType => _selectedChildWalletSetupType;
   int? get selectedExistingVaultId => _selectedExistingVaultId;
   bool get hasSelectedKeyCreationOrImportOption {
     return switch (_selectedKeyPreparationType) {
@@ -78,5 +82,14 @@ class ParentCreationViewModel extends ChangeNotifier {
     _selectedNewKeyCreationType = ParentNewKeyCreationType.none;
     _selectedExistingKeyImportType = ParentExistingKeyImportType.none;
     _selectedExistingVaultId = null;
+  }
+
+  void setChildWalletSetupType(ChildWalletSetupType type) {
+    if (_selectedChildWalletSetupType == type) {
+      return;
+    }
+
+    _selectedChildWalletSetupType = type;
+    notifyListeners();
   }
 }

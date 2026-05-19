@@ -3,11 +3,13 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/extensions/widget_animation_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/parent_creation_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
@@ -24,11 +26,11 @@ import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_verify_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/multisig/signer_bsms_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
+import 'package:coconut_vault/screens/vault_creation/taproot/taproot_scanner_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/mnemonic_view_screen.dart';
-import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
+import 'package:coconut_vault/widgets/box/info_box.dart';
 import 'package:coconut_vault/widgets/button/assignable_pill_button.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -54,6 +56,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   late final List<List<TextSpan>> _titleList;
   late final List<List<Widget>> _bodyList;
   late final List<VoidCallback?> _nextButtonActions;
+  late final List<Widget?> _fixedBottomSubWidgetList;
   late final List<bool> _ignoreBodyHorizontalPaddingList;
   late final List<bool> _pauseProgressList;
   late final List<bool> _scrollChildList;
@@ -66,6 +69,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   int? _childWalletSetupStep;
   Timer? _titleAnimationTimer;
   bool _isTitleAnimationCompleted = false;
+  bool _isDuplicateChildWalletDialogVisible = false;
 
   bool get _hasNextBuiltStep => _currentStep < _titleList.length;
 
@@ -75,6 +79,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     _titleList = _initialTitleList();
     _bodyList = _initialBodyList();
     _nextButtonActions = [_moveToNextStep, _confirmWalletType];
+    _fixedBottomSubWidgetList = [null, null];
     _ignoreBodyHorizontalPaddingList = [false, false];
     _pauseProgressList = [false, false];
     _scrollChildList = [true, true];
@@ -182,6 +187,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
     if (_currentStep == _multisigParentListStep) {
       return context.read<TaprootWalletCreationProvider>().externalMultisigParentSignerBsms != null;
+    }
+
+    if (_currentStep == _childWalletSetupStep) {
+      return _viewModel.selectedChildWalletSetupType != ChildWalletSetupType.none;
     }
 
     return switch (_currentStep) {
@@ -301,6 +310,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     required List<TextSpan> titleList,
     required List<Widget> bodyList,
     required VoidCallback? nextButtonAction,
+    Widget? fixedBottomSubWidget,
     bool ignoreBodyHorizontalPadding = false,
     bool pauseProgress = false,
     bool scrollChild = true,
@@ -310,6 +320,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _titleList.add(titleList);
       _bodyList.add(bodyList);
       _nextButtonActions.add(nextButtonAction);
+      _fixedBottomSubWidgetList.add(fixedBottomSubWidget);
       _ignoreBodyHorizontalPaddingList.add(ignoreBodyHorizontalPadding);
       _pauseProgressList.add(pauseProgress);
       _scrollChildList.add(scrollChild);
@@ -720,8 +731,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
                 description: t.taproot.parent_creation_screen.step_2.creation_script_path_import_description,
                 bottomAssetPath: 'assets/png/scan-qr-big.png',
                 imageScale: 3.8,
-                isSelected: false,
-                onTap: () {},
+                isSelected: viewModel.selectedChildWalletSetupType == ChildWalletSetupType.import,
+                onTap: () => viewModel.setChildWalletSetupType(ChildWalletSetupType.import),
                 imageWidth: 100,
                 height: 195,
               ),
@@ -730,8 +741,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
                 description: t.taproot.parent_creation_screen.step_2.creation_script_path_create_description,
                 bottomAssetPath: 'assets/png/load-wallet.png',
                 imageScale: 3.8,
-                isSelected: false,
-                onTap: () {},
+                isSelected: viewModel.selectedChildWalletSetupType == ChildWalletSetupType.create,
+                onTap: () => viewModel.setChildWalletSetupType(ChildWalletSetupType.create),
                 imageWidth: 100,
                 height: 195,
               ),
@@ -740,11 +751,128 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         },
       ),
     ];
-    _childWalletSetupStep = _addStep(titleList: titleList, bodyList: bodyList, nextButtonAction: () {});
+    _childWalletSetupStep = _addStep(
+      titleList: titleList,
+      bodyList: bodyList,
+      nextButtonAction: _onChildWalletSetupSelected,
+    );
+  }
+
+  void _onChildWalletSetupSelected() {
+    switch (_viewModel.selectedChildWalletSetupType) {
+      case ChildWalletSetupType.import:
+        _addChildWalletScanStep();
+        return;
+      case ChildWalletSetupType.create:
+        return;
+      case ChildWalletSetupType.none:
+        return;
+    }
+  }
+
+  void _addChildWalletScanStep() {
+    final guideText = Text(
+      '${t.taproot.parent_creation_screen.step_2.import_scanner_title_1}\n'
+      '${t.taproot.parent_creation_screen.step_2.import_scanner_title_2}',
+      style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.white),
+      textAlign: TextAlign.center,
+    );
+
+    _addEmbeddedStep(
+      TaprootScannerScreen(
+        hasAppbar: false,
+        topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
+        onTaprootVaultScanned: _onChildWalletScanned,
+      ),
+    );
+  }
+
+  bool _onChildWalletScanned(TaprootVault beneficiaryVault) {
+    final childWalletMasterFingerprint = beneficiaryVault.keyStoreList.first.masterFingerprint;
+    if (_isSameAsParentWallet(childWalletMasterFingerprint)) {
+      _showSameChildWalletAsParentDialog();
+      return false;
+    }
+
+    context.read<TaprootWalletCreationProvider>().setChildWallet(
+      descriptor: beneficiaryVault.descriptor,
+      masterFingerprint: childWalletMasterFingerprint,
+    );
+
+    final titleList = [TextSpan(text: t.taproot.parent_creation_screen.step_2.imported_script_path_title)];
+    final importedChildVaultGuide = [
+      t.taproot.parent_creation_screen.step_2.imported_script_path_description_1.characterFadeInAnimation(
+        duration: const Duration(milliseconds: 400),
+        delay: const Duration(milliseconds: 1700),
+        textStyle: CoconutTypography.body1_16,
+      ),
+      t.taproot.parent_creation_screen.step_2.imported_script_path_description_2.characterFadeInAnimation(
+        duration: const Duration(milliseconds: 700),
+        delay: const Duration(milliseconds: 2400),
+        textStyle: CoconutTypography.body1_16,
+      ),
+      CoconutLayout.spacing_600h,
+      InfoBox(
+        infoList: [
+          MapEntry(t.taproot.common.wallet_type, t.taproot.common.taproot_single_sig_wallet),
+          MapEntry(t.taproot.common.mfp, childWalletMasterFingerprint),
+        ],
+      ),
+    ];
+    final fixedBottomButtonSubWidget = CoconutUnderlinedButton(
+      text: t.taproot.parent_creation_screen.step_2.import_again,
+      onTap: _resetChildWalletAndReturnToPreviousStep,
+    );
+
+    _addStep(
+      titleList: titleList,
+      bodyList: importedChildVaultGuide,
+      nextButtonAction: () {},
+      fixedBottomSubWidget: fixedBottomButtonSubWidget,
+    );
+    return true;
+  }
+
+  bool _isSameAsParentWallet(String masterFingerprint) {
+    final provider = context.read<TaprootWalletCreationProvider>();
+    final parentMasterFingerprints = [provider.masterFingerprint, provider.externalMultisigParentMasterFingerprint];
+
+    return parentMasterFingerprints.whereType<String>().any(
+      (parentMasterFingerprint) => parentMasterFingerprint.toLowerCase() == masterFingerprint.toLowerCase(),
+    );
+  }
+
+  void _showSameChildWalletAsParentDialog() {
+    if (_isDuplicateChildWalletDialogVisible) {
+      return;
+    }
+
+    _isDuplicateChildWalletDialogVisible = true;
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
+          title: t.taproot.parent_creation_screen.step_2.same_child_wallet_as_parent_dialog_title,
+          description: t.taproot.parent_creation_screen.step_2.same_child_wallet_as_parent_dialog_description,
+          rightButtonText: t.confirm,
+          onTapRight: () => Navigator.pop(dialogContext),
+        );
+      },
+    ).whenComplete(() => _isDuplicateChildWalletDialogVisible = false);
+  }
+
+  void _resetChildWalletAndReturnToPreviousStep() {
+    context.read<TaprootWalletCreationProvider>().resetChildWallet();
+    _returnToPreviousStep();
   }
 
   void _setParentWalletSecret(Uint8List secret, {Uint8List? passphrase}) {
-    context.read<TaprootWalletCreationProvider>().setSecretAndPassphrase(secret, passphrase);
+    context.read<TaprootWalletCreationProvider>().setSecretAndPassphrase(
+      secret,
+      passphrase,
+      useTaprootDescriptorQr: true,
+    );
   }
 
   void _addMultisigParentExportStep() {
@@ -835,13 +963,13 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.white),
       textAlign: TextAlign.center,
     );
-    final SignerBsms? importedParent = await MyBottomSheet.showDraggableScrollableSheet<SignerBsms>(
+    final TaprootVault? importedParent = await MyBottomSheet.showDraggableScrollableSheet<TaprootVault>(
       context: context,
       topWidget: true,
       physics: const ClampingScrollPhysics(),
       enableSingleChildScroll: false,
       hideAppBar: true,
-      child: SignerBsmsScannerScreen(topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText)),
+      child: TaprootScannerScreen(topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText)),
     );
 
     if (importedParent == null) {
@@ -853,8 +981,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     if (!mounted) {
       return;
     }
+    final importedParentMasterFingerprint = importedParent.keyStoreList.first.masterFingerprint;
     final myMasterFingerprint = context.read<TaprootWalletCreationProvider>().masterFingerprint;
-    if (myMasterFingerprint != null && importedParent.fingerprint.toLowerCase() == myMasterFingerprint.toLowerCase()) {
+    if (myMasterFingerprint != null &&
+        importedParentMasterFingerprint.toLowerCase() == myMasterFingerprint.toLowerCase()) {
       final shouldScanAgain = await _showSameParentWalletDialog();
       if (shouldScanAgain == true && mounted) {
         await _showMultisigParentScannerBottomSheet();
@@ -864,8 +994,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
     if (mounted) {
       context.read<TaprootWalletCreationProvider>().setExternalMultisigParent(
-        signerBsms: importedParent.getSignerBsms(includesLabel: false),
-        masterFingerprint: importedParent.fingerprint,
+        signerBsms: importedParent.descriptor,
+        masterFingerprint: importedParentMasterFingerprint,
       );
       setState(() {});
     }
@@ -895,7 +1025,6 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         if (qrData == null || qrData.isEmpty) {
           return const SizedBox.shrink();
         }
-
         return AdaptiveQrImage(qrData: qrData);
       },
     );
@@ -953,39 +1082,54 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     );
   }
 
+  Future<void> _authenticateWithBiometricOrPin(PinCheckContextEnum pinCheckContext, VoidCallback onSuccess) async {
+    final authProvider = context.read<AuthProvider>();
+
+    final isBiometricValid =
+        pinCheckContext == PinCheckContextEnum.sensitiveAction
+            ? await authProvider.isBiometricsAuthValidToAvoidDoubleAuth()
+            : await authProvider.isBiometricsAuthValid();
+
+    if (isBiometricValid && mounted) {
+      onSuccess();
+      return;
+    }
+
+    if (!mounted) return;
+    await MyBottomSheet.showBottomSheet_90(
+      context: context,
+      child: CustomLoadingOverlay(
+        child: PinCheckScreen(
+          pinCheckContext: pinCheckContext,
+          onSuccess: () async {
+            Navigator.pop(context);
+            onSuccess();
+          },
+        ),
+      ),
+    );
+  }
+
   void _showDeviceAuthDialog(GlobalKey<MnemonicViewScreenState> mnemonicViewKey) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
+      builder: (dialogContext) {
         return CoconutPopup(
           languageCode: context.read<VisibilityProvider>().language,
           title: t.taproot.parent_creation_screen.step_1.device_auth_dialog_title,
           description: t.taproot.parent_creation_screen.step_1.device_auth_dialog_description,
           rightButtonText: t.confirm,
-          onTapRight: () async {
-            final pinCheckResult = await _showPinCheckBottomSheet();
-            if (pinCheckResult != true || !context.mounted) {
-              return;
-            }
-
-            Navigator.of(context).pop();
-            mnemonicViewKey.currentState?.setMnemonic();
+          onTapRight: () {
+            _authenticateWithBiometricOrPin(PinCheckContextEnum.sensitiveAction, () {
+              if (dialogContext.mounted) {
+                Navigator.pop(dialogContext);
+              }
+              mnemonicViewKey.currentState?.setMnemonic();
+            });
           },
         );
       },
-    );
-  }
-
-  Future<bool?> _showPinCheckBottomSheet() async {
-    return await MyBottomSheet.showBottomSheet_90<bool>(
-      context: context,
-      child: CustomLoadingOverlay(
-        child: PinCheckScreen(
-          pinCheckContext: PinCheckContextEnum.sensitiveAction,
-          onSuccess: () => Navigator.pop(context, true),
-        ),
-      ),
     );
   }
 
@@ -1049,6 +1193,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         _titleList.removeAt(lastIndex);
         _bodyList.removeAt(lastIndex);
         _nextButtonActions.removeAt(lastIndex);
+        _fixedBottomSubWidgetList.removeAt(lastIndex);
         _ignoreBodyHorizontalPaddingList.removeAt(lastIndex);
         _pauseProgressList.removeAt(lastIndex);
         _scrollChildList.removeAt(lastIndex);
@@ -1058,6 +1203,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _multisigParentImportStep = null;
       _multisigParentListStep = null;
       _childWalletSetupStep = null;
+      _viewModel.setChildWalletSetupType(ChildWalletSetupType.none);
     });
     _resetSelectionForBackNavigation();
     _scheduleTitleAnimationCompletion();
@@ -1079,6 +1225,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _titleList.removeAt(currentStepIndex);
       _bodyList.removeAt(currentStepIndex);
       _nextButtonActions.removeAt(currentStepIndex);
+      _fixedBottomSubWidgetList.removeAt(currentStepIndex);
       _ignoreBodyHorizontalPaddingList.removeAt(currentStepIndex);
       _pauseProgressList.removeAt(currentStepIndex);
       _scrollChildList.removeAt(currentStepIndex);
@@ -1097,6 +1244,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _multisigParentImportStep = null;
       _multisigParentListStep = null;
       _childWalletSetupStep = null;
+      _viewModel.setChildWalletSetupType(ChildWalletSetupType.none);
       return;
     }
 
@@ -1107,6 +1255,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _multisigParentImportStep = null;
       _multisigParentListStep = null;
       _childWalletSetupStep = null;
+      _viewModel.setChildWalletSetupType(ChildWalletSetupType.none);
       return;
     }
 
@@ -1116,6 +1265,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _multisigParentImportStep = null;
       _multisigParentListStep = null;
       _childWalletSetupStep = null;
+      _viewModel.setChildWalletSetupType(ChildWalletSetupType.none);
     }
   }
 
@@ -1238,6 +1388,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
                 TaprootCreationBody(
                   titleLines: _titleLines(),
                   onBottomButtonPressed: _onNextPressed,
+                  fixedBottomSubWidget: _fixedBottomSubWidgetList[_currentStep - 1],
                   showBottomButton: _showBottomButton,
                   ignoreChildHorizontalPadding: _ignoreBodyHorizontalPaddingList[_currentStep - 1],
                   showHeader: !_isProgressPaused,
