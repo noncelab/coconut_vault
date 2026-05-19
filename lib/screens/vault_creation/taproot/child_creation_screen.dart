@@ -34,6 +34,8 @@ import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_verify_
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:coconut_vault/screens/vault_creation/taproot/taproot_scanner_screen.dart';
+import 'package:coconut_vault/utils/vibration_util.dart';
 
 class ChildCreationScreen extends StatelessWidget {
   const ChildCreationScreen({super.key});
@@ -57,7 +59,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   int? _currentVaultSelectionStep;
   bool _isProcessing = false;
 
-  int get _baseTotalStep => _currentVaultSelectionStep != null ? 6 : 5;
+  int get _baseTotalStep => _currentVaultSelectionStep != null ? 7 : 6;
 
   int get _totalStep => _baseTotalStep + _embeddedWidgets.length;
 
@@ -261,6 +263,29 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
     list.addAll([
       _buildQrSection(viewModel),
+      TaprootScannerScreen(
+        titleLines: _titleLines(viewModel),
+        onScanned: (result) async {
+          if (_isProcessing) return;
+          setState(() {
+            _isProcessing = true;
+          });
+
+          vibrateExtraLight();
+
+          // TODO: ViewModel에 스캔된 디스크립터 데이터 저장
+          // viewModel.setScannedDescriptor(result);
+
+          // 100% 스캔 완료 상태를 사용자에게 잠시 보여주기 위한 딜레이
+          await Future.delayed(const Duration(milliseconds: 1000));
+          if (!mounted) return;
+
+          setState(() {
+            _isProcessing = false;
+          });
+          _onNextPressed(viewModel);
+        },
+      ),
       const TimelineStepIndicator(
         timelineStepItemList: [
           TimelineStepItem(
@@ -338,6 +363,14 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         return viewModel.selectedExistingKeyImportType != ChildExistingKeyImportType.none;
       }
     }
+
+    int scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
+    int baseCurrentStep = _currentStep > embeddedStartIndex ? _currentStep - _embeddedWidgets.length : _currentStep;
+
+    if (baseCurrentStep == scannerStepIndex) {
+      return false;
+    }
+
     return true;
   }
 
@@ -353,9 +386,13 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     try {
       viewModel.generateKeyData(taprootProvider.secret, taprootProvider.passphrase);
       setState(() {
+        _isProcessing = false;
         _currentStep += 1;
       });
     } catch (e) {
+      setState(() {
+        _isProcessing = false;
+      });
       Logger.error('Failed to generate child wallet: $e');
     }
   }
@@ -775,6 +812,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     final isEmbeddedActive =
         _currentStep > embeddedStartIndex && _currentStep <= embeddedStartIndex + _embeddedWidgets.length;
 
+    int scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
+    int baseCurrentStep = _currentStep > embeddedStartIndex ? _currentStep - _embeddedWidgets.length : _currentStep;
+    final isScannerStep = baseCurrentStep == scannerStepIndex;
+
     Widget? currentEmbeddedWidget;
     if (isEmbeddedActive) {
       currentEmbeddedWidget = _embeddedWidgets[_currentStep - embeddedStartIndex - 1];
@@ -827,9 +868,9 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
                 key: ValueKey(_currentStep),
                 titleLines: _titleLines(viewModel),
                 showBottomButton: _isNextButtonVisible(viewModel),
-                ignoreChildHorizontalPadding: isEmbeddedActive || isVaultSelectionStep,
-                showHeader: !isEmbeddedActive,
-                scrollChild: !isEmbeddedActive && !isVaultSelectionStep,
+                ignoreChildHorizontalPadding: isEmbeddedActive || isVaultSelectionStep || isScannerStep,
+                showHeader: !isEmbeddedActive && !isScannerStep,
+                scrollChild: !isEmbeddedActive && !isVaultSelectionStep && !isScannerStep,
                 onBottomButtonPressed: () => _onNextPressed(viewModel),
                 child: _getCurrentChild(viewModel),
               ),
