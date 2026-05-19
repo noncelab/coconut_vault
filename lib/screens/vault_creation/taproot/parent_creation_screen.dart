@@ -657,6 +657,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
             walletId: selectedExistingVaultId,
             autoLoadMnemonic: false,
             isEmbedded: true,
+            buildPassphraseToggle: true,
             onAuthCanceled: _returnToPreviousStep,
             onNextButtonPressed: () {
               final mnemonicViewState = mnemonicViewKey.currentState;
