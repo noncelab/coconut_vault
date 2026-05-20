@@ -20,6 +20,7 @@ class ParentCreationViewModel extends ChangeNotifier {
   ParentNewKeyCreationType _selectedNewKeyCreationType = ParentNewKeyCreationType.none;
   ParentExistingKeyImportType _selectedExistingKeyImportType = ParentExistingKeyImportType.none;
   ChildWalletSetupType _selectedChildWalletSetupType = ChildWalletSetupType.none;
+  ParentNewKeyCreationType _selectedChildNewKeyCreationType = ParentNewKeyCreationType.none;
   int? _selectedExistingVaultId;
 
   ParentWalletType get selectedWalletType => _selectedWalletType;
@@ -27,6 +28,7 @@ class ParentCreationViewModel extends ChangeNotifier {
   ParentNewKeyCreationType get selectedNewKeyCreationType => _selectedNewKeyCreationType;
   ParentExistingKeyImportType get selectedExistingKeyImportType => _selectedExistingKeyImportType;
   ChildWalletSetupType get selectedChildWalletSetupType => _selectedChildWalletSetupType;
+  ParentNewKeyCreationType get selectedChildNewKeyCreationType => _selectedChildNewKeyCreationType;
   int? get selectedExistingVaultId => _selectedExistingVaultId;
   bool get hasSelectedKeyCreationOrImportOption {
     return switch (_selectedKeyPreparationType) {
@@ -90,6 +92,16 @@ class ParentCreationViewModel extends ChangeNotifier {
     }
 
     _selectedChildWalletSetupType = type;
+    notifyListeners();
+  }
+
+  void setChildNewKeyCreationType(ParentNewKeyCreationType type) {
+    _selectedChildNewKeyCreationType = _selectedChildNewKeyCreationType == type ? ParentNewKeyCreationType.none : type;
+    notifyListeners();
+  }
+
+  void resetChildNewKeyCreationType() {
+    _selectedChildNewKeyCreationType = ParentNewKeyCreationType.none;
     notifyListeners();
   }
 }

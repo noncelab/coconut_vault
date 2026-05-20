@@ -3,6 +3,8 @@ import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:flutter/foundation.dart';
 
+enum TaprootChildWalletSource { scanned, created }
+
 class TaprootWalletCreationProvider extends ChangeNotifier {
   Uint8List _secret = Uint8List(0); // utf8.encode(mnemonicWordsString)
   Uint8List _passphrase = Uint8List(0); // utf8.encode(passphraseString)
@@ -15,6 +17,7 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
   String? _externalMultisigParentMasterFingerprint;
   String? _childWalletDescriptor;
   String? _childWalletMasterFingerprint;
+  TaprootChildWalletSource? _childWalletSource;
 
   Uint8List get secret => _secret;
   Uint8List? get passphrase => _passphrase.isNotEmpty ? _passphrase : null;
@@ -25,6 +28,7 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
   String? get externalMultisigParentMasterFingerprint => _externalMultisigParentMasterFingerprint;
   String? get childWalletDescriptor => _childWalletDescriptor;
   String? get childWalletMasterFingerprint => _childWalletMasterFingerprint;
+  TaprootChildWalletSource? get childWalletSource => _childWalletSource;
 
   void setSecretAndPassphrase(Uint8List secret, Uint8List? passphrase, {bool useTaprootDescriptorQr = false}) {
     _secret = secret;
@@ -66,15 +70,21 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setChildWallet({required String descriptor, required String masterFingerprint}) {
+  void setChildWallet({
+    required String descriptor,
+    required String masterFingerprint,
+    required TaprootChildWalletSource source,
+  }) {
     _childWalletDescriptor = descriptor;
     _childWalletMasterFingerprint = masterFingerprint;
+    _childWalletSource = source;
     notifyListeners();
   }
 
   void resetChildWallet() {
     _childWalletDescriptor = null;
     _childWalletMasterFingerprint = null;
+    _childWalletSource = null;
     notifyListeners();
   }
 
@@ -90,6 +100,7 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
     _externalMultisigParentMasterFingerprint = null;
     _childWalletDescriptor = null;
     _childWalletMasterFingerprint = null;
+    _childWalletSource = null;
     notifyListeners();
   }
 

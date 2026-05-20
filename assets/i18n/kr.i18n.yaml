@@ -591,7 +591,7 @@ taproot:
       multisig_internal_key_prepared_title_1: "다중 서명 부모 지갑이"
       multisig_internal_key_prepared_title_2: "준비됐어요"
     step_2:
-      return_dialog_title: "이전 단계로 돌아가기"
+      return_dialog_title: "부모 지갑 초기화"
       return_dialog_description: "방금 만든 부모 지갑이 초기화됩니다. 정말 계속하시겠어요?"
       creation_script_path_intro_title_1: "상속에 사용할"
       creation_script_path_intro_title_2: "자식 지갑을 추가하세요"
@@ -602,6 +602,7 @@ taproot:
       import_scanner_title_1: "다른 볼트에서 준비한"
       import_scanner_title_2: "자식 지갑 정보를 스캔하세요"
       imported_script_path_title: "자식 지갑을 가져왔어요"
+      created_script_path_title: "자식 지갑을 만들었어요"
       imported_script_path_description_1: "정해진 시점 이후"
       imported_script_path_description_2: "사용할 지갑으로 연결돼요"
       create_dialog_title: "이 볼트에서 만들까요?"
@@ -611,6 +612,8 @@ taproot:
       import_again: "다시 가져오기"
       same_child_wallet_as_parent_dialog_title: "부모 지갑과 동일한 지갑"
       same_child_wallet_as_parent_dialog_description: "자식 지갑으로 사용할 수 없어요. 다른 지갑을 스캔해 주세요."
+      child_wallet_reset_dialog_title: "자식 지갑 초기화"
+      child_wallet_reset_dialog_description: "방금 추가한 자식 지갑이 초기화됩니다. 정말 계속하시겠어요?"
     step_3:
       set_timelock_title_1: "자식 지갑이 언제부터"
       set_timelock_title_2: "사용할 수 있게 할까요?"

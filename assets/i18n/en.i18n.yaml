@@ -586,7 +586,7 @@ taproot:
       multisig_internal_key_prepared_title_1: "The multisig parent wallet"
       multisig_internal_key_prepared_title_2: "is ready"
     step_2:
-      return_dialog_title: "Go back?"
+      return_dialog_title: "Reset parent wallet"
       return_dialog_description: "The parent wallet you just created will be reset. Do you really want to continue?"
       creation_script_path_intro_title_1: "Add a child wallet"
       creation_script_path_intro_title_2: "For inheritance"
@@ -597,6 +597,7 @@ taproot:
       import_scanner_title_1: "Scan the child wallet info"
       import_scanner_title_2: "prepared on another Vault"
       imported_script_path_title: "Child wallet imported"
+      created_script_path_title: "Child wallet created"
       imported_script_path_description_1: "It will be linked as the wallet"
       imported_script_path_description_2: "usable after the set time"
       create_dialog_title: "Create it on this Vault?"
@@ -606,6 +607,8 @@ taproot:
       import_again: "Import again"
       same_child_wallet_as_parent_dialog_title: "Same as parent wallet"
       same_child_wallet_as_parent_dialog_description: "This cannot be used as the child wallet. Please scan another wallet."
+      child_wallet_reset_dialog_title: "Reset child wallet"
+      child_wallet_reset_dialog_description: "The child wallet you just added will be reset. Do you want to continue?"
     step_3:
       set_timelock_title_1: "When should the child wallet"
       set_timelock_title_2: "become usable?"

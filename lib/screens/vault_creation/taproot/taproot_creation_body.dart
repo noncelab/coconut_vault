@@ -19,6 +19,7 @@ class TaprootCreationBody extends StatefulWidget {
   final bool ignoreChildHorizontalPadding;
   final bool showHeader;
   final bool scrollChild;
+  final bool runBottomButtonActionWithoutTransition;
 
   const TaprootCreationBody({
     super.key,
@@ -34,6 +35,7 @@ class TaprootCreationBody extends StatefulWidget {
     this.ignoreChildHorizontalPadding = false,
     this.showHeader = true,
     this.scrollChild = true,
+    this.runBottomButtonActionWithoutTransition = false,
   });
 
   @override
@@ -103,6 +105,11 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
 
     final onBottomButtonPressed = widget.onBottomButtonPressed;
     if (onBottomButtonPressed == null) {
+      return;
+    }
+
+    if (widget.runBottomButtonActionWithoutTransition) {
+      onBottomButtonPressed();
       return;
     }
 

@@ -585,7 +585,7 @@ taproot:
       multisig_internal_key_prepared_title_1: "マルチシグ親ウォレットの"
       multisig_internal_key_prepared_title_2: "準備ができました"
     step_2:
-      return_dialog_title: "前のステップに戻る"
+      return_dialog_title: "親ウォレットを初期化"
       return_dialog_description: "作成したばかりの親ウォレットがリセットされます。本当に続けますか？"
       creation_script_path_intro_title_1: "相続に使う"
       creation_script_path_intro_title_2: "子ウォレットを追加してください"
@@ -596,6 +596,7 @@ taproot:
       import_scanner_title_1: "別のVaultで準備した"
       import_scanner_title_2: "子ウォレット情報をスキャンしてください"
       imported_script_path_title: "子ウォレットを取り込みました"
+      created_script_path_title: "子ウォレットを作成しました"
       imported_script_path_description_1: "決められた時点以降"
       imported_script_path_description_2: "使用するウォレットとして接続されます"
       create_dialog_title: "このVaultで作成しますか？"
@@ -605,6 +606,8 @@ taproot:
       import_again: "再インポート"
       same_child_wallet_as_parent_dialog_title: "親ウォレットと同じウォレット"
       same_child_wallet_as_parent_dialog_description: "子ウォレットとして使用できません。別のウォレットをスキャンしてください。"
+      child_wallet_reset_dialog_title: "子ウォレットを初期化"
+      child_wallet_reset_dialog_description: "追加した子ウォレットが初期化されます。本当に続けますか？"
     step_3:
       set_timelock_title_1: "子ウォレットはいつから"
       set_timelock_title_2: "使えるようにしますか？"
