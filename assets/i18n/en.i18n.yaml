@@ -1047,6 +1047,12 @@ bottom_sheet:
     description: "Make sure to remember your account number."
     placeholder: "Please enter the account number"
     account_error_message: "Enter a value in the range 0 and 2,147,483,647."
+  date_picker:
+    select_date: "Select date"
+  time: "Time"
+  am: "AM"
+  pm: "PM"
+  placeholder: "Select date and time"
 
 permission:
   biometric: 

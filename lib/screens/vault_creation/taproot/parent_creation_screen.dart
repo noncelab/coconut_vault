@@ -32,12 +32,15 @@ import 'package:coconut_vault/screens/wallet_info/single_sig_menu/mnemonic_view_
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/widgets/box/info_box.dart';
 import 'package:coconut_vault/widgets/button/assignable_pill_button.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class ParentCreationScreen extends StatefulWidget {
@@ -69,7 +72,9 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   int? _childWalletSetupStep;
   int? _childWalletCreationOptionStep;
   int? _childWalletImportedStep;
+  int? _timelockSetupStep;
   Timer? _titleAnimationTimer;
+  DateTime? _selectedTimelockDateTime;
   bool _isTitleAnimationCompleted = false;
   bool _isDuplicateChildWalletDialogVisible = false;
   bool _isCreatingChildWallet = false;
@@ -203,6 +208,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
     if (_currentStep == _childWalletCreationOptionStep) {
       return _viewModel.selectedChildNewKeyCreationType != ParentNewKeyCreationType.none;
+    }
+
+    if (_currentStep == _timelockSetupStep) {
+      return _selectedTimelockDateTime != null;
     }
 
     return switch (_currentStep) {
@@ -930,15 +939,17 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       ),
     ];
     final importedChildVaultGuide = [
-      t.taproot.parent_creation_screen.step_2.imported_script_path_description_1.characterFadeInAnimation(
+      _buildBodyCharacterFadeInText(
+        t.taproot.parent_creation_screen.step_2.imported_script_path_description_1,
+        key: 'imported-script-path-description-1',
         duration: const Duration(milliseconds: 400),
         delay: const Duration(milliseconds: 1700),
-        textStyle: CoconutTypography.body1_16,
       ),
-      t.taproot.parent_creation_screen.step_2.imported_script_path_description_2.characterFadeInAnimation(
+      _buildBodyCharacterFadeInText(
+        t.taproot.parent_creation_screen.step_2.imported_script_path_description_2,
+        key: 'imported-script-path-description-2',
         duration: const Duration(milliseconds: 700),
         delay: const Duration(milliseconds: 2400),
-        textStyle: CoconutTypography.body1_16,
       ),
       CoconutLayout.spacing_600h,
       InfoBox(
@@ -956,10 +967,102 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     _childWalletImportedStep = _addStep(
       titleList: titleList,
       bodyList: importedChildVaultGuide,
-      nextButtonAction: () {},
+      nextButtonAction: () {
+        _addTimelockSetupStep();
+      },
       fixedBottomSubWidget: isScannedWalletSource ? fixedBottomButtonSubWidget : null,
     );
     return true;
+  }
+
+  void _addTimelockSetupStep() {
+    _resetTimelockDate();
+    final today = DateTime.now();
+
+    final titleList = [
+      TextSpan(text: t.taproot.parent_creation_screen.step_3.set_timelock_title_1),
+      TextSpan(text: t.taproot.parent_creation_screen.step_3.set_timelock_title_2),
+    ];
+
+    _timelockSetupStep = _addStep(
+      titleList: titleList,
+      bodyList: _timelockSetupBodyList(today),
+      nextButtonAction: () {},
+    );
+  }
+
+  void _resetTimelockDate() {
+    _selectedTimelockDateTime = null;
+  }
+
+  List<Widget> _timelockSetupBodyList(DateTime today) {
+    return [
+      _buildBodyCharacterFadeInText(
+        t.taproot.parent_creation_screen.step_3.set_timelock_description_1,
+        key: 'timelock-description-1',
+        duration: const Duration(milliseconds: 400),
+        delay: const Duration(milliseconds: 1700),
+      ),
+      _buildBodyCharacterFadeInText(
+        t.taproot.parent_creation_screen.step_3.set_timelock_description_2,
+        key: 'timelock-description-2',
+        duration: const Duration(milliseconds: 700),
+        delay: const Duration(milliseconds: 2400),
+      ),
+      CoconutLayout.spacing_600h,
+      ShrinkAnimationButton(
+        onPressed: () => _showDatePicker(today),
+        border: Border.all(width: 1, color: CoconutColors.black.withValues(alpha: 0.15)),
+        borderRadius: 12,
+        defaultColor:
+            _selectedTimelockDateTime != null ? CoconutColors.black.withValues(alpha: 0.15) : CoconutColors.white,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            children: [
+              SvgPicture.asset('assets/svg/calendar-days.svg'),
+              Expanded(
+                child: Center(
+                  child: Text(
+                    _timelockDateTimeText,
+                    style:
+                        _selectedTimelockDateTime != null
+                            ? CoconutTypography.body2_14_Number.setColor(CoconutColors.black)
+                            : CoconutTypography.body2_14.setColor(CoconutColors.gray400),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ];
+  }
+
+  Widget _buildBodyCharacterFadeInText(
+    String text, {
+    required String key,
+    required Duration duration,
+    required Duration delay,
+  }) {
+    return text.characterFadeInAnimation(
+      key: ValueKey('taproot-parent-creation-body-$key'),
+      duration: duration,
+      delay: delay,
+      textStyle: CoconutTypography.body1_16,
+    );
+  }
+
+  String get _timelockDateTimeText {
+    final selectedDateTime = _selectedTimelockDateTime;
+    if (selectedDateTime == null) {
+      return t.bottom_sheet.date_picker.placeholder;
+    }
+
+    final hourOfPeriod = selectedDateTime.hour % 12 == 0 ? 12 : selectedDateTime.hour % 12;
+    final periodText = selectedDateTime.hour < 12 ? t.bottom_sheet.date_picker.am : t.bottom_sheet.date_picker.pm;
+    return '${selectedDateTime.year}년 ${selectedDateTime.month}월 ${selectedDateTime.day}일 '
+        '$periodText ${hourOfPeriod.toString().padLeft(2, '0')}:${selectedDateTime.minute.toString().padLeft(2, '0')}';
   }
 
   bool _isSameAsParentWallet(String masterFingerprint) {
@@ -968,6 +1071,100 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
     return parentMasterFingerprints.whereType<String>().any(
       (parentMasterFingerprint) => parentMasterFingerprint.toLowerCase() == masterFingerprint.toLowerCase(),
+    );
+  }
+
+  void _showDatePicker(DateTime today) {
+    final selectedTimelockDateTime = _selectedTimelockDateTime;
+    DateTime? selectedDate = selectedTimelockDateTime;
+    var selectedTime =
+        selectedTimelockDateTime == null
+            ? TimeOfDay.now()
+            : TimeOfDay(hour: selectedTimelockDateTime.hour, minute: selectedTimelockDateTime.minute);
+    MyBottomSheet.showBottomSheet(
+      title: t.bottom_sheet.date_picker.select_date,
+      context: context,
+      isCloseButton: true,
+      child: StatefulBuilder(
+        builder: (context, setBottomSheetState) {
+          const bottomButtonAreaHeight =
+              FixedBottomButton.fixedBottomButtonDefaultHeight +
+              FixedBottomButton.fixedBottomButtonDefaultBottomPadding +
+              40;
+          final bottomSheetBodyHeight =
+              (MediaQuery.sizeOf(context).height - MediaQuery.viewInsetsOf(context).bottom - 300).clamp(360.0, 600.0);
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+            child: SafeArea(
+              child: SizedBox(
+                height: bottomSheetBodyHeight,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(horizontal: 28),
+                              child: CoconutDatePicker(
+                                amLabel: t.bottom_sheet.date_picker.am,
+                                pmLabel: t.bottom_sheet.date_picker.pm,
+                                timeLabel: t.bottom_sheet.date_picker.time,
+                                onDateChanged: (d) {
+                                  debugPrint(d.toIso8601String());
+                                  selectedDate = d;
+                                },
+                                firstDate: today,
+                                lastDate: DateTime(today.year + 10, today.month, today.day),
+                                showTimeSelector: true,
+                                selectedTime: selectedTime,
+                                onTimeChanged: (time) {
+                                  setBottomSheetState(() {
+                                    selectedTime = time;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: bottomButtonAreaHeight,
+                      child: FixedBottomButton(
+                        isVisibleAboveKeyboard: false,
+                        bottomPadding: 0,
+                        onButtonClicked: () {
+                          final date = selectedDate ?? today;
+                          final selectedDateTime = DateTime(
+                            date.year,
+                            date.month,
+                            date.day,
+                            selectedTime.hour,
+                            selectedTime.minute,
+                          );
+
+                          setState(() {
+                            _selectedTimelockDateTime = selectedDateTime;
+                            final timelockStep = _timelockSetupStep;
+                            if (timelockStep != null) {
+                              _bodyList[timelockStep - 1] = _timelockSetupBodyList(today);
+                            }
+                          });
+                          Navigator.pop(context);
+                        },
+                        text: t.next,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 

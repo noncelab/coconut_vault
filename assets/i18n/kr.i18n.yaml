@@ -1058,6 +1058,12 @@ bottom_sheet:
     description: "계정 번호 변경을 위해 패스프레이즈를 확인합니다"
     placeholder: "패스프레이즈를 입력해 주세요"
     passphrase_error_message: "패스프레이즈가 일치하지 않아요. 다시 입력해 주세요."
+  date_picker:
+    select_date: "날짜 선택"
+    time: "시간"
+    am: "오전"
+    pm: "오후"
+    placeholder: "일시를 지정해주세요"
 
 permission:
   biometric: 

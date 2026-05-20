@@ -1044,6 +1044,12 @@ bottom_sheet:
     description: "必ずアカウント番号を覚えておいてください"
     placeholder: "アカウント番号を入力してください"
     account_error_message: "0〜2,147,483,647の範囲の値を入力してください。"
+  date_picker:
+    select_date: "日付を選択"
+  time: "時間"
+  am: "午前"
+  pm: "午後"
+  placeholder: "日時を指定してください"
 
 permission:
   biometric: 

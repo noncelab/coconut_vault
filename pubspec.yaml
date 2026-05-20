@@ -82,7 +82,7 @@ dependencies:
   coconut_design_system:
     git:
       url: https://github.com/noncelab/coconut_design_system.git
-      ref: feat/gradient-colors
+      ref: main
   flutter_keyboard_visibility: ^6.0.0
   base32: ^2.2.0
   archive: ^4.0.7
@@ -266,6 +266,7 @@ flutter:
     - assets/svg/krux.svg
     - assets/svg/leave.svg
     - assets/svg/arrow-reload.svg
+    - assets/svg/calendar-days.svg
     - assets/png/single-key.png
     - assets/png/multi-keys.png
     - assets/png/load-wallet.png
