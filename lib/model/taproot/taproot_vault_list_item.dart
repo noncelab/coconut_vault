@@ -127,10 +127,10 @@ class TaprootVaultListItem extends VaultListItemBase {
           _scriptPathSeedInfos
               .map(
                 (seedInfo) => {
-                  'miniscript': (coconutVault as TaprootVault)
-                      .policyList
-                      .firstWhereOrNull((p) => ScriptPathSeedInfo.generateKey(p) == seedInfo.key)
-                      ?.toMiniscript(),
+                  'miniscript':
+                      (coconutVault as TaprootVault).policyList
+                          .firstWhereOrNull((p) => ScriptPathSeedInfo.generateKey(p) == seedInfo.key)
+                          ?.toMiniscript(),
                   'extendedPublicKeys': seedInfo.seedInfos.map((s) => s.extendedPublicKey).toList(),
                 },
               )

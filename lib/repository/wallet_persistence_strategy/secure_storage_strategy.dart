@@ -126,10 +126,7 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
     await writePrivacyInfo(id, WalletType.multiSignature, info);
   }
 
-  Future<void> _saveTaprootSecrets(
-    int walletId,
-    List<TaprootSeedInfoForSave> secrets,
-  ) async {
+  Future<void> _saveTaprootSecrets(int walletId, List<TaprootSeedInfoForSave> secrets) async {
     for (final seedInfo in secrets) {
       final keyString = WalletStorageKeys.taprootSeedKey(walletId, seedInfo.extendedPublicKey);
       await _saveTaprootSeed(walletId, keyString, seedInfo);

@@ -75,10 +75,7 @@ class SigningOnlyStrategy implements WalletPersistenceStrategy {
     await _secureZoneRepository.deleteKey(alias: keyString);
   }
 
-  Future<void> _saveTaprootSecrets(
-    int walletId,
-    List<TaprootSeedInfoForSave> secrets,
-  ) async {
+  Future<void> _saveTaprootSecrets(int walletId, List<TaprootSeedInfoForSave> secrets) async {
     for (final seedInfo in secrets) {
       final keyString = WalletStorageKeys.taprootSeedKey(walletId, seedInfo.extendedPublicKey);
       await _saveTaprootSeed(walletId, keyString, seedInfo);

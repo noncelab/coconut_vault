@@ -17,8 +17,7 @@ class WalletStorageKeys {
   static String privacyInfoKey(String walletKey) => "privacy_${hashString(walletKey)}";
 
   // Taproot seed 관련
-  static String taprootSeedKey(int walletId, String extendedPublicKey) =>
-      hashString('$walletId - $extendedPublicKey');
+  static String taprootSeedKey(int walletId, String extendedPublicKey) => hashString('$walletId - $extendedPublicKey');
 
   // 탭루트 지갑 구성하는 SeedKey 목록을 저장하는 키
   static String taprootSeedIndexKey(int walletId) => hashString("$walletId - taprootSeedIndex");
