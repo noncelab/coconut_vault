@@ -21,4 +21,3 @@ class ScriptPathSeedInfo {
 
   Map<String, dynamic> toJson() => _$ScriptPathSeedInfoToJson(this);
 }
-
