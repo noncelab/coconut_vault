@@ -115,6 +115,8 @@ precautions: "注意事項"
 wallet_type: "ウォレットの種類"
 mfp: "MFP"
 
+rescan: "再スキャンする"
+
 watch_only_options:
   title: "ウォッチオンリーウォレット選択"
   coconut_wallet: "ココナッツウォレット"
@@ -528,6 +530,7 @@ welcome_screen:
 # lib/screens/vault_creation
 taproot:
   taproot_inheritance_wallet: "Taproot相続ウォレット"
+  parent_wallet: "親ウォレット"
   common:
     create_new_wallet_title: "ウォレットをどのように作成しますか？"
     existing_mnemonic_title: "既存のニーモニックを使用しますか？"
@@ -659,6 +662,7 @@ taproot:
       title2: "スキャンしてインポートしてください"
     step6:
       title1: "相続条件のウォレットと一致します"
+      title2: "相続ウォレットと一致しません"
   setup_summary_card:
     signer_configuration: "署名者構成"
     inheritance_condition: "相続条件"

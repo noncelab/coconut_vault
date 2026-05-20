@@ -115,6 +115,8 @@ precautions: "Precautions"
 wallet_type: "Wallet Type"
 mfp: "MFP"
 
+rescan: "Rescan"
+
 watch_only_options:
   title: "Select Watch-Only Wallet"
   coconut_wallet: "Coconut Wallet"
@@ -529,6 +531,7 @@ welcome_screen:
 # lib/screens/vault_creation
 taproot:
   taproot_inheritance_wallet: "Taproot Inheritance Wallet"
+  parent_wallet: "Parent Wallet"
   common:
     create_new_wallet_title: "How do you want to create the wallet?"
     existing_mnemonic_title: "Use an existing mnemonic?"
@@ -660,6 +663,7 @@ taproot:
       title2: "the inheritance wallet"
     step6:
       title1: "Matches the inheritance condition wallet"
+      title2: "Does not match the inheritance wallet"
   setup_summary_card:
     signer_configuration: "Signer Configuration"
     inheritance_condition: "Inheritance Condition"

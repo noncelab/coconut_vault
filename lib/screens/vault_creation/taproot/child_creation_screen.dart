@@ -7,7 +7,9 @@ import 'package:coconut_vault/screens/common/menu_grid.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
 import 'package:coconut_vault/widgets/box/info_box.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
+import 'package:coconut_vault/widgets/card/taproot/taproot_setup_summary_card.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_vault_item_card.dart';
+import 'package:coconut_vault/widgets/card/taproot/taproot_participant_card.dart';
 import 'package:coconut_vault/widgets/indicator/timeline_step_indicator.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
@@ -120,6 +122,13 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       ]);
     }
 
+    bool isValid = true;
+    if (viewModel.scannedVaultItem != null && viewModel.masterFingerprint != null) {
+      isValid = viewModel.scannedVaultItem!.beneficiaries.any(
+        (b) => b.masterFingerprint == viewModel.masterFingerprint,
+      );
+    }
+
     list.addAll([
       [
         TextSpan(text: t.taproot.child_creation_screen.step4.title1),
@@ -130,7 +139,14 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         TextSpan(text: t.taproot.child_creation_screen.step5.title1),
         TextSpan(text: t.taproot.child_creation_screen.step5.title2),
       ],
-      [TextSpan(text: t.taproot.child_creation_screen.step6.title1)],
+      isValid
+          ? [TextSpan(text: t.taproot.child_creation_screen.step6.title1)]
+          : [
+            TextSpan(
+              text: t.taproot.child_creation_screen.step6.title2,
+              style: const TextStyle(color: CoconutColors.hotPink),
+            ),
+          ],
       [TextSpan(text: t.taproot.child_creation_screen.step6.title1)],
     ]);
 
@@ -263,6 +279,13 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       list.add(_buildExistingVaultSelectionBody(viewModel));
     }
 
+    bool isValid = true;
+    if (viewModel.scannedVaultItem != null && viewModel.masterFingerprint != null) {
+      isValid = viewModel.scannedVaultItem!.beneficiaries.any(
+        (b) => b.masterFingerprint == viewModel.masterFingerprint,
+      );
+    }
+
     list.addAll([
       _buildQrSection(viewModel),
       TaprootScannerScreen(
@@ -289,7 +312,64 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         },
       ),
       if (viewModel.scannedVaultItem != null)
-        TaprootVaultItemCard(vaultItem: viewModel.scannedVaultItem!, showTaprootWalletInfo: false)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (!isValid) ...[
+              CoconutLayout.spacing_1500h,
+              SvgPicture.asset('assets/svg/triangle-warning.svg', width: 25, height: 25),
+              CoconutLayout.spacing_200h,
+              Text(
+                t.taproot.child_creation_screen.step6.title2,
+                style: CoconutTypography.heading3_21_Bold.setColor(CoconutColors.hotPink),
+                textAlign: TextAlign.center,
+              ),
+              CoconutLayout.spacing_800h,
+            ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TaprootVaultItemCard(vaultItem: viewModel.scannedVaultItem!, showTaprootWalletInfo: false),
+            ),
+            CoconutLayout.spacing_200h,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: TaprootSetupSummaryCard(
+                itemList: [
+                  ...viewModel.scannedVaultItem!.owners.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final owner = entry.value;
+                    final isSingleParent = viewModel.scannedVaultItem!.owners.length == 1;
+                    final parentName =
+                        isSingleParent
+                            ? t.taproot.parent_wallet
+                            : '${t.taproot.parent_wallet} ${String.fromCharCode(65 + index)}';
+
+                    return TaprootParticipantCard(
+                      role: TaprootParticipantRole.parent,
+                      walletName: parentName,
+                      mfp: owner.masterFingerprint,
+                      derivationPath: viewModel.scannedVaultItem!.derivationPath,
+                      hasSingleParent: isSingleParent,
+                      hasBackgroundColor: true,
+                      isMine: owner.isSeedStored,
+                    );
+                  }),
+                  ...viewModel.scannedVaultItem!.beneficiaries.map(
+                    (beneficiary) => TaprootParticipantCard(
+                      role: TaprootParticipantRole.child,
+                      mfp: beneficiary.masterFingerprint,
+                      derivationPath: viewModel.scannedVaultItem!.derivationPath,
+                      locktime: beneficiary.lockTime,
+                      hasBackgroundColor: true,
+                      isMine: beneficiary.isSeedStored || beneficiary.masterFingerprint == viewModel.masterFingerprint,
+                      isValid: beneficiary.masterFingerprint == viewModel.masterFingerprint,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        )
       else
         const SizedBox.shrink(),
       TimelineStepIndicator(
@@ -552,6 +632,23 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           );
           return;
         }
+      }
+    }
+
+    int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
+    int scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
+    int baseCurrentStep = _currentStep > embeddedStartIndex ? _currentStep - _embeddedWidgets.length : _currentStep;
+
+    if (baseCurrentStep == scannerStepIndex + 1) {
+      bool isValid = true;
+      if (viewModel.scannedVaultItem != null && viewModel.masterFingerprint != null) {
+        isValid = viewModel.scannedVaultItem!.beneficiaries.any(
+          (b) => b.masterFingerprint == viewModel.masterFingerprint,
+        );
+      }
+      if (!isValid) {
+        _handleBackPressed();
+        return;
       }
     }
 
@@ -826,6 +923,14 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     int scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
     int baseCurrentStep = _currentStep > embeddedStartIndex ? _currentStep - _embeddedWidgets.length : _currentStep;
     final isScannerStep = baseCurrentStep == scannerStepIndex;
+    final isSummaryStep = baseCurrentStep == scannerStepIndex + 1;
+
+    bool isValid = true;
+    if (viewModel.scannedVaultItem != null && viewModel.masterFingerprint != null) {
+      isValid = viewModel.scannedVaultItem!.beneficiaries.any(
+        (b) => b.masterFingerprint == viewModel.masterFingerprint,
+      );
+    }
 
     Widget? currentEmbeddedWidget;
     if (isEmbeddedActive) {
@@ -879,8 +984,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
                 key: ValueKey(_currentStep),
                 titleLines: _titleLines(viewModel),
                 showBottomButton: _isNextButtonVisible(viewModel),
-                ignoreChildHorizontalPadding: isEmbeddedActive || isVaultSelectionStep || isScannerStep,
-                showHeader: !isEmbeddedActive && !isScannerStep,
+                bottomButtonText: isSummaryStep && !isValid ? t.rescan : null,
+                ignoreChildHorizontalPadding:
+                    isEmbeddedActive || isVaultSelectionStep || isScannerStep || isSummaryStep,
+                showHeader: !isEmbeddedActive && !isScannerStep && !(isSummaryStep && !isValid),
                 scrollChild: !isEmbeddedActive && !isVaultSelectionStep && !isScannerStep,
                 onBottomButtonPressed: () => _onNextPressed(viewModel),
                 child: _getCurrentChild(viewModel),
