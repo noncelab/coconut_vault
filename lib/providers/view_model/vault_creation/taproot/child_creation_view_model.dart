@@ -33,7 +33,10 @@ class ChildCreationViewModel extends ChangeNotifier {
       final keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
 
       _masterFingerprint = keyStore.masterFingerprint;
-      _qrData = keyStore.extendedPublicKey.serialize();
+
+      final coinIndex = NetworkType.currentNetworkType == NetworkType.mainnet ? 0 : 1;
+      final xpub = keyStore.extendedPublicKey.serialize();
+      _qrData = "tr([$_masterFingerprint/86'/$coinIndex'/0']$xpub/<0;1>/*)";
     } catch (e) {
       Logger.error('Failed to generate key data: $e');
       _masterFingerprint = '00000000';
