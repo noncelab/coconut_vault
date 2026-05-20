@@ -651,6 +651,8 @@ taproot:
       existing_option1: "現在のボルトから\n選択"
       existing_option2: "ニーモニック入力"
       existing_option3: "シードQRスキャン"
+      device_auth_dialog_title: "デバイス認証"
+      device_auth_dialog_description: "セキュア領域に保存されたニーモニックにアクセスするため、デバイス認証を行います。"
     step4:
       taproot_single_sig_wallet: "Taprootシングルシグウォレット"
       taproot_multisig_wallet: "Taprootマルチシグウォレット"

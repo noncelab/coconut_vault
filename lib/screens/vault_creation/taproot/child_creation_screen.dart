@@ -908,8 +908,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       builder: (context) {
         return CoconutPopup(
           languageCode: context.read<VisibilityProvider>().language,
-          title: '기기 인증 진행',
-          description: '기기 보안 영역에 저장된 니모닉에 접근하기 위해 기기 인증을 진행합니다.',
+          title: t.taproot.child_creation_screen.step3.device_auth_dialog_title,
+          description: t.taproot.child_creation_screen.step3.device_auth_dialog_description,
           rightButtonText: t.confirm,
           onTapRight: () async {
             final pinCheckResult = await _showPinCheckBottomSheet();
