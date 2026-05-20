@@ -153,7 +153,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     return list;
   }
 
-  Widget _buildKeyPreparationStep(ChildCreationViewModel viewModel) {
+  Widget _buildChildPreparationStep(ChildCreationViewModel viewModel) {
     return MenuGrid(
       children: [
         SelectableOptionCard(
@@ -184,7 +184,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     );
   }
 
-  Widget _buildKeyCreationOptionStep(ChildCreationViewModel viewModel) {
+  Widget _buildChildCreationOptionStep(ChildCreationViewModel viewModel) {
     if (viewModel.isCreateKeySelected) {
       return MenuGrid(
         children: [
@@ -415,9 +415,9 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       case 1:
         return Center(child: Image.asset('assets/png/load-wallet.png', scale: 4.0, width: 210));
       case 2:
-        return _buildKeyPreparationStep(viewModel);
+        return _buildChildPreparationStep(viewModel);
       case 3:
-        return _buildKeyCreationOptionStep(viewModel);
+        return _buildChildCreationOptionStep(viewModel);
       default:
         int scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
 
