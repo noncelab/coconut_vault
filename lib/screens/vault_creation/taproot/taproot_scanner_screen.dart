@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -25,7 +26,24 @@ class _TaprootScanDataHandler implements IQrScanDataHandler {
   bool isCompleted() => _scannedData != null;
 
   @override
-  bool validateFormat(String data) => data.trim().startsWith('tr(');
+  bool validateFormat(String data) {
+    final trimmedData = data.trim();
+    try {
+      final decoded = jsonDecode(trimmedData);
+      if (decoded is Map<String, dynamic> && decoded.containsKey('descriptor')) {
+        final descriptor = decoded['descriptor'] as String;
+        return descriptor.trim().startsWith('tr(');
+      }
+    } catch (e) {
+      if (trimmedData.startsWith('tr(')) {
+        return true;
+      }
+      if (trimmedData.startsWith('{') && trimmedData.endsWith('}')) {
+        return RegExp(r'descriptor:\s*tr\(').hasMatch(trimmedData);
+      }
+    }
+    return false;
+  }
 
   @override
   bool joinData(String data) {

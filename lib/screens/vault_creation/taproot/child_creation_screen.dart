@@ -7,6 +7,7 @@ import 'package:coconut_vault/screens/common/menu_grid.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
 import 'package:coconut_vault/widgets/box/info_box.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
+import 'package:coconut_vault/widgets/card/taproot/taproot_vault_item_card.dart';
 import 'package:coconut_vault/widgets/indicator/timeline_step_indicator.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
@@ -59,7 +60,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   int? _currentVaultSelectionStep;
   bool _isProcessing = false;
 
-  int get _baseTotalStep => _currentVaultSelectionStep != null ? 7 : 6;
+  int get _baseTotalStep => _currentVaultSelectionStep != null ? 8 : 6;
 
   int get _totalStep => _baseTotalStep + _embeddedWidgets.length;
 
@@ -129,6 +130,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         TextSpan(text: t.taproot.child_creation_screen.step5.title1),
         TextSpan(text: t.taproot.child_creation_screen.step5.title2),
       ],
+      [TextSpan(text: t.taproot.child_creation_screen.step6.title1)],
       [TextSpan(text: t.taproot.child_creation_screen.step6.title1)],
     ]);
 
@@ -273,8 +275,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
           vibrateExtraLight();
 
-          // TODO: ViewModel에 스캔된 디스크립터 데이터 저장
-          // viewModel.setScannedDescriptor(result);
+          // ViewModel에 스캔된 지갑 데이터 저장 및 정보 파싱
+          viewModel.setScannedTaprootVault(result);
 
           // 100% 스캔 완료 상태를 사용자에게 잠시 보여주기 위한 딜레이
           await Future.delayed(const Duration(milliseconds: 1000));
@@ -286,20 +288,28 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           _onNextPressed(viewModel);
         },
       ),
-      const TimelineStepIndicator(
+      if (viewModel.scannedVaultItem != null)
+        TaprootVaultItemCard(vaultItem: viewModel.scannedVaultItem!, showTaprootWalletInfo: false)
+      else
+        const SizedBox.shrink(),
+      TimelineStepIndicator(
         timelineStepItemList: [
           TimelineStepItem(
             title: '부모 지갑 연결',
-            description: '단일 서명 지갑과 연결됨 (MFP: 000000)',
+            description: '단일 서명 지갑과 연결됨 (MFP: ${viewModel.scannedMasterFingerprint ?? '000000'})',
             status: TimelineStepStatus.current,
           ),
           TimelineStepItem(
             title: '자식 지갑 설정',
-            description: '탭루트 자식 지갑 (MFP: 000000)',
+            description: '탭루트 자식 지갑 (MFP: ${viewModel.masterFingerprint ?? '000000'})',
             status: TimelineStepStatus.upcoming,
           ),
-          TimelineStepItem(title: '기간 설정', description: '2030년 2월 16일 오전 09:21', status: TimelineStepStatus.upcoming),
-          TimelineStepItem(
+          const TimelineStepItem(
+            title: '기간 설정',
+            description: '2030년 2월 16일 오전 09:21',
+            status: TimelineStepStatus.upcoming,
+          ),
+          const TimelineStepItem(
             title: '자식 지갑 활성화',
             description: '2030년 2월 16일 오전 09:21 이후',
             status: TimelineStepStatus.future,
