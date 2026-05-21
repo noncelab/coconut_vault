@@ -25,7 +25,7 @@ abstract class BaseEntropyWidget extends StatefulWidget {
   final EntropyType entropyType;
   final Uint8List? mnemonic;
   final ValueNotifier<int>? stepNotifier; // 니모닉 or 패스프레이즈 입력 단계
-  final bool isTaprootChild;
+  final bool isTaproot;
   final bool isEmbedded;
   final VoidCallback? onMnemonicConfirmationRequested;
 
@@ -37,7 +37,7 @@ abstract class BaseEntropyWidget extends StatefulWidget {
     required this.entropyType,
     this.mnemonic,
     this.stepNotifier,
-    this.isTaprootChild = false,
+    this.isTaproot = false,
     this.isEmbedded = false,
     this.onMnemonicConfirmationRequested,
   });
@@ -314,7 +314,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
   }
 
   void _saveSecretAndPassphrase() {
-    if (widget.isTaprootChild) {
+    if (widget.isTaproot) {
       Provider.of<TaprootWalletCreationProvider>(
         context,
         listen: false,

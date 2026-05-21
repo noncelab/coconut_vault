@@ -19,12 +19,12 @@ class MnemonicCoinflipScreen extends BaseMnemonicEntropyScreen {
   });
 
   @override
-  State<MnemonicCoinflipScreen> createState() => _MnemonicDiceRollScreenState();
+  State<MnemonicCoinflipScreen> createState() => _MnemonicCoinflipScreenState();
 }
 
-class _MnemonicDiceRollScreenState extends BaseMnemonicEntropyScreenState<MnemonicCoinflipScreen> {
+class _MnemonicCoinflipScreenState extends BaseMnemonicEntropyScreenState<MnemonicCoinflipScreen> {
   @override
-  String get screenTitle => t.mnemonic_dice_roll_screen.title;
+  String get screenTitle => t.mnemonic_coin_flip_screen.title;
   @override
   Widget buildEntropyWidget() {
     return CoinFlip(
@@ -40,7 +40,6 @@ class _MnemonicDiceRollScreenState extends BaseMnemonicEntropyScreenState<Mnemon
 }
 
 class CoinFlip extends BaseEntropyWidget {
-  final bool isTaproot;
   const CoinFlip({
     super.key,
     required super.wordsCount,
@@ -49,7 +48,7 @@ class CoinFlip extends BaseEntropyWidget {
     required super.entropyType,
     super.isEmbedded,
     super.onMnemonicConfirmationRequested,
-    this.isTaproot = false,
+    super.isTaproot,
   });
 
   @override
@@ -93,10 +92,10 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
     final result = await Navigator.pushNamed(
       context,
       AppRoutes.mnemonicConfirmation,
-      arguments: {'calledFrom': AppRoutes.mnemonicCoinflip, 'isTaprootChild': widget.isTaprootChild},
+      arguments: {'calledFrom': AppRoutes.mnemonicCoinflip, 'isTaproot': widget.isTaproot},
     );
 
-    if (result == true && widget.isTaprootChild) {
+    if (result == true && widget.isTaproot) {
       if (mounted) {
         Navigator.pop(context, true);
       }
