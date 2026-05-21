@@ -371,7 +371,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
               vault: vault,
               isSelectable: false,
               onSelected: () async {
-                if (vault.vaultType == WalletType.multiSignature) {
+                if (vault.vaultType != WalletType.singleSignature) {
                   Navigator.pushNamed(context, AppRoutes.multisigSetupInfo, arguments: {'id': vault.id});
                   return;
                 }
