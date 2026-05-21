@@ -12,10 +12,10 @@ enum ChildExistingKeyImportType { none, currentVault, mnemonicInput, seedQrScan 
 class ChildCreationViewModel extends ChangeNotifier {
   final TaprootWalletCreationProvider _taprootProvider;
 
-  ChildKeyPreparationType _selectedKeyPreparationType = ChildKeyPreparationType.none;
-  ChildNewKeyCreationType _selectedNewKeyCreationType = ChildNewKeyCreationType.none;
-  ChildExistingKeyImportType _selectedExistingKeyImportType = ChildExistingKeyImportType.none;
-  int? _selectedExistingVaultId;
+  ChildKeyPreparationType _keyPreparationType = ChildKeyPreparationType.none;
+  ChildNewKeyCreationType _newKeyCreationType = ChildNewKeyCreationType.none;
+  ChildExistingKeyImportType _existingKeyImportType = ChildExistingKeyImportType.none;
+  int? _existingVaultId;
   String? _qrData;
   String? _masterFingerprint;
 
@@ -55,38 +55,37 @@ class ChildCreationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  ChildKeyPreparationType get selectedKeyPreparationType => _selectedKeyPreparationType;
-  ChildNewKeyCreationType get selectedNewKeyCreationType => _selectedNewKeyCreationType;
-  ChildExistingKeyImportType get selectedExistingKeyImportType => _selectedExistingKeyImportType;
-  int? get selectedExistingVaultId => _selectedExistingVaultId;
+  ChildKeyPreparationType get keyPreparationType => _keyPreparationType;
+  ChildNewKeyCreationType get newKeyCreationType => _newKeyCreationType;
+  ChildExistingKeyImportType get existingKeyImportType => _existingKeyImportType;
   String? get qrData => _qrData;
   String? get masterFingerprint => _masterFingerprint;
 
   void setKeyPreparationType(ChildKeyPreparationType type) {
-    _selectedKeyPreparationType = _selectedKeyPreparationType == type ? ChildKeyPreparationType.none : type;
+    _keyPreparationType = _keyPreparationType == type ? ChildKeyPreparationType.none : type;
     _resetKeyOptionSelection();
     notifyListeners();
   }
 
   void setNewKeyCreationType(ChildNewKeyCreationType type) {
-    _selectedNewKeyCreationType = _selectedNewKeyCreationType == type ? ChildNewKeyCreationType.none : type;
+    _newKeyCreationType = _newKeyCreationType == type ? ChildNewKeyCreationType.none : type;
     notifyListeners();
   }
 
   void setExistingKeyImportType(ChildExistingKeyImportType type) {
-    _selectedExistingKeyImportType = _selectedExistingKeyImportType == type ? ChildExistingKeyImportType.none : type;
-    _selectedExistingVaultId = null;
+    _existingKeyImportType = _existingKeyImportType == type ? ChildExistingKeyImportType.none : type;
+    _existingVaultId = null;
     notifyListeners();
   }
 
-  void setSelectedExistingVaultId(int vaultId) {
-    _selectedExistingVaultId = _selectedExistingVaultId == vaultId ? null : vaultId;
+  void setExistingVaultId(int vaultId) {
+    _existingVaultId = _existingVaultId == vaultId ? null : vaultId;
     notifyListeners();
   }
 
   void _resetKeyOptionSelection() {
-    _selectedNewKeyCreationType = ChildNewKeyCreationType.none;
-    _selectedExistingKeyImportType = ChildExistingKeyImportType.none;
-    _selectedExistingVaultId = null;
+    _newKeyCreationType = ChildNewKeyCreationType.none;
+    _existingKeyImportType = ChildExistingKeyImportType.none;
+    _existingVaultId = null;
   }
 }
