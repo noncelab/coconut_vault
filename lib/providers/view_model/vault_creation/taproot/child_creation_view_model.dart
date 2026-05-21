@@ -88,4 +88,12 @@ class ChildCreationViewModel extends ChangeNotifier {
     _existingKeyImportType = ChildExistingKeyImportType.none;
     _existingVaultId = null;
   }
+
+  void resetChildWalletData() {
+    _taprootProvider.setCreationType(TaprootCreationType.child);
+    _taprootProvider.resetSecretAndPassphrase();
+    _qrData = null;
+    _masterFingerprint = null;
+    notifyListeners();
+  }
 }

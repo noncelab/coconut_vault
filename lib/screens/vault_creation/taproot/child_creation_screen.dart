@@ -47,6 +47,16 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   int _currentStep = 1;
   final List<Widget> _embeddedWidgets = [];
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<ChildCreationViewModel>().resetChildWalletData();
+      }
+    });
+  }
+
   int get _totalStep => _baseTotalStep + _embeddedWidgets.length;
 
   int get _progressCurrentStep {
@@ -420,6 +430,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   void _handleBackPressed() {
+    final viewModel = context.read<ChildCreationViewModel>();
     if (_currentStep > 1) {
       setState(() {
         if (_currentStep > 3 && _currentStep <= 3 + _embeddedWidgets.length) {
@@ -428,14 +439,18 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         _currentStep -= 1;
       });
 
-      final viewModel = context.read<ChildCreationViewModel>();
       if (_currentStep == 1) {
         viewModel.setKeyPreparationType(ChildKeyPreparationType.none);
       } else if (_currentStep == 2) {
         viewModel.setNewKeyCreationType(ChildNewKeyCreationType.none);
         viewModel.setExistingKeyImportType(ChildExistingKeyImportType.none);
       }
+
+      if (_currentStep <= 3) {
+        viewModel.resetChildWalletData();
+      }
     } else {
+      viewModel.resetChildWalletData();
       Navigator.pop(context);
     }
   }
