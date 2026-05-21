@@ -11,6 +11,7 @@ class AssignablePillButton extends StatefulWidget {
   final Color activeColor;
   final double? width;
   final double? height;
+  final bool useAnimation;
 
   const AssignablePillButton({
     super.key,
@@ -21,6 +22,7 @@ class AssignablePillButton extends StatefulWidget {
     required this.activeColor,
     this.width,
     this.height = 72,
+    this.useAnimation = true,
   });
 
   @override
@@ -28,9 +30,9 @@ class AssignablePillButton extends StatefulWidget {
 }
 
 class _AssignablePillButtonState extends State<AssignablePillButton> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _borderAnimation;
-  late Animation<double> _fadeAnimation;
+  AnimationController? _controller;
+  Animation<double>? _borderAnimation;
+  Animation<double>? _fadeAnimation;
 
   static const int _bgActiveAlpha = 16;
   static const int _pressedActiveAlpha = 40;
@@ -38,84 +40,136 @@ class _AssignablePillButtonState extends State<AssignablePillButton> with Single
   @override
   void initState() {
     super.initState();
+    if (widget.useAnimation) {
+      _initAnimation();
+    }
+  }
+
+  void _initAnimation() {
     _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 2000));
 
     _borderAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.4, curve: Curves.easeInOut)));
+    ).animate(CurvedAnimation(parent: _controller!, curve: const Interval(0.0, 0.4, curve: Curves.easeInOut)));
 
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: const Interval(0.4, 1.0, curve: Curves.easeInOutSine)));
+    ).animate(CurvedAnimation(parent: _controller!, curve: const Interval(0.4, 1.0, curve: Curves.easeInOutSine)));
 
     if (widget.isAssigned) {
-      _controller.value = 1.0;
+      _controller!.value = 1.0;
     }
   }
 
   @override
   void didUpdateWidget(covariant AssignablePillButton oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.isAssigned != oldWidget.isAssigned) {
-      if (widget.isAssigned) {
-        _controller.forward();
+
+    if (widget.useAnimation != oldWidget.useAnimation) {
+      if (widget.useAnimation) {
+        _initAnimation();
       } else {
-        _controller.reverse();
+        _controller?.dispose();
+        _controller = null;
+      }
+    }
+
+    if (widget.useAnimation && _controller != null) {
+      if (widget.isAssigned != oldWidget.isAssigned) {
+        if (widget.isAssigned) {
+          _controller!.forward();
+        } else {
+          _controller!.reverse();
+        }
       }
     }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final innerChild = Container(
+      width: widget.width,
+      height: widget.height,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (widget.iconWidget != null) ...[widget.iconWidget!, CoconutLayout.spacing_300w],
+          Flexible(
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+              child:
+                  widget.useAnimation && _fadeAnimation != null
+                      ? AnimatedBuilder(
+                        animation: _fadeAnimation!,
+                        builder: (context, _) {
+                          final targetTextColor =
+                              Color.lerp(CoconutColors.gray900, widget.activeColor, 0.2) ?? widget.activeColor;
+                          return Text(
+                            widget.text,
+                            style: CoconutTypography.body1_16.copyWith(
+                              color: Color.lerp(CoconutColors.gray900, targetTextColor, _fadeAnimation!.value),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          );
+                        },
+                      )
+                      : Text(
+                        widget.text,
+                        style: CoconutTypography.body1_16,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (!widget.useAnimation) {
+      final buttonDecoration = BoxDecoration(
+        color: widget.isAssigned ? widget.activeColor.withAlpha(_bgActiveAlpha) : CoconutColors.white,
+        borderRadius: BorderRadius.circular(100),
+        border: Border.all(color: widget.isAssigned ? widget.activeColor : CoconutColors.gray200, width: 1),
+      );
+
+      if (widget.onPressed == null) {
+        return Container(decoration: buttonDecoration, child: innerChild);
+      }
+
+      return ShrinkAnimationButton(
+        onPressed: widget.onPressed!,
+        defaultColor: widget.isAssigned ? widget.activeColor.withAlpha(_bgActiveAlpha) : CoconutColors.white,
+        pressedColor: widget.isAssigned ? widget.activeColor.withAlpha(70) : CoconutColors.gray150,
+        borderRadius: 100,
+        borderWidth: 1,
+        border: Border.all(color: widget.isAssigned ? widget.activeColor : CoconutColors.gray200, width: 1),
+        child: innerChild,
+      );
+    }
+
     return AnimatedBuilder(
-      animation: _controller,
+      animation: _controller!,
       builder: (context, child) {
         final backgroundColor =
-            Color.lerp(CoconutColors.white, widget.activeColor.withAlpha(_bgActiveAlpha), _fadeAnimation.value) ??
+            Color.lerp(CoconutColors.white, widget.activeColor.withAlpha(_bgActiveAlpha), _fadeAnimation!.value) ??
             CoconutColors.white;
-
-        final targetTextColor = Color.lerp(CoconutColors.gray900, widget.activeColor, 0.2) ?? widget.activeColor;
-
-        final textStyle = CoconutTypography.body1_16.copyWith(
-          color: Color.lerp(CoconutColors.gray900, targetTextColor, _fadeAnimation.value) ?? CoconutColors.gray900,
-        );
-
-        final innerChild = Container(
-          width: widget.width,
-          height: widget.height,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (widget.iconWidget != null) ...[widget.iconWidget!, CoconutLayout.spacing_300w],
-              Flexible(
-                child: MediaQuery(
-                  data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-                  child: Text(
-                    widget.text,
-                    style: textStyle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
 
         final buttonBody = CustomPaint(
           painter: PillBorderPainter(
-            progress: _borderAnimation.value,
+            progress: _borderAnimation!.value,
             activeColor: widget.activeColor,
             defaultColor: CoconutColors.gray200,
           ),
