@@ -36,17 +36,11 @@ class ChildCreationViewModel extends ChangeNotifier {
     if (secret.isEmpty) return;
 
     try {
-      final seed = Seed.fromMnemonic(
-        secret,
-        passphrase: (passphrase != null && passphrase.isNotEmpty) ? passphrase : Uint8List(0),
-      );
-      final keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
+      final ks = KeyStore.fromSeed(Seed.fromMnemonic(secret, passphrase: passphrase), AddressType.p2tr);
 
-      _masterFingerprint = keyStore.masterFingerprint;
+      _masterFingerprint = ks.masterFingerprint;
 
-      final coinIndex = NetworkType.currentNetworkType == NetworkType.mainnet ? 0 : 1;
-      final xpub = keyStore.extendedPublicKey.serialize();
-      _qrData = "tr([$_masterFingerprint/86'/$coinIndex'/0']$xpub/<0;1>/*)";
+      _qrData = TaprootVault.fromKeyStoreList([ks], []).descriptor;
     } catch (e) {
       Logger.error('Failed to generate key data: $e');
     }
