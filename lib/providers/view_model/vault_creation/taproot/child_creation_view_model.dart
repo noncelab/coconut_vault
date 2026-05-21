@@ -62,15 +62,6 @@ class ChildCreationViewModel extends ChangeNotifier {
   String? get qrData => _qrData;
   String? get masterFingerprint => _masterFingerprint;
 
-  bool get isCreateKeySelected => _selectedKeyPreparationType == ChildKeyPreparationType.create;
-  bool get isImportKeySelected => _selectedKeyPreparationType == ChildKeyPreparationType.import;
-  bool get isCoinFlipSelected => _selectedNewKeyCreationType == ChildNewKeyCreationType.coinFlip;
-  bool get isDiceRollSelected => _selectedNewKeyCreationType == ChildNewKeyCreationType.diceRoll;
-  bool get isAutoGenerateSelected => _selectedNewKeyCreationType == ChildNewKeyCreationType.autoGenerate;
-  bool get isCurrentVaultSelected => _selectedExistingKeyImportType == ChildExistingKeyImportType.currentVault;
-  bool get isMnemonicInputSelected => _selectedExistingKeyImportType == ChildExistingKeyImportType.mnemonicInput;
-  bool get isSeedQrScanSelected => _selectedExistingKeyImportType == ChildExistingKeyImportType.seedQrScan;
-
   void setKeyPreparationType(ChildKeyPreparationType type) {
     _selectedKeyPreparationType = _selectedKeyPreparationType == type ? ChildKeyPreparationType.none : type;
     _resetKeyOptionSelection();

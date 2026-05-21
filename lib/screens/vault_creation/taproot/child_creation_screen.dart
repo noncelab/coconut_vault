@@ -83,7 +83,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       TextSpan(text: t.taproot.child_creation_screen.step2.title1),
       TextSpan(text: t.taproot.child_creation_screen.step2.title2),
     ],
-    viewModel.isCreateKeySelected
+    viewModel.selectedKeyPreparationType == ChildKeyPreparationType.create
         ? [TextSpan(text: t.taproot.child_creation_screen.step3.title_new)]
         : [TextSpan(text: t.taproot.child_creation_screen.step3.title_existing)],
     [
@@ -108,7 +108,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           bottomAssetPath: 'assets/png/wallet.png',
           imageScale: 4.0,
           imageWidth: 100,
-          isSelected: viewModel.isCreateKeySelected,
+          isSelected: viewModel.selectedKeyPreparationType == ChildKeyPreparationType.create,
           height: 217,
           onTap: () {
             viewModel.setKeyPreparationType(ChildKeyPreparationType.create);
@@ -120,7 +120,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           bottomAssetPath: 'assets/png/key-holder.png',
           imageScale: 4.0,
           imageWidth: 100,
-          isSelected: viewModel.isImportKeySelected,
+          isSelected: viewModel.selectedKeyPreparationType == ChildKeyPreparationType.import,
           height: 217,
           onTap: () {
             viewModel.setKeyPreparationType(ChildKeyPreparationType.import);
@@ -128,7 +128,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         ),
       ],
     ),
-    viewModel.isCreateKeySelected
+    viewModel.selectedKeyPreparationType == ChildKeyPreparationType.create
         ? MenuGrid(
           children: [
             SelectableOptionCard(
@@ -136,7 +136,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
               bottomAssetPath: 'assets/png/coin.png',
               imageScale: 4.0,
               imageWidth: 67,
-              isSelected: viewModel.isCoinFlipSelected,
+              isSelected: viewModel.selectedNewKeyCreationType == ChildNewKeyCreationType.coinFlip,
               height: 118,
               onTap: () {
                 viewModel.setNewKeyCreationType(ChildNewKeyCreationType.coinFlip);
@@ -147,7 +147,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
               bottomAssetPath: 'assets/png/dice.png',
               imageScale: 4.0,
               imageWidth: 67,
-              isSelected: viewModel.isDiceRollSelected,
+              isSelected: viewModel.selectedNewKeyCreationType == ChildNewKeyCreationType.diceRoll,
               height: 118,
               onTap: () {
                 viewModel.setNewKeyCreationType(ChildNewKeyCreationType.diceRoll);
@@ -158,7 +158,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
               bottomAssetPath: 'assets/png/gear.png',
               imageScale: 4.0,
               imageWidth: 67,
-              isSelected: viewModel.isAutoGenerateSelected,
+              isSelected: viewModel.selectedNewKeyCreationType == ChildNewKeyCreationType.autoGenerate,
               height: 118,
               onTap: () {
                 viewModel.setNewKeyCreationType(ChildNewKeyCreationType.autoGenerate);
@@ -173,7 +173,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
               bottomAssetPath: 'assets/png/finger-picking.png',
               imageScale: 4.0,
               imageWidth: 67,
-              isSelected: viewModel.isCurrentVaultSelected,
+              isSelected: viewModel.selectedExistingKeyImportType == ChildExistingKeyImportType.currentVault,
               height: 118,
               onTap: () {
                 viewModel.setExistingKeyImportType(ChildExistingKeyImportType.currentVault);
@@ -184,7 +184,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
               bottomAssetPath: 'assets/png/word.png',
               imageScale: 4.0,
               imageWidth: 67,
-              isSelected: viewModel.isMnemonicInputSelected,
+              isSelected: viewModel.selectedExistingKeyImportType == ChildExistingKeyImportType.mnemonicInput,
               height: 118,
               onTap: () {
                 viewModel.setExistingKeyImportType(ChildExistingKeyImportType.mnemonicInput);
@@ -195,7 +195,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
               bottomAssetPath: 'assets/png/scan-qr.png',
               imageScale: 4.0,
               imageWidth: 67,
-              isSelected: viewModel.isSeedQrScanSelected,
+              isSelected: viewModel.selectedExistingKeyImportType == ChildExistingKeyImportType.seedQrScan,
               height: 118,
               onTap: () {
                 viewModel.setExistingKeyImportType(ChildExistingKeyImportType.seedQrScan);
@@ -266,7 +266,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       return viewModel.selectedKeyPreparationType != ChildKeyPreparationType.none;
     }
     if (_currentStep == 3) {
-      if (viewModel.isCreateKeySelected) {
+      if (viewModel.selectedKeyPreparationType == ChildKeyPreparationType.create) {
         return viewModel.selectedNewKeyCreationType != ChildNewKeyCreationType.none;
       } else {
         return viewModel.selectedExistingKeyImportType != ChildExistingKeyImportType.none;
@@ -378,7 +378,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     if (_currentStep == 3) {
       viewModel.setCreationTypeToChild();
 
-      if (viewModel.isCreateKeySelected) {
+      if (viewModel.selectedKeyPreparationType == ChildKeyPreparationType.create) {
         _addEmbeddedStep(
           SecuritySelfCheckScreen(
             isEmbedded: true,
@@ -388,13 +388,13 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           ),
         );
         return;
-      } else if (viewModel.isImportKeySelected) {
-        if (viewModel.isMnemonicInputSelected) {
+      } else if (viewModel.selectedKeyPreparationType == ChildKeyPreparationType.import) {
+        if (viewModel.selectedExistingKeyImportType == ChildExistingKeyImportType.mnemonicInput) {
           _addEmbeddedStep(
             MnemonicImportScreen(isEmbedded: true, isTaproot: true, onCompleted: () => _onChildWalletSet(viewModel)),
           );
           return;
-        } else if (viewModel.isSeedQrScanSelected) {
+        } else if (viewModel.selectedExistingKeyImportType == ChildExistingKeyImportType.seedQrScan) {
           _addEmbeddedStep(
             SeedQrImportScreen(
               isEmbedded: true,
