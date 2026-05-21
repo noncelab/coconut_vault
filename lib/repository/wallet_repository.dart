@@ -392,7 +392,7 @@ class WalletRepository {
   }
 
   Future<bool> hasPassphrase(int walletId) async {
-    assert(getVaultById(walletId) is SingleSigVaultListItem);
+    if (getVaultById(walletId) is! SingleSigVaultListItem) return false;
     return _strategy.hasPassphrase(walletId);
   }
 
