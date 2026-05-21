@@ -284,7 +284,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
   void _onChildWalletSet(ChildCreationViewModel viewModel) {
     try {
-      viewModel.generateKeyData();
+      viewModel.setupChildWalletInfo();
       setState(() {
         _currentStep += 1;
       });

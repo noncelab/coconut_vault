@@ -29,21 +29,29 @@ class ChildCreationViewModel extends ChangeNotifier {
     _taprootProvider.setSecretAndPassphrase(secret, passphrase);
   }
 
-  void generateKeyData() {
+  void setupChildWalletInfo() {
     final secret = _taprootProvider.secret;
     final passphrase = _taprootProvider.passphrase;
 
     if (secret.isEmpty) return;
 
     try {
-      final ks = KeyStore.fromSeed(Seed.fromMnemonic(secret, passphrase: passphrase), AddressType.p2tr);
-
-      _masterFingerprint = ks.masterFingerprint;
-
-      _qrData = TaprootVault.fromKeyStoreList([ks], []).descriptor;
+      final result = _generateKeyStoreAndDescriptor(secret, passphrase);
+      _setQrDataAndFingerprint(result.descriptor, result.keyStore.masterFingerprint);
     } catch (e) {
-      Logger.error('Failed to generate key data: $e');
+      Logger.error('Failed to setup child wallet info: $e');
     }
+  }
+
+  ({KeyStore keyStore, String descriptor}) _generateKeyStoreAndDescriptor(Uint8List secret, Uint8List? passphrase) {
+    final ks = KeyStore.fromSeed(Seed.fromMnemonic(secret, passphrase: passphrase), AddressType.p2tr);
+    final descriptor = TaprootVault.fromKeyStoreList([ks], []).descriptor;
+    return (keyStore: ks, descriptor: descriptor);
+  }
+
+  void _setQrDataAndFingerprint(String qrData, String masterFingerprint) {
+    _qrData = qrData;
+    _masterFingerprint = masterFingerprint;
     notifyListeners();
   }
 
