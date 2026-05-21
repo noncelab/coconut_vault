@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 
 enum ChildKeyPreparationType { none, create, import }
 
@@ -9,6 +10,8 @@ enum ChildNewKeyCreationType { none, coinFlip, diceRoll, autoGenerate }
 enum ChildExistingKeyImportType { none, currentVault, mnemonicInput, seedQrScan }
 
 class ChildCreationViewModel extends ChangeNotifier {
+  final TaprootWalletCreationProvider _taprootProvider;
+
   ChildKeyPreparationType _selectedKeyPreparationType = ChildKeyPreparationType.none;
   ChildNewKeyCreationType _selectedNewKeyCreationType = ChildNewKeyCreationType.none;
   ChildExistingKeyImportType _selectedExistingKeyImportType = ChildExistingKeyImportType.none;
@@ -16,9 +19,20 @@ class ChildCreationViewModel extends ChangeNotifier {
   String? _qrData;
   String? _masterFingerprint;
 
-  ChildCreationViewModel();
+  ChildCreationViewModel(this._taprootProvider);
 
-  void generateKeyData(Uint8List secret, Uint8List? passphrase) {
+  void setCreationTypeToChild() {
+    _taprootProvider.setCreationType(TaprootCreationType.child);
+  }
+
+  void setSecretAndPassphrase(Uint8List secret, Uint8List? passphrase) {
+    _taprootProvider.setSecretAndPassphrase(secret, passphrase);
+  }
+
+  void generateKeyData() {
+    final secret = _taprootProvider.secret;
+    final passphrase = _taprootProvider.passphrase;
+
     if (secret.isEmpty) return;
 
     try {
@@ -35,8 +49,6 @@ class ChildCreationViewModel extends ChangeNotifier {
       _qrData = "tr([$_masterFingerprint/86'/$coinIndex'/0']$xpub/<0;1>/*)";
     } catch (e) {
       Logger.error('Failed to generate key data: $e');
-      _masterFingerprint = '00000000';
-      _qrData = '';
     }
     notifyListeners();
   }

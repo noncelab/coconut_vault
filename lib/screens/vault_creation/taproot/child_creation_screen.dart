@@ -28,7 +28,10 @@ class ChildCreationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(create: (_) => ChildCreationViewModel(), child: const _ChildCreationScreenContent());
+    return ChangeNotifierProvider(
+      create: (context) => ChildCreationViewModel(context.read<TaprootWalletCreationProvider>()),
+      child: const _ChildCreationScreenContent(),
+    );
   }
 }
 
@@ -280,9 +283,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   void _onChildWalletSet(ChildCreationViewModel viewModel) {
-    final taprootProvider = context.read<TaprootWalletCreationProvider>();
     try {
-      viewModel.generateKeyData(taprootProvider.secret, taprootProvider.passphrase);
+      viewModel.generateKeyData();
       setState(() {
         _currentStep += 1;
       });
@@ -373,10 +375,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   void _onNextPressed(ChildCreationViewModel viewModel) async {
-    final taprootProvider = context.read<TaprootWalletCreationProvider>();
-
     if (_currentStep == 3) {
-      taprootProvider.setCreationType(TaprootCreationType.child);
+      viewModel.setCreationTypeToChild();
 
       if (viewModel.isCreateKeySelected) {
         _addEmbeddedStep(
@@ -400,7 +400,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
               isEmbedded: true,
               isTaproot: true,
               onMnemonicConfirmationRequested: (secret, passphrase) {
-                taprootProvider.setSecretAndPassphrase(secret, passphrase);
+                viewModel.setSecretAndPassphrase(secret, passphrase);
                 _onChildWalletSet(viewModel);
               },
             ),
