@@ -938,10 +938,7 @@ void main() {
           Seed.fromMnemonic(ownBeneficiarySeed.mnemonic, passphrase: ownBeneficiarySeed.passphrase),
           AddressType.p2tr,
         );
-        final ownKey = WalletStorageKeys.taprootSeedKey(
-          added.id,
-          ks.extendedPublicKey.serialize(),
-        );
+        final ownKey = WalletStorageKeys.taprootSeedKey(added.id, ks.extendedPublicKey.serialize());
         expect(secureZone.encryptedPlaintexts.keys, contains(ownKey));
       },
     );

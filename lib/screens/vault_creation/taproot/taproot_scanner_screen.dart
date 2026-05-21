@@ -2,14 +2,10 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
-import 'package:coconut_vault/core/wallet/wallet_validator.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/bsms_scanner_base.dart';
-import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
-import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:coconut_vault/utils/logger.dart';
-import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/signer_bsms_qr_data_handler.dart';
+import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/taproot_descriptor_qr_data_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -34,14 +30,11 @@ class TaprootScannerScreen extends StatefulWidget {
 }
 
 class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
-  static final String networkMismatchMessage = t.errors.invalid_network_type_error;
-  late final SignerBsmsQrDataHandler _qrDataHandler;
-  bool _isFirstScanData = true;
+  final TaprootDescriptorQrDataHandler _qrDataHandler = TaprootDescriptorQrDataHandler();
 
   @override
   void initState() {
     super.initState();
-    _qrDataHandler = SignerBsmsQrDataHandler(hardwareWalletType: widget.hardwareWalletType);
     if (_qrDataHandler.isFragmentedDataScanned) {
       showProgressBar = true;
     }
@@ -77,120 +70,44 @@ class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
     }
 
     final scanData = barcode.rawValue!;
-    Logger.log('--> SignerBsmsScannerScreen: detected raw data: $scanData');
+    Logger.log('--> TaprootScannerScreen: detected raw data: $scanData');
 
-    if (widget.hardwareWalletType == HardwareWalletType.coconutVault) {
-      try {
-        setState(() => isProcessing = true);
-        final beneficiaryVault = TaprootVault.fromDescriptor(scanData);
-        if (!mounted) return;
-        final onTaprootVaultScanned = widget.onTaprootVaultScanned;
-        if (onTaprootVaultScanned != null) {
-          final didHandleScan = onTaprootVaultScanned(beneficiaryVault);
-          if (!didHandleScan && mounted) {
-            setState(() => isProcessing = false);
-          }
-        } else {
-          Navigator.pop(context, beneficiaryVault);
-        }
-      } catch (e) {
-        _handleScanFailure(wrongFormatMessage);
-      }
+    if (!_qrDataHandler.validateFormat(scanData)) {
+      _handleScanFailure(wrongFormatMessage);
       return;
     }
 
-    SignerBsms? signerBsms;
-    String? scanResult;
-
-    try {
-      if (_isFirstScanData) {
-        if (!_qrDataHandler.validateFormat(scanData)) {
-          onFailedScanning(wrongFormatMessage);
-          return;
-        }
-        _isFirstScanData = false;
-      }
-
-      final joinResult = _qrDataHandler.joinData(scanData);
-
-      if (joinResult == false && !_qrDataHandler.isFragmentedDataScanned) {
-        _handleScanFailure(wrongFormatMessage);
-        return;
-      }
-
-      if (_qrDataHandler.isFragmentedDataScanned) {
-        updateScanProgress(_qrDataHandler.progress);
-      }
-
-      if (!_qrDataHandler.isCompleted()) {
-        return;
-      }
-
-      setState(() => isProcessing = true);
-
-      final result = _qrDataHandler.result;
-      if (result == null) {
-        _handleScanFailure(wrongFormatMessage);
-        return;
-      }
-
-      Logger.log('--> SignerBsmsScannerScreen: result: $result');
-
-      switch (widget.hardwareWalletType) {
-        case HardwareWalletType.coconutVault:
-          Bsms.parseSigner(result);
-          scanResult = scanData;
-          break;
-        case HardwareWalletType.keystone:
-          scanResult = MultisigNormalizer.signerBsmsFromUrResult(
-            result as Map<dynamic, dynamic>,
-            descriptorToXpub: true,
-          );
-          break;
-        case HardwareWalletType.jade:
-          scanResult = MultisigNormalizer.signerBsmsFromUrResult(result as Map<dynamic, dynamic>);
-          break;
-        case HardwareWalletType.coldCard:
-          scanResult = MultisigNormalizer.signerBsmsFromBbQr(result);
-          break;
-        case HardwareWalletType.seedSigner:
-        case HardwareWalletType.krux:
-          scanResult = MultisigNormalizer.signerBsmsFromKeyInfo(result);
-          break;
-        default:
-          throw UnimplementedError('missed hardware type: ${widget.hardwareWalletType}');
-      }
-    } catch (e) {
-      if (e is UnimplementedError) rethrow;
-
-      String errorMessage = wrongFormatMessage;
-      if (e is NetworkMismatchException) {
-        errorMessage =
-            NetworkType.currentNetworkType.isTestnet
-                ? t.alert.bsms_network_mismatch.description_when_testnet
-                : t.alert.bsms_network_mismatch.description_when_mainnet;
-      } else if (e.toString().contains('Extended public key is not compatible with the network type')) {
-        errorMessage = networkMismatchMessage;
-      }
-      _handleScanFailure(errorMessage);
+    final joinResult = _qrDataHandler.joinData(scanData);
+    if (!joinResult) {
+      _handleScanFailure(wrongFormatMessage);
       return;
     }
 
-    try {
-      signerBsms = SignerBsms.parse(scanResult);
-      WalletValidator.validateSignerDerivationPath(signerBsms.derivationPath);
-    } catch (e) {
-      _handleScanFailure(e.toString());
+    if (!_qrDataHandler.isCompleted()) {
       return;
     }
 
+    setState(() => isProcessing = true);
+    final descriptor = _qrDataHandler.result;
+    if (descriptor == null) {
+      _handleScanFailure(wrongFormatMessage);
+      return;
+    }
+
+    final beneficiaryVault = TaprootVault.fromDescriptor(descriptor);
     if (!mounted) return;
-    Navigator.pop(context, signerBsms);
-    return;
+    final onTaprootVaultScanned = widget.onTaprootVaultScanned;
+    if (onTaprootVaultScanned != null) {
+      final didHandleScan = onTaprootVaultScanned(beneficiaryVault);
+      if (!didHandleScan && mounted) {
+        setState(() => isProcessing = false);
+      }
+    } else {
+      Navigator.pop(context, beneficiaryVault);
+    }
   }
 
   void _handleScanFailure(String message) {
-    _isFirstScanData = true;
     _qrDataHandler.reset();
 
     if (_qrDataHandler.isFragmentedDataScanned) {

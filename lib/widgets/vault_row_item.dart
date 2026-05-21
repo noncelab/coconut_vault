@@ -121,12 +121,14 @@ class VaultRowItem extends StatefulWidget {
 
 class _VaultRowItemState extends State<VaultRowItem> {
   bool _isMultiSig = false;
+  bool _isTaproot = false;
   String _subtitleText = '';
   bool _isUsedToMultiSig = false;
   List<MultisigSigner>? _multiSigners;
 
   void _updateVault() {
     _isMultiSig = false;
+    _isTaproot = false;
     _subtitleText = '';
     _isUsedToMultiSig = false;
     _multiSigners = null;
@@ -136,7 +138,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
       final multi = widget.vault as MultisigVaultListItem;
       _subtitleText = '${multi.requiredSignatureCount}/${multi.signers.length}';
       _multiSigners = multi.signers;
-    } else {
+    } else if (widget.vault.vaultType == WalletType.singleSignature) {
       final single = widget.vault as SingleSigVaultListItem;
       if (single.linkedMultisigInfo != null) {
         final multisigKey = single.linkedMultisigInfo!;
@@ -152,6 +154,9 @@ class _VaultRowItemState extends State<VaultRowItem> {
           } catch (_) {}
         }
       }
+    } else if (widget.vault.vaultType == WalletType.taproot) {
+      _isTaproot = true;
+      _subtitleText = t.taproot.taproot_inheritance_wallet;
     }
   }
 
@@ -289,14 +294,14 @@ class _VaultRowItemState extends State<VaultRowItem> {
                       alignment: Alignment.centerLeft,
                       child: Row(
                         children: [
-                          if (_isMultiSig || _isUsedToMultiSig) ...{
+                          if (_isMultiSig || _isUsedToMultiSig || _isTaproot) ...{
                             Text(
                               _subtitleText,
                               style: CoconutTypography.body2_14.copyWith(color: CoconutColors.gray600),
                             ),
                           },
                           if (widget.isPrimaryWallet == true) ...[
-                            if (_isMultiSig || _isUsedToMultiSig)
+                            if (_isMultiSig || _isUsedToMultiSig || _isTaproot)
                               Text(
                                 ' • ${t.vault_list_screen.primary_wallet}',
                                 style: CoconutTypography.body2_14.setColor(CoconutColors.gray500),

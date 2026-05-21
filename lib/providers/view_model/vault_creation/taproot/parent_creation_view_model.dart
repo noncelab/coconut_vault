@@ -22,6 +22,7 @@ class ParentCreationViewModel extends ChangeNotifier {
   ChildWalletSetupType _selectedChildWalletSetupType = ChildWalletSetupType.none;
   ParentNewKeyCreationType _selectedChildNewKeyCreationType = ParentNewKeyCreationType.none;
   int? _selectedExistingVaultId;
+  DateTime? _selectedTimelockDateTime;
 
   ParentWalletType get selectedWalletType => _selectedWalletType;
   ParentKeyPreparationType get selectedKeyPreparationType => _selectedKeyPreparationType;
@@ -30,6 +31,7 @@ class ParentCreationViewModel extends ChangeNotifier {
   ChildWalletSetupType get selectedChildWalletSetupType => _selectedChildWalletSetupType;
   ParentNewKeyCreationType get selectedChildNewKeyCreationType => _selectedChildNewKeyCreationType;
   int? get selectedExistingVaultId => _selectedExistingVaultId;
+  DateTime? get selectedTimelockDateTime => _selectedTimelockDateTime;
   bool get hasSelectedKeyCreationOrImportOption {
     return switch (_selectedKeyPreparationType) {
       ParentKeyPreparationType.create => _selectedNewKeyCreationType != ParentNewKeyCreationType.none,
@@ -102,6 +104,16 @@ class ParentCreationViewModel extends ChangeNotifier {
 
   void resetChildNewKeyCreationType() {
     _selectedChildNewKeyCreationType = ParentNewKeyCreationType.none;
+    notifyListeners();
+  }
+
+  void setTimelockDateTime(DateTime dateTime) {
+    _selectedTimelockDateTime = dateTime;
+    notifyListeners();
+  }
+
+  void resetTimelockDateTime() {
+    _selectedTimelockDateTime = null;
     notifyListeners();
   }
 }

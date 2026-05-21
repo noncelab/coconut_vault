@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,7 @@ import 'package:flutter/material.dart';
 class VaultNameAndIconSetupViewModel extends ChangeNotifier {
   final WalletProvider _walletProvider;
   final WalletCreationProvider _walletCreationProvider;
+  final TaprootWalletCreationProvider? _taprootWalletCreationProvider;
   final AuthProvider _authProvider;
   final bool _isImported;
 
@@ -25,6 +28,7 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
     this._walletProvider,
     this._walletCreationProvider,
     this._authProvider, {
+    TaprootWalletCreationProvider? taprootWalletCreationProvider,
     required String initialName,
     required int initialIconIndex,
     required int initialColorIndex,
@@ -32,7 +36,8 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
   }) : _inputText = initialName,
        _selectedIconIndex = initialIconIndex,
        _selectedColorIndex = initialColorIndex,
-       _isImported = isImported {
+       _isImported = isImported,
+       _taprootWalletCreationProvider = taprootWalletCreationProvider {
     _walletProvider.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
   }
 
@@ -124,6 +129,32 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
     return VaultNameAndIconSetupSaveResult.navigateToHome(addedWalletId: vault.id);
   }
 
+  Future<VaultNameAndIconSetupSaveResult> _saveTaprootVault() async {
+    final taprootWalletCreationProvider = _taprootWalletCreationProvider;
+    if (taprootWalletCreationProvider == null) {
+      throw StateError('TaprootWalletCreationProvider is required to save a taproot vault');
+    }
+
+    final timelineInfo = TaprootVaultCreationTimelineInfo(
+      parentMasterFingerprint: taprootWalletCreationProvider.masterFingerprint,
+      externalParentMasterFingerprint: taprootWalletCreationProvider.externalMultisigParentMasterFingerprint,
+      childMasterFingerprint: taprootWalletCreationProvider.childWalletMasterFingerprint,
+    );
+    TaprootWalletCreateDto? walletCreateDto;
+    try {
+      walletCreateDto = taprootWalletCreationProvider.createWalletCreateDto(
+        name: _inputText,
+        iconIndex: _selectedIconIndex,
+        colorIndex: _selectedColorIndex,
+      );
+      final vault = await _walletProvider.addTaprootVault(walletCreateDto);
+      taprootWalletCreationProvider.resetAll();
+      return VaultNameAndIconSetupSaveResult.navigateToHome(addedWalletId: vault.id, taprootTimelineInfo: timelineInfo);
+    } finally {
+      walletCreateDto?.wipe();
+    }
+  }
+
   Future<VaultNameAndIconSetupSaveResult> saveNewVault() async {
     try {
       setShowLoading(true);
@@ -132,6 +163,10 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
       if (_walletProvider.isNameDuplicated(_inputText)) {
         setShowLoading(false);
         return const VaultNameAndIconSetupSaveResult.duplicateName();
+      }
+
+      if (_taprootWalletCreationProvider != null) {
+        return await _saveTaprootVault();
       }
 
       switch (_walletCreationProvider.walletType) {
@@ -173,14 +208,38 @@ class VaultNameAndIconSetupSaveResult {
   final VaultNameAndIconSetupSaveStatus status;
   final int? addedWalletId;
   final int? multisigVaultId;
+  final TaprootVaultCreationTimelineInfo? taprootTimelineInfo;
 
-  const VaultNameAndIconSetupSaveResult._({required this.status, this.addedWalletId, this.multisigVaultId});
+  const VaultNameAndIconSetupSaveResult._({
+    required this.status,
+    this.addedWalletId,
+    this.multisigVaultId,
+    this.taprootTimelineInfo,
+  });
 
   const VaultNameAndIconSetupSaveResult.duplicateName() : this._(status: VaultNameAndIconSetupSaveStatus.duplicateName);
 
-  const VaultNameAndIconSetupSaveResult.navigateToHome({required int addedWalletId})
-    : this._(status: VaultNameAndIconSetupSaveStatus.navigateHome, addedWalletId: addedWalletId);
+  const VaultNameAndIconSetupSaveResult.navigateToHome({
+    required int addedWalletId,
+    TaprootVaultCreationTimelineInfo? taprootTimelineInfo,
+  }) : this._(
+         status: VaultNameAndIconSetupSaveStatus.navigateHome,
+         addedWalletId: addedWalletId,
+         taprootTimelineInfo: taprootTimelineInfo,
+       );
 
   const VaultNameAndIconSetupSaveResult.navigateToMultisigSetupInfo({required int? multisigVaultId})
     : this._(status: VaultNameAndIconSetupSaveStatus.navigateMultisigSetupInfo, multisigVaultId: multisigVaultId);
+}
+
+class TaprootVaultCreationTimelineInfo {
+  final String? parentMasterFingerprint;
+  final String? externalParentMasterFingerprint;
+  final String? childMasterFingerprint;
+
+  const TaprootVaultCreationTimelineInfo({
+    required this.parentMasterFingerprint,
+    required this.externalParentMasterFingerprint,
+    required this.childMasterFingerprint,
+  });
 }

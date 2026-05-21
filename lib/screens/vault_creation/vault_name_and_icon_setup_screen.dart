@@ -6,6 +6,7 @@ import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart'
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/vault_name_and_icon_setup_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -21,8 +22,20 @@ class VaultNameAndIconSetupScreen extends StatefulWidget {
   final int? iconIndex;
   final int? colorIndex;
   final bool? isImported;
+  final bool isEmbedded;
+  final bool isTaproot;
+  final ValueChanged<VaultNameAndIconSetupSaveResult>? onEmbeddedVaultSaved;
 
-  const VaultNameAndIconSetupScreen({super.key, this.name, this.iconIndex, this.colorIndex, this.isImported});
+  const VaultNameAndIconSetupScreen({
+    super.key,
+    this.name,
+    this.iconIndex,
+    this.colorIndex,
+    this.isImported,
+    this.isEmbedded = false,
+    this.isTaproot = false,
+    this.onEmbeddedVaultSaved,
+  });
 
   @override
   State<VaultNameAndIconSetupScreen> createState() => _VaultNameAndIconSetupScreenState();
@@ -39,6 +52,8 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
       Provider.of<WalletProvider>(context, listen: false),
       Provider.of<WalletCreationProvider>(context, listen: false),
       Provider.of<AuthProvider>(context, listen: false),
+      taprootWalletCreationProvider:
+          widget.isTaproot ? Provider.of<TaprootWalletCreationProvider>(context, listen: false) : null,
       initialName: widget.name ?? '',
       initialIconIndex: widget.iconIndex ?? 0,
       initialColorIndex: widget.colorIndex ?? 0,
@@ -76,6 +91,11 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
           (Route<dynamic> route) => route.settings.name == '/',
           arguments: {'id': result.multisigVaultId},
         );
+        return;
+      }
+
+      if (widget.isEmbedded && widget.onEmbeddedVaultSaved != null) {
+        widget.onEmbeddedVaultSaved!(result);
         return;
       }
 
@@ -121,56 +141,61 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
             );
           }
 
-          return Stack(
+          final body = Stack(
             children: [
-              PopScope(
-                canPop: !viewModel.showLoading,
-                onPopInvokedWithResult: (didPop, result) {
-                  if (didPop) {
-                    viewModel.setPoppedByBack(true);
+              VaultNameIconEditPalette(
+                name: viewModel.inputText,
+                iconIndex: viewModel.selectedIconIndex,
+                colorIndex: viewModel.selectedColorIndex,
+                onNameChanged: viewModel.updateName,
+                onIconSelected: viewModel.updateIcon,
+                onColorSelected: viewModel.updateColor,
+              ),
+              FixedBottomButton(
+                showGradient: true,
+                text: t.complete,
+                onButtonClicked: () {
+                  if (viewModel.inputText.trim().isEmpty) return;
+                  _closeKeyboard();
+                  if (viewModel.isVaultListLoading) {
+                    viewModel.setShowLoading(true);
+                  } else {
+                    _saveNewVaultName(context);
                   }
                 },
-                child: Scaffold(
-                  backgroundColor: CoconutColors.white,
-                  appBar: CoconutAppBar.build(
-                    title: t.vault_name_icon_setup_screen.title,
-                    context: context,
-                    onBackPressed: () {
-                      Navigator.pop(context);
-                    },
-                    backgroundColor: CoconutColors.white,
-                  ),
-                  body: SafeArea(
-                    child: Stack(
-                      children: [
-                        VaultNameIconEditPalette(
-                          name: viewModel.inputText,
-                          iconIndex: viewModel.selectedIconIndex,
-                          colorIndex: viewModel.selectedColorIndex,
-                          onNameChanged: viewModel.updateName,
-                          onIconSelected: viewModel.updateIcon,
-                          onColorSelected: viewModel.updateColor,
-                        ),
-                        FixedBottomButton(
-                          showGradient: true,
-                          text: t.complete,
-                          onButtonClicked: () {
-                            if (viewModel.inputText.trim().isEmpty) return;
-                            _closeKeyboard();
-                            if (viewModel.isVaultListLoading) {
-                              viewModel.setShowLoading(true);
-                            } else {
-                              _saveNewVaultName(context);
-                            }
-                          },
-                          backgroundColor: CoconutColors.black,
-                          isActive: viewModel.isSaveEnabled,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                backgroundColor: CoconutColors.black,
+                isActive: viewModel.isSaveEnabled,
               ),
+            ],
+          );
+
+          final screen = PopScope(
+            canPop: !viewModel.showLoading,
+            onPopInvokedWithResult: (didPop, result) {
+              if (didPop) {
+                viewModel.setPoppedByBack(true);
+              }
+            },
+            child:
+                widget.isEmbedded
+                    ? body
+                    : Scaffold(
+                      backgroundColor: CoconutColors.white,
+                      appBar: CoconutAppBar.build(
+                        title: t.vault_name_icon_setup_screen.title,
+                        context: context,
+                        onBackPressed: () {
+                          Navigator.pop(context);
+                        },
+                        backgroundColor: CoconutColors.white,
+                      ),
+                      body: SafeArea(child: body),
+                    ),
+          );
+
+          return Stack(
+            children: [
+              screen,
               Visibility(
                 visible: viewModel.showLoading,
                 child: Container(
