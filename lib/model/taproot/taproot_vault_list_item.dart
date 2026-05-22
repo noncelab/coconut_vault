@@ -123,10 +123,10 @@ class TaprootVaultListItem extends VaultListItemBase {
       fieldScriptPathSeedInfos:
           _scriptPathSeedInfos
               .map((seedInfo) {
-                final miniscript = (coconutVault as TaprootVault)
-                    .policyList
-                    .firstWhereOrNull((p) => ScriptPathSeedInfo.generateKey(p) == seedInfo.key)
-                    ?.toMiniscript();
+                final miniscript =
+                    (coconutVault as TaprootVault).policyList
+                        .firstWhereOrNull((p) => ScriptPathSeedInfo.generateKey(p) == seedInfo.key)
+                        ?.toMiniscript();
                 if (miniscript == null) return null;
                 return <String, dynamic>{
                   'miniscript': miniscript,
