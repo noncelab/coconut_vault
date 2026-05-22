@@ -8,6 +8,7 @@ abstract class VaultListItemBase {
   static const String fieldName = 'name';
   static const String fieldIconIndex = 'iconIndex';
   static const String fieldColorIndex = 'colorIndex';
+  static const String fieldCreatedAt = 'createdAt';
 
   @JsonKey(name: "id")
   final int id;
@@ -19,7 +20,7 @@ abstract class VaultListItemBase {
   int iconIndex;
   @JsonKey(name: vaultTypeField)
   WalletType vaultType;
-  @JsonKey(name: "createdAt")
+  @JsonKey(name: fieldCreatedAt)
   DateTime createdAt;
 
   late WalletBase coconutVault;
