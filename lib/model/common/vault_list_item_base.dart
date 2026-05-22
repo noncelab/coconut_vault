@@ -1,5 +1,7 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/isolates/sign_isolates.dart';
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 @JsonSerializable(ignoreUnannotated: true)
@@ -34,7 +36,16 @@ abstract class VaultListItemBase {
     required this.createdAt,
   });
 
-  Future<bool> canSign(String psbt);
+  Future<bool> canSign(String psbt) {
+    switch (vaultType) {
+      case WalletType.singleSignature:
+        return compute(SignIsolates.canSignToPsbtWithSingleSignatureVault, [coconutVault, psbt]);
+      case WalletType.multiSignature:
+        return compute(SignIsolates.canSignToPsbtWithMultisignatureVault, [coconutVault, psbt]);
+      case WalletType.taproot:
+        return compute(SignIsolates.canSignToPsbtWithTaprootVault, [coconutVault, psbt]);
+    }
+  }
 
   String getWalletSyncString();
 

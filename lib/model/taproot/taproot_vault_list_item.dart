@@ -113,9 +113,6 @@ class TaprootVaultListItem extends VaultListItemBase {
   String get derivationPath => (coconutVault as TaprootVault).derivationPath;
 
   @override
-  Future<bool> canSign(String psbt) async => false;
-
-  @override
   String getWalletSyncString() {
     return jsonEncode({
       VaultListItemBase.fieldName: name,

@@ -30,36 +30,57 @@ class SignIsolates {
     return signedPsbt;
   }
 
-  static Future<bool> canSignToPsbt(List<dynamic> dataList) async {
-    bool isMultisig = dataList[0] is MultisignatureVault;
-    String psbtBase64 = dataList[1] as String;
+  static Future<bool> canSignToPsbtWithSingleSignatureVault(List<dynamic> dataList) async {
+    assert(dataList[0] is SingleSignatureVault);
+    assert(dataList[1] is String);
+
     WalletIsolates.setNetworkType();
-    bool canSign = false;
-    if (isMultisig) {
-      bool allKeyStoreCanSign = true;
-      for (KeyStore keyStore in (dataList[0] as MultisignatureVault).keyStoreList) {
-        if (!keyStore.hasPublicKeyInPsbt(psbtBase64)) {
-          allKeyStoreCanSign = false;
-        }
+    final psbtBase64 = dataList[1] as String;
+    return (dataList[0] as SingleSignatureVault).hasPublicKeyInPsbt(psbtBase64);
+  }
+
+  static Future<bool> canSignToPsbtWithMultisignatureVault(List<dynamic> dataList) async {
+    assert(dataList[0] is MultisignatureVault);
+    assert(dataList[1] is String);
+
+    WalletIsolates.setNetworkType();
+    final psbtBase64 = dataList[1] as String;
+    final multisigWallet = dataList[0] as MultisignatureVault;
+
+    bool allKeyStoreCanSign = true;
+    for (KeyStore keyStore in multisigWallet.keyStoreList) {
+      if (!keyStore.hasPublicKeyInPsbt(psbtBase64)) {
+        allKeyStoreCanSign = false;
       }
-      canSign = allKeyStoreCanSign;
-    } else {
-      canSign = (dataList[0] as SingleSignatureVault).hasPublicKeyInPsbt(psbtBase64);
     }
 
-    if (!isMultisig || !canSign) return canSign;
+    if (!allKeyStoreCanSign) return false;
 
     // quorum 확인
     Psbt psbtObj = Psbt.parse(psbtBase64);
-    var multisigWallet = dataList[0] as MultisignatureVault;
     Logger.log(
-      '--> [canSignToPsbt] psbtR: ${psbtObj.inputs[0].requiredSignature} psbtT: ${psbtObj.inputs[0].derivationPathList.length}',
+      '--> [canSignToPsbtWithMultisignatureVault] psbtR: ${psbtObj.inputs[0].requiredSignature} psbtT: ${psbtObj.inputs[0].derivationPathList.length}',
     );
     if (multisigWallet.requiredSignature != psbtObj.inputs[0].requiredSignature ||
         multisigWallet.keyStoreList.length != psbtObj.inputs[0].derivationPathList.length) {
       return false;
     }
 
-    return canSign;
+    return true;
+  }
+
+  static Future<bool> canSignToPsbtWithTaprootVault(List<dynamic> dataList) async {
+    assert(dataList[0] is TaprootVault);
+    assert(dataList[1] is String);
+
+    WalletIsolates.setNetworkType();
+    final psbtBase64 = dataList[1] as String;
+    try {
+      final parsedPsbt = Psbt.parse(psbtBase64);
+      final taprootVault = dataList[0] as TaprootVault;
+      return parsedPsbt.isForVault(taprootVault);
+    } catch (_) {
+      return false;
+    }
   }
 }
