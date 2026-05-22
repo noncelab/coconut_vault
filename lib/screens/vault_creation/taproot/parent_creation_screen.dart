@@ -1492,7 +1492,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       physics: const ClampingScrollPhysics(),
       enableSingleChildScroll: false,
       hideAppBar: true,
-      child: TaprootScannerScreen(topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText)),
+      child: TaprootScannerScreen(
+        useCloseButton: true,
+        topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
+      ),
     );
 
     if (importedParent == null) {

@@ -15,6 +15,7 @@ class TaprootScannerScreen extends StatefulWidget {
   final Widget? topGuideWidget;
   final bool Function(TaprootVault)? onTaprootVaultScanned;
   final bool hasAppbar;
+  final bool useCloseButton;
 
   const TaprootScannerScreen({
     super.key,
@@ -23,6 +24,7 @@ class TaprootScannerScreen extends StatefulWidget {
     this.topGuideWidget,
     this.onTaprootVaultScanned,
     this.hasAppbar = true,
+    this.useCloseButton = false,
   });
 
   @override
@@ -45,6 +47,9 @@ class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
 
   @override
   bool get showAppBar => widget.hasAppbar;
+
+  @override
+  bool get showBackButton => !widget.useCloseButton;
 
   @override
   String get appBarTitle => widget.hardwareWalletType!.displayName;
