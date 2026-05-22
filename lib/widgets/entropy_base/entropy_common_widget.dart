@@ -121,7 +121,7 @@ class EntropyPassphraseInput extends StatelessWidget {
       placeholderText: placeholder,
       onEditingComplete: onEditingComplete,
       height: 58,
-      padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+      padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
       onChanged: (_) {},
       maxLines: 1,
       obscureText: obscure,

@@ -42,6 +42,7 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
 import 'package:coconut_vault/widgets/indicator/timeline_step_indicator.dart';
+import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -79,6 +80,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   int? _timelockSetupStep;
   int? _timelineStep;
   int? _exportQrStep;
+  int? _mnemonicConfirmationStep;
+  int? _mnemonicGeneratedReviewStep;
+  int? _mnemonicVerifyStep;
+  int? _verifiedMnemonicConfirmationStep;
   int? _createdTaprootVaultId;
   TaprootVaultCreationTimelineInfo? _timelineInfo;
   Timer? _titleAnimationTimer;
@@ -519,6 +524,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   void _addMnemonicConfirmationStep() {
+    _resetMnemonicStepIndexes();
     final selectedCreationType =
         _isCreatingChildWallet ? _viewModel.selectedChildNewKeyCreationType : _viewModel.selectedNewKeyCreationType;
     final calledFrom = switch (selectedCreationType) {
@@ -533,7 +539,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return;
     }
 
-    _addEmbeddedStep(
+    _mnemonicConfirmationStep = _addEmbeddedStep(
       MnemonicConfirmationScreen(
         calledFrom: calledFrom,
         isEmbedded: true,
@@ -544,7 +550,11 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   void _addMnemonicVerifyStep() {
-    _addEmbeddedStep(
+    if (_mnemonicConfirmationStep == null && _isAutoGenerateMnemonicFlow) {
+      _mnemonicGeneratedReviewStep = _currentStep;
+    }
+
+    _mnemonicVerifyStep = _addEmbeddedStep(
       MnemonicVerifyScreen(
         isEmbedded: true,
         isTaprootChild: true,
@@ -553,8 +563,14 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     );
   }
 
+  bool get _isAutoGenerateMnemonicFlow {
+    final selectedCreationType =
+        _isCreatingChildWallet ? _viewModel.selectedChildNewKeyCreationType : _viewModel.selectedNewKeyCreationType;
+    return selectedCreationType == ParentNewKeyCreationType.autoGenerate;
+  }
+
   void _addVerifiedMnemonicConfirmationStep() {
-    _addEmbeddedStep(
+    _verifiedMnemonicConfirmationStep = _addEmbeddedStep(
       MnemonicConfirmationScreen(
         calledFrom: AppRoutes.mnemonicVerify,
         isEmbedded: true,
@@ -578,8 +594,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     );
   }
 
-  void _addEmbeddedStep(Widget embeddedScreen) {
-    _addStep(
+  int _addEmbeddedStep(Widget embeddedScreen) {
+    return _addStep(
       titleList: const [],
       bodyList: [embeddedScreen],
       nextButtonAction: null,
@@ -626,11 +642,13 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
           ParentExistingKeyImportType.mnemonicInput => MnemonicImportScreen(
             isEmbedded: true,
             isTaprootChild: true,
+            requirePassphraseConfirmation: true,
             onCompleted: _addImportedMnemonicViewStep,
           ),
           ParentExistingKeyImportType.seedQrScan => SeedQrImportScreen(
             isEmbedded: true,
             isTaprootChild: true,
+            requirePassphraseConfirmation: true,
             onMnemonicConfirmationRequested: (secret, passphrase) {
               // Seed QR로 부모 키를 가져온 경우
 
@@ -682,6 +700,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
             autoLoadMnemonic: false,
             isEmbedded: true,
             buildPassphraseToggle: true,
+            requirePassphraseConfirmation: true,
             onAuthCanceled: _returnToPreviousStep,
             onNextButtonPressed: () {
               final mnemonicViewState = mnemonicViewKey.currentState;
@@ -1658,6 +1677,14 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return;
     }
 
+    if (_returnToMnemonicConfirmationStepIfNeeded()) {
+      return;
+    }
+
+    if (_returnToGeneratedMnemonicReviewStepIfNeeded()) {
+      return;
+    }
+
     if (_currentStep == _childWalletSetupStep) {
       _showParentWalletResetDialog();
       return;
@@ -1674,6 +1701,82 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     }
 
     _returnToPreviousStep();
+  }
+
+  bool _returnToMnemonicConfirmationStepIfNeeded() {
+    final targetStep = _mnemonicConfirmationStep;
+    if (targetStep == null || targetStep < 1 || targetStep > _titleList.length) {
+      return false;
+    }
+
+    if (_currentStep != _mnemonicVerifyStep && _currentStep != _verifiedMnemonicConfirmationStep) {
+      return false;
+    }
+
+    setState(() {
+      while (_titleList.length > targetStep) {
+        final lastIndex = _titleList.length - 1;
+        _titleList.removeAt(lastIndex);
+        _bodyList.removeAt(lastIndex);
+        _nextButtonActions.removeAt(lastIndex);
+        _fixedBottomSubWidgetList.removeAt(lastIndex);
+        _ignoreBodyHorizontalPaddingList.removeAt(lastIndex);
+        _pauseProgressList.removeAt(lastIndex);
+        _scrollChildList.removeAt(lastIndex);
+      }
+
+      _currentStep = targetStep;
+      _mnemonicVerifyStep = null;
+      _verifiedMnemonicConfirmationStep = null;
+    });
+    _scheduleTitleAnimationCompletion();
+    return true;
+  }
+
+  bool _returnToGeneratedMnemonicReviewStepIfNeeded() {
+    final targetStep = _mnemonicGeneratedReviewStep;
+    if (targetStep == null || targetStep < 1 || targetStep > _titleList.length) {
+      return false;
+    }
+
+    if ((_currentStep != _mnemonicVerifyStep && _currentStep != _verifiedMnemonicConfirmationStep) ||
+        _mnemonicConfirmationStep != null) {
+      return false;
+    }
+
+    final walletCreationProvider = context.read<WalletCreationProvider>();
+    if (walletCreationProvider.secret.isEmpty) {
+      return false;
+    }
+
+    setState(() {
+      while (_titleList.length > targetStep) {
+        final lastIndex = _titleList.length - 1;
+        _titleList.removeAt(lastIndex);
+        _bodyList.removeAt(lastIndex);
+        _nextButtonActions.removeAt(lastIndex);
+        _fixedBottomSubWidgetList.removeAt(lastIndex);
+        _ignoreBodyHorizontalPaddingList.removeAt(lastIndex);
+        _pauseProgressList.removeAt(lastIndex);
+        _scrollChildList.removeAt(lastIndex);
+      }
+
+      _bodyList[targetStep - 1] = [_buildGeneratedMnemonicReviewBody(walletCreationProvider.secret)];
+      _nextButtonActions[targetStep - 1] = _addMnemonicVerifyStep;
+      _fixedBottomSubWidgetList[targetStep - 1] = null;
+      _ignoreBodyHorizontalPaddingList[targetStep - 1] = false;
+      _pauseProgressList[targetStep - 1] = true;
+      _scrollChildList[targetStep - 1] = true;
+      _currentStep = targetStep;
+      _mnemonicVerifyStep = null;
+      _verifiedMnemonicConfirmationStep = null;
+    });
+    _scheduleTitleAnimationCompletion();
+    return true;
+  }
+
+  Widget _buildGeneratedMnemonicReviewBody(Uint8List mnemonic) {
+    return Padding(padding: const EdgeInsets.only(top: 40), child: MnemonicList(mnemonic: mnemonic));
   }
 
   void _showParentWalletResetDialog() {
@@ -1749,6 +1852,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _childWalletSetupStep = null;
       _childWalletCreationOptionStep = null;
       _childWalletImportedStep = null;
+      _resetMnemonicStepIndexes();
       _isCreatingChildWallet = false;
       _viewModel.setChildWalletSetupType(ChildWalletSetupType.none);
     });
@@ -1778,6 +1882,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _currentStep = targetStep;
       _childWalletCreationOptionStep = null;
       _childWalletImportedStep = null;
+      _resetMnemonicStepIndexes();
       _isCreatingChildWallet = false;
       _viewModel.setChildWalletSetupType(ChildWalletSetupType.none);
       _viewModel.resetChildNewKeyCreationType();
@@ -1822,6 +1927,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _childWalletSetupStep = null;
       _childWalletCreationOptionStep = null;
       _childWalletImportedStep = null;
+      _resetMnemonicStepIndexes();
       _isCreatingChildWallet = false;
       _viewModel.setChildWalletSetupType(ChildWalletSetupType.none);
       return;
@@ -1836,6 +1942,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _childWalletSetupStep = null;
       _childWalletCreationOptionStep = null;
       _childWalletImportedStep = null;
+      _resetMnemonicStepIndexes();
       _isCreatingChildWallet = false;
       _viewModel.setChildWalletSetupType(ChildWalletSetupType.none);
       return;
@@ -1849,9 +1956,17 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _childWalletSetupStep = null;
       _childWalletCreationOptionStep = null;
       _childWalletImportedStep = null;
+      _resetMnemonicStepIndexes();
       _isCreatingChildWallet = false;
       _viewModel.setChildWalletSetupType(ChildWalletSetupType.none);
     }
+  }
+
+  void _resetMnemonicStepIndexes() {
+    _mnemonicConfirmationStep = null;
+    _mnemonicGeneratedReviewStep = null;
+    _mnemonicVerifyStep = null;
+    _verifiedMnemonicConfirmationStep = null;
   }
 
   Widget _buildExistingVaultSelectionBody() {

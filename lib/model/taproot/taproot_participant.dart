@@ -35,5 +35,4 @@ class TaprootBeneficiaryParticipant extends TaprootParticipant {
     required this.lockTime,
     required this.scriptKey,
   });
-
 }

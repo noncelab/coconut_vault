@@ -27,6 +27,7 @@ class SeedQrImportScreen extends StatefulWidget {
   final int? multisigVaultIdOfExternalSigner;
   final bool isEmbedded;
   final bool isTaprootChild;
+  final bool requirePassphraseConfirmation;
   final VoidCallback? onCompleted;
   final void Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
 
@@ -36,6 +37,7 @@ class SeedQrImportScreen extends StatefulWidget {
     this.multisigVaultIdOfExternalSigner,
     this.isEmbedded = false,
     this.isTaprootChild = false,
+    this.requirePassphraseConfirmation = false,
     this.onCompleted,
     this.onMnemonicConfirmationRequested,
   });
@@ -259,6 +261,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
                     externalSigner: widget.externalSigner,
                     multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
                     isTaprootChild: widget.isTaprootChild,
+                    requirePassphraseConfirmation: widget.requirePassphraseConfirmation,
                     onCompleted: widget.onCompleted,
                     onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
                   ),
