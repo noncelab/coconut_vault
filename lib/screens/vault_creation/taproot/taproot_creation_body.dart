@@ -20,6 +20,8 @@ class TaprootCreationBody extends StatefulWidget {
   final bool showHeader;
   final bool scrollChild;
   final bool runBottomButtonActionWithoutTransition;
+  final bool keepHeaderVisibleDuringTransition;
+  final bool animateHeader;
 
   const TaprootCreationBody({
     super.key,
@@ -36,6 +38,8 @@ class TaprootCreationBody extends StatefulWidget {
     this.showHeader = true,
     this.scrollChild = true,
     this.runBottomButtonActionWithoutTransition = false,
+    this.keepHeaderVisibleDuringTransition = false,
+    this.animateHeader = true,
   });
 
   @override
@@ -127,7 +131,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
 
     setState(() {
       _isContentVisible = false;
-      _isHeaderFadingOut = true;
+      _isHeaderFadingOut = !widget.keepHeaderVisibleDuringTransition;
     });
 
     await Future<void>.delayed(_fadeOutWaitDuration);
@@ -165,12 +169,20 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   }
 
   Duration get _fadeOutWaitDuration {
+    if (widget.keepHeaderVisibleDuringTransition) {
+      return _contentFadeOutDuration;
+    }
+
     final lines = _displayedTitleLines.length;
     final headerDuration = _headerLineFadeOutDuration * lines;
     return headerDuration > _contentFadeOutDuration ? headerDuration : _contentFadeOutDuration;
   }
 
   Duration get _fadeInWaitDuration {
+    if (widget.keepHeaderVisibleDuringTransition) {
+      return _contentFadeInDuration;
+    }
+
     final lines = _displayedTitleLines.length;
     final headerDuration = _headerInitialDelay + (_headerLineFadeInDuration * lines);
     return headerDuration > _contentFadeInDuration ? headerDuration : _contentFadeInDuration;
@@ -285,6 +297,10 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   Widget _buildAnimatedErrorIcon(String text) {
     const icon = Icon(Icons.warning_amber_rounded, color: CoconutColors.warningText, size: 28);
 
+    if (!widget.animateHeader) {
+      return icon;
+    }
+
     if (_isHeaderFadingOut) {
       return icon.fadeOutAnimation(
         key: ValueKey('taproot-creation-header-icon-out-$text'),
@@ -316,6 +332,10 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   Widget _buildAnimatedTitleLine(TextSpan line, int index, TextStyle defaultTextStyle, String titleKey) {
     final text = line.toPlainText();
     final textStyle = defaultTextStyle.merge(line.style);
+
+    if (!widget.animateHeader) {
+      return Text.rich(TextSpan(text: text, style: textStyle), textAlign: TextAlign.center);
+    }
 
     if (_isHeaderFadingOut) {
       return text.characterFadeOutAnimation(

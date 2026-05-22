@@ -78,10 +78,12 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   int? _childWalletImportedStep;
   int? _timelockSetupStep;
   int? _timelineStep;
+  int? _exportQrStep;
   int? _createdTaprootVaultId;
   TaprootVaultCreationTimelineInfo? _timelineInfo;
   Timer? _titleAnimationTimer;
   bool _isTitleAnimationCompleted = false;
+  bool _isTimelineAnimationCompleted = false;
   bool _isDuplicateChildWalletDialogVisible = false;
   bool _isCreatingChildWallet = false;
 
@@ -191,7 +193,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   bool get _showBottomButton {
-    return _onNextPressed != null && _isTitleAnimationCompleted;
+    return _onNextPressed != null && _isTitleAnimationCompleted && (!_isTimelineStep || _isTimelineAnimationCompleted);
   }
 
   bool get _runBottomButtonActionWithoutTransition {
@@ -200,6 +202,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   bool get _isTimelineStep => _currentStep == _timelineStep;
+
+  bool get _isExportQrStep => _currentStep == _exportQrStep;
 
   bool get _canRunCurrentStepAction {
     if (_currentStep == _currentVaultSelectionStep) {
@@ -242,6 +246,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   bool get _isProgressPaused => _pauseProgressList[_currentStep - 1];
+
+  bool get _showHeader {
+    return !_isProgressPaused || _isExportQrStep;
+  }
 
   int get _progressCurrentStep {
     return _pauseProgressList.take(_currentStep).where((isPaused) => !isPaused).length;
@@ -1020,6 +1028,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   void _addTimelineStep(VaultNameAndIconSetupSaveResult result) {
     _createdTaprootVaultId = result.addedWalletId;
     _timelineInfo = result.taprootTimelineInfo;
+    _isTimelineAnimationCompleted = false;
     final titleList = [
       TextSpan(text: t.taproot.parent_creation_screen.step_4.title_1),
       TextSpan(text: t.taproot.parent_creation_screen.step_4.title_2),
@@ -1028,7 +1037,12 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     _timelineStep = _addStep(
       titleList: titleList,
       bodyList: [_buildTimelineStepIndicator()],
-      nextButtonAction: _navigateToHome,
+      nextButtonAction: _addExportQrStep,
+      fixedBottomSubWidget: CoconutUnderlinedButton(
+        text: t.taproot.parent_creation_screen.step_4.timeline.maybe_later,
+        textStyle: CoconutTypography.body2_14,
+        onTap: () => _navigateToHome(),
+      ),
     );
   }
 
@@ -1039,29 +1053,76 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     final childWalletDescription = _timelineChildWalletDescription();
 
     return TimelineStepIndicator(
+      onCompleted: _handleTimelineAnimationCompleted,
       timelineStepItemList: [
         TimelineStepItem(
           title: timeline.created_parent_wallet,
           description: parentWalletDescription,
-          status: TimelineStepStatus.completed,
+          status: TimelineStepStatus.current,
         ),
         TimelineStepItem(
           title: timeline.set_child_wallet,
           description: childWalletDescription,
-          status: TimelineStepStatus.completed,
+          status: TimelineStepStatus.upcoming,
         ),
         TimelineStepItem(
           title: timeline.set_child_wallet_timelock,
           description: dateTimeText,
-          status: TimelineStepStatus.completed,
+          status: TimelineStepStatus.upcoming,
         ),
         TimelineStepItem(
           title: timeline.active_child_wallet,
           description: timeline.time_after(date: dateTimeText),
-          status: TimelineStepStatus.current,
+          status: TimelineStepStatus.future,
         ),
       ],
     );
+  }
+
+  void _addExportQrStep() {
+    final addedWalletId = _createdTaprootVaultId;
+    if (addedWalletId == null) {
+      return;
+    }
+
+    final qrData = context.read<WalletProvider>().getVaultById(addedWalletId).getWalletSyncString();
+    final complete = t.taproot.parent_creation_screen.step_4.complete;
+    final titleList = [TextSpan(text: complete.title_1), TextSpan(text: complete.title_2)];
+
+    _exportQrStep = _addStep(
+      titleList: titleList,
+      bodyList: [_buildWalletSyncQr(qrData)],
+      nextButtonAction: _navigateToHome,
+      pauseProgress: true,
+    );
+  }
+
+  Widget _buildWalletSyncQr(String qrData) {
+    final complete = t.taproot.parent_creation_screen.step_4.complete;
+    final descriptionLines = complete.description.split('\n');
+    return Column(
+      children: [
+        for (int index = 0; index < descriptionLines.length; index++)
+          _buildBodyCharacterFadeInText(
+            descriptionLines[index],
+            key: 'export-qr-description-$index',
+            duration: index == 0 ? const Duration(milliseconds: 400) : const Duration(milliseconds: 700),
+            delay: index == 0 ? const Duration(milliseconds: 800) : const Duration(milliseconds: 1500),
+          ),
+        CoconutLayout.spacing_600h,
+        AdaptiveQrImage(qrData: qrData),
+      ],
+    );
+  }
+
+  void _handleTimelineAnimationCompleted() {
+    if (!mounted || !_isTimelineStep || _isTimelineAnimationCompleted) {
+      return;
+    }
+
+    setState(() {
+      _isTimelineAnimationCompleted = true;
+    });
   }
 
   String _timelineParentWalletDescription() {
@@ -1586,7 +1647,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   void _handleBackPressed() {
-    if (_isTimelineStep) {
+    if (_isTimelineStep || _isExportQrStep) {
       _navigateToHome();
       return;
     }
@@ -1902,7 +1963,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
           appBar: CoconutAppBar.build(
             title: t.taproot.parent_creation_screen.title,
             context: context,
-            isBottom: _isTimelineStep,
+            isBottom: _isTimelineStep || _isExportQrStep,
             backgroundColor: CoconutColors.white,
             onBackPressed: _handleBackPressed,
           ),
@@ -1912,11 +1973,19 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
                 TaprootCreationBody(
                   titleLines: _titleLines(),
                   onBottomButtonPressed: _onNextPressed,
+                  bottomButtonText:
+                      _isTimelineStep
+                          ? t.taproot.parent_creation_screen.step_4.timeline.export_wallet_info
+                          : _isExportQrStep
+                          ? t.complete
+                          : null,
                   fixedBottomSubWidget: _fixedBottomSubWidgetList[_currentStep - 1],
                   runBottomButtonActionWithoutTransition: _runBottomButtonActionWithoutTransition,
+                  keepHeaderVisibleDuringTransition: _isTimelineStep,
+                  animateHeader: !_isExportQrStep,
                   showBottomButton: _showBottomButton,
                   ignoreChildHorizontalPadding: _ignoreBodyHorizontalPaddingList[_currentStep - 1],
-                  showHeader: !_isProgressPaused,
+                  showHeader: _showHeader,
                   scrollChild: !_isProgressPaused && _scrollChildList[_currentStep - 1],
                   child:
                       _isProgressPaused

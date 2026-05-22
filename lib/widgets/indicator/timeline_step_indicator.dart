@@ -4,8 +4,9 @@ import 'package:lottie/lottie.dart';
 
 class TimelineStepIndicator extends StatefulWidget {
   final List<TimelineStepItem> timelineStepItemList;
+  final VoidCallback? onCompleted;
 
-  const TimelineStepIndicator({super.key, required this.timelineStepItemList});
+  const TimelineStepIndicator({super.key, required this.timelineStepItemList, this.onCompleted});
 
   @override
   State<TimelineStepIndicator> createState() => _TimelineStepIndicatorState();
@@ -15,6 +16,7 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
   int? _currentIndex;
   int? _animatingConnectorIndex;
   late int _completedUntilIndex;
+  bool _hasNotifiedCompleted = false;
 
   @override
   void initState() {
@@ -30,6 +32,7 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
       _currentIndex = _initialCurrentIndex;
       _animatingConnectorIndex = null;
       _completedUntilIndex = (_currentIndex ?? _initialCompletedUntilIndex + 1) - 1;
+      _hasNotifiedCompleted = false;
     }
   }
 
@@ -85,12 +88,22 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
       _completedUntilIndex = completedIndex;
       if (nextIndex >= widget.timelineStepItemList.length) {
         _currentIndex = null;
+        _notifyCompleted();
         return;
       }
 
       _currentIndex = null;
       _animatingConnectorIndex = completedIndex;
     });
+  }
+
+  void _notifyCompleted() {
+    if (_hasNotifiedCompleted) {
+      return;
+    }
+
+    _hasNotifiedCompleted = true;
+    widget.onCompleted?.call();
   }
 
   void _completeConnectorAnimation(int connectorIndex) {
