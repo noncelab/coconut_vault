@@ -3,7 +3,6 @@ import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
-import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:flutter/foundation.dart';
 
 enum TaprootChildWalletSource { scanned, created }
@@ -40,11 +39,11 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
   DateTime? get timelockDateTime => _timelockDateTime;
 
   void setSecretAndPassphrase(Uint8List secret, Uint8List? passphrase, {bool useTaprootDescriptorQr = false}) {
-    _secret = secret;
-    _passphrase = passphrase ?? Uint8List(0);
+    _secret = Uint8List.fromList(secret);
+    _passphrase = passphrase == null ? Uint8List(0) : Uint8List.fromList(passphrase);
 
     try {
-      final seed = Seed.fromMnemonic(_secret, passphrase: _passphrase.isNotEmpty ? _passphrase : Uint8List(0));
+      final seed = Seed.fromMnemonic(_secret, passphrase: _passphrase.isNotEmpty ? _passphrase : null);
 
       final keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
 
@@ -52,13 +51,7 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
       if (useTaprootDescriptorQr) {
         _qrData = TaprootVault.fromKeyStoreList([keyStore], []).descriptor;
       } else {
-        final signerKeyStore = KeyStore.fromSeed(seed, AddressType.p2wsh);
-        final derivationPath = WalletUtility.getDerivationPath(AddressType.p2wsh, 0).replaceAll('m/', '');
-        _qrData = SignerBsms(
-          fingerprint: signerKeyStore.masterFingerprint,
-          derivationPath: derivationPath,
-          extendedKey: signerKeyStore.extendedPublicKey.serialize(),
-        ).getSignerBsms(includesLabel: false);
+        _qrData = _getTaprootSignerBsms(seed.mnemonic, seed.passphrase);
       }
     } catch (e) {
       _masterFingerprint = '00000000';
@@ -66,6 +59,13 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  String _getTaprootSignerBsms(Uint8List mnemonic, Uint8List passphrase) {
+    final seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase.isNotEmpty ? passphrase : null);
+    final keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
+    final taprootVault = TaprootVault.fromKeyStoreList([keyStore], []);
+    return taprootVault.getSignerBsms('');
   }
 
   void setChildCreationOption(String routeName) {
