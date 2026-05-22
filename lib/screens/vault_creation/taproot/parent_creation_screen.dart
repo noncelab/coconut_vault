@@ -1054,6 +1054,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
     return TimelineStepIndicator(
       onCompleted: _handleTimelineAnimationCompleted,
+      enableTapToSkip: true,
       timelineStepItemList: [
         TimelineStepItem(
           title: timeline.created_parent_wallet,

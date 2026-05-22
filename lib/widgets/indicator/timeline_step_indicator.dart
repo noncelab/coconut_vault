@@ -1,12 +1,19 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 class TimelineStepIndicator extends StatefulWidget {
   final List<TimelineStepItem> timelineStepItemList;
   final VoidCallback? onCompleted;
+  final bool enableTapToSkip;
 
-  const TimelineStepIndicator({super.key, required this.timelineStepItemList, this.onCompleted});
+  const TimelineStepIndicator({
+    super.key,
+    required this.timelineStepItemList,
+    this.onCompleted,
+    this.enableTapToSkip = false,
+  });
 
   @override
   State<TimelineStepIndicator> createState() => _TimelineStepIndicatorState();
@@ -38,7 +45,7 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    final timeline = Column(
       children: [
         for (int index = 0; index < widget.timelineStepItemList.length; index++)
           _TimelineStepTile(
@@ -53,6 +60,12 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
           ),
       ],
     );
+
+    if (!widget.enableTapToSkip) {
+      return timeline;
+    }
+
+    return GestureDetector(behavior: HitTestBehavior.opaque, onTap: _skipCurrentAnimation, child: timeline);
   }
 
   int get _initialCurrentIndex {
@@ -116,6 +129,45 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
       _animatingConnectorIndex = null;
       _currentIndex = nextIndex;
     });
+  }
+
+  void _skipCurrentAnimation() {
+    final animatingConnectorIndex = _animatingConnectorIndex;
+    final currentIndex = _currentIndex;
+    if (animatingConnectorIndex == null && currentIndex == null) {
+      return;
+    }
+
+    vibrateExtraLight();
+
+    if (animatingConnectorIndex != null) {
+      final nextIndex = animatingConnectorIndex + 1;
+      setState(() {
+        _animatingConnectorIndex = null;
+        _currentIndex = nextIndex >= widget.timelineStepItemList.length ? null : nextIndex;
+      });
+      if (nextIndex >= widget.timelineStepItemList.length) {
+        _notifyCompleted();
+      }
+      return;
+    }
+
+    final nextIndex = currentIndex! + 1;
+    setState(() {
+      _completedUntilIndex = currentIndex;
+      if (nextIndex >= widget.timelineStepItemList.length) {
+        _currentIndex = null;
+        _animatingConnectorIndex = null;
+        return;
+      }
+
+      _currentIndex = nextIndex;
+      _animatingConnectorIndex = null;
+    });
+
+    if (nextIndex >= widget.timelineStepItemList.length) {
+      _notifyCompleted();
+    }
   }
 
   TimelineStepItem _itemWithDisplayStatus(int index) {
