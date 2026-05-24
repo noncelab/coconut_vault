@@ -58,6 +58,7 @@ class ChildCreationViewModel extends ChangeNotifier {
   ChildKeyPreparationType get keyPreparationType => _keyPreparationType;
   ChildNewKeyCreationType get newKeyCreationType => _newKeyCreationType;
   ChildExistingKeyImportType get existingKeyImportType => _existingKeyImportType;
+  int? get existingVaultId => _existingVaultId;
   String? get qrData => _qrData;
   String? get masterFingerprint => _masterFingerprint;
 
