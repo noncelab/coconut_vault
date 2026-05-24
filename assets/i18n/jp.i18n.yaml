@@ -544,15 +544,15 @@ taproot:
     existing_option3: "シードQRスキャン"
   taproot_creation_option:
     parent_creation_title: "私は親です"
-    parent_creation_description: "使用するウォレットに相続条件を一緒に準備します"
+    parent_creation_description: "自分のウォレットに相続条件を設定します"
     child_creation_title: "私は子です"
-    child_creation_description: "決められた時点以降に使用するウォレットを準備します"
-    prepared_creation_title: "準備済みの相続ウォレットがあります"
-    prepared_creation_description: "すでに作成したウォレットを取り込みます"
+    child_creation_description: "設定された時期の後に使えるウォレットを準備します"
+    prepared_creation_title: "すでに相続ウォレットを持っています"
+    prepared_creation_description: "すでに作成済みのウォレットを取り込みます"
   parent_creation_screen:
     title: "親ウォレットを作成"
-    creation_intro_title_1: "使用するウォレットに"
-    creation_intro_title_2: "相続条件を設定します"
+    creation_intro_title_1: "相続条件を一緒に"
+    creation_intro_title_2: "ウォレットに準備しましょう"
     step_1:
       title_1: "親ウォレットは"
       title_2: "いくつのキーを使いますか？"
@@ -753,7 +753,7 @@ select_vault_type_screen:
   title: "ウォレット追加"
   single_sig: "1つのニーモニックフレーズを保存するシングル署名ウォレット"
   multisig: "指定された数の署名が必要なウォレット"
-  taproot: "必要な時に備えて相続条件を準備するウォレット"
+  taproot: "いざという時に備えた相続条件付きのウォレット"
   empty_key: "現在のボルトに利用可能なキーがありません"
   loading_keys: "ボルトに保存されたキーを読み込み中"
 vault_creation_options_screen:
