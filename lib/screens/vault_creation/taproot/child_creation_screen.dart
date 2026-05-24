@@ -366,9 +366,13 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       viewModel.setupChildWalletInfo();
       setState(() {
         _currentStep += 1;
+        _isProcessing = false;
       });
     } catch (e) {
       Logger.error('Failed to generate child wallet: $e');
+      setState(() {
+        _isProcessing = false;
+      });
     }
   }
 
