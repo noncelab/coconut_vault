@@ -666,6 +666,8 @@ taproot:
       title1: "このウォレットでの"
       title2: "自分の役割を選択してください"
       description: "自分の役割に合ったウォレットを接続すると使用できます"
+      signer: "署名者"
+      beneficiary: "相続者"
     step6:
       title_match_inheritance_wallet: "相続ウォレットと一致しています"
       description: "親ウォレットキーを追加で登録するにはカードを選択してください"

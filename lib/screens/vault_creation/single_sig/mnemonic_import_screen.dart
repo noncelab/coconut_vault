@@ -804,6 +804,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   Widget build(BuildContext context) {
     return CustomLoadingOverlay(
       child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
         onTap: _handleGlobalTap,
         child: PopScope(
           canPop: false,

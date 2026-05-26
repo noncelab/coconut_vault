@@ -1,11 +1,15 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/taproot_import_view_model.dart';
+import 'package:coconut_vault/screens/common/menu_grid.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_scanner_screen.dart';
+import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
 import 'package:coconut_vault/widgets/text/character_fade_in_text.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class TaprootImportScreen extends StatefulWidget {
   const TaprootImportScreen({super.key});
@@ -26,17 +30,26 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   late final List<bool> _scrollChildList;
   final TaprootImportViewModel _viewModel = TaprootImportViewModel();
   int _currentStep = 1;
+  int? _roleSelectionStep;
 
   bool get _isProgressPaused => _pauseProgressList[_currentStep - 1];
   bool get _showHeader => !_isProgressPaused;
   int get _progressCurrentStep => _pauseProgressList.take(_currentStep).where((isPaused) => !isPaused).length;
 
-  VoidCallback? get _onNextPressed {
+  VoidCallback? get _currentNextButtonAction {
     final actionIndex = _currentStep - 1;
     if (actionIndex < 0 || actionIndex >= _nextButtonActions.length) {
       return null;
     }
     return _nextButtonActions[actionIndex];
+  }
+
+  bool get _showBottomButton {
+    if (_currentStep == _roleSelectionStep) {
+      return _viewModel.selectedRole != TaprootImportRole.none;
+    }
+
+    return _currentNextButtonAction != null;
   }
 
   @override
@@ -48,12 +61,18 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
     _ignoreBodyHorizontalPaddingList = [false];
     _pauseProgressList = [false];
     _scrollChildList = [true];
+    _viewModel.addListener(_handleViewModelChanged);
   }
 
   @override
   void dispose() {
+    _viewModel.removeListener(_handleViewModelChanged);
     _viewModel.dispose();
     super.dispose();
+  }
+
+  void _handleViewModelChanged() {
+    setState(() {});
   }
 
   List<List<TextSpan>> _initialTitleList() {
@@ -202,7 +221,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   }
 
   void _addParentConfigurationStep() {
-    _addStep(
+    _roleSelectionStep = _addStep(
       titleList: [
         TextSpan(text: t.taproot.taproot_import_screen.step4.title1),
         TextSpan(text: t.taproot.taproot_import_screen.step4.title2),
@@ -214,9 +233,53 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
           duration: const Duration(milliseconds: 700),
           delay: const Duration(milliseconds: 1700),
         ),
+        CoconutLayout.spacing_800h,
+        Consumer<TaprootImportViewModel>(
+          builder: (context, viewModel, child) {
+            return MenuGrid(
+              children: [
+                SelectableOptionCard(
+                  title: t.taproot.taproot_import_screen.step4.signer,
+                  bottomAssetPath: 'assets/png/single-key.png',
+                  isSelected: viewModel.selectedRole == TaprootImportRole.parent,
+                  onTap: () => viewModel.setRole(TaprootImportRole.parent),
+                  imageScale: 5.5,
+                  height: 130,
+                ),
+                SelectableOptionCard(
+                  title: t.taproot.taproot_import_screen.step4.beneficiary,
+                  bottomAssetPath: 'assets/png/bitcoin-on-hand.png',
+                  isSelected: viewModel.selectedRole == TaprootImportRole.child,
+                  onTap: () => viewModel.setRole(TaprootImportRole.child),
+                  imageScale: 3.5,
+                  height: 130,
+                ),
+              ],
+            );
+          },
+        ),
       ],
-      nextButtonAction: null,
+      nextButtonAction: _addParentWalletCheckStep,
     );
+  }
+
+  void _addParentWalletCheckStep() {
+    _addEmbeddedStep(
+      MnemonicImportScreen(
+        isEmbedded: true,
+        isTaprootChild: true,
+        requirePassphraseConfirmation: true,
+        onCompleted: () {},
+      ),
+    );
+  }
+
+  void _handleBottomButtonPressed() {
+    if (_currentStep == _roleSelectionStep && _viewModel.selectedRole == TaprootImportRole.none) {
+      return;
+    }
+
+    _currentNextButtonAction?.call();
   }
 
   void _handleBackPressed() {
@@ -244,40 +307,45 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) {
-          return;
-        }
-        _handleBackPressed();
-      },
-      child: Scaffold(
-        backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(
-          title: t.taproot.taproot_creation_option.prepared_creation_title,
-          context: context,
+    final showBottomButton = _showBottomButton;
+
+    return ChangeNotifierProvider.value(
+      value: _viewModel,
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) {
+            return;
+          }
+          _handleBackPressed();
+        },
+        child: Scaffold(
           backgroundColor: CoconutColors.white,
-          onBackPressed: _handleBackPressed,
-        ),
-        body: SafeArea(
-          child: Stack(
-            children: [
-              TaprootCreationBody(
-                titleLines: _titleLines(),
-                onBottomButtonPressed: _onNextPressed,
-                bottomButtonText: _progressCurrentStep >= _progressTotalStep ? t.complete : null,
-                showBottomButton: _onNextPressed != null,
-                ignoreChildHorizontalPadding: _ignoreBodyHorizontalPaddingList[_currentStep - 1],
-                showHeader: _showHeader,
-                scrollChild: !_isProgressPaused && _scrollChildList[_currentStep - 1],
-                child:
-                    _isProgressPaused
-                        ? _bodyList[_currentStep - 1].first
-                        : Column(children: _bodyList[_currentStep - 1]),
-              ),
-              TopProgressBar(visible: !_isProgressPaused, total: _progressTotalStep, current: _progressCurrentStep),
-            ],
+          appBar: CoconutAppBar.build(
+            title: t.taproot.taproot_import_screen.title,
+            context: context,
+            backgroundColor: CoconutColors.white,
+            onBackPressed: _handleBackPressed,
+          ),
+          body: SafeArea(
+            child: Stack(
+              children: [
+                TaprootCreationBody(
+                  titleLines: _titleLines(),
+                  onBottomButtonPressed: showBottomButton ? _handleBottomButtonPressed : null,
+                  bottomButtonText: _progressCurrentStep >= _progressTotalStep ? t.complete : null,
+                  showBottomButton: showBottomButton,
+                  ignoreChildHorizontalPadding: _ignoreBodyHorizontalPaddingList[_currentStep - 1],
+                  showHeader: _showHeader,
+                  scrollChild: !_isProgressPaused && _scrollChildList[_currentStep - 1],
+                  child:
+                      _isProgressPaused
+                          ? _bodyList[_currentStep - 1].first
+                          : Column(children: _bodyList[_currentStep - 1]),
+                ),
+                TopProgressBar(visible: !_isProgressPaused, total: _progressTotalStep, current: _progressCurrentStep),
+              ],
+            ),
           ),
         ),
       ),

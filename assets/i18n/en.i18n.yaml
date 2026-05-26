@@ -667,6 +667,8 @@ taproot:
       title1: "Choose your role"
       title2: "in this wallet"
       description: "Connect the wallet that matches your role to use it"
+      signer: "Signer"
+      beneficiary: "Beneficiary"
     step6:
       title_match_inheritance_wallet: "Matches the inheritance wallet"
       description: "Select a card to add a parent wallet key"

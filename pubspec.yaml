@@ -281,6 +281,7 @@ flutter:
     - assets/png/word.png
     - assets/png/scan-qr.png
     - assets/png/scan-qr-big.png
+    - assets/png/bitcoin-on-hand.png
 
   fonts:
     - family: SpaceGrotesk
