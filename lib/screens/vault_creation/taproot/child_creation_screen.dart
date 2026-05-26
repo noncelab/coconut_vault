@@ -135,13 +135,6 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       ]);
     }
 
-    bool isValid = true;
-    if (viewModel.scannedVaultItem != null && viewModel.masterFingerprint != null) {
-      isValid = viewModel.scannedVaultItem!.beneficiaries.any(
-        (b) => b.masterFingerprint == viewModel.masterFingerprint,
-      );
-    }
-
     list.addAll([
       [
         TextSpan(text: t.taproot.child_creation_screen.step4.title1),
@@ -152,7 +145,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         TextSpan(text: t.taproot.child_creation_screen.step5.title1),
         TextSpan(text: t.taproot.child_creation_screen.step5.title2),
       ],
-      isValid
+      viewModel.isBeneficiaryMatch
           ? [TextSpan(text: t.taproot.child_creation_screen.step6.title1)]
           : [
             TextSpan(
@@ -318,17 +311,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   Widget _buildSummaryStep(ChildCreationViewModel viewModel) {
     if (viewModel.scannedVaultItem == null) return const SizedBox.shrink();
 
-    bool isValid = true;
-    if (viewModel.masterFingerprint != null) {
-      isValid = viewModel.scannedVaultItem!.beneficiaries.any(
-        (b) => b.masterFingerprint == viewModel.masterFingerprint,
-      );
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (!isValid) ...[
+        if (!viewModel.isBeneficiaryMatch) ...[
           CoconutLayout.spacing_1500h,
           SvgPicture.asset('assets/svg/triangle-warning.svg', width: 25, height: 25),
           CoconutLayout.spacing_200h,
@@ -680,13 +666,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     int baseCurrentStep = _currentStep > embeddedStartIndex ? _currentStep - _embeddedWidgets.length : _currentStep;
 
     if (baseCurrentStep == scannerStepIndex + 1) {
-      bool isValid = true;
-      if (viewModel.scannedVaultItem != null && viewModel.masterFingerprint != null) {
-        isValid = viewModel.scannedVaultItem!.beneficiaries.any(
-          (b) => b.masterFingerprint == viewModel.masterFingerprint,
-        );
-      }
-      if (!isValid) {
+      if (!viewModel.isBeneficiaryMatch) {
         _handleBackPressed();
         return;
       }
@@ -970,13 +950,6 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     final isScannerStep = baseCurrentStep == scannerStepIndex;
     final isSummaryStep = baseCurrentStep == scannerStepIndex + 1;
 
-    bool isValid = true;
-    if (viewModel.scannedVaultItem != null && viewModel.masterFingerprint != null) {
-      isValid = viewModel.scannedVaultItem!.beneficiaries.any(
-        (b) => b.masterFingerprint == viewModel.masterFingerprint,
-      );
-    }
-
     Widget? currentEmbeddedWidget;
     if (isEmbeddedActive) {
       currentEmbeddedWidget = _embeddedWidgets[_currentStep - embeddedStartIndex - 1];
@@ -1029,10 +1002,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
                 key: ValueKey(_currentStep),
                 titleLines: _titleLines(viewModel),
                 showBottomButton: _isNextButtonVisible(viewModel),
-                bottomButtonText: isSummaryStep && !isValid ? t.rescan : null,
+                bottomButtonText: isSummaryStep && !viewModel.isBeneficiaryMatch ? t.rescan : null,
                 ignoreChildHorizontalPadding:
                     isEmbeddedActive || isVaultSelectionStep || isScannerStep || isSummaryStep,
-                showHeader: !isEmbeddedActive && !isScannerStep && !(isSummaryStep && !isValid),
+                showHeader: !isEmbeddedActive && !isScannerStep && !(isSummaryStep && !viewModel.isBeneficiaryMatch),
                 scrollChild: !isEmbeddedActive && !isVaultSelectionStep && !isScannerStep,
                 onBottomButtonPressed: () => _onNextPressed(viewModel),
                 child: _getCurrentChild(viewModel),

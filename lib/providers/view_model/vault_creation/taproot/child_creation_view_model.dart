@@ -33,6 +33,15 @@ class ChildCreationViewModel extends ChangeNotifier {
     _taprootProvider.setSecretAndPassphrase(secret, passphrase);
   }
 
+  bool get isBeneficiaryMatch {
+    if (_scannedVaultItem == null || _masterFingerprint == null) return false;
+    try {
+      return _scannedVaultItem!.beneficiaries.any((b) => b.masterFingerprint == _masterFingerprint);
+    } catch (e) {
+      return false;
+    }
+  }
+
   void setupChildWalletInfo() {
     final secret = _taprootProvider.secret;
     final passphrase = _taprootProvider.passphrase;
@@ -60,90 +69,56 @@ class ChildCreationViewModel extends ChangeNotifier {
   }
 
   void setScannedTaprootVault(String scannedData) {
-    String descriptor = '';
-    String name = '스캔된 부모 지갑';
-    int colorIndex = 0;
-    int iconIndex = 0;
-    int id = -1;
-    DateTime createdAt = DateTime.now();
-
     try {
       final decoded = jsonDecode(scannedData);
       if (decoded is Map<String, dynamic>) {
-        descriptor = decoded['descriptor'] as String? ?? '';
-        name = decoded['name'] as String? ?? name;
-        colorIndex = decoded['colorIndex'] as int? ?? colorIndex;
-        iconIndex = decoded['iconIndex'] as int? ?? iconIndex;
-        id = decoded['id'] as int? ?? id;
-
-        final createdAtStr = decoded['createdAt'] as String?;
-        if (createdAtStr != null) {
-          createdAt = DateTime.tryParse(createdAtStr) ?? createdAt;
-        }
+        _scannedVaultItem = TaprootVaultListItem.fromJson(decoded);
+      } else {
+        _scannedVaultItem = _parseRawDescriptorString(scannedData);
       }
     } catch (e) {
-      String innerData = scannedData.trim();
-
-      if (innerData.startsWith('{') && innerData.endsWith('}')) {
-        innerData = innerData.substring(1, innerData.length - 1).trim();
-
-        final nameMatch = RegExp(r'name:\s*(.*?)(?=\s*(?:,\s*[a-zA-Z0-9_]+:|$))').firstMatch(innerData);
-        if (nameMatch != null) name = nameMatch.group(1)?.trim() ?? name;
-
-        final colorMatch = RegExp(r'colorIndex:\s*(\d+)').firstMatch(innerData);
-        if (colorMatch != null) colorIndex = int.tryParse(colorMatch.group(1)!) ?? colorIndex;
-
-        final iconMatch = RegExp(r'iconIndex:\s*(\d+)').firstMatch(innerData);
-        if (iconMatch != null) iconIndex = int.tryParse(iconMatch.group(1)!) ?? iconIndex;
-
-        final idMatch = RegExp(r'id:\s*(\d+)').firstMatch(innerData);
-        if (idMatch != null) id = int.tryParse(idMatch.group(1)!) ?? id;
-
-        final createdAtMatch = RegExp(r'createdAt:\s*(.*?)(?=\s*(?:,\s*[a-zA-Z0-9_]+:|$))').firstMatch(innerData);
-        if (createdAtMatch != null) {
-          final parsed = DateTime.tryParse(createdAtMatch.group(1)?.trim() ?? '');
-          if (parsed != null) createdAt = parsed;
-        }
-
-        final descriptorMatch = RegExp(
-          r'descriptor:\s*(.*?)(?=\s*(?:,\s*[a-zA-Z0-9_]+:|$))',
-          dotAll: true,
-        ).firstMatch(innerData);
-        if (descriptorMatch != null) {
-          descriptor = descriptorMatch.group(1)?.trim() ?? '';
-        } else {
-          descriptor = scannedData.trim();
-        }
-      } else {
-        descriptor = scannedData.trim();
-      }
+      _scannedVaultItem = _parseRawDescriptorString(scannedData);
     }
 
-    final mfpRegex = RegExp(r'tr\(\[([0-9a-fA-F]{8})\/.*');
-    final match = mfpRegex.firstMatch(descriptor);
-    if (match != null && match.groupCount >= 1) {
-      _scannedMasterFingerprint = match.group(1);
+    if (_scannedVaultItem != null && _scannedVaultItem!.owners.isNotEmpty) {
+      _scannedMasterFingerprint = _scannedVaultItem!.owners.first.masterFingerprint;
     } else {
       _scannedMasterFingerprint = null;
     }
 
-    try {
-      _scannedVaultItem = TaprootVaultListItem(
-        id: id,
-        name: name,
-        createdAt: createdAt,
-        colorIndex: colorIndex,
-        iconIndex: iconIndex,
-        descriptor: descriptor,
+    notifyListeners();
+  }
+
+  TaprootVaultListItem _parseRawDescriptorString(String data) {
+    String innerData = data.trim();
+    if (innerData.startsWith('{') && innerData.endsWith('}')) {
+      final content = innerData.substring(1, innerData.length - 1).trim();
+      return TaprootVaultListItem(
+        id: int.tryParse(_extractValue(content, 'id') ?? '') ?? -1,
+        name: _extractValue(content, 'name') ?? '스캔된 부모 지갑',
+        createdAt: DateTime.tryParse(_extractValue(content, 'createdAt') ?? '') ?? DateTime.now(),
+        colorIndex: int.tryParse(_extractValue(content, 'colorIndex') ?? '') ?? 0,
+        iconIndex: int.tryParse(_extractValue(content, 'iconIndex') ?? '') ?? 0,
+        descriptor: _extractValue(content, 'descriptor') ?? innerData,
         keyPathSeedInfos: const [],
         scriptPathSeedInfos: const [],
       );
-    } catch (e) {
-      Logger.error('Failed to create TaprootVaultListItem from descriptor: $e');
-      _scannedVaultItem = null;
     }
+    return TaprootVaultListItem(
+      id: -1,
+      name: '스캔된 부모 지갑',
+      colorIndex: 0,
+      iconIndex: 0,
+      createdAt: DateTime.now(),
+      descriptor: innerData,
+      keyPathSeedInfos: const [],
+      scriptPathSeedInfos: const [],
+    );
+  }
 
-    notifyListeners();
+  String? _extractValue(String content, String key) {
+    final match = RegExp('$key:\\s*(.*?)(?=\\s*(?:,\\s*[a-zA-Z0-9_]+:|\$))', dotAll: true).firstMatch(content);
+    return match?.group(1)?.trim();
   }
 
   ChildKeyPreparationType get keyPreparationType => _keyPreparationType;
