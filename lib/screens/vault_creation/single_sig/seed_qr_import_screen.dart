@@ -258,7 +258,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
                     scannedData: utf8.encode(words!.join(' ')),
                     externalSigner: widget.externalSigner,
                     multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
-                    isTaprootChild: widget.isTaproot,
+                    isTaproot: widget.isTaproot,
                     onCompleted: widget.onCompleted,
                     onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
                   ),

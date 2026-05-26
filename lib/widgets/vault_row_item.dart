@@ -185,14 +185,21 @@ class _VaultRowItemState extends State<VaultRowItem> {
           return;
         }
         final walletProvider = context.read<WalletProvider>();
+        final vaultType = walletProvider.getVaultById(widget.vault.id).vaultType;
+        if (vaultType != WalletType.singleSignature) {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.multisigSetupInfo, // TODO: 탭루트 지갑 일 때는 경로 다르게
+            arguments: {'id': widget.vault.id, 'entryPoint': widget.entryPoint},
+          );
+        }
+
         bool shouldShowPassphraseVerifyMenu =
             walletProvider.isSigningOnlyMode ? false : await walletProvider.hasPassphrase(widget.vault.id);
         if (!context.mounted) return;
         Navigator.pushNamed(
           context,
-          widget.vault.vaultType == WalletType.multiSignature
-              ? AppRoutes.multisigSetupInfo
-              : AppRoutes.singleSigSetupInfo,
+          AppRoutes.singleSigSetupInfo,
           arguments: {
             'id': widget.vault.id,
             'entryPoint': widget.entryPoint,
