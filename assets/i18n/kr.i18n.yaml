@@ -658,6 +658,43 @@ taproot:
     co_signer: "공동 서명자"
     beneficiary: "조건부 서명자"
     locktime_after: "${dateTime} 이후"
+  taproot_import_screen:
+    title: "상속 지갑 가져오기"
+    step1:
+      title1: "준비된 상속 지갑 정보를"
+      title2: "가져올게요"
+    step2:
+      title1: "상속 지갑을 스캔하세요"
+      invalid_wallet_sync_data: "유효한 상속 지갑 정보가 아닙니다"
+    step3:
+      title1: "상속 지갑을 가져왔어요"
+    step4:
+      title1: "이 지갑에서"
+      title2: "내 역할을 선택하세요"
+      description: "내 역할에 맞는 지갑을 연결해야 사용할 수 있어요"
+    step6:
+      title_match_inheritance_wallet: "상속 지갑과 일치해요"
+      description: "부모 지갑 키를 추가로 등록하려면 카드를 선택하세요"
+      title_doesnt_match_inheritance_wallet: "상속 지갑과 일치하지 않아요"
+      enter_again: "다시 입력하기"
+    step7:
+      title1: "탭루트 상속 지갑이"
+      title2: "준비되었어요"
+    timeline:
+      inheritance_wallet_imported: "상속 지갑을 가져왔어요"
+      set_child_wallet: "자식 지갑이 설정되었어요"
+      set_child_wallet_timelock: "자식 지갑의 사용 시점이 설정되었어요"
+      active_child_wallet: "자식 지갑이 활성화 돼요"
+      time_after: "$date 이후"
+      maybe_later: "나중에 할게요"
+      export_wallet_info: "지갑 정보 내보내기"
+      single_parent_wallet_with_name: "$name | 단일 부모 지갑"
+      signer_wallet_added: "서명자 지갑을 추가했어요"
+      taproot_wallet_with_mfp: "탭루트 지갑 | MFP: $mfp"
+      inheritance_wallet_restored: "상속 지갑을 복구했어요"
+      inheritance_wallet_activation: "상속 지갑이 활성화 돼요"
+      active_after: "${dateTime} 이후"
+
 mnemonic_coin_flip_screen:
   title: "니모닉 문구 만들기"
   guide: "동전을 던진 후 나온 면을 선택해 주세요"

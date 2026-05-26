@@ -43,6 +43,7 @@ import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
 import 'package:coconut_vault/widgets/indicator/timeline_step_indicator.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
+import 'package:coconut_vault/widgets/text/character_fade_in_text.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -986,15 +987,15 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       ),
     ];
     final importedChildVaultGuide = [
-      _buildBodyCharacterFadeInText(
-        t.taproot.parent_creation_screen.step_2.imported_script_path_description_1,
-        key: 'imported-script-path-description-1',
+      CharacterFadeInText(
+        text: t.taproot.parent_creation_screen.step_2.imported_script_path_description_1,
+        animationKey: 'taproot-parent-creation-body-imported-script-path-description-1',
         duration: const Duration(milliseconds: 400),
         delay: const Duration(milliseconds: 1700),
       ),
-      _buildBodyCharacterFadeInText(
-        t.taproot.parent_creation_screen.step_2.imported_script_path_description_2,
-        key: 'imported-script-path-description-2',
+      CharacterFadeInText(
+        text: t.taproot.parent_creation_screen.step_2.imported_script_path_description_2,
+        animationKey: 'taproot-parent-creation-body-imported-script-path-description-2',
         duration: const Duration(milliseconds: 700),
         delay: const Duration(milliseconds: 2400),
       ),
@@ -1123,9 +1124,9 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     return Column(
       children: [
         for (int index = 0; index < descriptionLines.length; index++)
-          _buildBodyCharacterFadeInText(
-            descriptionLines[index],
-            key: 'export-qr-description-$index',
+          CharacterFadeInText(
+            text: descriptionLines[index],
+            animationKey: 'taproot-parent-creation-body-export-qr-description-$index',
             duration: index == 0 ? const Duration(milliseconds: 400) : const Duration(milliseconds: 700),
             delay: index == 0 ? const Duration(milliseconds: 800) : const Duration(milliseconds: 1500),
           ),
@@ -1186,15 +1187,15 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
   List<Widget> _timelockSetupBodyList(DateTime today) {
     return [
-      _buildBodyCharacterFadeInText(
-        t.taproot.parent_creation_screen.step_3.set_timelock_description_1,
-        key: 'timelock-description-1',
+      CharacterFadeInText(
+        text: t.taproot.parent_creation_screen.step_3.set_timelock_description_1,
+        animationKey: 'taproot-parent-creation-body-timelock-description-1',
         duration: const Duration(milliseconds: 400),
         delay: const Duration(milliseconds: 1700),
       ),
-      _buildBodyCharacterFadeInText(
-        t.taproot.parent_creation_screen.step_3.set_timelock_description_2,
-        key: 'timelock-description-2',
+      CharacterFadeInText(
+        text: t.taproot.parent_creation_screen.step_3.set_timelock_description_2,
+        animationKey: 'taproot-parent-creation-body-timelock-description-2',
         duration: const Duration(milliseconds: 700),
         delay: const Duration(milliseconds: 2400),
       ),
@@ -1228,20 +1229,6 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         ),
       ),
     ];
-  }
-
-  Widget _buildBodyCharacterFadeInText(
-    String text, {
-    required String key,
-    required Duration duration,
-    required Duration delay,
-  }) {
-    return text.characterFadeInAnimation(
-      key: ValueKey('taproot-parent-creation-body-$key'),
-      duration: duration,
-      delay: delay,
-      textStyle: CoconutTypography.body1_16,
-    );
   }
 
   String get _timelockDateTimeText {

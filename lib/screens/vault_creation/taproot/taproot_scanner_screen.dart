@@ -2,20 +2,27 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/taproot/taproot_wallet_sync_data.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/bsms_scanner_base.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/taproot_descriptor_qr_data_handler.dart';
+import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/taproot_wallet_sync_qr_data_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+
+enum TaprootScannerDataType { descriptor, walletSync }
 
 class TaprootScannerScreen extends StatefulWidget {
   final int? id;
   final HardwareWalletType? hardwareWalletType;
   final Widget? topGuideWidget;
   final bool Function(TaprootVault)? onTaprootVaultScanned;
+  final bool Function(TaprootWalletSyncData)? onWalletSyncScanned;
   final bool hasAppbar;
   final bool useCloseButton;
+  final TaprootScannerDataType dataType;
 
   const TaprootScannerScreen({
     super.key,
@@ -23,8 +30,10 @@ class TaprootScannerScreen extends StatefulWidget {
     this.hardwareWalletType = HardwareWalletType.coconutVault,
     this.topGuideWidget,
     this.onTaprootVaultScanned,
+    this.onWalletSyncScanned,
     this.hasAppbar = true,
     this.useCloseButton = false,
+    this.dataType = TaprootScannerDataType.descriptor,
   });
 
   @override
@@ -32,12 +41,27 @@ class TaprootScannerScreen extends StatefulWidget {
 }
 
 class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
-  final TaprootDescriptorQrDataHandler _qrDataHandler = TaprootDescriptorQrDataHandler();
+  final TaprootDescriptorQrDataHandler _descriptorQrDataHandler = TaprootDescriptorQrDataHandler();
+  final TaprootWalletSyncQrDataHandler _walletSyncQrDataHandler = TaprootWalletSyncQrDataHandler();
+
+  IQrScanDataHandler get _qrDataHandler {
+    return switch (widget.dataType) {
+      TaprootScannerDataType.descriptor => _descriptorQrDataHandler,
+      TaprootScannerDataType.walletSync => _walletSyncQrDataHandler,
+    };
+  }
+
+  bool get _isFragmentedDataScanned {
+    return switch (widget.dataType) {
+      TaprootScannerDataType.descriptor => _descriptorQrDataHandler.isFragmentedDataScanned,
+      TaprootScannerDataType.walletSync => _walletSyncQrDataHandler.isFragmentedDataScanned,
+    };
+  }
 
   @override
   void initState() {
     super.initState();
-    if (_qrDataHandler.isFragmentedDataScanned) {
+    if (_isFragmentedDataScanned) {
       showProgressBar = true;
     }
   }
@@ -53,6 +77,14 @@ class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
 
   @override
   String get appBarTitle => widget.hardwareWalletType!.displayName;
+
+  @override
+  String get wrongFormatMessage {
+    return switch (widget.dataType) {
+      TaprootScannerDataType.descriptor => super.wrongFormatMessage,
+      TaprootScannerDataType.walletSync => t.taproot.taproot_import_screen.step2.invalid_wallet_sync_data,
+    };
+  }
 
   @override
   Widget? buildTopGuideWidget(BuildContext context) => widget.topGuideWidget;
@@ -93,14 +125,28 @@ class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
     }
 
     setState(() => isProcessing = true);
-    final descriptor = _qrDataHandler.result;
-    if (descriptor == null) {
+    final result = _qrDataHandler.result;
+    if (result == null) {
       _handleScanFailure(wrongFormatMessage);
       return;
     }
 
-    final beneficiaryVault = TaprootVault.fromDescriptor(descriptor);
     if (!mounted) return;
+
+    if (result is TaprootWalletSyncData) {
+      final onWalletSyncScanned = widget.onWalletSyncScanned;
+      if (onWalletSyncScanned != null) {
+        final didHandleScan = onWalletSyncScanned(result);
+        if (!didHandleScan && mounted) {
+          setState(() => isProcessing = false);
+        }
+      } else {
+        Navigator.pop(context, result);
+      }
+      return;
+    }
+
+    final beneficiaryVault = TaprootVault.fromDescriptor(result as String);
     final onTaprootVaultScanned = widget.onTaprootVaultScanned;
     if (onTaprootVaultScanned != null) {
       final didHandleScan = onTaprootVaultScanned(beneficiaryVault);
@@ -115,7 +161,7 @@ class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
   void _handleScanFailure(String message) {
     _qrDataHandler.reset();
 
-    if (_qrDataHandler.isFragmentedDataScanned) {
+    if (_isFragmentedDataScanned) {
       updateScanProgress(_qrDataHandler.progress);
     }
 

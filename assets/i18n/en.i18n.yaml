@@ -653,6 +653,42 @@ taproot:
     co_signer: "Co-signer"
     beneficiary: "Beneficiary"
     locktime_after: "After ${dateTime}"
+  taproot_import_screen:
+    title: "Import Inheritance Wallet"
+    step1:
+      title1: "Prepared inheritance wallet info"
+      title2: "will be imported"
+    step2:
+      title1: "Scan the inheritance wallet"
+      invalid_wallet_sync_data: "Invalid inheritance wallet data"
+    step3:
+      title1: "Inheritance wallet imported"
+    step4:
+      title1: "Choose your role"
+      title2: "in this wallet"
+      description: "Connect the wallet that matches your role to use it"
+    step6:
+      title_match_inheritance_wallet: "Matches the inheritance wallet"
+      description: "Select a card to add a parent wallet key"
+      title_doesnt_match_inheritance_wallet: "Doesn't match the inheritance wallet"
+      enter_again: "Enter Again"
+    step7:
+      title1: "Taproot inheritance wallet"
+      title2: "is ready"
+    timeline:
+      inheritance_wallet_imported: "Inheritance wallet imported"
+      set_child_wallet: "Child wallet has been set"
+      set_child_wallet_timelock: "Child wallet usage time has been set"
+      active_child_wallet: "Child wallet will be activated"
+      time_after: "After $date"
+      maybe_later: "Maybe Later"
+      export_wallet_info: "Export Wallet Info"
+      single_parent_wallet_with_name: "$name | Single Parent Wallet"
+      signer_wallet_added: "Signer wallet added"
+      taproot_wallet_with_mfp: "Taproot Wallet | MFP: $mfp"
+      inheritance_wallet_restored: "Inheritance wallet restored"
+      inheritance_wallet_activation: "Inheritance wallet will be activated"
+      active_after: "After ${dateTime}"
 mnemonic_coin_flip_screen:
   title: "Mnemonic Generation"
   guide: "Please select the side that came out after flipping the coin"

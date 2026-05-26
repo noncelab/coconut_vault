@@ -652,6 +652,42 @@ taproot:
     co_signer: "共同署名者"
     beneficiary: "条件付き署名者"
     locktime_after: "${dateTime}以降"
+  taproot_import_screen:
+    title: "相続ウォレットをインポート"
+    step1:
+      title1: "準備された相続ウォレット情報を"
+      title2: "取り込みます"
+    step2:
+      title1: "相続ウォレットをスキャンしてください"
+      invalid_wallet_sync_data: "有効な相続ウォレット情報ではありません"
+    step3:
+      title1: "相続ウォレットを取り込みました"
+    step4:
+      title1: "このウォレットでの"
+      title2: "自分の役割を選択してください"
+      description: "自分の役割に合ったウォレットを接続すると使用できます"
+    step6:
+      title_match_inheritance_wallet: "相続ウォレットと一致しています"
+      description: "親ウォレットキーを追加で登録するにはカードを選択してください"
+      title_doesnt_match_inheritance_wallet: "相続ウォレットと一致していません"
+      enter_again: "再入力"
+    step7:
+      title1: "Taproot相続ウォレットの"
+      title2: "準備ができました"
+    timeline:
+      inheritance_wallet_imported: "相続ウォレットを取り込みました"
+      set_child_wallet: "子ウォレットが設定されました"
+      set_child_wallet_timelock: "子ウォレットの使用開始時期が設定されました"
+      active_child_wallet: "子ウォレットが有効になります"
+      time_after: "$date以降"
+      maybe_later: "あとで行う"
+      export_wallet_info: "ウォレット情報を書き出す"
+      single_parent_wallet_with_name: "$name | 単一親ウォレット"
+      signer_wallet_added: "署名者ウォレットを追加しました"
+      taproot_wallet_with_mfp: "Taprootウォレット | MFP: $mfp"
+      inheritance_wallet_restored: "相続ウォレットを復元しました"
+      inheritance_wallet_activation: "相続ウォレットが有効になります"
+      active_after: "${dateTime}以降"
 mnemonic_coin_flip_screen:
   title: "ニーモニック作成"
   guide: "コインを投げて出た面を選択してください"
