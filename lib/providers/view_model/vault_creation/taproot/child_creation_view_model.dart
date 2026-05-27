@@ -121,6 +121,37 @@ class ChildCreationViewModel extends ChangeNotifier {
     return match?.group(1)?.trim();
   }
 
+  String get scannedParentMfps => _scannedVaultItem?.owners.map((o) => o.masterFingerprint).join(', ') ?? '000000';
+
+  String getFormattedLockTime(String lang) {
+    if (_scannedVaultItem == null || _masterFingerprint == null) return '';
+
+    final matching = _scannedVaultItem!.beneficiaries.where((b) => b.masterFingerprint == _masterFingerprint);
+    if (matching.isEmpty) return '';
+
+    final lockTime = matching.first.lockTime;
+    final date = DateTime.fromMillisecondsSinceEpoch(lockTime * 1000);
+    final year = date.year;
+    final month = date.month;
+    final day = date.day;
+    final hour24 = date.hour;
+    final hour12 = hour24 % 12 == 0 ? 12 : hour24 % 12;
+    final minute = date.minute.toString().padLeft(2, '0');
+    final paddedHour = hour12.toString().padLeft(2, '0');
+
+    if (lang == 'kr') {
+      final amPm = hour24 >= 12 ? '오후' : '오전';
+      return '$year년 $month월 $day일 $amPm $paddedHour:$minute';
+    } else if (lang == 'jp') {
+      final amPm = hour24 >= 12 ? '午後' : '午前';
+      return '$year年 $month월 $day일 $amPm $paddedHour:$minute';
+    } else {
+      final amPm = hour24 >= 12 ? 'PM' : 'AM';
+      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return '${months[month - 1]} $day, $year $paddedHour:$minute $amPm';
+    }
+  }
+
   ChildKeyPreparationType get keyPreparationType => _keyPreparationType;
   ChildNewKeyCreationType get newKeyCreationType => _newKeyCreationType;
   ChildExistingKeyImportType get existingKeyImportType => _existingKeyImportType;

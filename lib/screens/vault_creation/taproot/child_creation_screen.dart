@@ -65,7 +65,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   int? _currentVaultSelectionStep;
   bool _isProcessing = false;
 
-  int get _baseTotalStep => _currentVaultSelectionStep != null ? 8 : 6;
+  int get _baseTotalStep => _currentVaultSelectionStep != null ? 8 : 7;
 
   @override
   void initState() {
@@ -153,7 +153,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
               style: const TextStyle(color: CoconutColors.hotPink),
             ),
           ],
-      [TextSpan(text: t.taproot.child_creation_screen.step6.title1)],
+      [
+        TextSpan(text: t.taproot.child_creation_screen.step7.title1),
+        TextSpan(text: t.taproot.child_creation_screen.step7.title2),
+      ],
     ]);
 
     return list;
@@ -372,26 +375,34 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   Widget _buildTimelineStep(ChildCreationViewModel viewModel) {
+    final lang = context.read<VisibilityProvider>().language;
+    final dateString = viewModel.getFormattedLockTime(lang);
+
     return TimelineStepIndicator(
       timelineStepItemList: [
         TimelineStepItem(
-          title: '부모 지갑 연결',
-          description: '단일 서명 지갑과 연결됨 (MFP: ${viewModel.scannedMasterFingerprint ?? '000000'})',
+          title: t.taproot.child_creation_screen.step7.timeline.created_wallet,
+          description: t.taproot.child_creation_screen.step7.timeline.singlesig_description(
+            mfp: viewModel.masterFingerprint ?? '000000',
+          ),
           status: TimelineStepStatus.current,
         ),
         TimelineStepItem(
-          title: '자식 지갑 설정',
-          description: '탭루트 자식 지갑 (MFP: ${viewModel.masterFingerprint ?? '000000'})',
+          title: t.taproot.child_creation_screen.step7.timeline.exported_to_parent,
+          description: t.taproot.child_creation_screen.step7.timeline.taproot_description(
+            mfp: viewModel.scannedParentMfps,
+          ),
           status: TimelineStepStatus.upcoming,
         ),
-        const TimelineStepItem(
-          title: '기간 설정',
-          description: '2030년 2월 16일 오전 09:21',
+        TimelineStepItem(
+          title: t.taproot.child_creation_screen.step7.timeline.imported_inheritance_info,
+          description:
+              '${viewModel.scannedVaultItem?.name ?? 'Name'} | ${viewModel.scannedVaultItem?.owners.length == 1 ? t.taproot.child_creation_screen.step7.timeline.single_sig_wallet : t.taproot.child_creation_screen.step7.timeline.multisig_wallet}',
           status: TimelineStepStatus.upcoming,
         ),
-        const TimelineStepItem(
-          title: '자식 지갑 활성화',
-          description: '2030년 2월 16일 오전 09:21 이후',
+        TimelineStepItem(
+          title: t.taproot.child_creation_screen.step7.timeline.active_inheritance_wallet,
+          description: t.taproot.child_creation_screen.step7.timeline.time_after(date: dateString),
           status: TimelineStepStatus.future,
         ),
       ],
@@ -673,6 +684,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     }
 
     if (_currentStep >= _totalStep) {
+      vibrateExtraLight();
+      Navigator.popUntil(context, (route) => route.isFirst);
       return;
     }
 
@@ -949,6 +962,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     int baseCurrentStep = _currentStep > embeddedStartIndex ? _currentStep - _embeddedWidgets.length : _currentStep;
     final isScannerStep = baseCurrentStep == scannerStepIndex;
     final isSummaryStep = baseCurrentStep == scannerStepIndex + 1;
+    final isLastStep = _currentStep == _totalStep;
 
     Widget? currentEmbeddedWidget;
     if (isEmbeddedActive) {
@@ -1002,7 +1016,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
                 key: ValueKey(_currentStep),
                 titleLines: _titleLines(viewModel),
                 showBottomButton: _isNextButtonVisible(viewModel),
-                bottomButtonText: isSummaryStep && !viewModel.isBeneficiaryMatch ? t.rescan : null,
+                bottomButtonText:
+                    isSummaryStep && !viewModel.isBeneficiaryMatch ? t.rescan : (isLastStep ? t.complete : null),
                 ignoreChildHorizontalPadding:
                     isEmbeddedActive || isVaultSelectionStep || isScannerStep || isSummaryStep,
                 showHeader: !isEmbeddedActive && !isScannerStep && !(isSummaryStep && !viewModel.isBeneficiaryMatch),

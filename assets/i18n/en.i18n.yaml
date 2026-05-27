@@ -666,6 +666,20 @@ taproot:
     step6:
       title1: "Matches the inheritance condition wallet"
       title2: "Does not match the inheritance wallet"
+    step7:
+      title1: "Taproot inheritance wallet"
+      title2: "is ready"
+      timeline:
+        created_wallet: "Wallet created"
+        exported_to_parent: "Exported to parent wallet"
+        imported_inheritance_info: "Inheritance wallet info imported"
+        active_inheritance_wallet: "Inheritance wallet becomes active"
+        singlesig_description: "Single Signature Wallet | MFP: $mfp"
+        taproot_description: "Taproot Wallet | MFP: $mfp"
+        single_sig_wallet: "Single Parent Wallet"
+        multisig_wallet: "Multisig Parent Wallet"
+        time_after: "After $date"
+
   setup_summary_card:
     signer_configuration: "Signer Configuration"
     inheritance_condition: "Inheritance Condition"
