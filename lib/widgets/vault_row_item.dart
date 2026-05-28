@@ -4,6 +4,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -124,12 +125,16 @@ class _VaultRowItemState extends State<VaultRowItem> {
   String _subtitleText = '';
   bool _isUsedToMultiSig = false;
   List<MultisigSigner>? _multiSigners;
+  bool _isTaproot = false;
+  List<Color>? _taprootGradientColors;
 
   void _updateVault() {
     _isMultiSig = false;
     _subtitleText = '';
     _isUsedToMultiSig = false;
     _multiSigners = null;
+    _isTaproot = false;
+    _taprootGradientColors = null;
 
     if (widget.vault.vaultType == WalletType.multiSignature) {
       _isMultiSig = true;
@@ -137,7 +142,16 @@ class _VaultRowItemState extends State<VaultRowItem> {
       _subtitleText = '${multi.requiredSignatureCount}/${multi.signers.length}';
       _multiSigners = multi.signers;
     } else if (widget.vault.vaultType == WalletType.taproot) {
-      _subtitleText = 'Taproot';
+      final taproot = widget.vault as TaprootVaultListItem;
+      // 지갑의 성격(부모/자식)에 따라 서브타이틀을 구분하여 표시
+      _subtitleText =
+          taproot.isParent ? t.taproot.parent_wallet : t.taproot.child_creation_screen.step7.timeline.single_sig_wallet;
+      _isTaproot = true;
+      List<Color> baseGradientColors = [
+        CoconutColors.lightSky.withValues(alpha: 0.2),
+        CoconutColors.periwinkle.withValues(alpha: 0.2),
+      ];
+      _taprootGradientColors = taproot.isParent ? baseGradientColors.reversed.toList() : baseGradientColors;
     } else if (widget.vault.vaultType == WalletType.singleSignature) {
       final single = widget.vault as SingleSigVaultListItem;
       if (single.linkedMultisigInfo != null) {
@@ -174,12 +188,12 @@ class _VaultRowItemState extends State<VaultRowItem> {
     return ShrinkAnimationButton(
       pressedColor: CoconutColors.gray150,
       borderGradientColors:
-          widget.isKeyBorderVisible
+          !_isTaproot && widget.isKeyBorderVisible
               ? widget.isSelected
                   ? [CoconutColors.gray800, CoconutColors.gray800]
                   : [CoconutColors.black.withValues(alpha: 0.08), CoconutColors.black.withValues(alpha: 0.08)]
               : null,
-      borderWidth: 1,
+      borderWidth: _isTaproot ? 0 : 1,
       borderRadius: 8,
       onPressed: () async {
         if (widget.onSelected != null) {
@@ -253,6 +267,18 @@ class _VaultRowItemState extends State<VaultRowItem> {
   Widget _buildVaultContainerWidget({ValueChanged<(bool, int)>? onTapStar, int? index}) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: widget.isEditMode ? 8 : 20, vertical: 12),
+      decoration:
+          _isTaproot
+              ? BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: CoconutColors.gray200, width: 1),
+                gradient: LinearGradient(
+                  colors: _taprootGradientColors!,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              )
+              : null,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 37),
         child: Row(
