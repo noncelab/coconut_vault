@@ -61,6 +61,39 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setParentWalletSeed(Uint8List secret, Uint8List? passphrase, {bool useTaprootDescriptorQr = false}) {
+    setSecretAndPassphrase(secret, passphrase, useTaprootDescriptorQr: useTaprootDescriptorQr);
+  }
+
+  void setParentWalletDerivedSeed({
+    required Uint8List secret,
+    Uint8List? passphrase,
+    required String masterFingerprint,
+    required String qrData,
+  }) {
+    _secret = Uint8List.fromList(secret);
+    _passphrase = passphrase == null ? Uint8List(0) : Uint8List.fromList(passphrase);
+    _masterFingerprint = masterFingerprint;
+    _qrData = qrData;
+    notifyListeners();
+  }
+
+  void setChildWalletSeed(
+    Uint8List secret,
+    Uint8List? passphrase, {
+    TaprootChildWalletSource source = TaprootChildWalletSource.scanned,
+  }) {
+    final seed = Seed.fromMnemonic(secret, passphrase: passphrase);
+    final keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
+    setChildWallet(
+      descriptor: TaprootVault.fromKeyStoreList([keyStore], []).descriptor,
+      masterFingerprint: keyStore.masterFingerprint,
+      source: source,
+      secret: secret,
+      passphrase: passphrase,
+    );
+  }
+
   String _getTaprootSignerBsms(Uint8List mnemonic, Uint8List passphrase) {
     final seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase.isNotEmpty ? passphrase : null);
     final keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);

@@ -671,7 +671,8 @@ taproot:
       beneficiary: "Beneficiary"
     step6:
       title_match_inheritance_wallet: "Matches the inheritance wallet"
-      description: "Select a card to add a parent wallet key"
+      description_signer: "Select a card to add another parent wallet key"
+      description_beneficiary: "Select a card to add another child wallet key"
       title_doesnt_match_inheritance_wallet: "Doesn't match the inheritance wallet"
       enter_again: "Enter Again"
     step7:
@@ -686,8 +687,10 @@ taproot:
       maybe_later: "Maybe Later"
       export_wallet_info: "Export Wallet Info"
       single_parent_wallet_with_name: "$name | Single Parent Wallet"
+      multi_parent_wallet_with_name: "$name | Multi Parent Wallet"
       signer_wallet_added: "Signer wallet added"
       taproot_wallet_with_mfp: "Taproot Wallet | MFP: $mfp"
+      inheritance_wallet_added: "Beneficiary wallet added"
       inheritance_wallet_restored: "Inheritance wallet restored"
       inheritance_wallet_activation: "Inheritance wallet will be activated"
       active_after: "After ${dateTime}"

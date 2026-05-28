@@ -670,7 +670,8 @@ taproot:
       beneficiary: "相続者"
     step6:
       title_match_inheritance_wallet: "相続ウォレットと一致しています"
-      description: "親ウォレットキーを追加で登録するにはカードを選択してください"
+      description_signer: "親ウォレットキーを追加で登録するにはカードを選択してください"
+      description_beneficiary: "子ウォレットキーを追加で登録するにはカードを選択してください"
       title_doesnt_match_inheritance_wallet: "相続ウォレットと一致していません"
       enter_again: "再入力"
     step7:
@@ -685,8 +686,10 @@ taproot:
       maybe_later: "あとで行う"
       export_wallet_info: "ウォレット情報を書き出す"
       single_parent_wallet_with_name: "$name | 単一親ウォレット"
+      multi_parent_wallet_with_name: "$name | 複数親ウォレット"
       signer_wallet_added: "署名者ウォレットを追加しました"
       taproot_wallet_with_mfp: "Taprootウォレット | MFP: $mfp"
+      inheritance_wallet_added: "相続人ウォレットを追加しました"
       inheritance_wallet_restored: "相続ウォレットを復元しました"
       inheritance_wallet_activation: "相続ウォレットが有効になります"
       active_after: "${dateTime}以降"

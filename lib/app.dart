@@ -466,7 +466,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               (args) => MnemonicImportScreen(
                                 externalSigner: args['externalSigner'],
                                 multisigVaultIdOfExternalSigner: args['multisigVaultIdOfExternalSigner'],
-                                isTaprootChild: args['isTaprootChild'] ?? false,
+                                isTaprootCreationChild: args['isTaprootChild'] ?? false,
                               ),
                             ),
                         AppRoutes.seedQrImport:

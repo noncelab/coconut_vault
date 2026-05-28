@@ -72,6 +72,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   int _currentStep = 1;
   int? _keyPreparationStep;
   int? _keyCreationOrImportOptionStep;
+  int? _parentKeyImportStep;
   int? _currentVaultSelectionStep;
   int? _multisigParentImportStep;
   int? _multisigParentListStep;
@@ -199,7 +200,9 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   bool get _showBottomButton {
-    return _onNextPressed != null && _isTitleAnimationCompleted && (!_isTimelineStep || _isTimelineAnimationCompleted);
+    return _onNextPressed != null &&
+        (_currentStep <= _initialStepCount || _isTitleAnimationCompleted) &&
+        (!_isTimelineStep || _isTimelineAnimationCompleted);
   }
 
   bool get _runBottomButtonActionWithoutTransition {
@@ -210,6 +213,13 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   bool get _isTimelineStep => _currentStep == _timelineStep;
 
   bool get _isExportQrStep => _currentStep == _exportQrStep;
+
+  bool get _showExistingKeyImportModeToggle {
+    return _currentStep == _parentKeyImportStep &&
+        _viewModel.selectedKeyPreparationType == ParentKeyPreparationType.import &&
+        (_viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.mnemonicInput ||
+            _viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.seedQrScan);
+  }
 
   bool get _canRunCurrentStepAction {
     if (_currentStep == _currentVaultSelectionStep) {
@@ -274,7 +284,9 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return;
     }
 
-    if (_isProgressPaused || _titleLines().every((line) => line.toPlainText().isEmpty)) {
+    if (_currentStep <= _initialStepCount ||
+        _isProgressPaused ||
+        _titleLines().every((line) => line.toPlainText().isEmpty)) {
       setState(() {
         _isTitleAnimationCompleted = true;
       });
@@ -521,7 +533,30 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return;
     }
 
+    if (_viewModel.selectedKeyPreparationType == ParentKeyPreparationType.import &&
+        (_viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.mnemonicInput ||
+            _viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.seedQrScan)) {
+      _parentKeyImportStep = _addEmbeddedStep(
+        Consumer<ParentCreationViewModel>(
+          builder: (context, viewModel, child) {
+            return _buildSelectedKeyCreationOrImportEmbeddedScreen() ?? const SizedBox.shrink();
+          },
+        ),
+      );
+      return;
+    }
+
     _addEmbeddedStep(embeddedScreen);
+  }
+
+  void _toggleExistingKeyImportMode() {
+    final nextType = switch (_viewModel.selectedExistingKeyImportType) {
+      ParentExistingKeyImportType.mnemonicInput => ParentExistingKeyImportType.seedQrScan,
+      ParentExistingKeyImportType.seedQrScan => ParentExistingKeyImportType.mnemonicInput,
+      _ => ParentExistingKeyImportType.mnemonicInput,
+    };
+
+    _viewModel.setExistingKeyImportType(nextType);
   }
 
   void _addMnemonicConfirmationStep() {
@@ -641,12 +676,14 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         return switch (_viewModel.selectedExistingKeyImportType) {
           ParentExistingKeyImportType.currentVault => null,
           ParentExistingKeyImportType.mnemonicInput => MnemonicImportScreen(
+            key: const ValueKey('parent-creation-mnemonic-import'),
             isEmbedded: true,
-            isTaprootChild: true,
+            isTaprootCreationChild: true,
             requirePassphraseConfirmation: true,
             onCompleted: _addImportedMnemonicViewStep,
           ),
           ParentExistingKeyImportType.seedQrScan => SeedQrImportScreen(
+            key: const ValueKey('parent-creation-seed-qr-import'),
             isEmbedded: true,
             isTaprootChild: true,
             requirePassphraseConfirmation: true,
@@ -1900,6 +1937,9 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _ignoreBodyHorizontalPaddingList.removeAt(currentStepIndex);
       _pauseProgressList.removeAt(currentStepIndex);
       _scrollChildList.removeAt(currentStepIndex);
+      if (_currentStep == _parentKeyImportStep) {
+        _parentKeyImportStep = null;
+      }
       _currentStep -= 1;
     });
     _resetSelectionForBackNavigation(previousStep: previousStep);
@@ -1911,6 +1951,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _viewModel.resetSelection(ParentSelectionResetScope.walletType);
       _keyPreparationStep = null;
       _keyCreationOrImportOptionStep = null;
+      _parentKeyImportStep = null;
       _currentVaultSelectionStep = null;
       _multisigParentImportStep = null;
       _multisigParentListStep = null;
@@ -1926,6 +1967,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     if (_currentStep == _keyPreparationStep || previousStep == _keyPreparationStep) {
       _viewModel.resetSelection(ParentSelectionResetScope.keyPreparation);
       _keyCreationOrImportOptionStep = null;
+      _parentKeyImportStep = null;
       _currentVaultSelectionStep = null;
       _multisigParentImportStep = null;
       _multisigParentListStep = null;
@@ -1940,6 +1982,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
     if (_currentStep == _keyCreationOrImportOptionStep || previousStep == _keyCreationOrImportOptionStep) {
       _viewModel.resetSelection(ParentSelectionResetScope.keyCreationOrImportOption);
+      _parentKeyImportStep = null;
       _currentVaultSelectionStep = null;
       _multisigParentImportStep = null;
       _multisigParentListStep = null;
@@ -2072,6 +2115,19 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
             isBottom: _isTimelineStep || _isExportQrStep,
             backgroundColor: CoconutColors.white,
             onBackPressed: _handleBackPressed,
+            actionButtonList: [
+              Visibility(
+                visible: _showExistingKeyImportModeToggle,
+                child: IconButton(
+                  icon:
+                      _viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.mnemonicInput
+                          ? SvgPicture.asset('assets/svg/scan.svg')
+                          : SvgPicture.asset('assets/svg/paste.svg'),
+                  color: CoconutColors.black,
+                  onPressed: _toggleExistingKeyImportMode,
+                ),
+              ),
+            ],
           ),
           body: SafeArea(
             child: Stack(

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/extensions/widget_animation_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -7,8 +9,8 @@ import 'package:flutter/material.dart';
 class TaprootCreationBody extends StatefulWidget {
   static const Duration defaultBottomButtonFadeOutDelay = Duration(milliseconds: 100);
 
-  final VoidCallback? onBottomButtonPressed;
-  final VoidCallback? onBeforeBottomButtonFadeOut;
+  final FutureOr<void> Function()? onBottomButtonPressed;
+  final FutureOr<void> Function()? onBeforeBottomButtonFadeOut;
   final Widget child;
   final Widget? fixedBottomSubWidget;
   final String? bottomButtonText;
@@ -72,8 +74,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   @override
   void didUpdateWidget(covariant TaprootCreationBody oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final hasHeaderChanged =
-        _titleKeyForLines(oldWidget.titleLines) != _titleKeyForLines(widget.titleLines) ||
+    final hasHeaderChanged = _titleKeyForLines(oldWidget.titleLines) != _titleKeyForLines(widget.titleLines) ||
         oldWidget.isError != widget.isError;
     if (!hasHeaderChanged) {
       return;
@@ -122,7 +123,16 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     });
     final transitionGeneration = ++_transitionGeneration;
 
-    widget.onBeforeBottomButtonFadeOut?.call();
+    try {
+      await widget.onBeforeBottomButtonFadeOut?.call();
+    } catch (_) {
+      if (mounted && transitionGeneration == _transitionGeneration) {
+        setState(() {
+          _isContentTransitioning = false;
+        });
+      }
+      rethrow;
+    }
 
     await Future<void>.delayed(widget.bottomButtonFadeOutDelay);
     if (!mounted || transitionGeneration != _transitionGeneration) {
@@ -141,7 +151,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
 
     _isApplyingBottomButtonAction = true;
     try {
-      onBottomButtonPressed();
+      await onBottomButtonPressed();
       await WidgetsBinding.instance.endOfFrame;
     } finally {
       _isApplyingBottomButtonAction = false;
@@ -272,14 +282,13 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
           children: [
             SizedBox(
               height: 34,
-              child:
-                  _displayedIsError
-                      ? Column(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [_buildAnimatedErrorIcon(titleKey)],
-                      )
-                      : null,
+              child: _displayedIsError
+                  ? Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [_buildAnimatedErrorIcon(titleKey)],
+                    )
+                  : null,
             ),
             _buildAnimatedTitleText(lines, titleKey),
           ],

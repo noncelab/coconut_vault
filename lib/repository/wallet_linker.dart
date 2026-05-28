@@ -1,5 +1,4 @@
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
@@ -35,9 +34,9 @@ class WalletLinker {
     outerLoop:
     for (int i = 0; i < _wallets.length; i++) {
       VaultListItemBase wallet = _wallets[i];
-      if (wallet.vaultType == WalletType.singleSignature) continue;
+      if (wallet is! MultisigVaultListItem) continue;
 
-      List<MultisigSigner> signers = (wallet as MultisigVaultListItem).signers;
+      List<MultisigSigner> signers = wallet.signers;
       String expectedMfp = (singlesig.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
 
       final bsms = Bsms.parseSigner(singlesig.signerBsmsByAddressType[AddressType.p2wsh]!);
@@ -50,7 +49,7 @@ class WalletLinker {
         if (signerMfp.toUpperCase() == expectedMfp.toUpperCase() &&
             signerDerivationPath == expectedDerivationPath &&
             signerXpub == expectedXpub) {
-          (_wallets[i] as MultisigVaultListItem).signers[j].linkInternalWallet(singlesig);
+          wallet.signers[j].linkInternalWallet(singlesig);
           final linkedMultisigInfo = {wallet.id: j};
           if (singlesig.linkedMultisigInfo == null) {
             singlesig.linkedMultisigInfo = linkedMultisigInfo;
@@ -88,9 +87,9 @@ class WalletLinker {
     outerLoop:
     for (int i = 0; i < _wallets.length; i++) {
       VaultListItemBase wallet = _wallets[i];
-      if (wallet.vaultType == WalletType.singleSignature) continue;
+      if (wallet is! MultisigVaultListItem) continue;
 
-      List<MultisigSigner> signers = (wallet as MultisigVaultListItem).signers;
+      List<MultisigSigner> signers = wallet.signers;
       for (int j = 0; j < signers.length; j++) {
         if (signers[j].innerVaultId == singlesigId) {
           signers[j].unlinkInternalWallet();
@@ -105,9 +104,8 @@ class WalletLinker {
   void unlinkMultisigWallet(int multisigId) {
     for (int i = 0; i < _wallets.length; i++) {
       VaultListItemBase wallet = _wallets[i];
-      if (wallet.vaultType == WalletType.multiSignature) continue;
-      SingleSigVaultListItem ssv = _wallets[i] as SingleSigVaultListItem;
-      ssv.linkedMultisigInfo?.remove(multisigId);
+      if (wallet is! SingleSigVaultListItem) continue;
+      wallet.linkedMultisigInfo?.remove(multisigId);
     }
   }
 

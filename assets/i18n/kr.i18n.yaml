@@ -676,7 +676,8 @@ taproot:
       beneficiary: "상속자"
     step6:
       title_match_inheritance_wallet: "상속 지갑과 일치해요"
-      description: "부모 지갑 키를 추가로 등록하려면 카드를 선택하세요"
+      description_signer: "부모 지갑 키를 추가로 등록하려면 카드를 선택하세요"
+      description_beneficiary: "자식 지갑 키를 추가로 등록하려면 카드를 선택하세요"
       title_doesnt_match_inheritance_wallet: "상속 지갑과 일치하지 않아요"
       enter_again: "다시 입력하기"
     step7:
@@ -691,8 +692,10 @@ taproot:
       maybe_later: "나중에 할게요"
       export_wallet_info: "지갑 정보 내보내기"
       single_parent_wallet_with_name: "$name | 단일 부모 지갑"
+      multi_parent_wallet_with_name: "$name | 다중 부모 지갑"
       signer_wallet_added: "서명자 지갑을 추가했어요"
       taproot_wallet_with_mfp: "탭루트 지갑 | MFP: $mfp"
+      inheritance_wallet_added: "상속자 지갑을 추가했어요"
       inheritance_wallet_restored: "상속 지갑을 복구했어요"
       inheritance_wallet_activation: "상속 지갑이 활성화 돼요"
       active_after: "${dateTime} 이후"

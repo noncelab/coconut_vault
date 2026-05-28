@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
@@ -26,7 +27,7 @@ class SeedQrConfirmationScreen extends StatefulWidget {
   final bool isTaprootChild;
   final bool requirePassphraseConfirmation;
   final VoidCallback? onCompleted;
-  final void Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
+  final FutureOr<void> Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
 
   const SeedQrConfirmationScreen({
     super.key,
@@ -217,10 +218,11 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
 
         final onMnemonicConfirmationRequested = widget.onMnemonicConfirmationRequested;
         if (onMnemonicConfirmationRequested != null) {
+          context.loaderOverlay.show();
+          await onMnemonicConfirmationRequested(secret, passphrase);
+          if (!mounted) return;
+          context.loaderOverlay.hide();
           Navigator.pop(context);
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            onMnemonicConfirmationRequested(secret, passphrase);
-          });
           return;
         }
 
@@ -268,15 +270,14 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
       context.loaderOverlay.hide();
       showDialog(
         context: context,
-        builder:
-            (context) => CoconutPopup(
-              languageCode: context.read<VisibilityProvider>().language,
-              title: t.errors.creation_error,
-              description: e.toString(),
-              onTapRight: () {
-                Navigator.pop(context);
-              },
-            ),
+        builder: (context) => CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
+          title: t.errors.creation_error,
+          description: e.toString(),
+          onTapRight: () {
+            Navigator.pop(context);
+          },
+        ),
       );
     }
   }

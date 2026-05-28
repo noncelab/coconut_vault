@@ -267,6 +267,7 @@ flutter:
     - assets/svg/leave.svg
     - assets/svg/arrow-reload.svg
     - assets/svg/calendar-days.svg
+    - assets/svg/scan.svg
     - assets/png/single-key.png
     - assets/png/multi-keys.png
     - assets/png/load-wallet.png

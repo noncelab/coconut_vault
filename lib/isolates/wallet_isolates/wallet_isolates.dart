@@ -19,15 +19,12 @@ import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
-import 'package:coconut_vault/utils/hash_util.dart';
-import 'package:coconut_vault/utils/logger.dart';
 
-typedef TaprootCreationResult =
-    ({
-      TaprootVaultListItem vault,
-      List<TaprootSeedInfoForSave> keyPathSaves,
-      List<TaprootSeedInfoForSave> scriptPathSaves,
-    });
+typedef TaprootCreationResult = ({
+  TaprootVaultListItem vault,
+  List<TaprootSeedInfoForSave> keyPathSaves,
+  List<TaprootSeedInfoForSave> scriptPathSaves,
+});
 
 class WalletIsolates {
   static void setNetworkType() {
@@ -108,7 +105,7 @@ class WalletIsolates {
   /// keyPath seed/signerBsms를 keyStore 목록과 seedInfo/save 모델로 변환한다.
   /// [seeds]가 있는 경우 내부에서 각 seed를 wipe하므로 호출 후에는 사용할 수 없다.
   static ({List<KeyStore> keyStores, List<StoredTaprootSeedInfo> seedInfos, List<TaprootSeedInfoForSave> saves})
-  _buildKeyPathEntries(List<SeedSource>? seeds, List<String>? signerBsmses) {
+      _buildKeyPathEntries(List<SeedSource>? seeds, List<String>? signerBsmses) {
     final keyStores = <KeyStore>[];
     final seedInfos = <StoredTaprootSeedInfo>[];
     final saves = <TaprootSeedInfoForSave>[];
@@ -140,7 +137,7 @@ class WalletIsolates {
   /// inheritance leaf 목록을 policy 목록과 scriptPath seedInfo/save 모델로 변환한다.
   /// secret을 보유한 leaf는 내부에서 wipe되므로 호출 후 해당 leaf의 secret은 사용할 수 없다.
   static ({List<Policy> policies, List<ScriptPathSeedInfo> seedInfos, List<TaprootSeedInfoForSave> saves})
-  _buildScriptPathEntries(List<InheritanceLeaf>? inheritanceleaves) {
+      _buildScriptPathEntries(List<InheritanceLeaf>? inheritanceleaves) {
     final policies = <Policy>[];
     final seedInfos = <ScriptPathSeedInfo>[];
     final saves = <TaprootSeedInfoForSave>[];
@@ -302,6 +299,65 @@ class WalletIsolates {
       final success = expectedMfpToUpper == actualMfpToUpper;
 
       return {"success": success, "actualMfp": actualMfpToUpper};
+    } finally {
+      if (keyStore != null) {
+        keyStore.wipeSeed();
+      }
+      if (seed != null) {
+        seed.wipe();
+      }
+      mnemonic.wipe();
+      if (passphrase != null) {
+        passphrase.wipe();
+      }
+    }
+  }
+
+  static Future<Map<String, dynamic>> deriveTaprootImportSeed(Map<String, dynamic> args) async {
+    setNetworkType();
+
+    final Uint8List mnemonic = args['mnemonic'];
+    final Uint8List? passphrase = args['passphrase'];
+    final String descriptor = args['descriptor'];
+    final String selectedRoleName = args['selectedRoleName'];
+
+    KeyStore? keyStore;
+    Seed? seed;
+
+    try {
+      seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
+      keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
+
+      final extendedPublicKey = keyStore.extendedPublicKey.serialize();
+      final masterFingerprint = keyStore.masterFingerprint;
+      final importedSingleKeyVault = TaprootVault.fromKeyStoreList([keyStore], []);
+      final importedSingleKeyDescriptor = importedSingleKeyVault.descriptor;
+      final importedSignerBsms = importedSingleKeyVault.getSignerBsms('');
+      final scannedVault = TaprootVault.fromDescriptor(descriptor);
+
+      final isSignerMatch = scannedVault.keyStoreList.any(
+        (keyStore) => keyStore.extendedPublicKey.serialize() == extendedPublicKey,
+      );
+      final isBeneficiaryMatch = scannedVault.policyList.any((policy) {
+        if (policy is! InheritancePolicy) {
+          return false;
+        }
+        return policy.beneficiaryKeyStore.extendedPublicKey.serialize() == extendedPublicKey;
+      });
+
+      final isSelectedRoleMatch = switch (selectedRoleName) {
+        'signer' => isSignerMatch,
+        'beneficiary' => isBeneficiaryMatch,
+        _ => false,
+      };
+
+      return {
+        'extendedPublicKey': extendedPublicKey,
+        'masterFingerprint': masterFingerprint,
+        'isSelectedRoleMatch': isSelectedRoleMatch,
+        'importedSingleKeyDescriptor': importedSingleKeyDescriptor,
+        'importedSignerBsms': importedSignerBsms,
+      };
     } finally {
       if (keyStore != null) {
         keyStore.wipeSeed();
