@@ -656,6 +656,8 @@ taproot:
       title1: "자식 지갑이 준비되었어요"
       title2: "부모 지갑에서 사용할 수 있도록"
       title3: "지갑 정보를 내보내세요"
+      return_dialog_title: "이전 단계로 돌아가기"
+      return_dialog_description: "방금 만든 자식 지갑이 초기화됩니다. 정말 계속하시겠어요?"
     step5:
       title1: "상속 지갑을"
       title2: "스캔해 가져오세요"
