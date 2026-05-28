@@ -327,14 +327,14 @@ class _VaultRowItemState extends State<VaultRowItem> {
                       alignment: Alignment.centerLeft,
                       child: Row(
                         children: [
-                          if (_isMultiSig || _isUsedToMultiSig) ...{
+                          if (_isMultiSig || _isUsedToMultiSig || _isTaproot) ...{
                             Text(
                               _subtitleText,
                               style: CoconutTypography.body2_14.copyWith(color: CoconutColors.gray600),
                             ),
                           },
                           if (widget.isPrimaryWallet == true) ...[
-                            if (_isMultiSig || _isUsedToMultiSig)
+                            if (_isMultiSig || _isUsedToMultiSig || _isTaproot)
                               Text(
                                 ' • ${t.vault_list_screen.primary_wallet}',
                                 style: CoconutTypography.body2_14.setColor(CoconutColors.gray500),
