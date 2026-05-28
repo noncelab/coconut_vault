@@ -685,6 +685,15 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
     if (_currentStep >= _totalStep) {
       vibrateExtraLight();
+
+      setState(() => _isProcessing = true);
+      try {
+        await viewModel.saveVault(context.read<WalletProvider>());
+      } finally {
+        if (mounted) setState(() => _isProcessing = false);
+      }
+
+      if (!mounted) return;
       Navigator.popUntil(context, (route) => route.isFirst);
       return;
     }

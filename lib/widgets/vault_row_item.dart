@@ -136,7 +136,9 @@ class _VaultRowItemState extends State<VaultRowItem> {
       final multi = widget.vault as MultisigVaultListItem;
       _subtitleText = '${multi.requiredSignatureCount}/${multi.signers.length}';
       _multiSigners = multi.signers;
-    } else {
+    } else if (widget.vault.vaultType == WalletType.taproot) {
+      _subtitleText = 'Taproot';
+    } else if (widget.vault.vaultType == WalletType.singleSignature) {
       final single = widget.vault as SingleSigVaultListItem;
       if (single.linkedMultisigInfo != null) {
         final multisigKey = single.linkedMultisigInfo!;
@@ -186,12 +188,17 @@ class _VaultRowItemState extends State<VaultRowItem> {
         }
         final walletProvider = context.read<WalletProvider>();
         final vaultType = walletProvider.getVaultById(widget.vault.id).vaultType;
-        if (vaultType != WalletType.singleSignature) {
+
+        if (vaultType == WalletType.multiSignature) {
           Navigator.pushNamed(
             context,
-            AppRoutes.multisigSetupInfo, // TODO: 탭루트 지갑 일 때는 경로 다르게
+            AppRoutes.multisigSetupInfo,
             arguments: {'id': widget.vault.id, 'entryPoint': widget.entryPoint},
           );
+          return;
+        } else if (vaultType == WalletType.taproot) {
+          // TODO: 탭루트 지갑을 위한 전용 상세 정보 화면이 구현되면 해당 경로로 연결
+          return;
         }
 
         bool shouldShowPassphraseVerifyMenu =
