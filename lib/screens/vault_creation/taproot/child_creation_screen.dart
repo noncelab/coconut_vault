@@ -10,6 +10,7 @@ import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/child_creation_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
@@ -429,8 +430,50 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     });
   }
 
+  void _showChildWalletResetDialog() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
+          title: t.taproot.child_creation_screen.step4.return_dialog_title,
+          description: t.taproot.child_creation_screen.step4.return_dialog_description,
+          leftButtonText: t.cancel,
+          rightButtonText: t.confirm,
+          onTapLeft: () => Navigator.pop(dialogContext),
+          onTapRight: () {
+            Navigator.pop(dialogContext);
+            _resetChildWalletAndReturnToOptionStep();
+          },
+        );
+      },
+    );
+  }
+
+  void _resetChildWalletAndReturnToOptionStep() {
+    final viewModel = context.read<ChildCreationViewModel>();
+    viewModel.resetChildWalletData();
+
+    setState(() {
+      _embeddedWidgets.clear();
+      _currentStep = 3;
+
+      if (viewModel.keyPreparationType == ChildKeyPreparationType.create) {
+        viewModel.setNewKeyCreationType(ChildNewKeyCreationType.none);
+      } else {
+        viewModel.setExistingKeyImportType(ChildExistingKeyImportType.none);
+      }
+    });
+  }
+
   void _handleBackPressed() {
     final viewModel = context.read<ChildCreationViewModel>();
+
+    if (_currentStep == 3 + _embeddedWidgets.length + 1) {
+      _showChildWalletResetDialog();
+      return;
+    }
+
     if (_currentStep > 1) {
       setState(() {
         if (_currentStep > 3 && _currentStep <= 3 + _embeddedWidgets.length) {
