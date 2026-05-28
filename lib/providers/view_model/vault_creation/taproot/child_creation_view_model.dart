@@ -11,6 +11,12 @@ enum ChildNewKeyCreationType { none, coinFlip, diceRoll, autoGenerate }
 
 enum ChildExistingKeyImportType { none, currentVault, mnemonicInput, seedQrScan }
 
+class InheritanceVaultPolicy {
+  static const int maxParents = 2;
+  static const int minParents = 1;
+  static const int requiredChildren = 1;
+}
+
 class ChildCreationViewModel extends ChangeNotifier {
   final TaprootWalletCreationProvider _taprootProvider;
 
@@ -68,25 +74,59 @@ class ChildCreationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setScannedTaprootVault(String scannedData) {
-    try {
-      final decoded = jsonDecode(scannedData);
-      if (decoded is Map<String, dynamic>) {
-        _scannedVaultItem = TaprootVaultListItem.fromJson(decoded);
-      } else {
-        _scannedVaultItem = _parseRawDescriptorString(scannedData);
-      }
-    } catch (e) {
-      _scannedVaultItem = _parseRawDescriptorString(scannedData);
+  bool setScannedTaprootVault(String scannedData) {
+    final trimmedData = scannedData.trim();
+    if (trimmedData.isEmpty) return false;
+
+    _scannedVaultItem = _tryParseVaultData(trimmedData);
+
+    if (_scannedVaultItem == null || !_validateVault(_scannedVaultItem!)) {
+      _scannedVaultItem = null;
+      _scannedMasterFingerprint = null;
+      notifyListeners();
+      return false;
     }
 
-    if (_scannedVaultItem != null && _scannedVaultItem!.owners.isNotEmpty) {
+    if (_scannedVaultItem!.owners.isNotEmpty) {
       _scannedMasterFingerprint = _scannedVaultItem!.owners.first.masterFingerprint;
     } else {
       _scannedMasterFingerprint = null;
     }
 
     notifyListeners();
+    return true;
+  }
+
+  TaprootVaultListItem? _tryParseVaultData(String data) {
+    try {
+      final decoded = jsonDecode(data);
+      if (decoded is Map<String, dynamic>) {
+        return TaprootVaultListItem.fromJson(decoded);
+      }
+    } catch (_) {
+      try {
+        return _parseRawDescriptorString(data);
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  bool _validateVault(TaprootVaultListItem item) {
+    try {
+      final String desc = item.descriptor.trim();
+      final bool hasValidFormat = desc.isNotEmpty && desc.contains('tr(');
+      final bool hasValidParents =
+          item.owners.length >= InheritanceVaultPolicy.minParents &&
+          item.owners.length <= InheritanceVaultPolicy.maxParents;
+      final bool hasValidChildren = item.beneficiaries.length == InheritanceVaultPolicy.requiredChildren;
+
+      return hasValidFormat && hasValidParents && hasValidChildren;
+    } catch (e) {
+      Logger.error('Vault validation error: $e');
+      return false;
+    }
   }
 
   TaprootVaultListItem _parseRawDescriptorString(String data) {
