@@ -143,9 +143,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
       _multiSigners = multi.signers;
     } else if (widget.vault.vaultType == WalletType.taproot) {
       final taproot = widget.vault as TaprootVaultListItem;
-      // 지갑의 성격(부모/자식)에 따라 서브타이틀을 구분하여 표시
-      _subtitleText =
-          taproot.isParent ? t.taproot.parent_wallet : t.taproot.child_creation_screen.step7.timeline.single_sig_wallet;
+      _subtitleText = taproot.isParent ? t.taproot.parent_wallet : t.taproot.child_wallet;
       _isTaproot = true;
       List<Color> baseGradientColors = [
         CoconutColors.lightSky.withValues(alpha: 0.2),

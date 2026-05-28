@@ -531,6 +531,7 @@ welcome_screen:
 taproot:
   taproot_inheritance_wallet: "Taproot相続ウォレット"
   parent_wallet: "親ウォレット"
+  child_wallet: "子ウォレット"
   common:
     create_new_wallet_title: "ウォレットをどのように作成しますか？"
     existing_mnemonic_title: "既存のニーモニックを使用しますか？"
