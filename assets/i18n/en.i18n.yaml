@@ -661,6 +661,8 @@ taproot:
       title1: "Child wallet is ready"
       title2: "Please export wallet info"
       title3: "to use in the parent wallet"
+      return_dialog_title: "Go back?"
+      return_dialog_description: "The child wallet you just created will be reset. Do you really want to continue?"
     step5:
       title1: "Please scan"
       title2: "the inheritance wallet"

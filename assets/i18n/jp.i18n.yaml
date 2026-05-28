@@ -660,6 +660,8 @@ taproot:
       title1: "子ウォレットの準備ができました"
       title2: "親ウォレットで使用できるように"
       title3: "ウォレット情報をエクスポートしてください"
+      return_dialog_title: "前の段階に戻る"
+      return_dialog_description: "作成したばかりの子ウォレットが初期化されます。本当に続けますか？"
     step5:
       title1: "相続ウォレットを"
       title2: "スキャンしてインポートしてください"
