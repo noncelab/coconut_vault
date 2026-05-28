@@ -330,14 +330,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
     return Column(
       children: [
         if (isEditMode) CoconutLayout.spacing_100h,
-        _getVaultRowItem(
-          Key(vault.id.toString()),
-          vault,
-          isFirstItem,
-          isEditMode,
-          isFavorite,
-          index: index,
-        ),
+        _getVaultRowItem(Key(vault.id.toString()), vault, isFirstItem, isEditMode, isFavorite, index: index),
         isEditMode
             ? CoconutLayout.spacing_100h
             : isLastItem
