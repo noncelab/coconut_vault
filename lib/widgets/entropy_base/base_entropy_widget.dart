@@ -256,6 +256,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
         _passphrase = utf8.encode(_passphraseController.text);
         _saveSecretAndPassphrase();
       }
+      return;
     }
 
     // 패스프레이즈 사용함 | 패스프레이즈 입력 화면
@@ -266,11 +267,6 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
       assert(_passphraseConfirm.isNotEmpty);
       assert(listEquals(_passphrase, _passphraseConfirm));
 
-      if (widget.entropyType == EntropyType.manual) {
-        _setMnemonicFromEntropy();
-      }
-
-      _saveSecretAndPassphrase();
       _passphraseFocusNode.unfocus();
       _passphraseConfirmFocusNode.unfocus();
 
@@ -301,7 +297,10 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
 
   void _checkDuplicateThenProceed() {
     if (widget.entropyType == EntropyType.manual) {
-      _setMnemonicFromEntropy();
+      final isMnemonicSet = _setMnemonicFromEntropy();
+      if (!isMnemonicSet) {
+        return;
+      }
     }
 
     if (Provider.of<WalletProvider>(context, listen: false).isSeedDuplicated(_mnemonic, _passphrase)) {
