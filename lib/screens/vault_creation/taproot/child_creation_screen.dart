@@ -292,13 +292,18 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       titleLines: _titleLines(viewModel),
       onScanned: (result) async {
         if (_isProcessing) return;
-        setState(() {
-          _isProcessing = true;
-        });
 
         vibrateExtraLight();
 
-        viewModel.setScannedTaprootVault(result);
+        final bool isValid = viewModel.setScannedTaprootVault(result);
+        if (!isValid) {
+          _showInvalidQrToast();
+          return;
+        }
+
+        setState(() {
+          _isProcessing = true;
+        });
 
         await Future.delayed(const Duration(milliseconds: 1000));
         if (!mounted) return;
@@ -309,6 +314,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         _onNextPressed(viewModel);
       },
     );
+  }
+
+  void _showInvalidQrToast() {
+    CoconutToast.showToast(context: context, level: CoconutToastLevel.error, text: t.errors.invalid_qr);
   }
 
   Widget _buildSummaryStep(ChildCreationViewModel viewModel) {

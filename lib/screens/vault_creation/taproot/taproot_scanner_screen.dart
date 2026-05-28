@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animated_qr/coconut_qr_scanner.dart';
@@ -79,6 +80,7 @@ class _TaprootScannerScreenState extends State<TaprootScannerScreen> {
             },
             onFailed: (errorMessage) {
               Logger.error('QR Scan Failed: $errorMessage');
+              CoconutToast.showToast(context: context, level: CoconutToastLevel.error, text: t.errors.invalid_qr);
             },
           ),
           if (widget.titleLines != null)
