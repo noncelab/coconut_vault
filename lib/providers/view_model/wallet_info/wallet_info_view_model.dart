@@ -33,9 +33,10 @@ class WalletInfoViewModel extends ChangeNotifier {
   /// SingleSigInfoScreen Only
   int get linkedMutlsigVaultCount =>
       vaultItem is SingleSigVaultListItem ? (vaultItem as SingleSigVaultListItem).linkedMultisigInfo?.length ?? 0 : 0;
-  bool get hasLinkedMultisigVault => vaultItem is SingleSigVaultListItem
-      ? (vaultItem as SingleSigVaultListItem).linkedMultisigInfo?.entries.isNotEmpty == true
-      : false;
+  bool get hasLinkedMultisigVault =>
+      vaultItem is SingleSigVaultListItem
+          ? (vaultItem as SingleSigVaultListItem).linkedMultisigInfo?.entries.isNotEmpty == true
+          : false;
   Map<int, int>? get linkedMultisigInfo =>
       vaultItem is SingleSigVaultListItem ? (vaultItem as SingleSigVaultListItem).linkedMultisigInfo : null;
   bool get isLoadedVaultList => walletProvider.isVaultsLoaded;
@@ -124,8 +125,9 @@ class WalletInfoViewModel extends ChangeNotifier {
   }
 
   bool existsLinkedMultisigVault(int id) {
-    return walletProvider.vaultList
-        .any((element) => element.id == id && element.vaultType == WalletType.multiSignature);
+    return walletProvider.vaultList.any(
+      (element) => element.id == id && element.vaultType == WalletType.multiSignature,
+    );
   }
 
   ///----------------------------------------------------
@@ -134,9 +136,10 @@ class WalletInfoViewModel extends ChangeNotifier {
   void _calculateSignAvailableCount() {
     int innerVaultCount =
         (vaultItem as MultisigVaultListItem).signers.where((signer) => signer.innerVaultId != null).length;
-    signAvailableCount = innerVaultCount > (vaultItem as MultisigVaultListItem).requiredSignatureCount
-        ? (vaultItem as MultisigVaultListItem).requiredSignatureCount
-        : innerVaultCount;
+    signAvailableCount =
+        innerVaultCount > (vaultItem as MultisigVaultListItem).requiredSignatureCount
+            ? (vaultItem as MultisigVaultListItem).requiredSignatureCount
+            : innerVaultCount;
   }
 
   Future<void> updateOutsideVaultMemo(int signerIndex, String? memo) async {

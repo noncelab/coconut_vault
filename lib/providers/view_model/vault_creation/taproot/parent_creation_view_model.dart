@@ -243,8 +243,8 @@ class ParentCreationViewModel extends ChangeNotifier {
   bool isSameAsParentWallet(String masterFingerprint) {
     final parentMasterFingerprints = [_parentMasterFingerprint, _externalParentMasterFingerprint];
     return parentMasterFingerprints.whereType<String>().any(
-          (parentMasterFingerprint) => parentMasterFingerprint.toLowerCase() == masterFingerprint.toLowerCase(),
-        );
+      (parentMasterFingerprint) => parentMasterFingerprint.toLowerCase() == masterFingerprint.toLowerCase(),
+    );
   }
 
   Future<ParentCreationSaveResult> saveVault(

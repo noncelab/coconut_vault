@@ -743,6 +743,28 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return;
     }
 
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
+          title: t.taproot.parent_creation_screen.step_1.single_sig_select_from_vault_dialog_title,
+          description: t.taproot.parent_creation_screen.step_1.single_sig_select_from_vault_dialog_description,
+          leftButtonText: t.cancel,
+          rightButtonText: t.taproot.parent_creation_screen.step_1.single_sig_select_from_vault_dialog_action,
+          onTapLeft: () => Navigator.pop(dialogContext),
+          onTapRight: () {
+            Navigator.pop(dialogContext);
+            _proceedWithSelectedVault(selectedExistingVaultId);
+          },
+        );
+      },
+    );
+  }
+
+  void _proceedWithSelectedVault(int selectedExistingVaultId) {
+    if (!mounted) return;
+
     final mnemonicViewKey = GlobalKey<MnemonicViewScreenState>();
     _addEmbeddedStep(
       Stack(

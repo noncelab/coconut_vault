@@ -974,6 +974,30 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       return;
     }
 
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
+          title: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_dialog_title,
+          description: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_dialog_description,
+          leftButtonText: t.cancel,
+          rightButtonText: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_dialog_action,
+          onTapLeft: () => Navigator.pop(dialogContext),
+          onTapRight: () {
+            Navigator.pop(dialogContext);
+            _proceedWithSelectedVault(viewModel, selectedExistingVaultId);
+          },
+        );
+      },
+    );
+  }
+
+  void _proceedWithSelectedVault(ChildCreationViewModel viewModel, int selectedExistingVaultId) {
+    if (!mounted) {
+      return;
+    }
+
     final mnemonicViewKey = GlobalKey<MnemonicViewScreenState>();
     _addEmbeddedStep(
       Stack(
