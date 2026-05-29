@@ -31,6 +31,7 @@ class ParentCreationSaveResult {
 }
 
 class ParentCreationViewModel extends ChangeNotifier {
+  static const int _walletTypeProgressStepCount = 1;
   static const int _singleSigParentProgressStepCount = 2;
   static const int _multisigParentProgressStepCount = 4;
   static const int _currentVaultSelectionProgressStepCount = 1;
@@ -80,7 +81,8 @@ class ParentCreationViewModel extends ChangeNotifier {
   bool get isMnemonicInputSelected => _selectedExistingKeyImportType == ParentExistingKeyImportType.mnemonicInput;
   bool get isSeedQrScanSelected => _selectedExistingKeyImportType == ParentExistingKeyImportType.seedQrScan;
   int get progressTotalStep {
-    return _parentWalletProgressStepCount +
+    return _walletTypeProgressStepCount +
+        _parentWalletProgressStepCount +
         (_usesCurrentVaultParentKey ? _currentVaultSelectionProgressStepCount : 0) +
         _childWalletImportProgressStepCount +
         (_usesCreatedChildWallet ? _childWalletCreateExtraProgressStepCount : 0);
