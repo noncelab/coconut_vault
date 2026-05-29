@@ -771,7 +771,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   void _handleBackPressed() {
     final viewModel = context.read<ChildCreationViewModel>();
 
-    if (_currentStep == 3 + _embeddedWidgets.length + 1) {
+    if (_isChildWalletQrStep) {
       _showChildWalletResetDialog();
       return;
     }
@@ -805,6 +805,22 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       viewModel.resetChildWalletData();
       Navigator.pop(context);
     }
+  }
+
+  bool get _isChildWalletQrStep {
+    final embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
+    final isEmbeddedActive =
+        _currentStep > embeddedStartIndex && _currentStep <= embeddedStartIndex + _embeddedWidgets.length;
+    if (isEmbeddedActive) {
+      return false;
+    }
+
+    final baseCurrentStep =
+        _currentStep > embeddedStartIndex + _embeddedWidgets.length
+            ? _currentStep - _embeddedWidgets.length
+            : _currentStep;
+    final scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
+    return baseCurrentStep == scannerStepIndex - 1;
   }
 
   Widget _buildExistingVaultSelectionBody(ChildCreationViewModel viewModel) {
