@@ -7,14 +7,104 @@ import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
 import 'package:coconut_vault/model/taproot/stored_taproot_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/taproot_wallet_sync_data.dart';
-import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:flutter/foundation.dart';
 
 enum TaprootImportRole { none, signer, beneficiary }
 
 enum ImportMode { enter, scan }
 
+enum TaprootWalletSyncValidationResult { valid, duplicate }
+
+typedef TaprootWalletSyncDuplicateChecker = bool Function(String descriptor);
+typedef TaprootVaultAdder = Future<TaprootVaultListItem> Function(TaprootWalletCreateDto walletCreateDto);
+
+class TaprootImportParticipantCardState {
+  final TaprootImportRole role;
+  final String masterFingerprint;
+  final String derivationPath;
+  final int? lockTime;
+  final int? signerIndex;
+  final bool hasSingleParent;
+  final bool hasBackgroundColor;
+  final bool isMine;
+  final bool isValid;
+  final bool canAddExtra;
+
+  const TaprootImportParticipantCardState({
+    required this.role,
+    required this.masterFingerprint,
+    required this.derivationPath,
+    required this.hasBackgroundColor,
+    required this.isMine,
+    required this.isValid,
+    required this.canAddExtra,
+    this.lockTime,
+    this.signerIndex,
+    this.hasSingleParent = false,
+  });
+}
+
+class TaprootImportSaveResult {
+  final int vaultId;
+  final String? parentMasterFingerprint;
+  final String? externalParentMasterFingerprint;
+  final String? childMasterFingerprint;
+
+  const TaprootImportSaveResult({
+    required this.vaultId,
+    this.parentMasterFingerprint,
+    this.externalParentMasterFingerprint,
+    this.childMasterFingerprint,
+  });
+}
+
+class _DerivedTaprootImportSeed {
+  final String extendedPublicKey;
+  final String masterFingerprint;
+  final bool isSelectedRoleMatch;
+  final String importedSingleKeyDescriptor;
+  final String importedSignerBsms;
+
+  const _DerivedTaprootImportSeed({
+    required this.extendedPublicKey,
+    required this.masterFingerprint,
+    required this.isSelectedRoleMatch,
+    required this.importedSingleKeyDescriptor,
+    required this.importedSignerBsms,
+  });
+}
+
+class _ImportedTaprootSeed {
+  final TaprootImportRole role;
+  final String extendedPublicKey;
+  final String masterFingerprint;
+  final Uint8List secret;
+  final Uint8List passphrase;
+  final bool isMatched;
+
+  _ImportedTaprootSeed({
+    required this.role,
+    required this.extendedPublicKey,
+    required this.masterFingerprint,
+    required Uint8List secret,
+    required Uint8List? passphrase,
+    required this.isMatched,
+  }) : secret = Uint8List.fromList(secret),
+       passphrase = Uint8List.fromList(passphrase ?? Uint8List(0));
+
+  SeedSource toSeedSource() {
+    return SeedSource(mnemonic: Uint8List.fromList(secret), passphrase: Uint8List.fromList(passphrase));
+  }
+
+  void wipe() {
+    secret.fillRange(0, secret.length, 0);
+    passphrase.fillRange(0, passphrase.length, 0);
+  }
+}
+
 class TaprootImportViewModel extends ChangeNotifier {
+  final TaprootWalletSyncDuplicateChecker _isWalletSyncDescriptorImported;
+  final TaprootVaultAdder _addTaprootVault;
   TaprootWalletSyncData? _walletSyncData;
   TaprootVaultListItem? _scannedVaultItem;
   TaprootVaultListItem? _scannedExtraVaultItem;
@@ -25,11 +115,18 @@ class TaprootImportViewModel extends ChangeNotifier {
   TaprootImportRole _extraImportRole = TaprootImportRole.none;
   String? _extraTargetMasterFingerprint;
   String? _extraMasterFingerprint;
-  String? _selectedExtraExtendedPublicKey;
+  _ImportedTaprootSeed? _primaryImportedSeed;
+  _ImportedTaprootSeed? _extraImportedSeed;
   bool _isImportingExtra = false;
   bool _isSelectedRoleMatch = true;
   bool _hasExtraImport = false;
   bool _isExtraImportMatched = false;
+
+  TaprootImportViewModel({
+    required TaprootWalletSyncDuplicateChecker isWalletSyncDescriptorImported,
+    required TaprootVaultAdder addTaprootVault,
+  }) : _isWalletSyncDescriptorImported = isWalletSyncDescriptorImported,
+       _addTaprootVault = addTaprootVault;
 
   TaprootVaultListItem? get scannedVaultItem => _scannedVaultItem;
   TaprootVaultListItem? get scannedExtraVaultItem => _scannedExtraVaultItem;
@@ -42,6 +139,14 @@ class TaprootImportViewModel extends ChangeNotifier {
   bool get isSelectedRoleMatch => _isSelectedRoleMatch;
   bool get hasExtraImport => _hasExtraImport;
   bool get isExtraImportMatched => _isExtraImportMatched;
+
+  TaprootWalletSyncValidationResult validateWalletSyncData(TaprootWalletSyncData walletSyncData) {
+    if (_isWalletSyncDescriptorImported(walletSyncData.descriptor)) {
+      return TaprootWalletSyncValidationResult.duplicate;
+    }
+
+    return TaprootWalletSyncValidationResult.valid;
+  }
 
   void setWalletSyncData(TaprootWalletSyncData walletSyncData) {
     _walletSyncData = walletSyncData;
@@ -60,6 +165,7 @@ class TaprootImportViewModel extends ChangeNotifier {
   }
 
   void reset() {
+    _wipeImportedSeeds();
     _walletSyncData = null;
     _scannedVaultItem = null;
     _scannedExtraVaultItem = null;
@@ -69,7 +175,8 @@ class TaprootImportViewModel extends ChangeNotifier {
     _extraImportRole = TaprootImportRole.none;
     _extraTargetMasterFingerprint = null;
     _extraMasterFingerprint = null;
-    _selectedExtraExtendedPublicKey = null;
+    _primaryImportedSeed = null;
+    _extraImportedSeed = null;
     _isImportingExtra = false;
     _isSelectedRoleMatch = true;
     _hasExtraImport = false;
@@ -83,10 +190,11 @@ class TaprootImportViewModel extends ChangeNotifier {
   }
 
   void startExtraImport(TaprootImportRole role, {required String targetMasterFingerprint}) {
+    _extraImportedSeed?.wipe();
     _extraImportRole = role;
     _extraTargetMasterFingerprint = targetMasterFingerprint;
     _extraMasterFingerprint = null;
-    _selectedExtraExtendedPublicKey = null;
+    _extraImportedSeed = null;
     _isImportingExtra = true;
     _hasExtraImport = false;
     _isExtraImportMatched = false;
@@ -95,11 +203,12 @@ class TaprootImportViewModel extends ChangeNotifier {
   }
 
   void resetExtraImport() {
+    _extraImportedSeed?.wipe();
     _scannedExtraVaultItem = null;
     _extraImportRole = TaprootImportRole.none;
     _extraTargetMasterFingerprint = null;
     _extraMasterFingerprint = null;
-    _selectedExtraExtendedPublicKey = null;
+    _extraImportedSeed = null;
     _isImportingExtra = false;
     _hasExtraImport = false;
     _isExtraImportMatched = false;
@@ -107,6 +216,8 @@ class TaprootImportViewModel extends ChangeNotifier {
   }
 
   void resetImportedWalletData() {
+    _primaryImportedSeed?.wipe();
+    _primaryImportedSeed = null;
     _selectedRole = TaprootImportRole.none;
     _masterFingerprint = null;
     _selectedExtendedPublicKey = null;
@@ -115,97 +226,42 @@ class TaprootImportViewModel extends ChangeNotifier {
     resetExtraImport();
   }
 
-  Future<bool> setImportedSeed(
-    TaprootWalletCreationProvider creationProvider, {
-    required Uint8List secret,
-    Uint8List? passphrase,
-  }) async {
+  Future<bool> setImportedSeed({required Uint8List secret, Uint8List? passphrase}) async {
     final walletSyncData = _walletSyncData;
     if (walletSyncData == null) {
       throw StateError('Taproot wallet sync data is missing');
     }
 
     final importRole = _isImportingExtra ? _extraImportRole : _selectedRole;
-    final result = await compute(WalletIsolates.deriveTaprootImportSeed, {
-      'mnemonic': Uint8List.fromList(secret),
-      'passphrase': passphrase == null ? null : Uint8List.fromList(passphrase),
-      'descriptor': walletSyncData.descriptor,
-      'selectedRoleName': importRole.name,
-    });
-
-    final extendedPublicKey = result['extendedPublicKey'] as String;
-    final masterFingerprint = result['masterFingerprint'] as String;
-    final isMatch = result['isSelectedRoleMatch'] as bool;
-
-    if (_isImportingExtra) {
-      final isTargetMatched = masterFingerprint == _extraTargetMasterFingerprint;
-      _extraMasterFingerprint = masterFingerprint;
-      _selectedExtraExtendedPublicKey = extendedPublicKey;
-      _hasExtraImport = true;
-      _isExtraImportMatched = isMatch && isTargetMatched;
-      _isImportingExtra = false;
-
-      if (_isExtraImportMatched) {
-        switch (importRole) {
-          case TaprootImportRole.signer:
-            creationProvider.setParentWalletDerivedSeed(
-              secret: secret,
-              passphrase: passphrase,
-              masterFingerprint: masterFingerprint,
-              qrData: result['importedSignerBsms'] as String,
-            );
-            _scannedExtraVaultItem = _buildScannedVaultItem(matchedParentExtendedPublicKey: extendedPublicKey);
-            break;
-          case TaprootImportRole.beneficiary:
-            creationProvider.setChildWallet(
-              descriptor: result['importedSingleKeyDescriptor'] as String,
-              masterFingerprint: masterFingerprint,
-              source: TaprootChildWalletSource.scanned,
-              secret: secret,
-              passphrase: passphrase,
-            );
-            _scannedExtraVaultItem = _buildScannedVaultItem(matchedBeneficiaryExtendedPublicKey: extendedPublicKey);
-            break;
-          case TaprootImportRole.none:
-            return false;
-        }
-      } else {
-        _scannedExtraVaultItem = _buildScannedVaultItem();
-      }
-
-      return true;
+    if (importRole == TaprootImportRole.none) {
+      return false;
     }
 
-    _masterFingerprint = masterFingerprint;
-    _selectedExtendedPublicKey = extendedPublicKey;
-    _isSelectedRoleMatch = isMatch;
+    final result = await _deriveImportedSeed(walletSyncData, importRole, secret, passphrase);
 
-    switch (_selectedRole) {
-      case TaprootImportRole.signer:
-        creationProvider.setParentWalletDerivedSeed(
-          secret: secret,
-          passphrase: passphrase,
-          masterFingerprint: masterFingerprint,
-          qrData: result['importedSignerBsms'] as String,
-        );
-        _scannedVaultItem = _buildScannedVaultItem(matchedParentExtendedPublicKey: extendedPublicKey);
-        return true;
-      case TaprootImportRole.beneficiary:
-        creationProvider.setChildWallet(
-          descriptor: result['importedSingleKeyDescriptor'] as String,
-          masterFingerprint: masterFingerprint,
-          source: TaprootChildWalletSource.scanned,
-          secret: secret,
-          passphrase: passphrase,
-        );
-        _scannedVaultItem = _buildScannedVaultItem(matchedBeneficiaryExtendedPublicKey: extendedPublicKey);
-        return true;
-      case TaprootImportRole.none:
-        return false;
+    if (_isImportingExtra) {
+      return _applyExtraImportResult(result, secret, passphrase);
+    }
+
+    return _applyPrimaryImportResult(result, secret, passphrase);
+  }
+
+  Future<TaprootImportSaveResult> saveImportedWallet() async {
+    final walletCreateDto = createWalletCreateDto();
+
+    try {
+      final vault = await _addTaprootVault(walletCreateDto);
+      return TaprootImportSaveResult(
+        vaultId: vault.id,
+        parentMasterFingerprint: _masterFingerprintForRole(TaprootImportRole.signer),
+        childMasterFingerprint: _masterFingerprintForRole(TaprootImportRole.beneficiary),
+      );
+    } finally {
+      walletCreateDto.wipe();
     }
   }
 
-  TaprootWalletCreateDto createWalletCreateDto(TaprootWalletCreationProvider creationProvider) {
+  TaprootWalletCreateDto createWalletCreateDto() {
     final walletSyncData = _walletSyncData;
     if (walletSyncData == null) {
       throw StateError('Taproot wallet sync data is missing');
@@ -222,19 +278,9 @@ class TaprootImportViewModel extends ChangeNotifier {
 
     for (final keyStore in vault.keyStoreList) {
       final extendedPublicKey = keyStore.extendedPublicKey.serialize();
-      final isPrimarySignerSeed =
-          _selectedRole == TaprootImportRole.signer && extendedPublicKey == selectedExtendedPublicKey;
-      final isExtraSignerSeed =
-          _isExtraImportMatched &&
-          _extraImportRole == TaprootImportRole.signer &&
-          extendedPublicKey == _selectedExtraExtendedPublicKey;
-      if (isPrimarySignerSeed || isExtraSignerSeed) {
-        keyPathSeeds.add(
-          SeedSource(
-            mnemonic: Uint8List.fromList(creationProvider.secret),
-            passphrase: Uint8List.fromList(creationProvider.passphrase ?? Uint8List(0)),
-          ),
-        );
+      final signerSeed = _matchedSeedFor(TaprootImportRole.signer, extendedPublicKey);
+      if (signerSeed != null) {
+        keyPathSeeds.add(signerSeed.toSeedSource());
         continue;
       }
 
@@ -246,22 +292,9 @@ class TaprootImportViewModel extends ChangeNotifier {
       if (policy is! InheritancePolicy) continue;
 
       final beneficiaryExtendedPublicKey = policy.beneficiaryKeyStore.extendedPublicKey.serialize();
-      final isPrimaryBeneficiarySeed =
-          _selectedRole == TaprootImportRole.beneficiary && beneficiaryExtendedPublicKey == selectedExtendedPublicKey;
-      final isExtraBeneficiarySeed =
-          _isExtraImportMatched &&
-          _extraImportRole == TaprootImportRole.beneficiary &&
-          beneficiaryExtendedPublicKey == _selectedExtraExtendedPublicKey;
-      if ((isPrimaryBeneficiarySeed || isExtraBeneficiarySeed) && creationProvider.childSecret.isNotEmpty) {
-        inheritanceLeaves.add(
-          InheritanceLeaf(
-            secret: SeedSource(
-              mnemonic: Uint8List.fromList(creationProvider.childSecret),
-              passphrase: Uint8List.fromList(creationProvider.childPassphrase ?? Uint8List(0)),
-            ),
-            lockTime: policy.locktime,
-          ),
-        );
+      final beneficiarySeed = _matchedSeedFor(TaprootImportRole.beneficiary, beneficiaryExtendedPublicKey);
+      if (beneficiarySeed != null) {
+        inheritanceLeaves.add(InheritanceLeaf(secret: beneficiarySeed.toSeedSource(), lockTime: policy.locktime));
         continue;
       }
 
@@ -282,6 +315,217 @@ class TaprootImportViewModel extends ChangeNotifier {
       keyPathSignerBsmses.isEmpty ? null : keyPathSignerBsmses,
       inheritanceLeaves.isEmpty ? null : inheritanceLeaves,
     );
+  }
+
+  List<TaprootImportParticipantCardState> buildParticipantCardStates({required bool showSelectedRoleState}) {
+    final scannedVaultItem = _scannedVaultItem;
+    if (scannedVaultItem == null) {
+      return [];
+    }
+
+    return [
+      ...scannedVaultItem.owners.asMap().entries.map((entry) {
+        final index = entry.key;
+        final owner = entry.value;
+        final isMatchedSigner =
+            showSelectedRoleState &&
+            ((_selectedRole == TaprootImportRole.signer && owner.isSeedStored) ||
+                (_hasExtraImport &&
+                    _extraImportRole == TaprootImportRole.signer &&
+                    _isExtraImportMatched &&
+                    _scannedExtraVaultItem?.owners.any(
+                          (extraOwner) =>
+                              extraOwner.masterFingerprint == owner.masterFingerprint && extraOwner.isSeedStored,
+                        ) ==
+                        true));
+        final isExtraSignerTarget =
+            showSelectedRoleState &&
+            _extraImportRole == TaprootImportRole.signer &&
+            _extraTargetMasterFingerprint == owner.masterFingerprint;
+        final isInvalidExtraSigner = _hasExtraImport && !_isExtraImportMatched && isExtraSignerTarget;
+        final canAddExtraSigner =
+            showSelectedRoleState &&
+            !_hasExtraImport &&
+            _isSelectedRoleMatch &&
+            _selectedRole == TaprootImportRole.beneficiary;
+
+        return TaprootImportParticipantCardState(
+          role: TaprootImportRole.signer,
+          masterFingerprint: owner.masterFingerprint,
+          derivationPath: scannedVaultItem.derivationPath,
+          signerIndex: index,
+          hasSingleParent: scannedVaultItem.owners.length == 1,
+          hasBackgroundColor: isMatchedSigner,
+          isMine: isMatchedSigner,
+          isValid: !isInvalidExtraSigner,
+          canAddExtra: canAddExtraSigner,
+        );
+      }),
+      ...scannedVaultItem.beneficiaries.map((beneficiary) {
+        final isBeneficiaryRole = showSelectedRoleState && _selectedRole == TaprootImportRole.beneficiary;
+        final isMatchedBeneficiary =
+            isBeneficiaryRole && (beneficiary.isSeedStored || beneficiary.masterFingerprint == _masterFingerprint);
+        final isExtraBeneficiaryTarget =
+            showSelectedRoleState &&
+            _extraImportRole == TaprootImportRole.beneficiary &&
+            _extraTargetMasterFingerprint == beneficiary.masterFingerprint;
+        final isMatchedExtraBeneficiary =
+            _hasExtraImport &&
+            _extraImportRole == TaprootImportRole.beneficiary &&
+            _isExtraImportMatched &&
+            (_scannedExtraVaultItem?.beneficiaries.any(
+                  (extraBeneficiary) =>
+                      extraBeneficiary.masterFingerprint == beneficiary.masterFingerprint &&
+                      extraBeneficiary.isSeedStored,
+                ) ==
+                true);
+        final isInvalidExtraBeneficiary = _hasExtraImport && !_isExtraImportMatched && isExtraBeneficiaryTarget;
+        final canAddExtraBeneficiary =
+            showSelectedRoleState &&
+            !_hasExtraImport &&
+            _isSelectedRoleMatch &&
+            _selectedRole == TaprootImportRole.signer;
+
+        return TaprootImportParticipantCardState(
+          role: TaprootImportRole.beneficiary,
+          masterFingerprint: beneficiary.masterFingerprint,
+          derivationPath: scannedVaultItem.derivationPath,
+          lockTime: beneficiary.lockTime,
+          hasBackgroundColor: isMatchedBeneficiary || isMatchedExtraBeneficiary,
+          isMine: isMatchedBeneficiary || isMatchedExtraBeneficiary,
+          isValid:
+              isInvalidExtraBeneficiary
+                  ? false
+                  : !isBeneficiaryRole || beneficiary.masterFingerprint == _masterFingerprint,
+          canAddExtra: canAddExtraBeneficiary,
+        );
+      }),
+    ];
+  }
+
+  @override
+  void dispose() {
+    _wipeImportedSeeds();
+    super.dispose();
+  }
+
+  Future<_DerivedTaprootImportSeed> _deriveImportedSeed(
+    TaprootWalletSyncData walletSyncData,
+    TaprootImportRole importRole,
+    Uint8List secret,
+    Uint8List? passphrase,
+  ) async {
+    final result = await compute(WalletIsolates.deriveTaprootImportSeed, {
+      'mnemonic': Uint8List.fromList(secret),
+      'passphrase': passphrase == null ? null : Uint8List.fromList(passphrase),
+      'descriptor': walletSyncData.descriptor,
+      'selectedRoleName': importRole.name,
+    });
+
+    return _DerivedTaprootImportSeed(
+      extendedPublicKey: result['extendedPublicKey'] as String,
+      masterFingerprint: result['masterFingerprint'] as String,
+      isSelectedRoleMatch: result['isSelectedRoleMatch'] as bool,
+      importedSingleKeyDescriptor: result['importedSingleKeyDescriptor'] as String,
+      importedSignerBsms: result['importedSignerBsms'] as String,
+    );
+  }
+
+  bool _applyPrimaryImportResult(_DerivedTaprootImportSeed result, Uint8List secret, Uint8List? passphrase) {
+    final selectedRole = _selectedRole;
+    if (selectedRole == TaprootImportRole.none) {
+      return false;
+    }
+
+    _primaryImportedSeed?.wipe();
+    _masterFingerprint = result.masterFingerprint;
+    _selectedExtendedPublicKey = result.extendedPublicKey;
+    _isSelectedRoleMatch = result.isSelectedRoleMatch;
+    _primaryImportedSeed = _ImportedTaprootSeed(
+      role: selectedRole,
+      extendedPublicKey: result.extendedPublicKey,
+      masterFingerprint: result.masterFingerprint,
+      secret: secret,
+      passphrase: passphrase,
+      isMatched: result.isSelectedRoleMatch,
+    );
+
+    _scannedVaultItem = switch (selectedRole) {
+      TaprootImportRole.signer => _buildScannedVaultItem(matchedParentExtendedPublicKey: result.extendedPublicKey),
+      TaprootImportRole.beneficiary => _buildScannedVaultItem(
+        matchedBeneficiaryExtendedPublicKey: result.extendedPublicKey,
+      ),
+      TaprootImportRole.none => _scannedVaultItem,
+    };
+
+    return true;
+  }
+
+  bool _applyExtraImportResult(_DerivedTaprootImportSeed result, Uint8List secret, Uint8List? passphrase) {
+    final importRole = _extraImportRole;
+    if (importRole == TaprootImportRole.none) {
+      _isImportingExtra = false;
+      return false;
+    }
+
+    final isTargetMatched = result.masterFingerprint == _extraTargetMasterFingerprint;
+    _extraImportedSeed?.wipe();
+    _extraMasterFingerprint = result.masterFingerprint;
+    _hasExtraImport = true;
+    _isExtraImportMatched = result.isSelectedRoleMatch && isTargetMatched;
+    _isImportingExtra = false;
+    _extraImportedSeed = _ImportedTaprootSeed(
+      role: importRole,
+      extendedPublicKey: result.extendedPublicKey,
+      masterFingerprint: result.masterFingerprint,
+      secret: secret,
+      passphrase: passphrase,
+      isMatched: _isExtraImportMatched,
+    );
+
+    if (!_isExtraImportMatched) {
+      _scannedExtraVaultItem = _buildScannedVaultItem();
+      return true;
+    }
+
+    _scannedExtraVaultItem = switch (importRole) {
+      TaprootImportRole.signer => _buildScannedVaultItem(matchedParentExtendedPublicKey: result.extendedPublicKey),
+      TaprootImportRole.beneficiary => _buildScannedVaultItem(
+        matchedBeneficiaryExtendedPublicKey: result.extendedPublicKey,
+      ),
+      TaprootImportRole.none => _buildScannedVaultItem(),
+    };
+
+    return true;
+  }
+
+  _ImportedTaprootSeed? _matchedSeedFor(TaprootImportRole role, String extendedPublicKey) {
+    for (final importedSeed in [_primaryImportedSeed, _extraImportedSeed]) {
+      if (importedSeed == null) continue;
+      if (!importedSeed.isMatched) continue;
+      if (importedSeed.role != role) continue;
+      if (importedSeed.extendedPublicKey != extendedPublicKey) continue;
+      return importedSeed;
+    }
+
+    return null;
+  }
+
+  String? _masterFingerprintForRole(TaprootImportRole role) {
+    for (final importedSeed in [_primaryImportedSeed, _extraImportedSeed]) {
+      if (importedSeed == null) continue;
+      if (!importedSeed.isMatched) continue;
+      if (importedSeed.role == role) {
+        return importedSeed.masterFingerprint;
+      }
+    }
+
+    return null;
+  }
+
+  void _wipeImportedSeeds() {
+    _primaryImportedSeed?.wipe();
+    _extraImportedSeed?.wipe();
   }
 
   String _buildSignerBsms(KeyStore keyStore, String derivationPath) {

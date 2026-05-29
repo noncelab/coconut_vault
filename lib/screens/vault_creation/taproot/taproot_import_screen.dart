@@ -7,7 +7,6 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/taproot_import_view_model.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/vault_name_and_icon_setup_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_screen.dart';
@@ -43,7 +42,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   late final List<bool> _ignoreBodyHorizontalPaddingList;
   late final List<bool> _pauseProgressList;
   late final List<bool> _scrollChildList;
-  final TaprootImportViewModel _viewModel = TaprootImportViewModel();
+  late final TaprootImportViewModel _viewModel;
   int _currentStep = 1;
   int? _roleSelectionStep;
   int? _importWalletStep;
@@ -113,6 +112,11 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   @override
   void initState() {
     super.initState();
+    _viewModel = TaprootImportViewModel(
+      isWalletSyncDescriptorImported:
+          (descriptor) => context.read<WalletProvider>().findWalletByDescriptor(descriptor) != null,
+      addTaprootVault: (walletCreateDto) => context.read<WalletProvider>().addTaprootVault(walletCreateDto),
+    );
     _titleList = _initialTitleList();
     _bodyList = _initialBodyList();
     _nextButtonActions = [_addScannerStep];
@@ -209,8 +213,8 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
         dataType: TaprootScannerDataType.walletSync,
         topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
         onWalletSyncScanned: (walletSyncData) async {
-          final duplicatedWallet = context.read<WalletProvider>().findWalletByDescriptor(walletSyncData.descriptor);
-          if (duplicatedWallet != null) {
+          final validationResult = _viewModel.validateWalletSyncData(walletSyncData);
+          if (validationResult == TaprootWalletSyncValidationResult.duplicate) {
             await _showDuplicateWalletDialog();
             return false;
           }
@@ -269,105 +273,56 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 10.0),
             child: TaprootSetupSummaryCard(
               itemList: [
-                ...scannedVaultItem.owners.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final owner = entry.value;
-                  final isSingleParent = scannedVaultItem.owners.length == 1;
-                  final parentName =
-                      isSingleParent
-                          ? t.taproot.taproot_import_screen.step6.parent_wallet
-                          : '${t.taproot.taproot_import_screen.step6.parent_wallet} ${String.fromCharCode(65 + index)}';
-                  final isMatchedSigner =
-                      showSelectedRoleState &&
-                      ((_viewModel.selectedRole == TaprootImportRole.signer && owner.isSeedStored) ||
-                          (_viewModel.hasExtraImport &&
-                              _viewModel.extraImportRole == TaprootImportRole.signer &&
-                              _viewModel.isExtraImportMatched &&
-                              _viewModel.scannedExtraVaultItem?.owners.any(
-                                    (extraOwner) =>
-                                        extraOwner.masterFingerprint == owner.masterFingerprint &&
-                                        extraOwner.isSeedStored,
-                                  ) ==
-                                  true));
-                  final isExtraSignerTarget =
-                      showSelectedRoleState &&
-                      _viewModel.extraImportRole == TaprootImportRole.signer &&
-                      _viewModel.extraTargetMasterFingerprint == owner.masterFingerprint;
-                  final isInvalidExtraSigner =
-                      _viewModel.hasExtraImport && !_viewModel.isExtraImportMatched && isExtraSignerTarget;
-                  final canAddExtraSigner =
-                      showSelectedRoleState &&
-                      !_viewModel.hasExtraImport &&
-                      _viewModel.isSelectedRoleMatch &&
-                      _viewModel.selectedRole == TaprootImportRole.beneficiary;
-
-                  return TaprootParticipantCard(
-                    role: TaprootParticipantRole.parent,
-                    walletName: parentName,
-                    mfp: owner.masterFingerprint,
-                    derivationPath: scannedVaultItem.derivationPath,
-                    hasSingleParent: isSingleParent,
-                    hasBackgroundColor: isMatchedSigner,
-                    isMine: isMatchedSigner,
-                    isValid: !isInvalidExtraSigner,
-                    onTap:
-                        canAddExtraSigner
-                            ? () => _addExtraWalletCheckStep(TaprootImportRole.signer, owner.masterFingerprint)
-                            : null,
-                  );
-                }),
-                ...scannedVaultItem.beneficiaries.map((beneficiary) {
-                  final isBeneficiaryRole =
-                      showSelectedRoleState && _viewModel.selectedRole == TaprootImportRole.beneficiary;
-                  final isMatchedBeneficiary =
-                      isBeneficiaryRole &&
-                      (beneficiary.isSeedStored || beneficiary.masterFingerprint == _viewModel.masterFingerprint);
-                  final isExtraBeneficiaryTarget =
-                      showSelectedRoleState &&
-                      _viewModel.extraImportRole == TaprootImportRole.beneficiary &&
-                      _viewModel.extraTargetMasterFingerprint == beneficiary.masterFingerprint;
-                  final isMatchedExtraBeneficiary =
-                      _viewModel.hasExtraImport &&
-                      _viewModel.extraImportRole == TaprootImportRole.beneficiary &&
-                      _viewModel.isExtraImportMatched &&
-                      (_viewModel.scannedExtraVaultItem?.beneficiaries.any(
-                            (extraBeneficiary) =>
-                                extraBeneficiary.masterFingerprint == beneficiary.masterFingerprint &&
-                                extraBeneficiary.isSeedStored,
-                          ) ==
-                          true);
-                  final isInvalidExtraBeneficiary =
-                      _viewModel.hasExtraImport && !_viewModel.isExtraImportMatched && isExtraBeneficiaryTarget;
-                  final canAddExtraBeneficiary =
-                      showSelectedRoleState &&
-                      !_viewModel.hasExtraImport &&
-                      _viewModel.isSelectedRoleMatch &&
-                      _viewModel.selectedRole == TaprootImportRole.signer;
-
-                  return TaprootParticipantCard(
-                    role: TaprootParticipantRole.child,
-                    mfp: beneficiary.masterFingerprint,
-                    derivationPath: scannedVaultItem.derivationPath,
-                    locktime: beneficiary.lockTime,
-                    hasBackgroundColor: isMatchedBeneficiary || isMatchedExtraBeneficiary,
-                    isMine: isMatchedBeneficiary || isMatchedExtraBeneficiary,
-                    isValid:
-                        isInvalidExtraBeneficiary
-                            ? false
-                            : !isBeneficiaryRole || beneficiary.masterFingerprint == _viewModel.masterFingerprint,
-                    onTap:
-                        canAddExtraBeneficiary
-                            ? () =>
-                                _addExtraWalletCheckStep(TaprootImportRole.beneficiary, beneficiary.masterFingerprint)
-                            : null,
-                  );
-                }),
+                ..._viewModel
+                    .buildParticipantCardStates(showSelectedRoleState: showSelectedRoleState)
+                    .map(_buildParticipantCard),
               ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  TaprootParticipantCard _buildParticipantCard(TaprootImportParticipantCardState participant) {
+    switch (participant.role) {
+      case TaprootImportRole.signer:
+        final parentName =
+            participant.hasSingleParent
+                ? t.taproot.taproot_import_screen.step6.parent_wallet
+                : '${t.taproot.taproot_import_screen.step6.parent_wallet} ${String.fromCharCode(65 + participant.signerIndex!)}';
+
+        return TaprootParticipantCard(
+          role: TaprootParticipantRole.parent,
+          walletName: parentName,
+          mfp: participant.masterFingerprint,
+          derivationPath: participant.derivationPath,
+          hasSingleParent: participant.hasSingleParent,
+          hasBackgroundColor: participant.hasBackgroundColor,
+          isMine: participant.isMine,
+          isValid: participant.isValid,
+          onTap:
+              participant.canAddExtra
+                  ? () => _addExtraWalletCheckStep(TaprootImportRole.signer, participant.masterFingerprint)
+                  : null,
+        );
+      case TaprootImportRole.beneficiary:
+        return TaprootParticipantCard(
+          role: TaprootParticipantRole.child,
+          mfp: participant.masterFingerprint,
+          derivationPath: participant.derivationPath,
+          locktime: participant.lockTime,
+          hasBackgroundColor: participant.hasBackgroundColor,
+          isMine: participant.isMine,
+          isValid: participant.isValid,
+          onTap:
+              participant.canAddExtra
+                  ? () => _addExtraWalletCheckStep(TaprootImportRole.beneficiary, participant.masterFingerprint)
+                  : null,
+        );
+      case TaprootImportRole.none:
+        throw StateError('Participant role is missing');
+    }
   }
 
   void _addParentConfigurationStep() {
@@ -523,9 +478,8 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       return;
     }
 
-    final creationProvider = context.read<TaprootWalletCreationProvider>();
     try {
-      final isSeedSet = await _viewModel.setImportedSeed(creationProvider, secret: secret, passphrase: passphrase);
+      final isSeedSet = await _viewModel.setImportedSeed(secret: secret, passphrase: passphrase);
       if (!mounted) return;
 
       setState(() {
@@ -625,28 +579,20 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       return;
     }
 
-    final creationProvider = context.read<TaprootWalletCreationProvider>();
-    final walletProvider = context.read<WalletProvider>();
-    final timelineInfo = TaprootVaultCreationTimelineInfo(
-      parentMasterFingerprint: creationProvider.masterFingerprint,
-      externalParentMasterFingerprint: creationProvider.externalMultisigParentMasterFingerprint,
-      childMasterFingerprint: creationProvider.childWalletMasterFingerprint,
-    );
-
-    final walletCreateDto = _viewModel.createWalletCreateDto(creationProvider);
-
     try {
-      final vault = await walletProvider.addTaprootVault(walletCreateDto);
+      final result = await _viewModel.saveImportedWallet();
       if (!mounted) return;
 
-      creationProvider.resetAll();
-      _createdTaprootVaultId = vault.id;
-      _timelineInfo = timelineInfo;
+      _createdTaprootVaultId = result.vaultId;
+      _timelineInfo = TaprootVaultCreationTimelineInfo(
+        parentMasterFingerprint: result.parentMasterFingerprint,
+        externalParentMasterFingerprint: result.externalParentMasterFingerprint,
+        childMasterFingerprint: result.childMasterFingerprint,
+      );
       setState(() {
         _isProcessingImport = false;
       });
     } finally {
-      walletCreateDto.wipe();
       if (mounted && _isProcessingImport) {
         setState(() {
           _isProcessingImport = false;
@@ -826,7 +772,6 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       return;
     }
 
-    context.read<TaprootWalletCreationProvider>().resetAll();
     _viewModel.resetImportedWalletData();
 
     setState(() {
