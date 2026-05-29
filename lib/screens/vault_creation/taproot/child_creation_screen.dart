@@ -678,6 +678,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
             MnemonicImportScreen(
               isEmbedded: true,
               isTaprootCreationChild: true,
+              requirePassphraseConfirmation: true,
               onCompleted: _addImportedMnemonicConfirmationStep,
             ),
           );
@@ -687,6 +688,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
             SeedQrImportScreen(
               isEmbedded: true,
               isTaproot: true,
+              requirePassphraseConfirmation: true,
               onMnemonicConfirmationRequested: (secret, passphrase) {
                 viewModel.setSecretAndPassphrase(secret, passphrase);
                 _onChildWalletSet(viewModel);
@@ -919,6 +921,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         SeedQrImportScreen(
           isEmbedded: true,
           isTaproot: true,
+          requirePassphraseConfirmation: true,
           onMnemonicConfirmationRequested: (secret, passphrase) {
             taprootProvider.setSecretAndPassphrase(secret, passphrase);
             _onChildWalletSet(viewModel);
@@ -941,6 +944,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         MnemonicImportScreen(
           isEmbedded: true,
           isTaprootCreationChild: true,
+          requirePassphraseConfirmation: true,
           onCompleted: _addImportedMnemonicConfirmationStep,
         ),
       );
@@ -963,6 +967,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
             autoLoadMnemonic: false,
             isEmbedded: true,
             buildPassphraseToggle: context.read<VisibilityProvider>().isPassphraseUseEnabled,
+            requirePassphraseConfirmation: true,
             onAuthCanceled: () {
               _handleBackPressed();
             },
