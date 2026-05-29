@@ -371,19 +371,22 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
               vault: vault,
               isSelectable: false,
               onSelected: () async {
-                if (vault.vaultType != WalletType.singleSignature) {
-                  Navigator.pushNamed(context, AppRoutes.multisigSetupInfo, arguments: {'id': vault.id});
-                  return;
-                }
-
-                bool shouldShowPassphraseVerifyMenu =
-                    _viewModel.isSigningOnlyMode ? false : await _viewModel.hasPassphrase(vault.id);
-                if (mounted) {
-                  Navigator.pushNamed(
-                    context,
-                    AppRoutes.singleSigSetupInfo,
-                    arguments: {'id': vault.id, 'shouldShowPassphraseVerifyMenu': shouldShowPassphraseVerifyMenu},
-                  );
+                switch (vault.vaultType) {
+                  case WalletType.singleSignature:
+                    bool shouldShowPassphraseVerifyMenu =
+                        _viewModel.isSigningOnlyMode ? false : await _viewModel.hasPassphrase(vault.id);
+                    if (!mounted) return;
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.singleSigSetupInfo,
+                      arguments: {'id': vault.id, 'shouldShowPassphraseVerifyMenu': shouldShowPassphraseVerifyMenu},
+                    );
+                    return;
+                  case WalletType.multiSignature:
+                    Navigator.pushNamed(context, AppRoutes.multisigSetupInfo, arguments: {'id': vault.id});
+                    return;
+                  case WalletType.taproot:
+                    return;
                 }
               },
             );

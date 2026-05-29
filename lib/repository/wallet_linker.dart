@@ -120,7 +120,10 @@ class WalletLinker {
       final links = wallet.linkedMultisigInfo;
       if (links?.isNotEmpty == true) {
         for (var entry in links!.entries) {
-          final multisig = _findById(entry.key) as MultisigVaultListItem;
+          final linkedVault = _findById(entry.key);
+          if (linkedVault is! MultisigVaultListItem) continue;
+
+          final multisig = linkedVault;
           multisig.signers[entry.value].unlinkInternalWallet();
           assert(multisig.signers[entry.value].signerBsms != null);
         }
