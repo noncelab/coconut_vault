@@ -14,6 +14,7 @@ import 'package:coconut_vault/widgets/indicator/timeline_step_indicator.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/child_creation_view_model.dart';
@@ -1003,24 +1004,45 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
-        return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
-          title: t.taproot.child_creation_screen.step3.device_auth_dialog_title,
-          description: t.taproot.child_creation_screen.step3.device_auth_dialog_description,
-          rightButtonText: t.confirm,
-          onTapRight: () async {
-            final pinCheckResult = await _showPinCheckBottomSheet();
-            if (pinCheckResult != true || !context.mounted) {
-              return;
-            }
-
-            Navigator.of(context).pop();
-            mnemonicViewKey.currentState?.setMnemonic();
-          },
+      builder: (dialogContext) {
+        return PopScope(
+          canPop: false,
+          child: CoconutPopup(
+            languageCode: context.read<VisibilityProvider>().language,
+            title: t.taproot.child_creation_screen.step3.device_auth_dialog_title,
+            description: t.taproot.child_creation_screen.step3.device_auth_dialog_description,
+            rightButtonText: t.confirm,
+            onTapRight: () {
+              _authenticateWithBiometricOrPin(PinCheckContextEnum.sensitiveAction, () {
+                if (dialogContext.mounted) {
+                  Navigator.pop(dialogContext);
+                }
+                mnemonicViewKey.currentState?.setMnemonic();
+              });
+            },
+          ),
         );
       },
     );
+  }
+
+  Future<void> _authenticateWithBiometricOrPin(PinCheckContextEnum pinCheckContext, VoidCallback onSuccess) async {
+    final authProvider = context.read<AuthProvider>();
+
+    final isBiometricValid =
+        pinCheckContext == PinCheckContextEnum.sensitiveAction
+            ? await authProvider.isBiometricsAuthValidToAvoidDoubleAuth()
+            : await authProvider.isBiometricsAuthValid();
+
+    if (isBiometricValid && mounted) {
+      onSuccess();
+      return;
+    }
+
+    final pinCheckResult = await _showPinCheckBottomSheet();
+    if (pinCheckResult == true && mounted) {
+      onSuccess();
+    }
   }
 
   Future<bool?> _showPinCheckBottomSheet() async {
