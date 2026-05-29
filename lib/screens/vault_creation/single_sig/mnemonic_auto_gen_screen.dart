@@ -15,7 +15,7 @@ class MnemonicAutoGenScreen extends BaseMnemonicEntropyScreen {
     super.key,
     required super.entropyType,
     super.isEmbedded,
-    super.isTaprootChild,
+    super.isTaproot,
     super.onMnemonicConfirmationRequested,
   });
 
@@ -40,7 +40,7 @@ class _MnemonicAutoGenScreenState extends BaseMnemonicEntropyScreenState<Mnemoni
       usePassphrase: usePassphrase,
       onReset: onReset,
       entropyType: EntropyType.auto,
-      isTaproot: widget.isTaprootChild,
+      isTaproot: widget.isTaproot,
       isEmbedded: widget.isEmbedded,
       onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
     );

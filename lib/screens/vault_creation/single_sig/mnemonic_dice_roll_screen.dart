@@ -16,7 +16,7 @@ class MnemonicDiceRollScreen extends BaseMnemonicEntropyScreen {
     super.key,
     required super.entropyType,
     super.isEmbedded,
-    super.isTaprootChild,
+    super.isTaproot,
     super.onMnemonicConfirmationRequested,
   });
 
@@ -34,7 +34,7 @@ class _MnemonicDiceRollScreenState extends BaseMnemonicEntropyScreenState<Mnemon
       usePassphrase: usePassphrase,
       onReset: onReset,
       entropyType: EntropyType.manual,
-      isTaproot: widget.isTaprootChild,
+      isTaproot: widget.isTaproot,
       isEmbedded: widget.isEmbedded,
       onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
     );

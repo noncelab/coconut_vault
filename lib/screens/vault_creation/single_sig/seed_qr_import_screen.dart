@@ -27,7 +27,7 @@ class SeedQrImportScreen extends StatefulWidget {
   final MultisigSigner? externalSigner;
   final int? multisigVaultIdOfExternalSigner;
   final bool isEmbedded;
-  final bool isTaprootChild;
+  final bool isTaproot;
   final bool requirePassphraseConfirmation;
   final VoidCallback? onCompleted;
   final FutureOr<void> Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
@@ -37,7 +37,7 @@ class SeedQrImportScreen extends StatefulWidget {
     this.externalSigner,
     this.multisigVaultIdOfExternalSigner,
     this.isEmbedded = false,
-    this.isTaprootChild = false,
+    this.isTaproot = false,
     this.requirePassphraseConfirmation = false,
     this.onCompleted,
     this.onMnemonicConfirmationRequested,
@@ -261,14 +261,14 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
                     scannedData: utf8.encode(words!.join(' ')),
                     externalSigner: widget.externalSigner,
                     multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
-                    isTaprootChild: widget.isTaprootChild,
+                    isTaproot: widget.isTaproot,
                     requirePassphraseConfirmation: widget.requirePassphraseConfirmation,
                     onCompleted: widget.onCompleted,
                     onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
                   ),
             ),
           ).then((result) {
-            if (result == true && widget.isTaprootChild && mounted) {
+            if (result == true && widget.isTaproot && mounted) {
               Navigator.pop(context, true);
               return;
             }

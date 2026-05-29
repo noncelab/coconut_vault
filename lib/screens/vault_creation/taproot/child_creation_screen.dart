@@ -616,7 +616,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         firstEmbeddedScreen = MnemonicCoinflipScreen(
           entropyType: EntropyType.manual,
           isEmbedded: true,
-          isTaprootChild: true,
+          isTaproot: true,
           onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
         );
         break;
@@ -624,7 +624,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         firstEmbeddedScreen = MnemonicDiceRollScreen(
           entropyType: EntropyType.manual,
           isEmbedded: true,
-          isTaprootChild: true,
+          isTaproot: true,
           onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
         );
         break;
@@ -632,7 +632,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         firstEmbeddedScreen = MnemonicAutoGenScreen(
           entropyType: EntropyType.auto,
           isEmbedded: true,
-          isTaprootChild: true,
+          isTaproot: true,
           onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
         );
         break;
@@ -685,7 +685,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           _addEmbeddedStep(
             SeedQrImportScreen(
               isEmbedded: true,
-              isTaprootChild: true,
+              isTaproot: true,
               onMnemonicConfirmationRequested: (secret, passphrase) {
                 viewModel.setSecretAndPassphrase(secret, passphrase);
                 _onChildWalletSet(viewModel);
@@ -917,7 +917,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       _embeddedWidgets.add(
         SeedQrImportScreen(
           isEmbedded: true,
-          isTaprootChild: true,
+          isTaproot: true,
           onMnemonicConfirmationRequested: (secret, passphrase) {
             taprootProvider.setSecretAndPassphrase(secret, passphrase);
             _onChildWalletSet(viewModel);

@@ -396,7 +396,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       ImportMode.scan => SeedQrImportScreen(
         key: const ValueKey('taproot-import-seed-qr'),
         isEmbedded: true,
-        isTaprootChild: true,
+        isTaproot: true,
         requirePassphraseConfirmation: true,
         onMnemonicConfirmationRequested: _setImportedSeedFromSeedQr,
       ),

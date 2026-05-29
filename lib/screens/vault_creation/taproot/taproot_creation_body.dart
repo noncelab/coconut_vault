@@ -74,7 +74,8 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   @override
   void didUpdateWidget(covariant TaprootCreationBody oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final hasHeaderChanged = _titleKeyForLines(oldWidget.titleLines) != _titleKeyForLines(widget.titleLines) ||
+    final hasHeaderChanged =
+        _titleKeyForLines(oldWidget.titleLines) != _titleKeyForLines(widget.titleLines) ||
         oldWidget.isError != widget.isError;
     if (!hasHeaderChanged) {
       return;
@@ -282,13 +283,14 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
           children: [
             SizedBox(
               height: 34,
-              child: _displayedIsError
-                  ? Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [_buildAnimatedErrorIcon(titleKey)],
-                    )
-                  : null,
+              child:
+                  _displayedIsError
+                      ? Column(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [_buildAnimatedErrorIcon(titleKey)],
+                      )
+                      : null,
             ),
             _buildAnimatedTitleText(lines, titleKey),
           ],

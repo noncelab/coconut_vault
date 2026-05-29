@@ -24,7 +24,7 @@ class SeedQrConfirmationScreen extends StatefulWidget {
   final Uint8List scannedData;
   final MultisigSigner? externalSigner;
   final int? multisigVaultIdOfExternalSigner;
-  final bool isTaprootChild;
+  final bool isTaproot;
   final bool requirePassphraseConfirmation;
   final VoidCallback? onCompleted;
   final FutureOr<void> Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
@@ -34,7 +34,7 @@ class SeedQrConfirmationScreen extends StatefulWidget {
     required this.scannedData, // 필수 매개변수로 설정
     this.externalSigner,
     this.multisigVaultIdOfExternalSigner,
-    this.isTaprootChild = false,
+    this.isTaproot = false,
     this.requirePassphraseConfirmation = false,
     this.onCompleted,
     this.onMnemonicConfirmationRequested,
@@ -213,7 +213,7 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
       final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
       final externalSigner = widget.externalSigner;
 
-      if (widget.isTaprootChild) {
+      if (widget.isTaproot) {
         _walletCreationProvider.setSecretAndPassphrase(Uint8List.fromList(secret), Uint8List.fromList(passphrase));
 
         final onMnemonicConfirmationRequested = widget.onMnemonicConfirmationRequested;
