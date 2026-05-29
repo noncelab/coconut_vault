@@ -151,7 +151,13 @@ class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
     final beneficiaryVault = TaprootVault.fromDescriptor(result as String);
     final onTaprootVaultScanned = widget.onTaprootVaultScanned;
     if (onTaprootVaultScanned != null) {
-      final didHandleScan = await onTaprootVaultScanned(beneficiaryVault);
+      final bool didHandleScan;
+      try {
+        didHandleScan = await onTaprootVaultScanned(beneficiaryVault);
+      } catch (e) {
+        _handleScanFailure(e is FormatException ? e.message : wrongFormatMessage);
+        return;
+      }
       if (!didHandleScan && mounted) {
         await _resetScanState();
       }

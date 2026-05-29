@@ -300,8 +300,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
         final bool isValid = viewModel.setScannedTaprootVault(beneficiaryVault.descriptor);
         if (!isValid) {
-          _showInvalidQrToast();
-          return false;
+          throw FormatException(t.errors.invalid_qr);
         }
 
         setState(() {
@@ -321,17 +320,18 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   Widget _buildScannerTitle(ChildCreationViewModel viewModel) {
-    return RichText(
-      textAlign: TextAlign.center,
-      text: TextSpan(
-        style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.white),
-        children: _titleLines(viewModel),
-      ),
-    );
-  }
+    final defaultStyle = CoconutTypography.heading4_18_Bold.setColor(CoconutColors.white);
 
-  void _showInvalidQrToast() {
-    CoconutToast.showToast(context: context, level: CoconutToastLevel.error, text: t.errors.invalid_qr);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final line in _titleLines(viewModel))
+          Text.rich(
+            TextSpan(text: line.toPlainText(), style: defaultStyle.merge(line.style)),
+            textAlign: TextAlign.center,
+          ),
+      ],
+    );
   }
 
   Widget _buildSummaryStep(ChildCreationViewModel viewModel) {
