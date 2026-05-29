@@ -112,6 +112,11 @@ edit: "편집"
 descriptor: "디스크립터"
 precautions: "주의 사항"
 
+wallet_type: "지갑 종류"
+mfp: "MFP"
+
+rescan: "다시 스캔하기"
+
 watch_only_options:
   title: "보기 전용 앱 선택"
   coconut_wallet: "코코넛 월렛"
@@ -527,6 +532,8 @@ welcome_screen:
 # lib/screens/vault_creation
 taproot:
   taproot_inheritance_wallet: "탭루트 상속 지갑"
+  parent_wallet: "부모 지갑"
+  child_wallet: "자식 지갑"
   common:
     prepare_key_option1_title: "새 니모닉으로\n만들기"
     prepare_key_option1_desc: "상속 지갑 전용으로\n새 니모닉을 만들어요"
@@ -649,6 +656,51 @@ taproot:
     step2:
       title1: "자식 지갑을"
       title2: "어떻게 준비할까요?"
+      option1_title: "새 니모닉으로\n만들기"
+      option1_desc: "상속 지갑 전용으로\n새 니모닉을 만들어요"
+      option2_title: "기존 니모닉으로\n만들기"
+      option2_desc: "보관 중인 니모닉으로\n탭루트 지갑을 만들어요"
+    step3:
+      title_new: "지갑을 어떻게 만들까요?"
+      title_existing: "어떤 기존 니모닉을 사용할까요?"
+      single_sig_select_from_vault_title_1: "현재 볼트에 보관 중인"
+      single_sig_select_from_vault_title_2: "니모닉을 선택하세요"
+      new_option1: "동전 던지기"
+      new_option2: "주사위 굴리기"
+      new_option3: "자동 생성하기"
+      existing_option1: "현재 볼트에서\n선택하기"
+      existing_option2: "니모닉 입력하기"
+      existing_option3: "시드 QR 스캔하기"
+      device_auth_dialog_title: "기기 인증 진행"
+      device_auth_dialog_description: "기기 보안 영역에 저장된 니모닉에 접근하기 위해 기기 인증을 진행합니다."
+    step4:
+      taproot_single_sig_wallet: "탭루트 단일 서명 지갑"
+      taproot_multisig_wallet: "탭루트 다중 서명 지갑"
+      title1: "자식 지갑이 준비되었어요"
+      title2: "부모 지갑에서 사용할 수 있도록"
+      title3: "지갑 정보를 내보내세요"
+      return_dialog_title: "이전 단계로 돌아가기"
+      return_dialog_description: "방금 만든 자식 지갑이 초기화됩니다. 정말 계속하시겠어요?"
+    step5:
+      title1: "상속 지갑을"
+      title2: "스캔해 가져오세요"
+    step6:
+      title1: "상속 조건의 지갑과 일치해요"
+      title2: "상속 지갑과 일치하지 않아요"
+    step7:
+      title1: "탭루트 상속 지갑이"
+      title2: "준비되었어요"
+      timeline:
+        created_wallet: "지갑을 만들었어요"
+        exported_to_parent: "부모 지갑으로 내보냈어요"
+        imported_inheritance_info: "상속 지갑 정보를 가져왔어요"
+        active_inheritance_wallet: "상속 지갑이 활성화 돼요"
+        singlesig_description: "단일 서명 지갑 | MFP: $mfp"
+        taproot_description: "탭루트 지갑 | MFP: $mfp"
+        single_sig_wallet: "단일 부모 지갑"
+        multisig_wallet: "다중 부모 지갑"
+        time_after: "$date 이후"
+      
   setup_summary_card:
     signer_configuration: "서명자 구성"
     inheritance_condition: "상속 조건"

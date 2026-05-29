@@ -322,6 +322,36 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     _scheduleTitleAnimationCompletion();
   }
 
+  void _switchToSeedQrImport() {
+    final currentBody = _bodyList.last;
+    if (currentBody.isEmpty || currentBody.first is! MnemonicImportScreen) {
+      return;
+    }
+
+    setState(() {
+      _viewModel.setExistingKeyImportType(ParentExistingKeyImportType.seedQrScan);
+
+      final newBody = _buildEmbeddedScreen();
+      if (newBody == null) return;
+      _bodyList[_currentStep - 1] = [newBody];
+    });
+  }
+
+  void _switchToMnemonicImport() {
+    final currentBody = _bodyList.last;
+    if (currentBody.isEmpty || currentBody.first is! SeedQrImportScreen) {
+      return;
+    }
+
+    setState(() {
+      _viewModel.setExistingKeyImportType(ParentExistingKeyImportType.mnemonicInput);
+
+      final newBody = _buildEmbeddedScreen();
+      if (newBody == null) return;
+      _bodyList[_currentStep - 1] = [newBody];
+    });
+  }
+
   void _confirmWalletType() {
     switch (_viewModel.selectedWalletType) {
       case ParentWalletType.singleSig:
@@ -579,7 +609,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       MnemonicConfirmationScreen(
         calledFrom: calledFrom,
         isEmbedded: true,
-        isTaprootChild: true,
+        isTaproot: true,
         onMnemonicReady: _addMnemonicVerifyStep,
       ),
     );
@@ -593,7 +623,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     _mnemonicVerifyStep = _addEmbeddedStep(
       MnemonicVerifyScreen(
         isEmbedded: true,
-        isTaprootChild: true,
+        isTaproot: true,
         onVerificationSuccess: _addVerifiedMnemonicConfirmationStep,
       ),
     );
@@ -610,7 +640,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       MnemonicConfirmationScreen(
         calledFrom: AppRoutes.mnemonicVerify,
         isEmbedded: true,
-        isTaprootChild: true,
+        isTaproot: true,
         onMnemonicReady: () {
           if (_isCreatingChildWallet) {
             _onCreatedChildWalletReady();
@@ -655,19 +685,19 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
           ParentNewKeyCreationType.coinFlip => MnemonicCoinflipScreen(
             entropyType: EntropyType.manual,
             isEmbedded: true,
-            isTaprootChild: true,
+            isTaproot: true,
             onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
           ),
           ParentNewKeyCreationType.diceRoll => MnemonicDiceRollScreen(
             entropyType: EntropyType.manual,
             isEmbedded: true,
-            isTaprootChild: true,
+            isTaproot: true,
             onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
           ),
           ParentNewKeyCreationType.autoGenerate => MnemonicAutoGenScreen(
             entropyType: EntropyType.auto,
             isEmbedded: true,
-            isTaprootChild: true,
+            isTaproot: true,
             onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
           ),
           ParentNewKeyCreationType.none => null,
@@ -1609,13 +1639,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     );
   }
 
-  void _addImportedMnemonicViewStep() {
-    final mnemonicViewKey = GlobalKey<MnemonicViewScreenState>();
+  void _addImportedMnemonicConfirmationStep() {
     _addEmbeddedStep(
-      MnemonicViewScreen(
-        key: mnemonicViewKey,
-        initialMnemonic: context.read<WalletCreationProvider>().secret,
-        autoLoadMnemonic: false,
+      MnemonicConfirmationScreen(
+        calledFrom: AppRoutes.mnemonicImport,
         isEmbedded: true,
         onNextButtonPressed: () {
           final mnemonicViewState = mnemonicViewKey.currentState;
@@ -2097,6 +2124,17 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isMnemonicImportActive =
+        _isProgressPaused &&
+        _bodyList.length >= _currentStep &&
+        _bodyList[_currentStep - 1].isNotEmpty &&
+        _bodyList[_currentStep - 1].first is MnemonicImportScreen;
+    final isSeedQrImportActive =
+        _isProgressPaused &&
+        _bodyList.length >= _currentStep &&
+        _bodyList[_currentStep - 1].isNotEmpty &&
+        _bodyList[_currentStep - 1].first is SeedQrImportScreen;
+
     return ChangeNotifierProvider.value(
       value: _viewModel,
       child: PopScope(

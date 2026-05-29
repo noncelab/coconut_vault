@@ -16,7 +16,7 @@ class MnemonicDiceRollScreen extends BaseMnemonicEntropyScreen {
     super.key,
     required super.entropyType,
     super.isEmbedded,
-    super.isTaprootChild,
+    super.isTaproot,
     super.onMnemonicConfirmationRequested,
   });
 
@@ -34,7 +34,7 @@ class _MnemonicDiceRollScreenState extends BaseMnemonicEntropyScreenState<Mnemon
       usePassphrase: usePassphrase,
       onReset: onReset,
       entropyType: EntropyType.manual,
-      isTaprootChild: widget.isTaprootChild,
+      isTaproot: widget.isTaproot,
       isEmbedded: widget.isEmbedded,
       onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
     );
@@ -42,7 +42,6 @@ class _MnemonicDiceRollScreenState extends BaseMnemonicEntropyScreenState<Mnemon
 }
 
 class DiceRoll extends BaseEntropyWidget {
-  final bool isTaprootChild;
   const DiceRoll({
     super.key,
     required super.wordsCount,
@@ -51,7 +50,7 @@ class DiceRoll extends BaseEntropyWidget {
     required super.entropyType,
     super.isEmbedded,
     super.onMnemonicConfirmationRequested,
-    this.isTaprootChild = false,
+    super.isTaproot,
   });
 
   @override
@@ -94,10 +93,10 @@ class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
     final result = await Navigator.pushNamed(
       context,
       AppRoutes.mnemonicConfirmation,
-      arguments: {'calledFrom': AppRoutes.mnemonicDiceRoll, 'isTaprootChild': widget.isTaprootChild},
+      arguments: {'calledFrom': AppRoutes.mnemonicDiceRoll, 'isTaproot': widget.isTaproot},
     );
 
-    if (result == true && widget.isTaprootChild) {
+    if (result == true && widget.isTaproot) {
       if (mounted) {
         Navigator.pop(context, true);
       }

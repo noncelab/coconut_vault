@@ -32,6 +32,16 @@ class ParentCreationViewModel extends ChangeNotifier {
   ParentNewKeyCreationType get selectedChildNewKeyCreationType => _selectedChildNewKeyCreationType;
   int? get selectedExistingVaultId => _selectedExistingVaultId;
   DateTime? get selectedTimelockDateTime => _selectedTimelockDateTime;
+  bool get isSingleSigSelected => _selectedWalletType == ParentWalletType.singleSig;
+  bool get isMultisigSelected => _selectedWalletType == ParentWalletType.multisig;
+  bool get isCreateKeySelected => _selectedKeyPreparationType == ParentKeyPreparationType.create;
+  bool get isImportKeySelected => _selectedKeyPreparationType == ParentKeyPreparationType.import;
+  bool get isCoinFlipSelected => _selectedNewKeyCreationType == ParentNewKeyCreationType.coinFlip;
+  bool get isDiceRollSelected => _selectedNewKeyCreationType == ParentNewKeyCreationType.diceRoll;
+  bool get isAutoGenerateSelected => _selectedNewKeyCreationType == ParentNewKeyCreationType.autoGenerate;
+  bool get isCurrentVaultSelected => _selectedExistingKeyImportType == ParentExistingKeyImportType.currentVault;
+  bool get isMnemonicInputSelected => _selectedExistingKeyImportType == ParentExistingKeyImportType.mnemonicInput;
+  bool get isSeedQrScanSelected => _selectedExistingKeyImportType == ParentExistingKeyImportType.seedQrScan;
   bool get hasSelectedKeyCreationOrImportOption {
     return switch (_selectedKeyPreparationType) {
       ParentKeyPreparationType.create => _selectedNewKeyCreationType != ParentNewKeyCreationType.none,

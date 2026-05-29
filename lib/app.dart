@@ -406,7 +406,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         ),
         if (_appEntryFlow == AppEntryFlow.vaultHome) ...[
           Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
-          ChangeNotifierProvider<TaprootWalletCreationProvider>(create: (_) => TaprootWalletCreationProvider()),
+          Provider<TaprootWalletCreationProvider>(create: (_) => TaprootWalletCreationProvider()),
           Provider<SignProvider>(create: (_) => SignProvider()),
           ChangeNotifierProvider.value(
             value: _ensureWalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider),
@@ -458,7 +458,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         AppRoutes.mnemonicVerify:
                             (context) => buildScreenWithArguments(
                               context,
-                              (args) => MnemonicVerifyScreen(isTaprootChild: args['isTaprootChild'] ?? false),
+                              (args) => MnemonicVerifyScreen(isTaproot: args['isTaproot'] ?? false),
                             ),
                         AppRoutes.mnemonicImport:
                             (context) => buildScreenWithArguments(
@@ -475,7 +475,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               (args) => SeedQrImportScreen(
                                 externalSigner: args['externalSigner'],
                                 multisigVaultIdOfExternalSigner: args['multisigVaultIdOfExternalSigner'],
-                                isTaprootChild: args['isTaprootChild'] ?? false,
+                                isTaprootChild: args['isTaproot'] ?? false,
                               ),
                             ),
                         AppRoutes.mnemonicConfirmation:
@@ -483,7 +483,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               context,
                               (args) => MnemonicConfirmationScreen(
                                 calledFrom: args['calledFrom'],
-                                isTaprootChild: args['isTaprootChild'] ?? false,
+                                isTaproot: args['isTaproot'] ?? false,
                               ),
                             ),
                         AppRoutes.mnemonicView:
@@ -568,13 +568,19 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                           return SecuritySelfCheckScreen(onNextPressed: onNextPressed);
                         },
                         AppRoutes.mnemonicAutoGen:
-                            (context) => const MnemonicAutoGenScreen(entropyType: EntropyType.auto),
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => MnemonicAutoGenScreen(
+                                entropyType: EntropyType.auto,
+                                isTaproot: args['isTaproot'] ?? false,
+                              ),
+                            ),
                         AppRoutes.mnemonicCoinflip:
                             (context) => buildScreenWithArguments(
                               context,
                               (args) => MnemonicCoinflipScreen(
                                 entropyType: EntropyType.manual,
-                                isTaprootChild: args['isTaprootChild'] ?? false,
+                                isTaproot: args['isTaproot'] ?? false,
                               ),
                             ),
                         AppRoutes.mnemonicDiceRoll:
@@ -582,7 +588,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               context,
                               (args) => MnemonicDiceRollScreen(
                                 entropyType: EntropyType.manual,
-                                isTaprootChild: args['isTaprootChild'] ?? false,
+                                isTaproot: args['isTaproot'] ?? false,
                               ),
                             ),
                         AppRoutes.appInfo: (context) => const AppInfoScreen(),

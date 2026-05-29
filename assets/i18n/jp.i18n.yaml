@@ -112,6 +112,11 @@ edit: "編集"
 descriptor: "ディスクリプタ"
 precautions: "注意事項"
 
+wallet_type: "ウォレットの種類"
+mfp: "MFP"
+
+rescan: "再スキャンする"
+
 watch_only_options:
   title: "ウォッチオンリーウォレット選択"
   coconut_wallet: "ココナッツウォレット"
@@ -525,6 +530,8 @@ welcome_screen:
 # lib/screens/vault_creation
 taproot:
   taproot_inheritance_wallet: "Taproot相続ウォレット"
+  parent_wallet: "親ウォレット"
+  child_wallet: "子ウォレット"
   common:
     create_new_wallet_title: "ウォレットをどのように作成しますか？"
     existing_mnemonic_title: "既存のニーモニックを使用しますか？"
@@ -544,15 +551,15 @@ taproot:
     mfp: "MFP"
   taproot_creation_option:
     parent_creation_title: "私は親です"
-    parent_creation_description: "使用するウォレットに相続条件を一緒に準備します"
+    parent_creation_description: "自分のウォレットに相続条件を設定します"
     child_creation_title: "私は子です"
-    child_creation_description: "決められた時点以降に使用するウォレットを準備します"
-    prepared_creation_title: "準備済みの相続ウォレットがあります"
-    prepared_creation_description: "すでに作成したウォレットを取り込みます"
+    child_creation_description: "設定された時期の後に使えるウォレットを準備します"
+    prepared_creation_title: "すでに相続ウォレットを持っています"
+    prepared_creation_description: "すでに作成済みのウォレットを取り込みます"
   parent_creation_screen:
     title: "親ウォレットを作成"
-    creation_intro_title_1: "使用するウォレットに"
-    creation_intro_title_2: "相続条件を設定します"
+    creation_intro_title_1: "相続条件を一緒に"
+    creation_intro_title_2: "ウォレットに準備しましょう"
     step_1:
       title_1: "親ウォレットは"
       title_2: "いくつのキーを使いますか？"
@@ -643,6 +650,51 @@ taproot:
     step2:
       title1: "子ウォレットを"
       title2: "どのように準備しますか？"
+      option1_title: "新しいニーモニックで\n作成"
+      option1_desc: "相続ウォレット専用の\n新しいニーモニックを作成します"
+      option2_title: "既存のニーモニックで\n作成"
+      option2_desc: "保存しているニーモニックで\nTaprootウォレットを作成します"
+    step3:
+      title_new: "ウォレットをどのように作成しますか？"
+      title_existing: "どの既存のニーモニックを使用しますか？"
+      single_sig_select_from_vault_title_1: "現在ボルトに保管されている"
+      single_sig_select_from_vault_title_2: "ニーモニックを選択してください"
+      new_option1: "コイン投げ"
+      new_option2: "サイコロ振り"
+      new_option3: "自動生成"
+      existing_option1: "現在のボルトから\n選択"
+      existing_option2: "ニーモニック入力"
+      existing_option3: "シードQRスキャン"
+      device_auth_dialog_title: "デバイス認証"
+      device_auth_dialog_description: "セキュア領域に保存されたニーモニックにアクセスするため、デバイス認証を行います。"
+    step4:
+      taproot_single_sig_wallet: "Taprootシングルシグウォレット"
+      taproot_multisig_wallet: "Taprootマルチシグウォレット"
+      title1: "子ウォレットの準備ができました"
+      title2: "親ウォレットで使用できるように"
+      title3: "ウォレット情報をエクスポートしてください"
+      return_dialog_title: "前の段階に戻る"
+      return_dialog_description: "作成したばかりの子ウォレットが初期化されます。本当に続けますか？"
+    step5:
+      title1: "相続ウォレットを"
+      title2: "スキャンしてインポートしてください"
+    step6:
+      title1: "相続条件のウォレットと一致します"
+      title2: "相続ウォレットと一致しません"
+    step7:
+      title1: "Taproot相続ウォレットの"
+      title2: "準備가できました"
+      timeline:
+        created_wallet: "ウォレットを作成しました"
+        exported_to_parent: "親ウォレットにエクスポートしました"
+        imported_inheritance_info: "相続ウォレットの情報をインポートしました"
+        active_inheritance_wallet: "相続ウォレットが有効になります"
+        singlesig_description: "単一署名ウォレット | MFP: $mfp"
+        taproot_description: "タップルートウォレット | MFP: $mfp"
+        single_sig_wallet: "単一親ウォレット"
+        multisig_wallet: "マルチシグ親ウォレット"
+        time_after: "$date 以降"
+
   setup_summary_card:
     signer_configuration: "署名者構成"
     inheritance_condition: "相続条件"
@@ -786,7 +838,7 @@ select_vault_type_screen:
   title: "ウォレット追加"
   single_sig: "1つのニーモニックフレーズを保存するシングル署名ウォレット"
   multisig: "指定された数の署名が必要なウォレット"
-  taproot: "必要な時に備えて相続条件を準備するウォレット"
+  taproot: "いざという時に備えた相続条件付きのウォレット"
   empty_key: "現在のボルトに利用可能なキーがありません"
   loading_keys: "ボルトに保存されたキーを読み込み中"
 vault_creation_options_screen:

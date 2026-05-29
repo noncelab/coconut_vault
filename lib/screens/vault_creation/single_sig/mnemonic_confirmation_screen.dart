@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
@@ -16,14 +17,14 @@ import 'package:provider/provider.dart';
 // 마지막 확인: 그 외
 class MnemonicConfirmationScreen extends StatefulWidget {
   final String calledFrom;
-  final bool isTaprootChild;
+  final bool isTaproot;
   final bool isEmbedded;
   final VoidCallback? onMnemonicReady;
 
   const MnemonicConfirmationScreen({
     super.key,
     required this.calledFrom,
-    this.isTaprootChild = false,
+    this.isTaproot = false,
     this.isEmbedded = false,
     this.onMnemonicReady,
   });
@@ -33,17 +34,26 @@ class MnemonicConfirmationScreen extends StatefulWidget {
 }
 
 class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen> {
-  late WalletCreationProvider _walletCreationProvider;
   late int step;
   final ScrollController _scrollController = ScrollController();
   late Uint8List _mnemonic;
+  Uint8List? _passphrase;
   bool _isWarningVisible = true;
 
   @override
   void initState() {
     super.initState();
-    _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
-    _mnemonic = Uint8List.fromList(_walletCreationProvider.secret);
+
+    final secret =
+        widget.isTaproot
+            ? Provider.of<TaprootWalletCreationProvider>(context, listen: false).secret
+            : Provider.of<WalletCreationProvider>(context, listen: false).secret;
+    _passphrase =
+        widget.isTaproot
+            ? Provider.of<TaprootWalletCreationProvider>(context, listen: false).passphrase
+            : Provider.of<WalletCreationProvider>(context, listen: false).passphrase;
+
+    _mnemonic = Uint8List.fromList(secret);
     step = 0;
   }
 
@@ -54,11 +64,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   }
 
   NextButtonState _getNextButtonState() {
-    if (widget.calledFrom == AppRoutes.mnemonicCoinflip || widget.calledFrom == AppRoutes.mnemonicDiceRoll) {
-      return NextButtonState.nextActive;
-    }
-
-    if (_walletCreationProvider.passphrase?.isEmpty ?? true) {
+    if (_passphrase?.isEmpty ?? true) {
       return NextButtonState.completeActive;
     }
     if (step == 0) {
@@ -128,9 +134,8 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   }
 
   Future<void> _onNextButtonClicked() async {
-    if (step == 0 && (_walletCreationProvider.passphrase?.isNotEmpty ?? false)) {
+    if (step == 0 && (_passphrase?.isNotEmpty ?? false)) {
       setState(() {
-        // 패스프레이즈 확인 단계로 이동
         step = 1;
       });
       return;
@@ -142,24 +147,20 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
     }
 
     if (widget.calledFrom == AppRoutes.mnemonicCoinflip || widget.calledFrom == AppRoutes.mnemonicDiceRoll) {
-      if (widget.isTaprootChild) {
+      if (widget.isTaproot) {
         final result = await Navigator.pushNamed(
           context,
           AppRoutes.mnemonicVerify,
-          arguments: {'isTaprootChild': widget.isTaprootChild},
+          arguments: {'isTaproot': widget.isTaproot},
         );
         if (result == true && mounted) {
           Navigator.pop(context, true);
         }
       } else {
-        Navigator.pushReplacementNamed(
-          context,
-          AppRoutes.mnemonicVerify,
-          arguments: {'isTaprootChild': widget.isTaprootChild},
-        );
+        Navigator.pushReplacementNamed(context, AppRoutes.mnemonicVerify, arguments: {'isTaproot': widget.isTaproot});
       }
     } else {
-      if (widget.isTaprootChild) {
+      if (widget.isTaproot) {
         Navigator.pop(context, true);
       } else {
         Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
@@ -169,7 +170,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
 
   Widget buildStepIndicator() {
     return EntropyStepIndicator(
-      usePassphrase: _walletCreationProvider.passphrase?.isNotEmpty ?? false,
+      usePassphrase: _passphrase?.isNotEmpty ?? false,
       step: step,
       onStepSelected: (selectedStep) {
         setState(() {
@@ -180,7 +181,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   }
 
   Widget _passphraseGridViewWidget() {
-    final passphrase = _walletCreationProvider.passphrase;
+    final passphrase = _passphrase;
     if (passphrase == null) return Container();
 
     final decodedPassphrase = utf8.decode(passphrase);

@@ -270,14 +270,15 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
       context.loaderOverlay.hide();
       showDialog(
         context: context,
-        builder: (context) => CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
-          title: t.errors.creation_error,
-          description: e.toString(),
-          onTapRight: () {
-            Navigator.pop(context);
-          },
-        ),
+        builder:
+            (context) => CoconutPopup(
+              languageCode: context.read<VisibilityProvider>().language,
+              title: t.errors.creation_error,
+              description: e.toString(),
+              onTapRight: () {
+                Navigator.pop(context);
+              },
+            ),
       );
     }
   }

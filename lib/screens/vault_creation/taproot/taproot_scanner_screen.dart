@@ -232,9 +232,10 @@ class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
       return TextSpan(children: children);
     }
 
-    final kruxNetworkGuide = NetworkType.currentNetworkType.isTestnet
-        ? t.bsms_scanner_screen.krux.guide2_7_regtest
-        : t.bsms_scanner_screen.krux.guide2_7;
+    final kruxNetworkGuide =
+        NetworkType.currentNetworkType.isTestnet
+            ? t.bsms_scanner_screen.krux.guide2_7_regtest
+            : t.bsms_scanner_screen.krux.guide2_7;
 
     switch (widget.hardwareWalletType) {
       case HardwareWalletType.keystone:

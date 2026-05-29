@@ -15,7 +15,7 @@ class MnemonicAutoGenScreen extends BaseMnemonicEntropyScreen {
     super.key,
     required super.entropyType,
     super.isEmbedded,
-    super.isTaprootChild,
+    super.isTaproot,
     super.onMnemonicConfirmationRequested,
   });
 
@@ -40,6 +40,7 @@ class _MnemonicAutoGenScreenState extends BaseMnemonicEntropyScreenState<Mnemoni
       usePassphrase: usePassphrase,
       onReset: onReset,
       entropyType: EntropyType.auto,
+      isTaproot: widget.isTaproot,
       isEmbedded: widget.isEmbedded,
       onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
     );
@@ -58,6 +59,7 @@ class GeneratedWords extends BaseEntropyWidget {
     super.isEmbedded,
     super.onMnemonicConfirmationRequested,
     this.customMnemonic,
+    super.isTaproot,
   });
 
   @override
@@ -101,13 +103,23 @@ class _GeneratedWordsState extends BaseEntropyWidgetState<GeneratedWords> {
   String get rightButtonText => t.next;
 
   @override
-  void onNavigateToNext() {
+  void onNavigateToNext() async {
     if (widget.isEmbedded) {
       widget.onMnemonicConfirmationRequested?.call();
       return;
     }
 
-    Navigator.pushNamed(context, AppRoutes.mnemonicVerify);
+    final result = await Navigator.pushNamed(
+      context,
+      AppRoutes.mnemonicVerify,
+      arguments: {'isTaproot': widget.isTaproot},
+    );
+
+    if (result == true && widget.isTaproot) {
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    }
   }
 
   // 자동 생성되므로 엔트로피 데이터 추가 불필요

@@ -146,28 +146,28 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     return widget.isEmbedded
         ? body
         : Scaffold(
+          backgroundColor: CoconutColors.white,
+          appBar: CoconutAppBar.build(
+            context: context,
+            title: t.seed_qr_import_screen.title,
             backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.build(
-              context: context,
-              title: t.seed_qr_import_screen.title,
-              backgroundColor: CoconutColors.white,
-              actionButtonList: [
-                IconButton(
-                  icon: SvgPicture.asset(
-                    'assets/svg/arrow-reload.svg',
-                    width: 20,
-                    height: 20,
-                    colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
-                  ),
-                  color: CoconutColors.black,
-                  onPressed: () {
-                    controller?.flipCamera();
-                  },
+            actionButtonList: [
+              IconButton(
+                icon: SvgPicture.asset(
+                  'assets/svg/arrow-reload.svg',
+                  width: 20,
+                  height: 20,
+                  colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
                 ),
-              ],
-            ),
-            body: body,
-          );
+                color: CoconutColors.black,
+                onPressed: () {
+                  controller?.flipCamera();
+                },
+              ),
+            ],
+          ),
+          body: body,
+        );
   }
 
   Widget _buildQrView(BuildContext context) {
@@ -232,15 +232,16 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
         if (!mounted) return;
         await showDialog(
           context: context,
-          builder: (context) => CoconutPopup(
-            languageCode: context.read<VisibilityProvider>().language,
-            title: t.seed_qr_import_screen.format_error_title,
-            description: t.seed_qr_import_screen.format_error_message,
-            rightButtonText: t.close,
-            onTapRight: () {
-              Navigator.pop(context);
-            },
-          ),
+          builder:
+              (context) => CoconutPopup(
+                languageCode: context.read<VisibilityProvider>().language,
+                title: t.seed_qr_import_screen.format_error_title,
+                description: t.seed_qr_import_screen.format_error_message,
+                rightButtonText: t.close,
+                onTapRight: () {
+                  Navigator.pop(context);
+                },
+              ),
         );
         _isProcessing = false;
         return;
@@ -255,15 +256,16 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => SeedQrConfirmationScreen(
-                scannedData: utf8.encode(words!.join(' ')),
-                externalSigner: widget.externalSigner,
-                multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
-                isTaprootChild: widget.isTaprootChild,
-                requirePassphraseConfirmation: widget.requirePassphraseConfirmation,
-                onCompleted: widget.onCompleted,
-                onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
-              ),
+              builder:
+                  (context) => SeedQrConfirmationScreen(
+                    scannedData: utf8.encode(words!.join(' ')),
+                    externalSigner: widget.externalSigner,
+                    multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
+                    isTaprootChild: widget.isTaprootChild,
+                    requirePassphraseConfirmation: widget.requirePassphraseConfirmation,
+                    onCompleted: widget.onCompleted,
+                    onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
+                  ),
             ),
           ).then((result) {
             if (result == true && widget.isTaprootChild && mounted) {

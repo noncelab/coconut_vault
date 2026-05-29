@@ -12,13 +12,13 @@ abstract class BaseMnemonicEntropyScreen extends StatefulWidget {
     super.key,
     required this.entropyType,
     this.isEmbedded = false,
-    this.isTaprootChild = false,
+    this.isTaproot = false,
     this.onMnemonicConfirmationRequested,
   });
 
   final EntropyType entropyType;
   final bool isEmbedded;
-  final bool isTaprootChild;
+  final bool isTaproot;
   final VoidCallback? onMnemonicConfirmationRequested;
 }
 
