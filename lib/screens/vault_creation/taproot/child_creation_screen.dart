@@ -65,8 +65,6 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   int? _currentVaultSelectionStep;
   bool _isProcessing = false;
 
-  int get _baseTotalStep => _currentVaultSelectionStep != null ? 8 : 7;
-
   @override
   void initState() {
     super.initState();
@@ -77,18 +75,18 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     });
   }
 
-  int get _totalStep => _baseTotalStep + _embeddedWidgets.length;
+  int _totalStep(ChildCreationViewModel viewModel) => viewModel.visibleProgressStepCount + _embeddedWidgets.length;
 
-  int get _progressCurrentStep {
+  int _progressCurrentStep(ChildCreationViewModel viewModel) {
     int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
 
-    if (_currentStep <= embeddedStartIndex) {
-      return _currentStep - 1;
-    }
-    if (_currentStep <= embeddedStartIndex + _embeddedWidgets.length) {
-      return embeddedStartIndex - 1;
-    }
-    return _currentStep - _embeddedWidgets.length - 1;
+    final currentStep = switch (_currentStep) {
+      _ when _currentStep <= embeddedStartIndex => _currentStep - 1,
+      _ when _currentStep <= embeddedStartIndex + _embeddedWidgets.length => embeddedStartIndex - 1,
+      _ => _currentStep - _embeddedWidgets.length - 1,
+    };
+
+    return currentStep.clamp(0, viewModel.progressTotalStep);
   }
 
   List<TextSpan> _titleLines(ChildCreationViewModel viewModel) {
@@ -148,11 +146,11 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       viewModel.isBeneficiaryMatch
           ? [TextSpan(text: t.taproot.child_creation_screen.step6.title1)]
           : [
-            TextSpan(
-              text: t.taproot.child_creation_screen.step6.title2,
-              style: const TextStyle(color: CoconutColors.hotPink),
-            ),
-          ],
+              TextSpan(
+                text: t.taproot.child_creation_screen.step6.title2,
+                style: const TextStyle(color: CoconutColors.hotPink),
+              ),
+            ],
       [
         TextSpan(text: t.taproot.child_creation_screen.step7.title1),
         TextSpan(text: t.taproot.child_creation_screen.step7.title2),
@@ -362,10 +360,9 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
                 final index = entry.key;
                 final owner = entry.value;
                 final isSingleParent = viewModel.scannedVaultItem!.owners.length == 1;
-                final parentName =
-                    isSingleParent
-                        ? t.taproot.parent_wallet
-                        : '${t.taproot.parent_wallet} ${String.fromCharCode(65 + index)}';
+                final parentName = isSingleParent
+                    ? t.taproot.parent_wallet
+                    : '${t.taproot.parent_wallet} ${String.fromCharCode(65 + index)}';
 
                 return TaprootParticipantCard(
                   role: TaprootParticipantRole.parent,
@@ -708,7 +705,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       }
     }
 
-    if (_currentStep >= _totalStep) {
+    if (_currentStep >= _totalStep(viewModel)) {
       vibrateExtraLight();
 
       setState(() => _isProcessing = true);
@@ -1042,7 +1039,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     int baseCurrentStep = _currentStep > embeddedStartIndex ? _currentStep - _embeddedWidgets.length : _currentStep;
     final isScannerStep = baseCurrentStep == scannerStepIndex;
     final isSummaryStep = baseCurrentStep == scannerStepIndex + 1;
-    final isLastStep = _currentStep == _totalStep;
+    final isLastStep = _currentStep == _totalStep(viewModel);
 
     Widget? currentEmbeddedWidget;
     if (isEmbeddedActive) {
@@ -1105,7 +1102,11 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
                 onBottomButtonPressed: () => _onNextPressed(viewModel),
                 child: _getCurrentChild(viewModel),
               ),
-              TopProgressBar(visible: !isEmbeddedActive, total: _baseTotalStep - 1, current: _progressCurrentStep),
+              TopProgressBar(
+                visible: !isEmbeddedActive,
+                total: viewModel.progressTotalStep,
+                current: _progressCurrentStep(viewModel),
+              ),
             ],
           ),
         ),

@@ -89,8 +89,8 @@ class _ImportedTaprootSeed {
     required Uint8List secret,
     required Uint8List? passphrase,
     required this.isMatched,
-  }) : secret = Uint8List.fromList(secret),
-       passphrase = Uint8List.fromList(passphrase ?? Uint8List(0));
+  })  : secret = Uint8List.fromList(secret),
+        passphrase = Uint8List.fromList(passphrase ?? Uint8List(0));
 
   SeedSource toSeedSource() {
     return SeedSource(mnemonic: Uint8List.fromList(secret), passphrase: Uint8List.fromList(passphrase));
@@ -103,6 +103,8 @@ class _ImportedTaprootSeed {
 }
 
 class TaprootImportViewModel extends ChangeNotifier {
+  static const int _progressStepCount = 4;
+
   final TaprootWalletSyncDuplicateChecker _isWalletSyncDescriptorImported;
   final TaprootVaultAdder _addTaprootVault;
   TaprootWalletSyncData? _walletSyncData;
@@ -125,8 +127,8 @@ class TaprootImportViewModel extends ChangeNotifier {
   TaprootImportViewModel({
     required TaprootWalletSyncDuplicateChecker isWalletSyncDescriptorImported,
     required TaprootVaultAdder addTaprootVault,
-  }) : _isWalletSyncDescriptorImported = isWalletSyncDescriptorImported,
-       _addTaprootVault = addTaprootVault;
+  })  : _isWalletSyncDescriptorImported = isWalletSyncDescriptorImported,
+        _addTaprootVault = addTaprootVault;
 
   TaprootVaultListItem? get scannedVaultItem => _scannedVaultItem;
   TaprootVaultListItem? get scannedExtraVaultItem => _scannedExtraVaultItem;
@@ -139,6 +141,7 @@ class TaprootImportViewModel extends ChangeNotifier {
   bool get isSelectedRoleMatch => _isSelectedRoleMatch;
   bool get hasExtraImport => _hasExtraImport;
   bool get isExtraImportMatched => _isExtraImportMatched;
+  int get progressTotalStep => _progressStepCount;
 
   TaprootWalletSyncValidationResult validateWalletSyncData(TaprootWalletSyncData walletSyncData) {
     if (_isWalletSyncDescriptorImported(walletSyncData.descriptor)) {
@@ -327,8 +330,7 @@ class TaprootImportViewModel extends ChangeNotifier {
       ...scannedVaultItem.owners.asMap().entries.map((entry) {
         final index = entry.key;
         final owner = entry.value;
-        final isMatchedSigner =
-            showSelectedRoleState &&
+        final isMatchedSigner = showSelectedRoleState &&
             ((_selectedRole == TaprootImportRole.signer && owner.isSeedStored) ||
                 (_hasExtraImport &&
                     _extraImportRole == TaprootImportRole.signer &&
@@ -338,13 +340,11 @@ class TaprootImportViewModel extends ChangeNotifier {
                               extraOwner.masterFingerprint == owner.masterFingerprint && extraOwner.isSeedStored,
                         ) ==
                         true));
-        final isExtraSignerTarget =
-            showSelectedRoleState &&
+        final isExtraSignerTarget = showSelectedRoleState &&
             _extraImportRole == TaprootImportRole.signer &&
             _extraTargetMasterFingerprint == owner.masterFingerprint;
         final isInvalidExtraSigner = _hasExtraImport && !_isExtraImportMatched && isExtraSignerTarget;
-        final canAddExtraSigner =
-            showSelectedRoleState &&
+        final canAddExtraSigner = showSelectedRoleState &&
             !_hasExtraImport &&
             _isSelectedRoleMatch &&
             _selectedRole == TaprootImportRole.beneficiary;
@@ -365,12 +365,10 @@ class TaprootImportViewModel extends ChangeNotifier {
         final isBeneficiaryRole = showSelectedRoleState && _selectedRole == TaprootImportRole.beneficiary;
         final isMatchedBeneficiary =
             isBeneficiaryRole && (beneficiary.isSeedStored || beneficiary.masterFingerprint == _masterFingerprint);
-        final isExtraBeneficiaryTarget =
-            showSelectedRoleState &&
+        final isExtraBeneficiaryTarget = showSelectedRoleState &&
             _extraImportRole == TaprootImportRole.beneficiary &&
             _extraTargetMasterFingerprint == beneficiary.masterFingerprint;
-        final isMatchedExtraBeneficiary =
-            _hasExtraImport &&
+        final isMatchedExtraBeneficiary = _hasExtraImport &&
             _extraImportRole == TaprootImportRole.beneficiary &&
             _isExtraImportMatched &&
             (_scannedExtraVaultItem?.beneficiaries.any(
@@ -380,8 +378,7 @@ class TaprootImportViewModel extends ChangeNotifier {
                 ) ==
                 true);
         final isInvalidExtraBeneficiary = _hasExtraImport && !_isExtraImportMatched && isExtraBeneficiaryTarget;
-        final canAddExtraBeneficiary =
-            showSelectedRoleState &&
+        final canAddExtraBeneficiary = showSelectedRoleState &&
             !_hasExtraImport &&
             _isSelectedRoleMatch &&
             _selectedRole == TaprootImportRole.signer;
@@ -393,10 +390,9 @@ class TaprootImportViewModel extends ChangeNotifier {
           lockTime: beneficiary.lockTime,
           hasBackgroundColor: isMatchedBeneficiary || isMatchedExtraBeneficiary,
           isMine: isMatchedBeneficiary || isMatchedExtraBeneficiary,
-          isValid:
-              isInvalidExtraBeneficiary
-                  ? false
-                  : !isBeneficiaryRole || beneficiary.masterFingerprint == _masterFingerprint,
+          isValid: isInvalidExtraBeneficiary
+              ? false
+              : !isBeneficiaryRole || beneficiary.masterFingerprint == _masterFingerprint,
           canAddExtra: canAddExtraBeneficiary,
         );
       }),
@@ -453,8 +449,8 @@ class TaprootImportViewModel extends ChangeNotifier {
     _scannedVaultItem = switch (selectedRole) {
       TaprootImportRole.signer => _buildScannedVaultItem(matchedParentExtendedPublicKey: result.extendedPublicKey),
       TaprootImportRole.beneficiary => _buildScannedVaultItem(
-        matchedBeneficiaryExtendedPublicKey: result.extendedPublicKey,
-      ),
+          matchedBeneficiaryExtendedPublicKey: result.extendedPublicKey,
+        ),
       TaprootImportRole.none => _scannedVaultItem,
     };
 
@@ -491,8 +487,8 @@ class TaprootImportViewModel extends ChangeNotifier {
     _scannedExtraVaultItem = switch (importRole) {
       TaprootImportRole.signer => _buildScannedVaultItem(matchedParentExtendedPublicKey: result.extendedPublicKey),
       TaprootImportRole.beneficiary => _buildScannedVaultItem(
-        matchedBeneficiaryExtendedPublicKey: result.extendedPublicKey,
-      ),
+          matchedBeneficiaryExtendedPublicKey: result.extendedPublicKey,
+        ),
       TaprootImportRole.none => _buildScannedVaultItem(),
     };
 

@@ -34,7 +34,6 @@ class TaprootImportScreen extends StatefulWidget {
 
 class _TaprootImportScreenState extends State<TaprootImportScreen> {
   static const int _initialStepCount = 1;
-  static const int _progressTotalStep = 4;
 
   late final List<List<TextSpan>> _titleList;
   late final List<List<Widget>> _bodyList;
@@ -58,7 +57,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   int get _progressCurrentStep =>
       (_pauseProgressList.take(_currentStep).where((isPaused) => !isPaused).length - _initialStepCount).clamp(
         0,
-        _progressTotalStep,
+        _viewModel.progressTotalStep,
       );
 
   FutureOr<void> Function()? get _currentNextButtonAction {
@@ -106,7 +105,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       return t.taproot.taproot_import_screen.step6.enter_again;
     }
 
-    return _progressCurrentStep >= _progressTotalStep ? t.complete : null;
+    return _progressCurrentStep >= _viewModel.progressTotalStep ? t.complete : null;
   }
 
   @override
@@ -910,7 +909,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
                     ),
                     TopProgressBar(
                       visible: !_isProgressPaused,
-                      total: _progressTotalStep,
+                      total: _viewModel.progressTotalStep,
                       current: _progressCurrentStep,
                     ),
                     if (_showExtraMismatchBottomButtons)

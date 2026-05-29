@@ -22,6 +22,9 @@ class InheritanceVaultPolicy {
 }
 
 class ChildCreationViewModel extends ChangeNotifier {
+  static const int _baseProgressStepCount = 6;
+  static const int _currentVaultSelectionProgressStepCount = 1;
+
   final TaprootWalletCreationProvider _taprootProvider;
 
   ChildKeyPreparationType _keyPreparationType = ChildKeyPreparationType.none;
@@ -121,8 +124,7 @@ class ChildCreationViewModel extends ChangeNotifier {
     try {
       final String desc = item.descriptor.trim();
       final bool hasValidFormat = desc.isNotEmpty && desc.contains('tr(');
-      final bool hasValidParents =
-          item.owners.length >= InheritanceVaultPolicy.minParents &&
+      final bool hasValidParents = item.owners.length >= InheritanceVaultPolicy.minParents &&
           item.owners.length <= InheritanceVaultPolicy.maxParents;
       final bool hasValidChildren = item.beneficiaries.length == InheritanceVaultPolicy.requiredChildren;
 
@@ -204,6 +206,14 @@ class ChildCreationViewModel extends ChangeNotifier {
   String? get masterFingerprint => _masterFingerprint;
   TaprootVaultListItem? get scannedVaultItem => _scannedVaultItem;
   String? get scannedMasterFingerprint => _scannedMasterFingerprint;
+  int get progressTotalStep {
+    return _baseProgressStepCount +
+        (_existingKeyImportType == ChildExistingKeyImportType.currentVault
+            ? _currentVaultSelectionProgressStepCount
+            : 0);
+  }
+
+  int get visibleProgressStepCount => progressTotalStep + 1;
 
   void setKeyPreparationType(ChildKeyPreparationType type) {
     _keyPreparationType = _keyPreparationType == type ? ChildKeyPreparationType.none : type;

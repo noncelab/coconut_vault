@@ -31,6 +31,12 @@ class ParentCreationSaveResult {
 }
 
 class ParentCreationViewModel extends ChangeNotifier {
+  static const int _singleSigParentProgressStepCount = 2;
+  static const int _multisigParentProgressStepCount = 4;
+  static const int _currentVaultSelectionProgressStepCount = 1;
+  static const int _childWalletImportProgressStepCount = 4;
+  static const int _childWalletCreateExtraProgressStepCount = 1;
+
   ParentWalletType _selectedWalletType = ParentWalletType.none;
   ParentKeyPreparationType _selectedKeyPreparationType = ParentKeyPreparationType.none;
   ParentNewKeyCreationType _selectedNewKeyCreationType = ParentNewKeyCreationType.none;
@@ -73,6 +79,27 @@ class ParentCreationViewModel extends ChangeNotifier {
   bool get isCurrentVaultSelected => _selectedExistingKeyImportType == ParentExistingKeyImportType.currentVault;
   bool get isMnemonicInputSelected => _selectedExistingKeyImportType == ParentExistingKeyImportType.mnemonicInput;
   bool get isSeedQrScanSelected => _selectedExistingKeyImportType == ParentExistingKeyImportType.seedQrScan;
+  int get progressTotalStep {
+    return _parentWalletProgressStepCount +
+        (_usesCurrentVaultParentKey ? _currentVaultSelectionProgressStepCount : 0) +
+        _childWalletImportProgressStepCount +
+        (_usesCreatedChildWallet ? _childWalletCreateExtraProgressStepCount : 0);
+  }
+
+  int get _parentWalletProgressStepCount {
+    return switch (_selectedWalletType) {
+      ParentWalletType.multisig => _multisigParentProgressStepCount,
+      ParentWalletType.none || ParentWalletType.singleSig => _singleSigParentProgressStepCount,
+    };
+  }
+
+  bool get _usesCurrentVaultParentKey {
+    return _selectedKeyPreparationType == ParentKeyPreparationType.import &&
+        _selectedExistingKeyImportType == ParentExistingKeyImportType.currentVault;
+  }
+
+  bool get _usesCreatedChildWallet => _selectedChildWalletSetupType == ChildWalletSetupType.create;
+
   bool get hasSelectedKeyCreationOrImportOption {
     return switch (_selectedKeyPreparationType) {
       ParentKeyPreparationType.create => _selectedNewKeyCreationType != ParentNewKeyCreationType.none,
@@ -214,8 +241,8 @@ class ParentCreationViewModel extends ChangeNotifier {
   bool isSameAsParentWallet(String masterFingerprint) {
     final parentMasterFingerprints = [_parentMasterFingerprint, _externalParentMasterFingerprint];
     return parentMasterFingerprints.whereType<String>().any(
-      (parentMasterFingerprint) => parentMasterFingerprint.toLowerCase() == masterFingerprint.toLowerCase(),
-    );
+          (parentMasterFingerprint) => parentMasterFingerprint.toLowerCase() == masterFingerprint.toLowerCase(),
+        );
   }
 
   Future<ParentCreationSaveResult> saveVault(
