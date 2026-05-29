@@ -195,9 +195,11 @@ class MnemonicViewScreenState extends State<MnemonicViewScreen> with TickerProvi
     } finally {
       if (mounted) {
         await Future.delayed(const Duration(seconds: 1));
-        setState(() {
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
     }
   }
