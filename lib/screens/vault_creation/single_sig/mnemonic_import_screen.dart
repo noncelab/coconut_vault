@@ -8,6 +8,7 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -27,7 +28,18 @@ import 'package:provider/provider.dart';
 class MnemonicImportScreen extends StatefulWidget {
   final MultisigSigner? externalSigner;
   final int? multisigVaultIdOfExternalSigner;
-  const MnemonicImportScreen({super.key, this.externalSigner, this.multisigVaultIdOfExternalSigner});
+  final bool isEmbedded;
+  final bool isTaproot;
+  final VoidCallback? onCompleted;
+
+  const MnemonicImportScreen({
+    super.key,
+    this.externalSigner,
+    this.multisigVaultIdOfExternalSigner,
+    this.isEmbedded = false,
+    this.isTaproot = false,
+    this.onCompleted,
+  });
 
   @override
   State<MnemonicImportScreen> createState() => _MnemonicImportScreenState();
@@ -588,6 +600,16 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
       final externalSigner = widget.externalSigner;
 
+      if (widget.isTaproot) {
+        final taprootWalletCreationProvider = context.read<TaprootWalletCreationProvider>();
+
+        taprootWalletCreationProvider.setSecretAndPassphrase(secret, passphrase);
+        _walletCreationProvider.setSecretAndPassphrase(Uint8List.fromList(secret), Uint8List.fromList(passphrase));
+
+        widget.onCompleted?.call();
+        return;
+      }
+
       if (externalSigner != null) {
         if (!mounted) return;
         context.loaderOverlay.show();
@@ -601,7 +623,9 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       }
 
       if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
-        CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+        if (mounted) {
+          CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+        }
         return;
       }
 
@@ -613,6 +637,11 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
       if (mounted) {
         context.loaderOverlay.hide();
+        if (widget.onCompleted != null) {
+          widget.onCompleted!();
+          return;
+        }
+
         Navigator.pushNamed(
           context,
           AppRoutes.mnemonicConfirmation,
@@ -761,12 +790,15 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
               await _handleBackNavigation();
             }
           },
-          child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            backgroundColor: CoconutColors.white,
-            appBar: _buildAppBar(),
-            body: _buildBody(),
-          ),
+          child:
+              widget.isEmbedded
+                  ? _buildBody(isEmbedded: true)
+                  : Scaffold(
+                    resizeToAvoidBottomInset: true,
+                    backgroundColor: CoconutColors.white,
+                    appBar: _buildAppBar(),
+                    body: _buildBody(),
+                  ),
         ),
       ),
     );
@@ -801,19 +833,23 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     );
   }
 
-  Widget _buildBody() {
-    return SafeArea(
-      child: Stack(
-        children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: Column(children: [_buildWordCountSelector(), Expanded(child: _buildMnemonicInputSection())]),
-          ),
-          if (!_isSuggestionWordsVisible) _buildBottomButton(),
-          if (_isSuggestionWordsVisible) _buildSuggestionSection(),
-        ],
-      ),
+  Widget _buildBody({bool isEmbedded = false}) {
+    final body = Stack(
+      children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height,
+          child: Column(children: [_buildWordCountSelector(), Expanded(child: _buildMnemonicInputSection())]),
+        ),
+        if (!_isSuggestionWordsVisible) _buildBottomButton(),
+        if (_isSuggestionWordsVisible) _buildSuggestionSection(),
+      ],
     );
+
+    if (isEmbedded) {
+      return body;
+    }
+
+    return SafeArea(child: body);
   }
 
   Widget _buildWordCountSelector() {
@@ -1248,16 +1284,19 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   }
 
   Widget _buildPassphraseVisibilityToggle() {
-    return CupertinoButton(
-      onPressed: () {
-        setState(() {
-          _passphraseObscured = !_passphraseObscured;
-        });
-      },
-      child:
-          _passphraseObscured
-              ? const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18)
-              : const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
+    return SizedBox(
+      width: 44,
+      height: 44,
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        minSize: 0,
+        onPressed: () => setState(() => _passphraseObscured = !_passphraseObscured),
+        child: Icon(
+          _passphraseObscured ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+          color: CoconutColors.gray800,
+          size: 18,
+        ),
+      ),
     );
   }
 

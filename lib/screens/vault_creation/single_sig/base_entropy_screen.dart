@@ -8,8 +8,18 @@ import 'package:provider/provider.dart';
 enum EntropyType { auto, manual }
 
 abstract class BaseMnemonicEntropyScreen extends StatefulWidget {
-  const BaseMnemonicEntropyScreen({super.key, required this.entropyType});
+  const BaseMnemonicEntropyScreen({
+    super.key,
+    required this.entropyType,
+    this.isEmbedded = false,
+    this.isTaproot = false,
+    this.onMnemonicConfirmationRequested,
+  });
+
   final EntropyType entropyType;
+  final bool isEmbedded;
+  final bool isTaproot;
+  final VoidCallback? onMnemonicConfirmationRequested;
 }
 
 abstract class BaseMnemonicEntropyScreenState<T extends BaseMnemonicEntropyScreen> extends State<T> {
@@ -38,6 +48,7 @@ abstract class BaseMnemonicEntropyScreenState<T extends BaseMnemonicEntropyScree
       PassphraseSelection(onSelected: _onPassphraseSelected),
       buildEntropyWidget(),
     ];
+    final body = screens[_step];
 
     return PopScope(
       canPop: false,
@@ -50,11 +61,18 @@ abstract class BaseMnemonicEntropyScreenState<T extends BaseMnemonicEntropyScree
         onTap: () {
           FocusScope.of(context).unfocus();
         },
-        child: Scaffold(
-          backgroundColor: CoconutColors.white,
-          appBar: CoconutAppBar.build(title: screenTitle, context: context, backgroundColor: CoconutColors.white),
-          body: SafeArea(child: screens[_step]),
-        ),
+        child:
+            widget.isEmbedded
+                ? body
+                : Scaffold(
+                  backgroundColor: CoconutColors.white,
+                  appBar: CoconutAppBar.build(
+                    title: screenTitle,
+                    context: context,
+                    backgroundColor: CoconutColors.white,
+                  ),
+                  body: SafeArea(child: body),
+                ),
       ),
     );
   }
