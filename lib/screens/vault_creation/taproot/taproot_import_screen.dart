@@ -6,6 +6,7 @@ import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/taproot_import_view_model.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/vault_name_and_icon_setup_view_model.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
@@ -13,6 +14,7 @@ import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_scanner_screen.dart';
+import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_participant_card.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_setup_summary_card.dart';
@@ -73,11 +75,19 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       return false;
     }
 
+    if (_showExtraMismatchBottomButtons) {
+      return false;
+    }
+
     if (_currentStep == _roleSelectionStep) {
       return _viewModel.selectedRole != TaprootImportRole.none;
     }
 
     return _currentNextButtonAction != null && (!_isTimelineStep || _isTimelineAnimationCompleted);
+  }
+
+  bool get _showExtraMismatchBottomButtons {
+    return _currentStep == _importResultStep && _viewModel.hasExtraImport && !_viewModel.isExtraImportMatched;
   }
 
   bool get _showImportModeToggle {
@@ -93,7 +103,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   }
 
   String? get _bottomButtonText {
-    if (_currentStep == _importResultStep && !_viewModel.isSelectedRoleMatch) {
+    if (_currentStep == _importResultStep && !_viewModel.hasExtraImport && !_viewModel.isSelectedRoleMatch) {
       return t.taproot.taproot_import_screen.step6.enter_again;
     }
 
@@ -198,12 +208,35 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
         hasAppbar: false,
         dataType: TaprootScannerDataType.walletSync,
         topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
-        onWalletSyncScanned: (walletSyncData) {
+        onWalletSyncScanned: (walletSyncData) async {
+          final duplicatedWallet = context.read<WalletProvider>().findWalletByDescriptor(walletSyncData.descriptor);
+          if (duplicatedWallet != null) {
+            await _showDuplicateWalletDialog();
+            return false;
+          }
+
           _viewModel.setWalletSyncData(walletSyncData);
           _addImportedWalletStep();
           return true;
         },
       ),
+    );
+  }
+
+  Future<void> _showDuplicateWalletDialog() async {
+    final step2 = t.taproot.taproot_import_screen.step2;
+
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
+          title: step2.duplicate_wallet_title,
+          description: step2.duplicate_wallet_description,
+          rightButtonText: t.confirm,
+          onTapRight: () => Navigator.pop(dialogContext),
+        );
+      },
     );
   }
 
@@ -240,12 +273,33 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
                   final index = entry.key;
                   final owner = entry.value;
                   final isSingleParent = scannedVaultItem.owners.length == 1;
-                  final parentName = isSingleParent
-                      ? t.taproot.taproot_import_screen.step4.signer
-                      : '${t.taproot.taproot_import_screen.step4.signer} ${String.fromCharCode(65 + index)}';
-                  final isMatchedSigner = showSelectedRoleState &&
-                      _viewModel.selectedRole == TaprootImportRole.signer &&
-                      owner.isSeedStored;
+                  final parentName =
+                      isSingleParent
+                          ? t.taproot.taproot_import_screen.step6.parent_wallet
+                          : '${t.taproot.taproot_import_screen.step6.parent_wallet} ${String.fromCharCode(65 + index)}';
+                  final isMatchedSigner =
+                      showSelectedRoleState &&
+                      ((_viewModel.selectedRole == TaprootImportRole.signer && owner.isSeedStored) ||
+                          (_viewModel.hasExtraImport &&
+                              _viewModel.extraImportRole == TaprootImportRole.signer &&
+                              _viewModel.isExtraImportMatched &&
+                              _viewModel.scannedExtraVaultItem?.owners.any(
+                                    (extraOwner) =>
+                                        extraOwner.masterFingerprint == owner.masterFingerprint &&
+                                        extraOwner.isSeedStored,
+                                  ) ==
+                                  true));
+                  final isExtraSignerTarget =
+                      showSelectedRoleState &&
+                      _viewModel.extraImportRole == TaprootImportRole.signer &&
+                      _viewModel.extraTargetMasterFingerprint == owner.masterFingerprint;
+                  final isInvalidExtraSigner =
+                      _viewModel.hasExtraImport && !_viewModel.isExtraImportMatched && isExtraSignerTarget;
+                  final canAddExtraSigner =
+                      showSelectedRoleState &&
+                      !_viewModel.hasExtraImport &&
+                      _viewModel.isSelectedRoleMatch &&
+                      _viewModel.selectedRole == TaprootImportRole.beneficiary;
 
                   return TaprootParticipantCard(
                     role: TaprootParticipantRole.parent,
@@ -255,23 +309,57 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
                     hasSingleParent: isSingleParent,
                     hasBackgroundColor: isMatchedSigner,
                     isMine: isMatchedSigner,
-                    isValid: true,
+                    isValid: !isInvalidExtraSigner,
+                    onTap:
+                        canAddExtraSigner
+                            ? () => _addExtraWalletCheckStep(TaprootImportRole.signer, owner.masterFingerprint)
+                            : null,
                   );
                 }),
                 ...scannedVaultItem.beneficiaries.map((beneficiary) {
                   final isBeneficiaryRole =
                       showSelectedRoleState && _viewModel.selectedRole == TaprootImportRole.beneficiary;
-                  final isMatchedBeneficiary = isBeneficiaryRole &&
+                  final isMatchedBeneficiary =
+                      isBeneficiaryRole &&
                       (beneficiary.isSeedStored || beneficiary.masterFingerprint == _viewModel.masterFingerprint);
+                  final isExtraBeneficiaryTarget =
+                      showSelectedRoleState &&
+                      _viewModel.extraImportRole == TaprootImportRole.beneficiary &&
+                      _viewModel.extraTargetMasterFingerprint == beneficiary.masterFingerprint;
+                  final isMatchedExtraBeneficiary =
+                      _viewModel.hasExtraImport &&
+                      _viewModel.extraImportRole == TaprootImportRole.beneficiary &&
+                      _viewModel.isExtraImportMatched &&
+                      (_viewModel.scannedExtraVaultItem?.beneficiaries.any(
+                            (extraBeneficiary) =>
+                                extraBeneficiary.masterFingerprint == beneficiary.masterFingerprint &&
+                                extraBeneficiary.isSeedStored,
+                          ) ==
+                          true);
+                  final isInvalidExtraBeneficiary =
+                      _viewModel.hasExtraImport && !_viewModel.isExtraImportMatched && isExtraBeneficiaryTarget;
+                  final canAddExtraBeneficiary =
+                      showSelectedRoleState &&
+                      !_viewModel.hasExtraImport &&
+                      _viewModel.isSelectedRoleMatch &&
+                      _viewModel.selectedRole == TaprootImportRole.signer;
 
                   return TaprootParticipantCard(
                     role: TaprootParticipantRole.child,
                     mfp: beneficiary.masterFingerprint,
                     derivationPath: scannedVaultItem.derivationPath,
                     locktime: beneficiary.lockTime,
-                    hasBackgroundColor: isMatchedBeneficiary,
-                    isMine: isMatchedBeneficiary,
-                    isValid: !isBeneficiaryRole || beneficiary.masterFingerprint == _viewModel.masterFingerprint,
+                    hasBackgroundColor: isMatchedBeneficiary || isMatchedExtraBeneficiary,
+                    isMine: isMatchedBeneficiary || isMatchedExtraBeneficiary,
+                    isValid:
+                        isInvalidExtraBeneficiary
+                            ? false
+                            : !isBeneficiaryRole || beneficiary.masterFingerprint == _viewModel.masterFingerprint,
+                    onTap:
+                        canAddExtraBeneficiary
+                            ? () =>
+                                _addExtraWalletCheckStep(TaprootImportRole.beneficiary, beneficiary.masterFingerprint)
+                            : null,
                   );
                 }),
               ],
@@ -336,26 +424,31 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
     );
   }
 
+  void _addExtraWalletCheckStep(TaprootImportRole role, String targetMasterFingerprint) {
+    _viewModel.startExtraImport(role, targetMasterFingerprint: targetMasterFingerprint);
+    _addParentWalletCheckStep();
+  }
+
   Widget _buildWalletImportScreen(ImportMode importMode) {
     return switch (importMode) {
       ImportMode.enter => MnemonicImportScreen(
-          key: const ValueKey('taproot-import-mnemonic'),
-          isEmbedded: true,
-          isTaprootCreationChild: true,
-          requirePassphraseConfirmation: true,
-          onMnemonicConfirmationRequested: _setImportedSeed,
-        ),
+        key: const ValueKey('taproot-import-mnemonic'),
+        isEmbedded: true,
+        isTaprootCreationChild: true,
+        requirePassphraseConfirmation: true,
+        onMnemonicConfirmationRequested: _setImportedSeed,
+      ),
       ImportMode.scan => SeedQrImportScreen(
-          key: const ValueKey('taproot-import-seed-qr'),
-          isEmbedded: true,
-          isTaprootChild: true,
-          requirePassphraseConfirmation: true,
-          onMnemonicConfirmationRequested: _setImportedSeedFromSeedQr,
-        ),
+        key: const ValueKey('taproot-import-seed-qr'),
+        isEmbedded: true,
+        isTaprootChild: true,
+        requirePassphraseConfirmation: true,
+        onMnemonicConfirmationRequested: _setImportedSeedFromSeedQr,
+      ),
     };
   }
 
-  Widget _buildSummaryStep() {
+  Widget _buildSummaryWidget() {
     if (_viewModel.scannedVaultItem == null) return const SizedBox.shrink();
 
     return Column(
@@ -366,9 +459,18 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
 
   Widget _buildSummaryHeader() {
     final step6 = t.taproot.taproot_import_screen.step6;
-    final isMatch = _viewModel.isSelectedRoleMatch;
+    final isExtraResult = _viewModel.hasExtraImport;
+    final isMatch = isExtraResult ? _viewModel.isExtraImportMatched : _viewModel.isSelectedRoleMatch;
 
-    final description = switch (_viewModel.selectedRole) {
+    final descriptionRole =
+        isExtraResult
+            ? _viewModel.extraImportRole
+            : switch (_viewModel.selectedRole) {
+              TaprootImportRole.signer => TaprootImportRole.beneficiary,
+              TaprootImportRole.beneficiary => TaprootImportRole.signer,
+              TaprootImportRole.none => TaprootImportRole.none,
+            };
+    final description = switch (descriptionRole) {
       TaprootImportRole.signer => step6.description_signer,
       TaprootImportRole.beneficiary => step6.description_beneficiary,
       TaprootImportRole.none => '',
@@ -446,7 +548,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   void _addImportResultStep() {
     _importResultStep = _addStep(
       titleList: [],
-      bodyList: [_buildSummaryStep()],
+      bodyList: [_buildSummaryWidget()],
       nextButtonAction: _handleImportResultNextButton,
       ignoreBodyHorizontalPadding: true,
     );
@@ -457,7 +559,9 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       return;
     }
 
-    if (_viewModel.isSelectedRoleMatch) {
+    final canCreateWallet =
+        _viewModel.hasExtraImport ? _viewModel.isExtraImportMatched : _viewModel.isSelectedRoleMatch;
+    if (canCreateWallet) {
       if (_createdTaprootVaultId == null) {
         await _saveImportedTaprootWallet();
       }
@@ -466,11 +570,40 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
     }
 
     _viewModel.setImportMode(ImportMode.enter);
-    _handleBackPressed();
+    _returnToPreviousStep();
+  }
+
+  Future<void> _handleExtraMismatchNextButton() async {
+    if (_isProcessingImport) {
+      return;
+    }
+
+    if (_createdTaprootVaultId == null) {
+      await _saveImportedTaprootWallet();
+    }
+    _addTimelineStep();
+  }
+
+  void _handleExtraMismatchEnterAgainButton() {
+    if (_isProcessingImport) {
+      return;
+    }
+
+    final extraImportRole = _viewModel.extraImportRole;
+    final targetMasterFingerprint = _viewModel.extraTargetMasterFingerprint;
+    if (extraImportRole == TaprootImportRole.none || targetMasterFingerprint == null) {
+      return;
+    }
+
+    _viewModel.startExtraImport(extraImportRole, targetMasterFingerprint: targetMasterFingerprint);
+    _viewModel.setImportMode(ImportMode.enter);
+    _returnToPreviousStep();
   }
 
   Future<void> _handleBeforeBottomButtonFadeOut() async {
-    if (_currentStep != _importResultStep || !_viewModel.isSelectedRoleMatch) {
+    final canCreateWallet =
+        _viewModel.hasExtraImport ? _viewModel.isExtraImportMatched : _viewModel.isSelectedRoleMatch;
+    if (_currentStep != _importResultStep || !canCreateWallet) {
       return;
     }
 
@@ -540,9 +673,11 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
     final isSigner = _viewModel.selectedRole == TaprootImportRole.signer;
     final scannedVaultItem = _viewModel.scannedVaultItem;
     final isSingleParent = scannedVaultItem == null || scannedVaultItem.owners.length == 1;
-    final inheritedWalletDescription = isSingleParent
-        ? timeline.single_parent_wallet_with_name(name: scannedVaultItem?.name ?? '')
-        : timeline.multi_parent_wallet_with_name(name: scannedVaultItem.name);
+    final inheritedWalletDescription =
+        isSingleParent
+            ? timeline.single_parent_wallet_with_name(name: scannedVaultItem?.name ?? '')
+            : timeline.multi_parent_wallet_with_name(name: scannedVaultItem.name);
+    final hasMatchedExtraImport = _viewModel.hasExtraImport && _viewModel.isExtraImportMatched;
 
     return TimelineStepIndicator(
       onCompleted: _handleTimelineAnimationCompleted,
@@ -558,6 +693,18 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
           description: isSigner ? _timelineParentWalletDescription() : _timelineBeneficiaryWalletDescription(),
           status: TimelineStepStatus.upcoming,
         ),
+        if (hasMatchedExtraImport)
+          TimelineStepItem(
+            title:
+                _viewModel.extraImportRole == TaprootImportRole.signer
+                    ? timeline.signer_wallet_added
+                    : timeline.inheritance_wallet_added,
+            description:
+                _viewModel.extraImportRole == TaprootImportRole.signer
+                    ? _timelineParentWalletDescription()
+                    : _timelineBeneficiaryWalletDescription(),
+            status: TimelineStepStatus.upcoming,
+          ),
         TimelineStepItem(
           title: timeline.inheritance_wallet_restored,
           description: '',
@@ -606,8 +753,14 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
     final dateTime = DateTime.fromMillisecondsSinceEpoch(lockTime * Duration.millisecondsPerSecond);
     final hourOfPeriod = dateTime.hour % 12 == 0 ? 12 : dateTime.hour % 12;
     final periodText = dateTime.hour < 12 ? t.bottom_sheet.date_picker.am : t.bottom_sheet.date_picker.pm;
-    return '${dateTime.year}년 ${dateTime.month}월 ${dateTime.day}일 '
-        '$periodText ${hourOfPeriod.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+    return t.taproot.taproot_import_screen.timeline.activation_datetime(
+      year: dateTime.year,
+      month: dateTime.month,
+      day: dateTime.day,
+      period: periodText,
+      hour: hourOfPeriod.toString().padLeft(2, '0'),
+      minute: dateTime.minute.toString().padLeft(2, '0'),
+    );
   }
 
   void _navigateToHome() {
@@ -640,6 +793,63 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
     await _currentNextButtonAction?.call();
   }
 
+  void _showImportResultBackDialog() {
+    final step6 = t.taproot.taproot_import_screen.step6;
+    final walletRole = switch (_viewModel.selectedRole) {
+      TaprootImportRole.signer => step6.return_dialog_parent_role,
+      TaprootImportRole.beneficiary => step6.return_dialog_child_role,
+      TaprootImportRole.none => step6.return_dialog_parent_role,
+    };
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
+          title: step6.return_dialog_title,
+          description: step6.return_dialog_description(role: walletRole),
+          leftButtonText: t.cancel,
+          rightButtonText: t.confirm,
+          onTapLeft: () => Navigator.pop(dialogContext),
+          onTapRight: () {
+            Navigator.pop(dialogContext);
+            _returnToRoleSelectionStepAndResetImportedData();
+          },
+        );
+      },
+    );
+  }
+
+  void _returnToRoleSelectionStepAndResetImportedData() {
+    final roleSelectionStep = _roleSelectionStep;
+    if (roleSelectionStep == null || roleSelectionStep < 1 || roleSelectionStep > _titleList.length) {
+      return;
+    }
+
+    context.read<TaprootWalletCreationProvider>().resetAll();
+    _viewModel.resetImportedWalletData();
+
+    setState(() {
+      while (_titleList.length > roleSelectionStep) {
+        final lastIndex = _titleList.length - 1;
+        _titleList.removeAt(lastIndex);
+        _bodyList.removeAt(lastIndex);
+        _nextButtonActions.removeAt(lastIndex);
+        _ignoreBodyHorizontalPaddingList.removeAt(lastIndex);
+        _pauseProgressList.removeAt(lastIndex);
+        _scrollChildList.removeAt(lastIndex);
+      }
+
+      _currentStep = roleSelectionStep;
+      _importWalletStep = null;
+      _importResultStep = null;
+      _timelineStep = null;
+      _createdTaprootVaultId = null;
+      _timelineInfo = null;
+      _isTimelineAnimationCompleted = false;
+    });
+  }
+
   void _handleBackPressed() {
     if (_isProcessingImport) {
       return;
@@ -650,10 +860,21 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       return;
     }
 
+    if (_currentStep == _importResultStep && _viewModel.scannedVaultItem != null) {
+      _showImportResultBackDialog();
+      return;
+    }
+
     if (_currentStep <= 1) {
       Navigator.pop(context);
       return;
     }
+
+    _returnToPreviousStep();
+  }
+
+  void _returnToPreviousStep() {
+    final shouldResetExtraImport = _currentStep == _importResultStep && _viewModel.hasExtraImport;
 
     setState(() {
       if (_currentStep <= _initialStepCount) {
@@ -679,6 +900,10 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       }
       _currentStep -= 1;
     });
+
+    if (shouldResetExtraImport) {
+      _viewModel.resetExtraImport();
+    }
   }
 
   @override
@@ -709,9 +934,10 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
                   Visibility(
                     visible: _showImportModeToggle,
                     child: IconButton(
-                      icon: _viewModel.currentImportMode == ImportMode.enter
-                          ? SvgPicture.asset('assets/svg/scan.svg')
-                          : SvgPicture.asset('assets/svg/paste.svg'),
+                      icon:
+                          _viewModel.currentImportMode == ImportMode.enter
+                              ? SvgPicture.asset('assets/svg/scan.svg')
+                              : SvgPicture.asset('assets/svg/paste.svg'),
                       color: CoconutColors.black,
                       onPressed: _toggleImportMode,
                     ),
@@ -732,15 +958,28 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
                       scrollChild: !_isProgressPaused && _scrollChildList[_currentStep - 1],
                       runBottomButtonActionWithoutTransition: _runBottomButtonActionWithoutTransition,
                       keepHeaderVisibleDuringTransition: _isTimelineStep,
-                      child: _isProgressPaused
-                          ? _bodyList[_currentStep - 1].first
-                          : Column(children: _bodyList[_currentStep - 1]),
+                      child:
+                          _isProgressPaused
+                              ? _bodyList[_currentStep - 1].first
+                              : Column(children: _bodyList[_currentStep - 1]),
                     ),
                     TopProgressBar(
                       visible: !_isProgressPaused,
                       total: _progressTotalStep,
                       current: _progressCurrentStep,
                     ),
+                    if (_showExtraMismatchBottomButtons)
+                      Positioned.fill(
+                        child: FixedBottomTweenButton(
+                          leftButtonClicked: _handleExtraMismatchNextButton,
+                          rightButtonClicked: _handleExtraMismatchEnterAgainButton,
+                          leftText: t.next,
+                          rightText: t.taproot.taproot_import_screen.step6.enter_again,
+                          leftButtonBackgroundColor: CoconutColors.black,
+                          leftButtonBorderColor: CoconutColors.black,
+                          leftButtonTextColor: CoconutColors.white,
+                        ),
+                      ),
                   ],
                 ),
               ),

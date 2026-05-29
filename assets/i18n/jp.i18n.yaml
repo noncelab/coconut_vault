@@ -660,6 +660,8 @@ taproot:
     step2:
       title1: "相続ウォレットをスキャンしてください"
       invalid_wallet_sync_data: "有効な相続ウォレット情報ではありません"
+      duplicate_wallet_title: "相続ウォレットはすでに追加されています"
+      duplicate_wallet_description: "この相続ウォレットはすでにウォレット一覧にあります"
     step3:
       title1: "相続ウォレットを取り込みました"
     step4:
@@ -674,6 +676,11 @@ taproot:
       description_beneficiary: "子ウォレットキーを追加で登録するにはカードを選択してください"
       title_doesnt_match_inheritance_wallet: "相続ウォレットと一致していません"
       enter_again: "再入力"
+      return_dialog_title: "前の画面に戻る"
+      return_dialog_parent_role: "親"
+      return_dialog_child_role: "子"
+      return_dialog_description: "$roleウォレット情報が削除されます。本当に戻りますか？"
+      parent_wallet: "親ウォレット"
     step7:
       title1: "Taproot相続ウォレットの"
       title2: "準備ができました"
@@ -693,6 +700,7 @@ taproot:
       inheritance_wallet_restored: "相続ウォレットを復元しました"
       inheritance_wallet_activation: "相続ウォレットが有効になります"
       active_after: "${dateTime}以降"
+      activation_datetime: "${year}年${month}月${day}日 ${period} ${hour}:${minute}"
 mnemonic_coin_flip_screen:
   title: "ニーモニック作成"
   guide: "コインを投げて出た面を選択してください"

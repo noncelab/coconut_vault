@@ -41,7 +41,7 @@ class TaprootParticipantCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (onTap != null) {
-      return ShrinkAnimationButton(child: _buildCardContainer(), onPressed: () => onTap!);
+      return ShrinkAnimationButton(onPressed: onTap!, child: _buildCardContainer());
     }
 
     return _buildCardContainer();

@@ -666,6 +666,8 @@ taproot:
     step2:
       title1: "상속 지갑을 스캔하세요"
       invalid_wallet_sync_data: "유효한 상속 지갑 정보가 아닙니다"
+      duplicate_wallet_title: "이미 추가된 상속 지갑이에요"
+      duplicate_wallet_description: "이미 지갑 목록에 있는 상속 지갑이에요"
     step3:
       title1: "상속 지갑을 가져왔어요"
     step4:
@@ -680,6 +682,11 @@ taproot:
       description_beneficiary: "자식 지갑 키를 추가로 등록하려면 카드를 선택하세요"
       title_doesnt_match_inheritance_wallet: "상속 지갑과 일치하지 않아요"
       enter_again: "다시 입력하기"
+      return_dialog_title: "이전 화면으로 돌아가기"
+      return_dialog_parent_role: "부모"
+      return_dialog_child_role: "자식"
+      return_dialog_description: "$role 지갑 정보가 삭제돼요. 정말 뒤로 가시겠어요?"
+      parent_wallet: "부모 지갑"
     step7:
       title1: "탭루트 상속 지갑이"
       title2: "준비되었어요"
@@ -699,6 +706,7 @@ taproot:
       inheritance_wallet_restored: "상속 지갑을 복구했어요"
       inheritance_wallet_activation: "상속 지갑이 활성화 돼요"
       active_after: "${dateTime} 이후"
+      activation_datetime: "${year}년 ${month}월 ${day}일 ${period} ${hour}:${minute}"
 
 mnemonic_coin_flip_screen:
   title: "니모닉 문구 만들기"

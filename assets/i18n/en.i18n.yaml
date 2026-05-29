@@ -661,6 +661,8 @@ taproot:
     step2:
       title1: "Scan the inheritance wallet"
       invalid_wallet_sync_data: "Invalid inheritance wallet data"
+      duplicate_wallet_title: "Inheritance wallet already added"
+      duplicate_wallet_description: "This inheritance wallet is already in your wallet list."
     step3:
       title1: "Inheritance wallet imported"
     step4:
@@ -675,6 +677,11 @@ taproot:
       description_beneficiary: "Select a card to add another child wallet key"
       title_doesnt_match_inheritance_wallet: "Doesn't match the inheritance wallet"
       enter_again: "Enter Again"
+      return_dialog_title: "Go back"
+      return_dialog_parent_role: "Parent"
+      return_dialog_child_role: "Child"
+      return_dialog_description: "$role wallet information will be deleted. Are you sure you want to go back?"
+      parent_wallet: "Parent Wallet"
     step7:
       title1: "Taproot inheritance wallet"
       title2: "is ready"
@@ -694,6 +701,7 @@ taproot:
       inheritance_wallet_restored: "Inheritance wallet restored"
       inheritance_wallet_activation: "Inheritance wallet will be activated"
       active_after: "After ${dateTime}"
+      activation_datetime: "$month/$day/$year $period $hour:$minute"
 mnemonic_coin_flip_screen:
   title: "Mnemonic Generation"
   guide: "Please select the side that came out after flipping the coin"
