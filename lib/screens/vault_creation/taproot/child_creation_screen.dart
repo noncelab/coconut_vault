@@ -300,8 +300,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
         final bool isValid = viewModel.setScannedTaprootVault(beneficiaryVault.descriptor);
         if (!isValid) {
-          _showInvalidQrToast();
-          return false;
+          throw FormatException(t.errors.invalid_qr);
         }
 
         setState(() {
@@ -333,10 +332,6 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           ),
       ],
     );
-  }
-
-  void _showInvalidQrToast() {
-    CoconutToast.showToast(context: context, level: CoconutToastLevel.error, text: t.errors.invalid_qr);
   }
 
   Widget _buildSummaryStep(ChildCreationViewModel viewModel) {
