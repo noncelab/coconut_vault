@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
@@ -18,8 +20,8 @@ class TaprootScannerScreen extends StatefulWidget {
   final int? id;
   final HardwareWalletType? hardwareWalletType;
   final Widget? topGuideWidget;
-  final bool Function(TaprootVault)? onTaprootVaultScanned;
-  final bool Function(TaprootWalletSyncData)? onWalletSyncScanned;
+  final FutureOr<bool> Function(TaprootVault)? onTaprootVaultScanned;
+  final FutureOr<bool> Function(TaprootWalletSyncData)? onWalletSyncScanned;
   final bool hasAppbar;
   final bool useCloseButton;
   final TaprootScannerDataType dataType;
@@ -136,9 +138,9 @@ class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
     if (result is TaprootWalletSyncData) {
       final onWalletSyncScanned = widget.onWalletSyncScanned;
       if (onWalletSyncScanned != null) {
-        final didHandleScan = onWalletSyncScanned(result);
+        final didHandleScan = await onWalletSyncScanned(result);
         if (!didHandleScan && mounted) {
-          setState(() => isProcessing = false);
+          await _resetScanState();
         }
       } else {
         Navigator.pop(context, result);
@@ -149,9 +151,9 @@ class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
     final beneficiaryVault = TaprootVault.fromDescriptor(result as String);
     final onTaprootVaultScanned = widget.onTaprootVaultScanned;
     if (onTaprootVaultScanned != null) {
-      final didHandleScan = onTaprootVaultScanned(beneficiaryVault);
+      final didHandleScan = await onTaprootVaultScanned(beneficiaryVault);
       if (!didHandleScan && mounted) {
-        setState(() => isProcessing = false);
+        await _resetScanState();
       }
     } else {
       Navigator.pop(context, beneficiaryVault);
@@ -182,6 +184,17 @@ class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
     } catch (e) {
       debugPrint('Taproot scanner restart failed: $e');
     }
+  }
+
+  Future<void> _resetScanState() async {
+    _qrDataHandler.reset();
+    resetScanProgress();
+
+    if (mounted) {
+      setState(() => isProcessing = false);
+    }
+
+    await _restartScanner();
   }
 
   @override
@@ -219,10 +232,9 @@ class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
       return TextSpan(children: children);
     }
 
-    final kruxNetworkGuide =
-        NetworkType.currentNetworkType.isTestnet
-            ? t.bsms_scanner_screen.krux.guide2_7_regtest
-            : t.bsms_scanner_screen.krux.guide2_7;
+    final kruxNetworkGuide = NetworkType.currentNetworkType.isTestnet
+        ? t.bsms_scanner_screen.krux.guide2_7_regtest
+        : t.bsms_scanner_screen.krux.guide2_7;
 
     switch (widget.hardwareWalletType) {
       case HardwareWalletType.keystone:
