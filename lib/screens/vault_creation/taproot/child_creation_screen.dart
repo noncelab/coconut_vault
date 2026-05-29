@@ -60,6 +60,8 @@ class _ChildCreationScreenContent extends StatefulWidget {
 }
 
 class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent> {
+  static const int _progressInitialStepCount = 1;
+
   int _currentStep = 1;
   final List<Widget> _embeddedWidgets = [];
   int? _currentVaultSelectionStep;
@@ -81,9 +83,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
 
     final currentStep = switch (_currentStep) {
-      _ when _currentStep <= embeddedStartIndex => _currentStep - 1,
-      _ when _currentStep <= embeddedStartIndex + _embeddedWidgets.length => embeddedStartIndex - 1,
-      _ => _currentStep - _embeddedWidgets.length - 1,
+      _ when _currentStep <= embeddedStartIndex => _currentStep - _progressInitialStepCount,
+      _ when _currentStep <= embeddedStartIndex + _embeddedWidgets.length =>
+        embeddedStartIndex - _progressInitialStepCount,
+      _ => _currentStep - _embeddedWidgets.length - _progressInitialStepCount,
     };
 
     return currentStep.clamp(0, viewModel.progressTotalStep);
@@ -146,11 +149,11 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       viewModel.isBeneficiaryMatch
           ? [TextSpan(text: t.taproot.child_creation_screen.step6.title1)]
           : [
-              TextSpan(
-                text: t.taproot.child_creation_screen.step6.title2,
-                style: const TextStyle(color: CoconutColors.hotPink),
-              ),
-            ],
+            TextSpan(
+              text: t.taproot.child_creation_screen.step6.title2,
+              style: const TextStyle(color: CoconutColors.hotPink),
+            ),
+          ],
       [
         TextSpan(text: t.taproot.child_creation_screen.step7.title1),
         TextSpan(text: t.taproot.child_creation_screen.step7.title2),
@@ -360,9 +363,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
                 final index = entry.key;
                 final owner = entry.value;
                 final isSingleParent = viewModel.scannedVaultItem!.owners.length == 1;
-                final parentName = isSingleParent
-                    ? t.taproot.parent_wallet
-                    : '${t.taproot.parent_wallet} ${String.fromCharCode(65 + index)}';
+                final parentName =
+                    isSingleParent
+                        ? t.taproot.parent_wallet
+                        : '${t.taproot.parent_wallet} ${String.fromCharCode(65 + index)}';
 
                 return TaprootParticipantCard(
                   role: TaprootParticipantRole.parent,

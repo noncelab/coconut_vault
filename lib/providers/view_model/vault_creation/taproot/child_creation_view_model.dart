@@ -22,8 +22,14 @@ class InheritanceVaultPolicy {
 }
 
 class ChildCreationViewModel extends ChangeNotifier {
-  static const int _baseProgressStepCount = 6;
+  static const int _initialProgressExcludedStepCount = 1;
+  static const int _keyPreparationProgressStepCount = 1;
+  static const int _keyCreationOrImportOptionProgressStepCount = 1;
   static const int _currentVaultSelectionProgressStepCount = 1;
+  static const int _childWalletQrProgressStepCount = 1;
+  static const int _parentWalletScanProgressStepCount = 1;
+  static const int _summaryProgressStepCount = 1;
+  static const int _timelineProgressStepCount = 1;
 
   final TaprootWalletCreationProvider _taprootProvider;
 
@@ -124,7 +130,8 @@ class ChildCreationViewModel extends ChangeNotifier {
     try {
       final String desc = item.descriptor.trim();
       final bool hasValidFormat = desc.isNotEmpty && desc.contains('tr(');
-      final bool hasValidParents = item.owners.length >= InheritanceVaultPolicy.minParents &&
+      final bool hasValidParents =
+          item.owners.length >= InheritanceVaultPolicy.minParents &&
           item.owners.length <= InheritanceVaultPolicy.maxParents;
       final bool hasValidChildren = item.beneficiaries.length == InheritanceVaultPolicy.requiredChildren;
 
@@ -207,13 +214,18 @@ class ChildCreationViewModel extends ChangeNotifier {
   TaprootVaultListItem? get scannedVaultItem => _scannedVaultItem;
   String? get scannedMasterFingerprint => _scannedMasterFingerprint;
   int get progressTotalStep {
-    return _baseProgressStepCount +
-        (_existingKeyImportType == ChildExistingKeyImportType.currentVault
-            ? _currentVaultSelectionProgressStepCount
-            : 0);
+    return _keyPreparationProgressStepCount +
+        _keyCreationOrImportOptionProgressStepCount +
+        (_usesCurrentVault ? _currentVaultSelectionProgressStepCount : 0) +
+        _childWalletQrProgressStepCount +
+        _parentWalletScanProgressStepCount +
+        _summaryProgressStepCount +
+        _timelineProgressStepCount;
   }
 
-  int get visibleProgressStepCount => progressTotalStep + 1;
+  int get visibleProgressStepCount => progressTotalStep + _initialProgressExcludedStepCount;
+
+  bool get _usesCurrentVault => _existingKeyImportType == ChildExistingKeyImportType.currentVault;
 
   void setKeyPreparationType(ChildKeyPreparationType type) {
     _keyPreparationType = _keyPreparationType == type ? ChildKeyPreparationType.none : type;
