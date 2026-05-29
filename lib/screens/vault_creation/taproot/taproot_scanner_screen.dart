@@ -6,7 +6,7 @@ import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/taproot/taproot_wallet_sync_data.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/screens/vault_creation/multisig/bsms_scanner_base.dart';
+import 'package:coconut_vault/screens/common/qr_scanner_screen_base.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/taproot_descriptor_qr_data_handler.dart';
@@ -42,7 +42,7 @@ class TaprootScannerScreen extends StatefulWidget {
   State<TaprootScannerScreen> createState() => _TaprootScannerScreenState();
 }
 
-class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
+class _TaprootScannerScreenState extends QrScannerScreenBase<TaprootScannerScreen> {
   final TaprootDescriptorQrDataHandler _descriptorQrDataHandler = TaprootDescriptorQrDataHandler();
   final TaprootWalletSyncQrDataHandler _walletSyncQrDataHandler = TaprootWalletSyncQrDataHandler();
 
@@ -81,9 +81,9 @@ class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
   String get appBarTitle => widget.hardwareWalletType!.displayName;
 
   @override
-  String get wrongFormatMessage {
+  String get wrongFormatPromptMessage {
     return switch (widget.dataType) {
-      TaprootScannerDataType.descriptor => super.wrongFormatMessage,
+      TaprootScannerDataType.descriptor => super.wrongFormatPromptMessage,
       TaprootScannerDataType.walletSync => t.taproot.taproot_import_screen.step2.invalid_wallet_sync_data,
     };
   }
@@ -112,13 +112,13 @@ class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
     Logger.log('--> TaprootScannerScreen: detected raw data: $scanData');
 
     if (!_qrDataHandler.validateFormat(scanData)) {
-      _handleScanFailure(wrongFormatMessage);
+      _handleScanFailure(wrongFormatPromptMessage);
       return;
     }
 
     final joinResult = _qrDataHandler.joinData(scanData);
     if (!joinResult) {
-      _handleScanFailure(wrongFormatMessage);
+      _handleScanFailure(wrongFormatPromptMessage);
       return;
     }
 
@@ -129,7 +129,7 @@ class _TaprootScannerScreenState extends BsmsScannerBase<TaprootScannerScreen> {
     setState(() => isProcessing = true);
     final result = _qrDataHandler.result;
     if (result == null) {
-      _handleScanFailure(wrongFormatMessage);
+      _handleScanFailure(wrongFormatPromptMessage);
       return;
     }
 
