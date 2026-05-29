@@ -19,7 +19,6 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/child_creation_view_model.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
-import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/mnemonic_view_screen.dart';
@@ -290,16 +289,17 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
   Widget _buildScannerStep(ChildCreationViewModel viewModel) {
     return TaprootScannerScreen(
-      titleLines: _titleLines(viewModel),
-      onScanned: (result) async {
-        if (_isProcessing) return;
+      hasAppbar: false,
+      topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: _buildScannerTitle(viewModel)),
+      onTaprootVaultScanned: (beneficiaryVault) async {
+        if (_isProcessing) return false;
 
         vibrateExtraLight();
 
-        final bool isValid = viewModel.setScannedTaprootVault(result);
+        final bool isValid = viewModel.setScannedTaprootVault(beneficiaryVault.descriptor);
         if (!isValid) {
           _showInvalidQrToast();
-          return;
+          return false;
         }
 
         setState(() {
@@ -307,13 +307,24 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         });
 
         await Future.delayed(const Duration(milliseconds: 1000));
-        if (!mounted) return;
+        if (!mounted) return false;
 
         setState(() {
           _isProcessing = false;
         });
         _onNextPressed(viewModel);
+        return true;
       },
+    );
+  }
+
+  Widget _buildScannerTitle(ChildCreationViewModel viewModel) {
+    return RichText(
+      textAlign: TextAlign.center,
+      text: TextSpan(
+        style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.white),
+        children: _titleLines(viewModel),
+      ),
     );
   }
 
@@ -605,7 +616,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         firstEmbeddedScreen = MnemonicCoinflipScreen(
           entropyType: EntropyType.manual,
           isEmbedded: true,
-          isTaproot: true,
+          isTaprootChild: true,
           onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
         );
         break;
@@ -613,7 +624,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         firstEmbeddedScreen = MnemonicDiceRollScreen(
           entropyType: EntropyType.manual,
           isEmbedded: true,
-          isTaproot: true,
+          isTaprootChild: true,
           onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
         );
         break;
@@ -621,7 +632,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         firstEmbeddedScreen = MnemonicAutoGenScreen(
           entropyType: EntropyType.auto,
           isEmbedded: true,
-          isTaproot: true,
+          isTaprootChild: true,
           onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
         );
         break;
@@ -663,14 +674,18 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           return;
         } else if (viewModel.existingKeyImportType == ChildExistingKeyImportType.mnemonicInput) {
           _addEmbeddedStep(
-            MnemonicImportScreen(isEmbedded: true, isTaproot: true, onCompleted: _addImportedMnemonicConfirmationStep),
+            MnemonicImportScreen(
+              isEmbedded: true,
+              isTaprootCreationChild: true,
+              onCompleted: _addImportedMnemonicConfirmationStep,
+            ),
           );
           return;
         } else if (viewModel.existingKeyImportType == ChildExistingKeyImportType.seedQrScan) {
           _addEmbeddedStep(
             SeedQrImportScreen(
               isEmbedded: true,
-              isTaproot: true,
+              isTaprootChild: true,
               onMnemonicConfirmationRequested: (secret, passphrase) {
                 viewModel.setSecretAndPassphrase(secret, passphrase);
                 _onChildWalletSet(viewModel);
@@ -902,7 +917,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       _embeddedWidgets.add(
         SeedQrImportScreen(
           isEmbedded: true,
-          isTaproot: true,
+          isTaprootChild: true,
           onMnemonicConfirmationRequested: (secret, passphrase) {
             taprootProvider.setSecretAndPassphrase(secret, passphrase);
             _onChildWalletSet(viewModel);
@@ -922,7 +937,11 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       viewModel.setExistingKeyImportType(ChildExistingKeyImportType.mnemonicInput);
 
       _embeddedWidgets.add(
-        MnemonicImportScreen(isEmbedded: true, isTaproot: true, onCompleted: _addImportedMnemonicConfirmationStep),
+        MnemonicImportScreen(
+          isEmbedded: true,
+          isTaprootCreationChild: true,
+          onCompleted: _addImportedMnemonicConfirmationStep,
+        ),
       );
     });
   }

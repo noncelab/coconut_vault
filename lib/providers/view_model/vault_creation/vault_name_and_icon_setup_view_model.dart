@@ -2,19 +2,24 @@ import 'dart:io';
 
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
-import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
-import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:flutter/material.dart';
 
+typedef TaprootVaultSaveHandler =
+    Future<VaultNameAndIconSetupSaveResult> Function({
+      required String name,
+      required int iconIndex,
+      required int colorIndex,
+    });
+
 class VaultNameAndIconSetupViewModel extends ChangeNotifier {
   final WalletProvider _walletProvider;
   final WalletCreationProvider _walletCreationProvider;
-  final TaprootWalletCreationProvider? _taprootWalletCreationProvider;
+  final TaprootVaultSaveHandler? _taprootVaultSaveHandler;
   final AuthProvider _authProvider;
   final bool _isImported;
 
@@ -28,7 +33,7 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
     this._walletProvider,
     this._walletCreationProvider,
     this._authProvider, {
-    TaprootWalletCreationProvider? taprootWalletCreationProvider,
+    TaprootVaultSaveHandler? taprootVaultSaveHandler,
     required String initialName,
     required int initialIconIndex,
     required int initialColorIndex,
@@ -37,7 +42,7 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
        _selectedIconIndex = initialIconIndex,
        _selectedColorIndex = initialColorIndex,
        _isImported = isImported,
-       _taprootWalletCreationProvider = taprootWalletCreationProvider {
+       _taprootVaultSaveHandler = taprootVaultSaveHandler {
     _walletProvider.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
   }
 
@@ -130,29 +135,12 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
   }
 
   Future<VaultNameAndIconSetupSaveResult> _saveTaprootVault() async {
-    final taprootWalletCreationProvider = _taprootWalletCreationProvider;
-    if (taprootWalletCreationProvider == null) {
-      throw StateError('TaprootWalletCreationProvider is required to save a taproot vault');
+    final taprootVaultSaveHandler = _taprootVaultSaveHandler;
+    if (taprootVaultSaveHandler == null) {
+      throw StateError('Taproot vault save handler is required to save a taproot vault');
     }
 
-    final timelineInfo = TaprootVaultCreationTimelineInfo(
-      parentMasterFingerprint: taprootWalletCreationProvider.masterFingerprint,
-      externalParentMasterFingerprint: taprootWalletCreationProvider.externalMultisigParentMasterFingerprint,
-      childMasterFingerprint: taprootWalletCreationProvider.childWalletMasterFingerprint,
-    );
-    TaprootWalletCreateDto? walletCreateDto;
-    try {
-      walletCreateDto = taprootWalletCreationProvider.createWalletCreateDto(
-        name: _inputText,
-        iconIndex: _selectedIconIndex,
-        colorIndex: _selectedColorIndex,
-      );
-      final vault = await _walletProvider.addTaprootVault(walletCreateDto);
-      taprootWalletCreationProvider.resetAll();
-      return VaultNameAndIconSetupSaveResult.navigateToHome(addedWalletId: vault.id, taprootTimelineInfo: timelineInfo);
-    } finally {
-      walletCreateDto?.wipe();
-    }
+    return taprootVaultSaveHandler(name: _inputText, iconIndex: _selectedIconIndex, colorIndex: _selectedColorIndex);
   }
 
   Future<VaultNameAndIconSetupSaveResult> saveNewVault() async {
@@ -165,7 +153,7 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
         return const VaultNameAndIconSetupSaveResult.duplicateName();
       }
 
-      if (_taprootWalletCreationProvider != null) {
+      if (_taprootVaultSaveHandler != null) {
         return await _saveTaprootVault();
       }
 

@@ -6,7 +6,6 @@ import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart'
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/vault_name_and_icon_setup_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -25,6 +24,7 @@ class VaultNameAndIconSetupScreen extends StatefulWidget {
   final bool isEmbedded;
   final bool isTaproot;
   final ValueChanged<VaultNameAndIconSetupSaveResult>? onEmbeddedVaultSaved;
+  final TaprootVaultSaveHandler? taprootVaultSaveHandler;
 
   const VaultNameAndIconSetupScreen({
     super.key,
@@ -35,6 +35,7 @@ class VaultNameAndIconSetupScreen extends StatefulWidget {
     this.isEmbedded = false,
     this.isTaproot = false,
     this.onEmbeddedVaultSaved,
+    this.taprootVaultSaveHandler,
   });
 
   @override
@@ -52,8 +53,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
       Provider.of<WalletProvider>(context, listen: false),
       Provider.of<WalletCreationProvider>(context, listen: false),
       Provider.of<AuthProvider>(context, listen: false),
-      taprootWalletCreationProvider:
-          widget.isTaproot ? Provider.of<TaprootWalletCreationProvider>(context, listen: false) : null,
+      taprootVaultSaveHandler: widget.isTaproot ? widget.taprootVaultSaveHandler : null,
       initialName: widget.name ?? '',
       initialIconIndex: widget.iconIndex ?? 0,
       initialColorIndex: widget.colorIndex ?? 0,
