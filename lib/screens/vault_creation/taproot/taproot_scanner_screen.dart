@@ -17,23 +17,17 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 enum TaprootScannerDataType { descriptor, walletSync }
 
 class TaprootScannerScreen extends StatefulWidget {
-  final int? id;
-  final HardwareWalletType? hardwareWalletType;
   final Widget? topGuideWidget;
   final FutureOr<bool> Function(TaprootVault)? onTaprootVaultScanned;
   final FutureOr<bool> Function(TaprootWalletSyncData)? onWalletSyncScanned;
-  final bool hasAppbar;
   final bool useCloseButton;
   final TaprootScannerDataType dataType;
 
   const TaprootScannerScreen({
     super.key,
-    this.id,
-    this.hardwareWalletType = HardwareWalletType.coconutVault,
     this.topGuideWidget,
     this.onTaprootVaultScanned,
     this.onWalletSyncScanned,
-    this.hasAppbar = true,
     this.useCloseButton = false,
     this.dataType = TaprootScannerDataType.descriptor,
   });
@@ -72,13 +66,13 @@ class _TaprootScannerScreenState extends QrScannerScreenBase<TaprootScannerScree
   bool get useBottomAppBar => true;
 
   @override
-  bool get showAppBar => widget.hasAppbar;
+  bool get showAppBar => false;
 
   @override
   bool get showBackButton => !widget.useCloseButton;
 
   @override
-  String get appBarTitle => widget.hardwareWalletType!.displayName;
+  String get appBarTitle => '';
 
   @override
   String get wrongFormatPromptMessage {
@@ -199,184 +193,6 @@ class _TaprootScannerScreenState extends QrScannerScreenBase<TaprootScannerScree
 
   @override
   List<TextSpan> buildTooltipRichText(BuildContext context, VisibilityProvider visibilityProvider) {
-    final String languageCode = t.$meta.locale.languageCode;
-    final bool isReversedOrder = languageCode == 'en';
-
-    TextSpan buildTextSpan(String text, {bool isBold = false}) {
-      return TextSpan(
-        text: text,
-        style: CoconutTypography.body2_14.copyWith(
-          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-          color: CoconutColors.black,
-        ),
-      );
-    }
-
-    TextSpan buildStep(String index, String target, String action, {String? suffix}) {
-      List<TextSpan> children = [];
-
-      children.add(buildTextSpan(index));
-
-      if (isReversedOrder) {
-        children.add(buildTextSpan('$action '));
-        children.add(buildTextSpan(target, isBold: true));
-      } else {
-        children.add(buildTextSpan('$target ', isBold: true));
-        children.add(buildTextSpan(action));
-      }
-
-      if (suffix != null) {
-        children.add(buildTextSpan(suffix));
-      }
-
-      return TextSpan(children: children);
-    }
-
-    final kruxNetworkGuide =
-        NetworkType.currentNetworkType.isTestnet
-            ? t.bsms_scanner_screen.krux.guide2_7_regtest
-            : t.bsms_scanner_screen.krux.guide2_7;
-
-    switch (widget.hardwareWalletType) {
-      case HardwareWalletType.keystone:
-        return [
-          TextSpan(
-            text: '${t.bsms_scanner_screen.keystone3pro.guide2_1}\n',
-            style: CoconutTypography.body2_14.setColor(CoconutColors.black),
-            children: <TextSpan>[
-              buildStep('1. ', t.bsms_scanner_screen.keystone3pro.guide2_3, t.bsms_scanner_screen.select, suffix: null),
-              buildTextSpan('\n'),
-              buildStep('2. ', t.bsms_scanner_screen.keystone3pro.guide2_4, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildStep('3. ', t.bsms_scanner_screen.keystone3pro.guide2_5, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildTextSpan('4. '),
-              if (isReversedOrder) ...[
-                buildTextSpan('${t.bsms_scanner_screen.keystone3pro.guide2_7} '),
-                buildTextSpan(t.bsms_scanner_screen.keystone3pro.guide2_6, isBold: true),
-              ] else ...[
-                buildTextSpan(t.bsms_scanner_screen.keystone3pro.guide2_6, isBold: true),
-                buildTextSpan(t.bsms_scanner_screen.keystone3pro.guide2_7),
-              ],
-            ],
-          ),
-        ];
-
-      case HardwareWalletType.seedSigner:
-        return [
-          TextSpan(
-            text: '${t.bsms_scanner_screen.seedsigner.guide2_1}\n',
-            style: CoconutTypography.body2_14.setColor(CoconutColors.black),
-            children: <TextSpan>[
-              buildStep('1. ', t.bsms_scanner_screen.seedsigner.guide2_2, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildStep('2. ', t.bsms_scanner_screen.seedsigner.guide2_3, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildStep('3. ', t.bsms_scanner_screen.seedsigner.guide2_4, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildTextSpan('4. '),
-              buildTextSpan('${t.bsms_scanner_screen.seedsigner.guide2_5} '),
-              buildTextSpan(t.bsms_scanner_screen.seedsigner.guide2_6, isBold: true),
-            ],
-          ),
-        ];
-
-      case HardwareWalletType.jade:
-        return [
-          TextSpan(
-            text: null,
-            style: CoconutTypography.body2_14.setColor(CoconutColors.black),
-            children: <TextSpan>[
-              if (isReversedOrder) ...[
-                buildTextSpan('${t.bsms_scanner_screen.jade.guide2_1} '),
-                buildTextSpan(t.bsms_scanner_screen.jade.guide2_2, isBold: true),
-              ] else ...[
-                buildTextSpan(t.bsms_scanner_screen.jade.guide2_1, isBold: true),
-                buildTextSpan(t.bsms_scanner_screen.jade.guide2_2),
-              ],
-              buildTextSpan('\n'),
-              buildStep('1. ', t.bsms_scanner_screen.jade.guide2_3, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildStep('2. ', t.bsms_scanner_screen.jade.guide2_4, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildStep('3. ', t.bsms_scanner_screen.jade.guide2_5, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildStep('4. ', t.bsms_scanner_screen.jade.guide2_6, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildTextSpan('5. '),
-              if (isReversedOrder) ...[
-                buildTextSpan('${t.bsms_scanner_screen.jade.guide2_8} '),
-                buildTextSpan(t.bsms_scanner_screen.jade.guide2_7, isBold: true),
-              ] else ...[
-                buildTextSpan(t.bsms_scanner_screen.jade.guide2_7, isBold: true),
-                buildTextSpan(t.bsms_scanner_screen.jade.guide2_8),
-              ],
-            ],
-          ),
-        ];
-
-      case HardwareWalletType.coldCard:
-        final pressBtn = t.bsms_scanner_screen.press_button;
-        return [
-          TextSpan(
-            text: null,
-            style: CoconutTypography.body2_14.setColor(CoconutColors.black),
-            children: <TextSpan>[
-              buildStep('1. ', t.bsms_scanner_screen.cold_card.guide2_1, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildStep('2. ', t.bsms_scanner_screen.cold_card.guide2_2, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildStep('3. ', t.bsms_scanner_screen.cold_card.guide2_3, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildStep('4. ', t.bsms_scanner_screen.cold_card.guide2_4, pressBtn),
-              buildTextSpan('\n'),
-              buildStep('5. ', t.bsms_scanner_screen.cold_card.guide2_5, pressBtn),
-              buildTextSpan('\n'),
-              buildStep('6. ', t.bsms_scanner_screen.cold_card.guide2_6, pressBtn),
-            ],
-          ),
-        ];
-
-      case HardwareWalletType.krux:
-        return [
-          TextSpan(
-            text: '${t.bsms_scanner_screen.krux.guide2_1}\n',
-            style: CoconutTypography.body2_14.setColor(CoconutColors.black),
-            children: <TextSpan>[
-              buildStep('1. ', t.bsms_scanner_screen.krux.guide2_2, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildStep('2. ', t.bsms_scanner_screen.krux.guide2_3, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildStep('3. ', t.bsms_scanner_screen.krux.guide2_4, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildStep('4. ', t.bsms_scanner_screen.krux.guide2_5, t.bsms_scanner_screen.select),
-              buildTextSpan('\n'),
-              buildStep(
-                '5. ',
-                '${t.bsms_scanner_screen.krux.guide2_6} → $kruxNetworkGuide',
-                t.bsms_scanner_screen.select,
-              ),
-            ],
-          ),
-        ];
-
-      case HardwareWalletType.coconutVault:
-      default:
-        return [
-          TextSpan(
-            text: '${t.bsms_scanner_screen.coconut_vault.guide2_1}\n',
-            style: CoconutTypography.body2_14.setColor(CoconutColors.black),
-            children: <TextSpan>[
-              buildTextSpan('1. '),
-              isReversedOrder ? buildTextSpan('${t.bsms_scanner_screen.select} ') : buildTextSpan(''),
-              buildTextSpan(t.bsms_scanner_screen.coconut_vault.guide2_2),
-              !isReversedOrder ? buildTextSpan(t.bsms_scanner_screen.select) : buildTextSpan(''),
-              buildTextSpan('\n'),
-              buildStep('2. ', t.bsms_scanner_screen.coconut_vault.guide2_3, t.bsms_scanner_screen.select),
-              buildTextSpan(t.bsms_scanner_screen.coconut_vault.guide2_4),
-            ],
-          ),
-        ];
-    }
+    return [];
   }
 }
