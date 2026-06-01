@@ -291,7 +291,6 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
   Widget _buildScannerStep(ChildCreationViewModel viewModel) {
     return TaprootScannerScreen(
-      hasAppbar: false,
       topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: _buildScannerTitle(viewModel)),
       onTaprootVaultScanned: (beneficiaryVault) async {
         if (_isProcessing) return false;

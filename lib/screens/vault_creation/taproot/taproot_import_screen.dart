@@ -208,7 +208,6 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
 
     _addEmbeddedStep(
       TaprootScannerScreen(
-        hasAppbar: false,
         dataType: TaprootScannerDataType.walletSync,
         topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
         onWalletSyncScanned: (walletSyncData) async {

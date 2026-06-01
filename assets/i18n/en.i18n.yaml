@@ -1261,6 +1261,7 @@ toast:
   no_wallet_to_delete: "There is no wallet to delete."
 
 errors:
+  invalid_qr_title: "Invalid Format"
   invalid_qr: "Invalid QR code.\nPlease check again."
   invalid_single_sig_qr_error: "Invalid QR. Please try again."
   invalid_network_type_error: "Extended public key is not compatible with the network type"

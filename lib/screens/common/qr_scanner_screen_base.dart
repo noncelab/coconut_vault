@@ -1,8 +1,6 @@
-// bsms_scanner_base.dart
 import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
@@ -18,9 +16,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
-/// BSMS 스캐너 공통 베이스
-abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
-  final String wrongFormatMessage = t.coordinator_bsms_config_scanner_screen.error_message;
+abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
+  String get wrongFormatPromptTitle => t.errors.invalid_qr_title;
+  String get wrongFormatPromptMessage => t.errors.invalid_qr;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   late VisibilityProvider visibilityProvider;
@@ -33,12 +31,12 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   bool showProgressBar = false;
   bool _isScanningExtraData = false;
 
-  /// AppBar 타이틀
-  String get appBarTitle => t.bsms_scanner_screen.import_bsms;
+  String get appBarTitle => t.scan_qr;
   bool get useBottomAppBar => false;
   bool get showBackButton => true;
   bool get showAppBar => true;
   bool get showBottomButton => false;
+  String get bottomButtonText => '';
 
   bool _isShowedCameraPermissionDialog = false;
 
@@ -49,6 +47,8 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
 
   /// 실제 스캔 정보 처리 로직
   void onBarcodeDetected(BarcodeCapture capture);
+
+  void onBottomButtonClicked() {}
 
   /// 스캔 실패 시 다이얼로그 + 카메라 재시작
   Future<void> onFailedScanning(String message) async {
@@ -62,7 +62,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
       builder: (dialogContext) {
         return CoconutPopup(
           languageCode: visibilityProvider.language,
-          title: t.coordinator_bsms_config_scanner_screen.error_title,
+          title: wrongFormatPromptTitle,
           description: message,
           rightButtonText: t.confirm,
           onTapRight: () {
@@ -206,7 +206,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
               controller: controller,
               scanWindow: scanWindow,
               onDetect: (capture) {
-                debugPrint('BSMS scanner detected barcode count: ${capture.barcodes.length}');
+                debugPrint('QR scanner detected barcode count: ${capture.barcodes.length}');
                 if (isProcessing) return;
                 if (!mounted) return;
                 onBarcodeDetected(capture);
@@ -237,12 +237,10 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
             _buildLoadingOverlay(context),
             if (showBottomButton)
               FixedBottomButton(
-                onButtonClicked: () {
-                  Navigator.pushReplacementNamed(context, AppRoutes.bsmsPaste);
-                },
-                text: t.bsms_scanner_base.paste,
+                onButtonClicked: onBottomButtonClicked,
+                text: bottomButtonText,
                 showGradient: false,
-                backgroundColor: CoconutColors.white,
+                  backgroundColor: CoconutColors.white,
                 textColor: CoconutColors.black,
               ),
           ],

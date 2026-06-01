@@ -904,7 +904,6 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
     _addEmbeddedStep(
       TaprootScannerScreen(
-        hasAppbar: false,
         topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
         onTaprootVaultScanned:
             (beneficiaryVault) => _onChildWalletImported(beneficiaryVault, source: ParentChildWalletSource.scanned),

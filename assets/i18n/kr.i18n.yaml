@@ -1274,6 +1274,7 @@ toast:
   no_wallet_to_delete: "삭제할 지갑이 없어요"
 
 errors:
+  invalid_qr_title: "잘못된 형식"
   invalid_qr: "잘못된 QR 코드예요.\n다시 확인해 주세요."
   invalid_single_sig_qr_error: "잘못된 QR이에요. 다시 시도해 주세요."
   invalid_network_type_error: "확장 공개키의 네트워크 타입이 일치하지 않아요"

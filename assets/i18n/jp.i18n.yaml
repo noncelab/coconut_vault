@@ -1258,6 +1258,7 @@ toast:
   no_wallet_to_delete: "削除するウォレットがありません"
 
 errors:
+  invalid_qr_title: "形式が正しくありません"
   invalid_qr: "無効なQR。再度お試しください。"
   invalid_single_sig_qr_error: "無効なQR。再度お試しください。"
   invalid_network_type_error: "拡張公開鍵のネットワークタイプが一致しません"
