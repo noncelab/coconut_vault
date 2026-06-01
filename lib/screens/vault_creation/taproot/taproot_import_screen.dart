@@ -216,6 +216,10 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
             await _showDuplicateWalletDialog();
             return false;
           }
+          if (validationResult == TaprootWalletSyncValidationResult.invalid) {
+            await _showInvalidWalletDialog();
+            return false;
+          }
 
           _viewModel.setWalletSyncData(walletSyncData);
           _addImportedWalletStep();
@@ -235,6 +239,23 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
           languageCode: context.read<VisibilityProvider>().language,
           title: step2.duplicate_wallet_title,
           description: step2.duplicate_wallet_description,
+          rightButtonText: t.confirm,
+          onTapRight: () => Navigator.pop(dialogContext),
+        );
+      },
+    );
+  }
+
+  Future<void> _showInvalidWalletDialog() async {
+    final step2 = t.taproot.taproot_import_screen.step2;
+
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
+          title: t.errors.invalid_qr_title,
+          description: step2.invalid_wallet_sync_data,
           rightButtonText: t.confirm,
           onTapRight: () => Navigator.pop(dialogContext),
         );

@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/core/wallet/taproot_validator.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
@@ -197,6 +198,8 @@ class ParentCreationViewModel extends ChangeNotifier {
   }
 
   void setExternalParent({required String signerBsms, required String masterFingerprint}) {
+    TaprootValidator.validateSignerBsms(signerBsms);
+
     _externalParentSignerBsms = signerBsms;
     _externalParentMasterFingerprint = masterFingerprint;
     notifyListeners();
@@ -240,11 +243,21 @@ class ParentCreationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool isSameAsParentWallet(String masterFingerprint) {
-    final parentMasterFingerprints = [_parentMasterFingerprint, _externalParentMasterFingerprint];
-    return parentMasterFingerprints.whereType<String>().any(
-      (parentMasterFingerprint) => parentMasterFingerprint.toLowerCase() == masterFingerprint.toLowerCase(),
-    );
+  bool isSameAsParentWalletDescriptor(String childDescriptor) {
+    final parentDescriptor = _parentWalletQrData;
+    if (parentDescriptor != null &&
+        parentDescriptor.isNotEmpty &&
+        TaprootValidator.hasMatchingExtendedPublicKeyInDescriptors(parentDescriptor, childDescriptor)) {
+      return true;
+    }
+
+    final externalParentSignerBsms = _externalParentSignerBsms;
+    if (externalParentSignerBsms != null &&
+        TaprootValidator.hasMatchingExtendedPublicKeyWithSignerBsms(childDescriptor, externalParentSignerBsms)) {
+      return true;
+    }
+
+    return false;
   }
 
   Future<ParentCreationSaveResult> saveVault(

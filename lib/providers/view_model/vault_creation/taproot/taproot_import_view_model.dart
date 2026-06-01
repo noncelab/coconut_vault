@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/core/wallet/taproot_validator.dart';
 import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
@@ -13,7 +14,7 @@ enum TaprootImportRole { none, signer, beneficiary }
 
 enum ImportMode { enter, scan }
 
-enum TaprootWalletSyncValidationResult { valid, duplicate }
+enum TaprootWalletSyncValidationResult { valid, duplicate, invalid }
 
 typedef TaprootWalletSyncDuplicateChecker = bool Function(String descriptor);
 typedef TaprootVaultAdder = Future<TaprootVaultListItem> Function(TaprootWalletCreateDto walletCreateDto);
@@ -144,6 +145,12 @@ class TaprootImportViewModel extends ChangeNotifier {
   int get progressTotalStep => _progressStepCount;
 
   TaprootWalletSyncValidationResult validateWalletSyncData(TaprootWalletSyncData walletSyncData) {
+    try {
+      TaprootValidator.validateInheritanceDescriptor(walletSyncData.descriptor);
+    } catch (_) {
+      return TaprootWalletSyncValidationResult.invalid;
+    }
+
     if (_isWalletSyncDescriptorImported(walletSyncData.descriptor)) {
       return TaprootWalletSyncValidationResult.duplicate;
     }

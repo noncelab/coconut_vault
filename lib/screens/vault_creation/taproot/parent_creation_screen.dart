@@ -10,6 +10,7 @@ import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/extensions/widget_animation_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/parent_creation_view_model.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/vault_name_and_icon_setup_view_model.dart';
@@ -1041,7 +1042,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }) {
     bool isScannedWalletSource = source == ParentChildWalletSource.scanned;
     final childWalletMasterFingerprint = beneficiaryVault.keyStoreList.first.masterFingerprint;
-    if (isScannedWalletSource && _isSameAsParentWallet(childWalletMasterFingerprint)) {
+    if (isScannedWalletSource && _isSameAsParentWallet(beneficiaryVault.descriptor)) {
       _showSameChildWalletAsParentDialog();
       return false;
     }
@@ -1334,8 +1335,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         '$periodText ${hourOfPeriod.toString().padLeft(2, '0')}:${selectedDateTime.minute.toString().padLeft(2, '0')}';
   }
 
-  bool _isSameAsParentWallet(String masterFingerprint) {
-    return _viewModel.isSameAsParentWallet(masterFingerprint);
+  bool _isSameAsParentWallet(String childDescriptor) {
+    return _viewModel.isSameAsParentWalletDescriptor(childDescriptor);
   }
 
   void _showDatePicker(DateTime today) {
@@ -1586,12 +1587,42 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return;
     }
 
-    if (mounted) {
+    try {
       _viewModel.setExternalParent(
         signerBsms: _signerBsmsFromTaprootVault(importedParent),
         masterFingerprint: importedParentMasterFingerprint,
       );
       setState(() {});
+    } on NetworkMismatchException catch (e) {
+      showDialog(
+        context: context,
+        builder: (dialogContext) {
+          return CoconutPopup(
+            languageCode: context.read<VisibilityProvider>().language,
+            title: t.alert.bsms_network_mismatch.title,
+            description: e.message,
+            rightButtonText: t.rescan,
+            onTapRight: () {
+              Navigator.pop(dialogContext);
+            },
+          );
+        },
+      );
+    } on FormatException {
+      showDialog(
+        context: context,
+        builder: (dialogContext) {
+          return CoconutPopup(
+            languageCode: context.read<VisibilityProvider>().language,
+            title: t.errors.invalid_qr_title,
+            description: t.errors.invalid_qr,
+            rightButtonText: t.rescan,
+            onTapRight: () {
+              Navigator.pop(dialogContext);
+            },
+          );
+        },
+      );
     }
   }
 
