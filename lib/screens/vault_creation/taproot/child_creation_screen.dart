@@ -1,43 +1,21 @@
-import 'dart:convert';
-import 'dart:typed_data';
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/screens/common/menu_grid.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
-import 'package:coconut_vault/widgets/box/info_box.dart';
-import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
-import 'package:coconut_vault/widgets/card/taproot/taproot_setup_summary_card.dart';
-import 'package:coconut_vault/widgets/card/taproot/taproot_vault_item_card.dart';
-import 'package:coconut_vault/widgets/card/taproot/taproot_participant_card.dart';
-import 'package:coconut_vault/widgets/indicator/timeline_step_indicator.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
-import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/utils/logger.dart';
-import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/child_creation_view_model.dart';
-import 'package:coconut_vault/enums/pin_check_context_enum.dart';
-import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/screens/wallet_info/single_sig_menu/mnemonic_view_screen.dart';
-import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
-import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_auto_gen_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_coinflip_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_confirmation_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_dice_roll_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_verify_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
-import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/single_sig_menu/mnemonic_view_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:coconut_vault/screens/vault_creation/taproot/child_creation_overlays.dart';
+import 'package:coconut_vault/screens/vault_creation/taproot/child_creation_step_widgets.dart';
+import 'package:coconut_vault/screens/vault_creation/taproot/taproot_mnemonic_flow_adapter.dart';
+import 'package:coconut_vault/screens/vault_creation/taproot/taproot_mnemonic_view_flow_adapter.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_scanner_screen.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 
@@ -164,128 +142,11 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   Widget _buildChildPreparationStep(ChildCreationViewModel viewModel) {
-    return MenuGrid(
-      children: [
-        SelectableOptionCard(
-          title: t.taproot.common.prepare_key_option1_title,
-          description: t.taproot.common.prepare_key_option1_desc,
-          bottomAssetPath: 'assets/png/wallet.png',
-          imageScale: 4.0,
-          imageWidth: 100,
-          isSelected: viewModel.keyPreparationType == ChildKeyPreparationType.create,
-          height: 217,
-          onTap: () {
-            viewModel.setKeyPreparationType(ChildKeyPreparationType.create);
-          },
-        ),
-        SelectableOptionCard(
-          title: t.taproot.common.prepare_key_option2_title,
-          description: t.taproot.common.prepare_key_option2_desc,
-          bottomAssetPath: 'assets/png/key-holder.png',
-          imageScale: 4.0,
-          imageWidth: 100,
-          isSelected: viewModel.keyPreparationType == ChildKeyPreparationType.import,
-          height: 217,
-          onTap: () {
-            viewModel.setKeyPreparationType(ChildKeyPreparationType.import);
-          },
-        ),
-      ],
-    );
+    return ChildPreparationOptionStep(viewModel: viewModel);
   }
 
   Widget _buildChildCreationOptionStep(ChildCreationViewModel viewModel) {
-    if (viewModel.keyPreparationType == ChildKeyPreparationType.create) {
-      return MenuGrid(
-        children: [
-          SelectableOptionCard(
-            title: t.taproot.common.new_option1,
-            bottomAssetPath: 'assets/png/coin.png',
-            imageScale: 4.0,
-            imageWidth: 67,
-            isSelected: viewModel.newKeyCreationType == ChildNewKeyCreationType.coinFlip,
-            height: 118,
-            onTap: () {
-              viewModel.setNewKeyCreationType(ChildNewKeyCreationType.coinFlip);
-            },
-          ),
-          SelectableOptionCard(
-            title: t.taproot.common.new_option2,
-            bottomAssetPath: 'assets/png/dice.png',
-            imageScale: 4.0,
-            imageWidth: 67,
-            isSelected: viewModel.newKeyCreationType == ChildNewKeyCreationType.diceRoll,
-            height: 118,
-            onTap: () {
-              viewModel.setNewKeyCreationType(ChildNewKeyCreationType.diceRoll);
-            },
-          ),
-          SelectableOptionCard(
-            title: t.taproot.common.new_option3,
-            bottomAssetPath: 'assets/png/gear.png',
-            imageScale: 4.0,
-            imageWidth: 67,
-            isSelected: viewModel.newKeyCreationType == ChildNewKeyCreationType.autoGenerate,
-            height: 118,
-            onTap: () {
-              viewModel.setNewKeyCreationType(ChildNewKeyCreationType.autoGenerate);
-            },
-          ),
-        ],
-      );
-    } else {
-      return Consumer<WalletProvider>(
-        builder: (context, walletProvider, child) {
-          final hasNoSingleSigVault = walletProvider.getVaultsByWalletType(WalletType.singleSignature).isEmpty;
-          return MenuGrid(
-            children: [
-              SelectableOptionCard(
-                title: t.taproot.common.existing_option1,
-                isDisabled: hasNoSingleSigVault,
-                bottomAssetPath: 'assets/png/finger-picking.png',
-                imageScale: 4.0,
-                imageWidth: 67,
-                isSelected: viewModel.existingKeyImportType == ChildExistingKeyImportType.currentVault,
-                height: 118,
-                onDisabledTap: () {
-                  CoconutToast.showToast(
-                    context: context,
-                    level: CoconutToastLevel.info,
-                    isVisibleIcon: true,
-                    text: t.taproot.common.existing_option1_toast,
-                  );
-                },
-                onTap: () {
-                  viewModel.setExistingKeyImportType(ChildExistingKeyImportType.currentVault);
-                },
-              ),
-              SelectableOptionCard(
-                title: t.taproot.common.existing_option2,
-                bottomAssetPath: 'assets/png/word.png',
-                imageScale: 4.0,
-                imageWidth: 67,
-                isSelected: viewModel.existingKeyImportType == ChildExistingKeyImportType.mnemonicInput,
-                height: 118,
-                onTap: () {
-                  viewModel.setExistingKeyImportType(ChildExistingKeyImportType.mnemonicInput);
-                },
-              ),
-              SelectableOptionCard(
-                title: t.taproot.common.existing_option3,
-                bottomAssetPath: 'assets/png/scan-qr.png',
-                imageScale: 4.0,
-                imageWidth: 67,
-                isSelected: viewModel.existingKeyImportType == ChildExistingKeyImportType.seedQrScan,
-                height: 118,
-                onTap: () {
-                  viewModel.setExistingKeyImportType(ChildExistingKeyImportType.seedQrScan);
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
+    return ChildCreationOptionStep(viewModel: viewModel);
   }
 
   Widget _buildScannerStep(ChildCreationViewModel viewModel) {
@@ -361,101 +222,11 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   Widget _buildSummaryStep(ChildCreationViewModel viewModel) {
-    if (viewModel.scannedVaultItem == null) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (!viewModel.isBeneficiaryMatch) ...[
-          CoconutLayout.spacing_1500h,
-          SvgPicture.asset('assets/svg/triangle-warning.svg', width: 25, height: 25),
-          CoconutLayout.spacing_200h,
-          Text(
-            t.taproot.child_creation_screen.step6.title2,
-            style: CoconutTypography.heading3_21_Bold.setColor(CoconutColors.hotPink),
-            textAlign: TextAlign.center,
-          ),
-          CoconutLayout.spacing_800h,
-        ],
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: TaprootVaultItemCard(vaultItem: viewModel.scannedVaultItem!, showTaprootWalletInfo: false),
-        ),
-        CoconutLayout.spacing_200h,
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: TaprootSetupSummaryCard(
-            itemList: [
-              ...viewModel.scannedVaultItem!.owners.asMap().entries.map((entry) {
-                final index = entry.key;
-                final owner = entry.value;
-                final isSingleParent = viewModel.scannedVaultItem!.owners.length == 1;
-                final parentName =
-                    isSingleParent
-                        ? t.taproot.parent_wallet
-                        : '${t.taproot.parent_wallet} ${String.fromCharCode(65 + index)}';
-
-                return TaprootParticipantCard(
-                  role: TaprootParticipantRole.parent,
-                  walletName: parentName,
-                  mfp: owner.masterFingerprint,
-                  derivationPath: viewModel.scannedVaultItem!.derivationPath,
-                  hasSingleParent: isSingleParent,
-                  hasBackgroundColor: true,
-                  isMine: owner.isSeedStored,
-                );
-              }),
-              ...viewModel.scannedVaultItem!.beneficiaries.map(
-                (beneficiary) => TaprootParticipantCard(
-                  role: TaprootParticipantRole.child,
-                  mfp: beneficiary.masterFingerprint,
-                  derivationPath: viewModel.scannedVaultItem!.derivationPath,
-                  locktime: beneficiary.lockTime,
-                  hasBackgroundColor: true,
-                  isMine: beneficiary.isSeedStored || beneficiary.masterFingerprint == viewModel.masterFingerprint,
-                  isValid: beneficiary.masterFingerprint == viewModel.masterFingerprint,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
+    return ChildImportSummaryStep(viewModel: viewModel);
   }
 
   Widget _buildTimelineStep(ChildCreationViewModel viewModel) {
-    final lang = context.read<VisibilityProvider>().language;
-    final dateString = viewModel.getFormattedLockTime(lang);
-
-    return TimelineStepIndicator(
-      timelineStepItemList: [
-        TimelineStepItem(
-          title: t.taproot.child_creation_screen.step7.timeline.created_wallet,
-          description: t.taproot.child_creation_screen.step7.timeline.singlesig_description(
-            mfp: viewModel.masterFingerprint ?? '000000',
-          ),
-          status: TimelineStepStatus.current,
-        ),
-        TimelineStepItem(
-          title: t.taproot.child_creation_screen.step7.timeline.exported_to_parent,
-          description: t.taproot.child_creation_screen.step7.timeline.taproot_description(
-            mfp: viewModel.scannedParentMfps,
-          ),
-          status: TimelineStepStatus.upcoming,
-        ),
-        TimelineStepItem(
-          title: t.taproot.child_creation_screen.step7.timeline.imported_inheritance_info,
-          description:
-              '${viewModel.scannedVaultItem?.name ?? 'Name'} | ${viewModel.scannedVaultItem?.owners.length == 1 ? t.taproot.child_creation_screen.step7.timeline.single_sig_wallet : t.taproot.child_creation_screen.step7.timeline.multisig_wallet}',
-          status: TimelineStepStatus.upcoming,
-        ),
-        TimelineStepItem(
-          title: t.taproot.child_creation_screen.step7.timeline.active_inheritance_wallet,
-          description: t.taproot.child_creation_screen.step7.timeline.time_after(date: dateString),
-          status: TimelineStepStatus.future,
-        ),
-      ],
-    );
+    return ChildCreationTimelineStep(viewModel: viewModel);
   }
 
   Widget _getCurrentChild(ChildCreationViewModel viewModel) {
@@ -497,25 +268,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   Widget _buildQrSection(ChildCreationViewModel viewModel) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 21),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (viewModel.qrData != null && viewModel.qrData!.isNotEmpty)
-            AdaptiveQrImage(qrData: viewModel.qrData!)
-          else
-            const SizedBox(height: 200), // QR 데이터가 없을 때 영역 확보용 위젯
-          CoconutLayout.spacing_500h,
-          InfoBox(
-            infoList: [
-              MapEntry(t.wallet_type, t.taproot.child_creation_screen.step4.taproot_single_sig_wallet),
-              MapEntry(t.mfp, viewModel.masterFingerprint ?? '00000000'),
-            ],
-          ),
-        ],
-      ),
-    );
+    return ChildWalletQrSection(viewModel: viewModel);
   }
 
   bool _isNextButtonVisible(ChildCreationViewModel viewModel) {
@@ -546,11 +299,12 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     return true;
   }
 
-  void _addEmbeddedStep(Widget widget) {
+  int _addEmbeddedStep(Widget widget) {
     setState(() {
       _embeddedWidgets.add(widget);
       _currentStep += 1;
     });
+    return _currentStep;
   }
 
   void _onChildWalletSet(ChildCreationViewModel viewModel) {
@@ -574,97 +328,67 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
   void _addMnemonicConfirmationStep() {
     final viewModel = context.read<ChildCreationViewModel>();
-    final calledFrom = switch (viewModel.newKeyCreationType) {
-      ChildNewKeyCreationType.coinFlip => AppRoutes.mnemonicCoinflip,
-      ChildNewKeyCreationType.diceRoll => AppRoutes.mnemonicDiceRoll,
-      ChildNewKeyCreationType.autoGenerate => AppRoutes.mnemonicVerify,
-      ChildNewKeyCreationType.none => AppRoutes.mnemonicAutoGen,
-    };
-
-    if (calledFrom == AppRoutes.mnemonicVerify) {
-      _addMnemonicVerifyStep();
+    final mnemonicCreationMethod = _mnemonicCreationMethodFrom(viewModel.newKeyCreationType);
+    if (mnemonicCreationMethod == null) {
       return;
     }
 
-    _addEmbeddedStep(
-      MnemonicConfirmationScreen(
-        calledFrom: calledFrom,
-        isEmbedded: true,
-        isTaproot: true,
-        onMnemonicReady: _addMnemonicVerifyStep,
-      ),
+    TaprootMnemonicFlowAdapter.addCreationConfirmationStep(
+      addEmbeddedStep: _addEmbeddedStep,
+      method: mnemonicCreationMethod,
+      onMnemonicReady: _addMnemonicVerifyStep,
+      onAutoGenerateReady: _addMnemonicVerifyStep,
     );
   }
 
   void _addImportedMnemonicConfirmationStep() {
-    _addEmbeddedStep(
-      MnemonicConfirmationScreen(
-        calledFrom: AppRoutes.mnemonicImport,
-        isEmbedded: true,
-        isTaproot: true,
-        onMnemonicReady: () {
-          final viewModel = context.read<ChildCreationViewModel>();
-          _onChildWalletSet(viewModel);
-        },
-      ),
+    TaprootMnemonicFlowAdapter.addImportedConfirmationStep(
+      addEmbeddedStep: _addEmbeddedStep,
+      onMnemonicReady: () {
+        final viewModel = context.read<ChildCreationViewModel>();
+        _onChildWalletSet(viewModel);
+      },
     );
   }
 
   void _addMnemonicVerifyStep() {
-    _addEmbeddedStep(
-      MnemonicVerifyScreen(
-        isEmbedded: true,
-        isTaproot: true,
-        onVerificationSuccess: _addVerifiedMnemonicConfirmationStep,
-      ),
+    TaprootMnemonicFlowAdapter.addVerifyStep(
+      addEmbeddedStep: _addEmbeddedStep,
+      onVerificationSuccess: _addVerifiedMnemonicConfirmationStep,
     );
   }
 
   void _addVerifiedMnemonicConfirmationStep() {
-    _addEmbeddedStep(
-      MnemonicConfirmationScreen(
-        calledFrom: AppRoutes.mnemonicVerify,
-        isEmbedded: true,
-        isTaproot: true,
-        onMnemonicReady: () {
-          final viewModel = context.read<ChildCreationViewModel>();
-          _onChildWalletSet(viewModel);
-        },
-      ),
+    TaprootMnemonicFlowAdapter.addVerifiedConfirmationStep(
+      addEmbeddedStep: _addEmbeddedStep,
+      onMnemonicReady: () {
+        final viewModel = context.read<ChildCreationViewModel>();
+        _onChildWalletSet(viewModel);
+      },
     );
   }
 
   void _addFirstEmbeddedScreenForCreation(ChildCreationViewModel viewModel) {
-    Widget? firstEmbeddedScreen;
-    switch (viewModel.newKeyCreationType) {
-      case ChildNewKeyCreationType.coinFlip:
-        firstEmbeddedScreen = MnemonicCoinflipScreen(
-          entropyType: EntropyType.manual,
-          isEmbedded: true,
-          isTaproot: true,
-          onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
-        );
-        break;
-      case ChildNewKeyCreationType.diceRoll:
-        firstEmbeddedScreen = MnemonicDiceRollScreen(
-          entropyType: EntropyType.manual,
-          isEmbedded: true,
-          isTaproot: true,
-          onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
-        );
-        break;
-      case ChildNewKeyCreationType.autoGenerate:
-        firstEmbeddedScreen = MnemonicAutoGenScreen(
-          entropyType: EntropyType.auto,
-          isEmbedded: true,
-          isTaproot: true,
-          onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
-        );
-        break;
-      case ChildNewKeyCreationType.none:
-        return;
+    final mnemonicCreationMethod = _mnemonicCreationMethodFrom(viewModel.newKeyCreationType);
+    if (mnemonicCreationMethod == null) {
+      return;
     }
-    _addEmbeddedStep(firstEmbeddedScreen);
+
+    _addEmbeddedStep(
+      TaprootMnemonicFlowAdapter.buildCreationScreen(
+        method: mnemonicCreationMethod,
+        onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
+      ),
+    );
+  }
+
+  TaprootMnemonicCreationMethod? _mnemonicCreationMethodFrom(ChildNewKeyCreationType creationType) {
+    return switch (creationType) {
+      ChildNewKeyCreationType.coinFlip => TaprootMnemonicCreationMethod.coinFlip,
+      ChildNewKeyCreationType.diceRoll => TaprootMnemonicCreationMethod.diceRoll,
+      ChildNewKeyCreationType.autoGenerate => TaprootMnemonicCreationMethod.autoGenerate,
+      ChildNewKeyCreationType.none => null,
+    };
   }
 
   void _onNextPressed(ChildCreationViewModel viewModel) async {
@@ -699,20 +423,12 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           return;
         } else if (viewModel.existingKeyImportType == ChildExistingKeyImportType.mnemonicInput) {
           _addEmbeddedStep(
-            MnemonicImportScreen(
-              isEmbedded: true,
-              isTaprootCreationChild: true,
-              requirePassphraseConfirmation: true,
-              onCompleted: _addImportedMnemonicConfirmationStep,
-            ),
+            TaprootMnemonicFlowAdapter.buildMnemonicImportScreen(onCompleted: _addImportedMnemonicConfirmationStep),
           );
           return;
         } else if (viewModel.existingKeyImportType == ChildExistingKeyImportType.seedQrScan) {
           _addEmbeddedStep(
-            SeedQrImportScreen(
-              isEmbedded: true,
-              isTaproot: true,
-              requirePassphraseConfirmation: true,
+            TaprootMnemonicFlowAdapter.buildSeedQrImportScreen(
               onMnemonicConfirmationRequested: (secret, passphrase) {
                 viewModel.setSecretAndPassphrase(secret, passphrase);
                 _onChildWalletSet(viewModel);
@@ -759,24 +475,11 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     });
   }
 
-  void _showChildWalletResetDialog() {
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
-          title: t.taproot.child_creation_screen.step4.return_dialog_title,
-          description: t.taproot.child_creation_screen.step4.return_dialog_description,
-          leftButtonText: t.cancel,
-          rightButtonText: t.confirm,
-          onTapLeft: () => Navigator.pop(dialogContext),
-          onTapRight: () {
-            Navigator.pop(dialogContext);
-            _resetChildWalletAndReturnToOptionStep();
-          },
-        );
-      },
-    );
+  Future<void> _showChildWalletResetDialog() async {
+    final shouldReset = await ChildCreationOverlays.showChildWalletResetDialog(context);
+    if (shouldReset == true && mounted) {
+      _resetChildWalletAndReturnToOptionStep();
+    }
   }
 
   void _resetChildWalletAndReturnToOptionStep() {
@@ -868,97 +571,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   Widget _buildExistingVaultSelectionBody(ChildCreationViewModel viewModel) {
-    const gradientHeight = 36.0;
-
-    return Consumer<WalletProvider>(
-      builder: (context, walletProvider, child) {
-        final vaultList = walletProvider.getVaultsByWalletType(WalletType.singleSignature);
-
-        return Stack(
-          children: [
-            ListView.separated(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(top: gradientHeight, bottom: gradientHeight),
-              itemCount: vaultList.length,
-              separatorBuilder: (context, index) => CoconutLayout.spacing_300h,
-              itemBuilder: (context, index) {
-                final vault = vaultList[index];
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    children: [
-                      VaultRowItem(
-                        vault: vault,
-                        onSelected: () {
-                          if (_isProcessing) return;
-                          viewModel.setExistingVaultId(vault.id);
-                        },
-                        isNextIconVisible: false,
-                        isKeyBorderVisible: true,
-                        isSelectable: !_isProcessing,
-                        isSelected: viewModel.existingVaultId == vault.id,
-                      ),
-                      if (index == vaultList.length - 1) CoconutLayout.spacing_2000h,
-                    ],
-                  ),
-                );
-              },
-            ),
-            const Positioned(
-              left: 0,
-              top: 0,
-              right: 0,
-              height: gradientHeight,
-              child: IgnorePointer(
-                ignoring: true,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        CoconutColors.white,
-                        CoconutColors.white,
-                        Color(0xE6FFFFFF),
-                        Color(0x99FFFFFF),
-                        Color(0x33FFFFFF),
-                      ],
-                      stops: [0.0, 0.16, 0.36, 0.62, 1.0],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: gradientHeight,
-              child: IgnorePointer(
-                ignoring: true,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        CoconutColors.white,
-                        CoconutColors.white,
-                        Color(0xE6FFFFFF),
-                        Color(0x99FFFFFF),
-                        Color(0x33FFFFFF),
-                      ],
-                      stops: [0.0, 0.16, 0.36, 0.62, 1.0],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+    return ChildExistingVaultSelectionBody(viewModel: viewModel, isProcessing: _isProcessing);
   }
 
   void _addCurrentVaultSelectionStep(ChildCreationViewModel viewModel) {
@@ -969,7 +582,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   void _switchToSeedQrImport(ChildCreationViewModel viewModel) {
-    if (_embeddedWidgets.isEmpty || _embeddedWidgets.last is! MnemonicImportScreen) {
+    if (_embeddedWidgets.isEmpty || !TaprootMnemonicFlowAdapter.isMnemonicImportScreen(_embeddedWidgets.last)) {
       return;
     }
 
@@ -979,10 +592,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
       final taprootProvider = context.read<TaprootWalletCreationProvider>();
       _embeddedWidgets.add(
-        SeedQrImportScreen(
-          isEmbedded: true,
-          isTaproot: true,
-          requirePassphraseConfirmation: true,
+        TaprootMnemonicFlowAdapter.buildSeedQrImportScreen(
           onMnemonicConfirmationRequested: (secret, passphrase) {
             taprootProvider.setSecretAndPassphrase(secret, passphrase);
             _onChildWalletSet(viewModel);
@@ -993,7 +603,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   void _switchToMnemonicImport(ChildCreationViewModel viewModel) {
-    if (_embeddedWidgets.isEmpty || _embeddedWidgets.last is! SeedQrImportScreen) {
+    if (_embeddedWidgets.isEmpty || !TaprootMnemonicFlowAdapter.isSeedQrImportScreen(_embeddedWidgets.last)) {
       return;
     }
 
@@ -1002,44 +612,30 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       viewModel.setExistingKeyImportType(ChildExistingKeyImportType.mnemonicInput);
 
       _embeddedWidgets.add(
-        MnemonicImportScreen(
-          isEmbedded: true,
-          isTaprootCreationChild: true,
-          requirePassphraseConfirmation: true,
-          onCompleted: _addImportedMnemonicConfirmationStep,
-        ),
+        TaprootMnemonicFlowAdapter.buildMnemonicImportScreen(onCompleted: _addImportedMnemonicConfirmationStep),
       );
     });
   }
 
-  void _onCurrentVaultSelected(ChildCreationViewModel viewModel) {
+  Future<void> _onCurrentVaultSelected(ChildCreationViewModel viewModel) async {
     final selectedExistingVaultId = viewModel.existingVaultId;
     if (selectedExistingVaultId == null) {
       return;
     }
 
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
-          title: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_dialog_title,
-          description: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_dialog_description,
-          leftButtonText: t.cancel,
-          rightButtonText: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_dialog_action,
-          onTapLeft: () {
-            Navigator.pop(dialogContext);
-            setState(() {
-              _isProcessing = false;
-            });
-          },
-          onTapRight: () {
-            Navigator.pop(dialogContext);
-            _proceedWithSelectedVault(viewModel, selectedExistingVaultId);
-          },
-        );
-      },
-    );
+    final shouldProceed = await ChildCreationOverlays.showCurrentVaultConfirmDialog(context);
+    if (!mounted) {
+      return;
+    }
+
+    if (shouldProceed == true) {
+      _proceedWithSelectedVault(viewModel, selectedExistingVaultId);
+      return;
+    }
+
+    setState(() {
+      _isProcessing = false;
+    });
   }
 
   void _proceedWithSelectedVault(ChildCreationViewModel viewModel, int selectedExistingVaultId) {
@@ -1049,35 +645,17 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
     final mnemonicViewKey = GlobalKey<MnemonicViewScreenState>();
     _addEmbeddedStep(
-      Stack(
-        children: [
-          MnemonicViewScreen(
-            key: mnemonicViewKey,
-            walletId: selectedExistingVaultId,
-            autoLoadMnemonic: false,
-            isEmbedded: true,
-            buildPassphraseToggle: context.read<VisibilityProvider>().isPassphraseUseEnabled,
-            requirePassphraseConfirmation: true,
-            onAuthCanceled: () {
-              _handleBackPressed();
-            },
-            onNextButtonPressed: () {
-              final mnemonicViewState = mnemonicViewKey.currentState;
-              if (mnemonicViewState == null) {
-                return;
-              }
-
-              final taprootProvider = context.read<TaprootWalletCreationProvider>();
-              taprootProvider.setSecretAndPassphrase(
-                mnemonicViewState.mnemonic,
-                mnemonicViewState.passphrase.isNotEmpty
-                    ? Uint8List.fromList(utf8.encode(mnemonicViewState.passphrase))
-                    : null,
-              );
-              _onChildWalletSet(viewModel);
-            },
-          ),
-        ],
+      TaprootMnemonicViewFlowAdapter.buildMnemonicViewStep(
+        mnemonicViewKey: mnemonicViewKey,
+        walletId: selectedExistingVaultId,
+        buildPassphraseToggle: context.read<VisibilityProvider>().isPassphraseUseEnabled,
+        emptyPassphraseAsNull: true,
+        onAuthCanceled: _handleBackPressed,
+        onMnemonicReady: (mnemonic, passphrase) {
+          final taprootProvider = context.read<TaprootWalletCreationProvider>();
+          taprootProvider.setSecretAndPassphrase(mnemonic, passphrase);
+          _onChildWalletSet(viewModel);
+        },
       ),
     );
 
@@ -1085,65 +663,13 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       if (!mounted) {
         return;
       }
-      _showDeviceAuthDialog(mnemonicViewKey);
+      TaprootMnemonicViewFlowAdapter.showDeviceAuthDialog(
+        context: context,
+        mnemonicViewKey: mnemonicViewKey,
+        showDeviceAuthDialog: ChildCreationOverlays.showDeviceAuthDialog,
+        authenticateWithBiometricOrPin: ChildCreationOverlays.authenticateWithBiometricOrPin,
+      );
     });
-  }
-
-  void _showDeviceAuthDialog(GlobalKey<MnemonicViewScreenState> mnemonicViewKey) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return PopScope(
-          canPop: false,
-          child: CoconutPopup(
-            languageCode: context.read<VisibilityProvider>().language,
-            title: t.taproot.child_creation_screen.step3.device_auth_dialog_title,
-            description: t.taproot.child_creation_screen.step3.device_auth_dialog_description,
-            rightButtonText: t.confirm,
-            onTapRight: () {
-              _authenticateWithBiometricOrPin(PinCheckContextEnum.sensitiveAction, () {
-                if (dialogContext.mounted) {
-                  Navigator.pop(dialogContext);
-                }
-                mnemonicViewKey.currentState?.setMnemonic();
-              });
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _authenticateWithBiometricOrPin(PinCheckContextEnum pinCheckContext, VoidCallback onSuccess) async {
-    final authProvider = context.read<AuthProvider>();
-
-    final isBiometricValid =
-        pinCheckContext == PinCheckContextEnum.sensitiveAction
-            ? await authProvider.isBiometricsAuthValidToAvoidDoubleAuth()
-            : await authProvider.isBiometricsAuthValid();
-
-    if (isBiometricValid && mounted) {
-      onSuccess();
-      return;
-    }
-
-    final pinCheckResult = await _showPinCheckBottomSheet();
-    if (pinCheckResult == true && mounted) {
-      onSuccess();
-    }
-  }
-
-  Future<bool?> _showPinCheckBottomSheet() async {
-    return await MyBottomSheet.showBottomSheet_90<bool>(
-      context: context,
-      child: CustomLoadingOverlay(
-        child: PinCheckScreen(
-          pinCheckContext: PinCheckContextEnum.sensitiveAction,
-          onSuccess: () => Navigator.pop(context, true),
-        ),
-      ),
-    );
   }
 
   @override
@@ -1165,8 +691,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     if (isEmbeddedActive) {
       currentEmbeddedWidget = _embeddedWidgets[_currentStep - embeddedStartIndex - 1];
     }
-    final bool showScanButton = currentEmbeddedWidget is MnemonicImportScreen;
-    final bool showTypeButton = currentEmbeddedWidget is SeedQrImportScreen;
+    final bool showScanButton =
+        currentEmbeddedWidget != null && TaprootMnemonicFlowAdapter.isMnemonicImportScreen(currentEmbeddedWidget);
+    final bool showTypeButton =
+        currentEmbeddedWidget != null && TaprootMnemonicFlowAdapter.isSeedQrImportScreen(currentEmbeddedWidget);
 
     return PopScope(
       canPop: false,
