@@ -362,18 +362,10 @@ class ParentCreationViewModel extends ChangeNotifier {
       return;
     }
 
-    try {
-      final seed = Seed.fromMnemonic(
-        _parentSecret,
-        passphrase: _parentPassphrase.isNotEmpty ? _parentPassphrase : null,
-      );
-      final keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
-      _parentMasterFingerprint = keyStore.masterFingerprint;
-      _parentWalletQrData = TaprootVault.fromKeyStoreList([keyStore], []).descriptor;
-    } catch (_) {
-      _parentMasterFingerprint = '00000000';
-      _parentWalletQrData = '';
-    }
+    final seed = Seed.fromMnemonic(_parentSecret, passphrase: _parentPassphrase.isNotEmpty ? _parentPassphrase : null);
+    final keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
+    _parentMasterFingerprint = keyStore.masterFingerprint;
+    _parentWalletQrData = TaprootVault.fromKeyStoreList([keyStore], []).descriptor;
   }
 
   Uint8List _copyPassphrase(Uint8List? passphrase) {

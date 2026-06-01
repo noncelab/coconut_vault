@@ -126,7 +126,7 @@ class ChildCreationViewModel extends ChangeNotifier {
 
   bool _validateVault(TaprootVaultListItem item) {
     try {
-      TaprootValidator.validateInheritanceDescriptor(item.descriptor);
+      TaprootValidator.parseInheritanceVaultDescriptor(item.descriptor);
       return true;
     } catch (e) {
       Logger.error('Vault validation error: $e');

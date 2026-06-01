@@ -146,7 +146,7 @@ class TaprootImportViewModel extends ChangeNotifier {
 
   TaprootWalletSyncValidationResult validateWalletSyncData(TaprootWalletSyncData walletSyncData) {
     try {
-      TaprootValidator.validateInheritanceDescriptor(walletSyncData.descriptor);
+      TaprootValidator.parseInheritanceVaultDescriptor(walletSyncData.descriptor);
     } catch (_) {
       return TaprootWalletSyncValidationResult.invalid;
     }
