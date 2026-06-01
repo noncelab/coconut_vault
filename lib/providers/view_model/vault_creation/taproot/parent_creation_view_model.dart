@@ -24,6 +24,8 @@ enum ChildWalletSetupType { none, import, create }
 
 enum ParentChildWalletSource { scanned, created }
 
+enum ParentChildWalletSetResult { success, sameAsParent }
+
 class ParentCreationSaveResult {
   final int vaultId;
   final TaprootVaultCreationTimelineInfo timelineInfo;
@@ -205,6 +207,14 @@ class ParentCreationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setExternalParentVault(TaprootVault vault) {
+    final keyStore = vault.keyStoreList.first;
+    setExternalParent(
+      signerBsms: TaprootValidator.signerBsmsFromSingleKeyTaprootDescriptor(vault.descriptor),
+      masterFingerprint: keyStore.masterFingerprint,
+    );
+  }
+
   void setChildWallet({
     required String descriptor,
     required String masterFingerprint,
@@ -219,6 +229,26 @@ class ParentCreationViewModel extends ChangeNotifier {
     _childSecret = secret == null ? Uint8List(0) : Uint8List.fromList(secret);
     _childPassphrase = _copyPassphrase(passphrase);
     notifyListeners();
+  }
+
+  ParentChildWalletSetResult trySetChildWallet({
+    required TaprootVault beneficiaryVault,
+    required ParentChildWalletSource source,
+    Uint8List? secret,
+    Uint8List? passphrase,
+  }) {
+    if (source == ParentChildWalletSource.scanned && isSameAsParentWalletDescriptor(beneficiaryVault.descriptor)) {
+      return ParentChildWalletSetResult.sameAsParent;
+    }
+
+    setChildWallet(
+      descriptor: beneficiaryVault.descriptor,
+      masterFingerprint: beneficiaryVault.keyStoreList.first.masterFingerprint,
+      source: source,
+      secret: secret,
+      passphrase: passphrase,
+    );
+    return ParentChildWalletSetResult.success;
   }
 
   void resetChildWallet() {
