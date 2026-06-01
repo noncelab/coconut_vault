@@ -42,9 +42,10 @@ class TaprootValidator {
       final isValidCoinType = NetworkType.currentNetworkType.isTestnet ? coinType == "1'" : coinType == "0'";
       if (!isValidCoinType) {
         throw NetworkMismatchException(
-          message: NetworkType.currentNetworkType.isTestnet
-              ? t.alert.bsms_network_mismatch.description_when_testnet
-              : t.alert.bsms_network_mismatch.description_when_mainnet,
+          message:
+              NetworkType.currentNetworkType.isTestnet
+                  ? t.alert.bsms_network_mismatch.description_when_testnet
+                  : t.alert.bsms_network_mismatch.description_when_mainnet,
         );
       }
     } catch (e) {
