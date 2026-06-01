@@ -1,8 +1,6 @@
 import 'dart:async';
 
-import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/taproot/taproot_wallet_sync_data.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -149,7 +147,7 @@ class _TaprootScannerScreenState extends QrScannerScreenBase<TaprootScannerScree
       try {
         didHandleScan = await onTaprootVaultScanned(beneficiaryVault);
       } catch (e) {
-        _handleScanFailure(e is FormatException ? e.message : wrongFormatMessage);
+        _handleScanFailure(e is FormatException ? e.message : wrongFormatPromptMessage);
         return;
       }
       if (!didHandleScan && mounted) {

@@ -80,13 +80,13 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
   int _totalStep(ChildCreationViewModel viewModel) => viewModel.visibleProgressStepCount + _embeddedWidgets.length;
 
-  int _progressCurrentStep(ChildCreationViewModel viewModel) {
-    int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
+  int get _embeddedStartIndex => _currentVaultSelectionStep != null ? 4 : 3;
 
+  int _progressCurrentStep(ChildCreationViewModel viewModel) {
     final currentStep = switch (_currentStep) {
-      _ when _currentStep <= embeddedStartIndex => _currentStep - _progressInitialStepCount,
-      _ when _currentStep <= embeddedStartIndex + _embeddedWidgets.length =>
-        embeddedStartIndex - _progressInitialStepCount,
+      _ when _currentStep <= _embeddedStartIndex => _currentStep - _progressInitialStepCount,
+      _ when _currentStep <= _embeddedStartIndex + _embeddedWidgets.length =>
+        _embeddedStartIndex - _progressInitialStepCount,
       _ => _currentStep - _embeddedWidgets.length - _progressInitialStepCount,
     };
 
@@ -94,13 +94,12 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   List<TextSpan> _titleLines(ChildCreationViewModel viewModel) {
-    int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
     final titles = _buildTitleList(viewModel);
 
     List<TextSpan> textList;
-    if (_currentStep <= embeddedStartIndex) {
+    if (_currentStep <= _embeddedStartIndex) {
       textList = titles[_currentStep - 1];
-    } else if (_currentStep <= embeddedStartIndex + _embeddedWidgets.length) {
+    } else if (_currentStep <= _embeddedStartIndex + _embeddedWidgets.length) {
       return [const TextSpan(text: '')];
     } else {
       textList = titles[_currentStep - _embeddedWidgets.length - 1];
@@ -290,6 +289,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   Widget _buildScannerStep(ChildCreationViewModel viewModel) {
+    return _buildScannerScreen(viewModel);
+  }
+
+  Widget _buildScannerScreen(ChildCreationViewModel viewModel) {
     return TaprootScannerScreen(
       topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: _buildScannerTitle(viewModel)),
       onTaprootVaultScanned: (beneficiaryVault) async {
@@ -309,13 +312,24 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         await Future.delayed(const Duration(milliseconds: 1000));
         if (!mounted) return false;
 
-        setState(() {
-          _isProcessing = false;
-        });
-        _onNextPressed(viewModel);
+        _completeScannerStep();
         return true;
       },
     );
+  }
+
+  void _addScannerStep(ChildCreationViewModel viewModel) {
+    setState(() {
+      _embeddedWidgets.add(_buildScannerScreen(viewModel));
+      _currentStep = _embeddedStartIndex + _embeddedWidgets.length;
+    });
+  }
+
+  void _completeScannerStep() {
+    setState(() {
+      _isProcessing = false;
+      _currentStep += 3;
+    });
   }
 
   Widget _buildScannerTitle(ChildCreationViewModel viewModel) {
@@ -324,13 +338,26 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        for (final line in _titleLines(viewModel))
+        for (final line in _scannerTitleLines(viewModel))
           Text.rich(
             TextSpan(text: line.toPlainText(), style: defaultStyle.merge(line.style)),
             textAlign: TextAlign.center,
           ),
       ],
     );
+  }
+
+  List<TextSpan> _scannerTitleLines(ChildCreationViewModel viewModel) {
+    final scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
+    final titleList = _buildTitleList(viewModel);
+    final textList = titleList[scannerStepIndex - 1];
+    if (textList.length == 1) {
+      return [const TextSpan(text: ''), textList[0], const TextSpan(text: '')];
+    }
+    if (textList.length == 2) {
+      return [textList[0], textList[1], const TextSpan(text: '')];
+    }
+    return textList;
   }
 
   Widget _buildSummaryStep(ChildCreationViewModel viewModel) {
@@ -432,14 +459,12 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   Widget _getCurrentChild(ChildCreationViewModel viewModel) {
-    int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
-
-    if (_currentStep > embeddedStartIndex && _currentStep <= embeddedStartIndex + _embeddedWidgets.length) {
-      return _embeddedWidgets[_currentStep - embeddedStartIndex - 1];
+    if (_currentStep > _embeddedStartIndex && _currentStep <= _embeddedStartIndex + _embeddedWidgets.length) {
+      return _embeddedWidgets[_currentStep - _embeddedStartIndex - 1];
     }
 
     int baseCurrentStep = _currentStep;
-    if (_currentStep > embeddedStartIndex + _embeddedWidgets.length) {
+    if (_currentStep > _embeddedStartIndex + _embeddedWidgets.length) {
       baseCurrentStep = _currentStep - _embeddedWidgets.length;
     }
 
@@ -497,8 +522,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     if (_currentStep == _currentVaultSelectionStep) {
       return viewModel.existingVaultId != null;
     }
-    int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
-    if (_currentStep > embeddedStartIndex && _currentStep <= embeddedStartIndex + _embeddedWidgets.length) {
+    if (_currentStep > _embeddedStartIndex && _currentStep <= _embeddedStartIndex + _embeddedWidgets.length) {
       return false;
     }
     if (_currentStep == 2) {
@@ -513,7 +537,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     }
 
     int scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
-    int baseCurrentStep = _currentStep > embeddedStartIndex ? _currentStep - _embeddedWidgets.length : _currentStep;
+    int baseCurrentStep = _currentStep > _embeddedStartIndex ? _currentStep - _embeddedWidgets.length : _currentStep;
 
     if (baseCurrentStep == scannerStepIndex) {
       return false;
@@ -700,9 +724,13 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       }
     }
 
-    int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
     int scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
-    int baseCurrentStep = _currentStep > embeddedStartIndex ? _currentStep - _embeddedWidgets.length : _currentStep;
+    int baseCurrentStep = _currentStep > _embeddedStartIndex ? _currentStep - _embeddedWidgets.length : _currentStep;
+
+    if (baseCurrentStep == scannerStepIndex - 1) {
+      _addScannerStep(viewModel);
+      return;
+    }
 
     if (baseCurrentStep == scannerStepIndex + 1) {
       if (!viewModel.isBeneficiaryMatch) {
@@ -770,6 +798,11 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   void _handleBackPressed() {
     final viewModel = context.read<ChildCreationViewModel>();
 
+    if (_isScannerEmbeddedStep) {
+      _returnToChildWalletQrStep();
+      return;
+    }
+
     if (_isChildWalletQrStep) {
       _showChildWalletResetDialog();
       return;
@@ -777,9 +810,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
     if (_currentStep > 1) {
       setState(() {
-        int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
-
-        if (_currentStep > embeddedStartIndex && _currentStep <= embeddedStartIndex + _embeddedWidgets.length) {
+        if (_currentStep > _embeddedStartIndex && _currentStep <= _embeddedStartIndex + _embeddedWidgets.length) {
           _embeddedWidgets.removeLast();
         }
         _currentStep -= 1;
@@ -806,16 +837,30 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     }
   }
 
+  bool get _isScannerEmbeddedStep {
+    return _embeddedWidgets.isNotEmpty &&
+        _embeddedWidgets.last is TaprootScannerScreen &&
+        _currentStep == _embeddedStartIndex + _embeddedWidgets.length;
+  }
+
+  void _returnToChildWalletQrStep() {
+    setState(() {
+      _embeddedWidgets.removeLast();
+      final scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
+      _currentStep = _embeddedWidgets.length + scannerStepIndex - 1;
+      _isProcessing = false;
+    });
+  }
+
   bool get _isChildWalletQrStep {
-    final embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
     final isEmbeddedActive =
-        _currentStep > embeddedStartIndex && _currentStep <= embeddedStartIndex + _embeddedWidgets.length;
+        _currentStep > _embeddedStartIndex && _currentStep <= _embeddedStartIndex + _embeddedWidgets.length;
     if (isEmbeddedActive) {
       return false;
     }
 
     final baseCurrentStep =
-        _currentStep > embeddedStartIndex + _embeddedWidgets.length
+        _currentStep > _embeddedStartIndex + _embeddedWidgets.length
             ? _currentStep - _embeddedWidgets.length
             : _currentStep;
     final scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
