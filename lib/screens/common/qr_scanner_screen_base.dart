@@ -240,7 +240,7 @@ abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
                 onButtonClicked: onBottomButtonClicked,
                 text: bottomButtonText,
                 showGradient: false,
-                  backgroundColor: CoconutColors.white,
+                backgroundColor: CoconutColors.white,
                 textColor: CoconutColors.black,
               ),
           ],

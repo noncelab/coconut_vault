@@ -982,7 +982,12 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           description: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_dialog_description,
           leftButtonText: t.cancel,
           rightButtonText: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_dialog_action,
-          onTapLeft: () => Navigator.pop(dialogContext),
+          onTapLeft: () {
+            Navigator.pop(dialogContext);
+            setState(() {
+              _isProcessing = false;
+            });
+          },
           onTapRight: () {
             Navigator.pop(dialogContext);
             _proceedWithSelectedVault(viewModel, selectedExistingVaultId);
