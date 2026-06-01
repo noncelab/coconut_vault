@@ -95,7 +95,7 @@ class TaprootParticipantCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                    CoconutLayout.spacing_50w,
+                    CoconutLayout.spacing_100w,
                     if (_lockStatusIcon != null) _lockStatusIcon!,
                   ],
                 ),

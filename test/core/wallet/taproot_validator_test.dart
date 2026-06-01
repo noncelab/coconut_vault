@@ -66,7 +66,10 @@ void main() {
     test('throws when descriptor has more than two parents', () {
       final fixture = _inheritanceFixture(parentCount: 3);
 
-      expect(() => TaprootValidator.parseInheritanceVaultDescriptor(fixture.descriptor), throwsA(isA<FormatException>()));
+      expect(
+        () => TaprootValidator.parseInheritanceVaultDescriptor(fixture.descriptor),
+        throwsA(isA<FormatException>()),
+      );
     });
 
     test('throws when descriptor has no child inheritance policy', () {
