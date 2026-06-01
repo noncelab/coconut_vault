@@ -77,11 +77,25 @@ class TaprootParticipantCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     if (locktime != null) ...[
-                      Text(_formattedLocktime, style: CoconutTypography.body3_12),
+                      Flexible(
+                        child: Text(
+                          _formattedLocktime,
+                          style: CoconutTypography.body3_12,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ] else ...[
-                      Text(walletName ?? '', style: CoconutTypography.body3_12_Bold),
+                      Flexible(
+                        child: Text(
+                          walletName ?? '',
+                          style: CoconutTypography.body3_12_Bold,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
-                    CoconutLayout.spacing_100w,
+                    CoconutLayout.spacing_50w,
                     if (_lockStatusIcon != null) _lockStatusIcon!,
                   ],
                 ),
