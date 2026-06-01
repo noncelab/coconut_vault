@@ -202,7 +202,11 @@ class _VaultRowItemState extends State<VaultRowItem> {
           );
           return;
         } else if (vaultType == WalletType.taproot) {
-          // TODO: 탭루트 지갑을 위한 전용 상세 정보 화면이 구현되면 해당 경로로 연결
+          Navigator.pushNamed(
+            context,
+            AppRoutes.taprootSetupInfo,
+            arguments: {'id': widget.vault.id, 'entryPoint': widget.entryPoint},
+          );
           return;
         }
 
