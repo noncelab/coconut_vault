@@ -57,7 +57,7 @@ void main() {
     test('validates inheritance descriptor with up to two parents and one child', () {
       final fixture = _inheritanceFixture(parentCount: 2);
 
-      final vault = TaprootValidator.validateInheritanceDescriptor(fixture.descriptor);
+      final vault = TaprootValidator.parseInheritanceVaultDescriptor(fixture.descriptor);
 
       expect(vault.keyStoreList.length, 2);
       expect(vault.policyList.whereType<InheritancePolicy>().length, 1);
@@ -66,13 +66,13 @@ void main() {
     test('throws when descriptor has more than two parents', () {
       final fixture = _inheritanceFixture(parentCount: 3);
 
-      expect(() => TaprootValidator.validateInheritanceDescriptor(fixture.descriptor), throwsA(isA<FormatException>()));
+      expect(() => TaprootValidator.parseInheritanceVaultDescriptor(fixture.descriptor), throwsA(isA<FormatException>()));
     });
 
     test('throws when descriptor has no child inheritance policy', () {
       final descriptor = TaprootVault.fromKeyStoreList([_randomTaprootKeyStore()], []).descriptor;
 
-      expect(() => TaprootValidator.validateInheritanceDescriptor(descriptor), throwsA(isA<FormatException>()));
+      expect(() => TaprootValidator.parseInheritanceVaultDescriptor(descriptor), throwsA(isA<FormatException>()));
     });
   });
 

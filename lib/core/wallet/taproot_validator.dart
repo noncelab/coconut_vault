@@ -74,7 +74,7 @@ class TaprootValidator {
   }
 
   /// 3. 상속 지갑 Descriptor QR 데이터 정합성 확인.
-  static TaprootVault validateInheritanceDescriptor(String descriptor) {
+  static TaprootVault parseInheritanceVaultDescriptor(String descriptor) {
     final vault = parseTaprootDescriptor(descriptor);
     final parentCount = vault.keyStoreList.length;
     final beneficiaryCount = _beneficiaryKeyStoresFromVault(vault).length;
@@ -95,7 +95,7 @@ class TaprootValidator {
     required String inheritanceDescriptor,
     required String childSignerBsms,
   }) {
-    final inheritanceVault = validateInheritanceDescriptor(inheritanceDescriptor);
+    final inheritanceVault = parseInheritanceVaultDescriptor(inheritanceDescriptor);
     final childExtendedPublicKey = validateSignerBsms(childSignerBsms).extendedPublicKey.serialize();
     return _beneficiaryExtendedPublicKeysFromVault(inheritanceVault).contains(childExtendedPublicKey);
   }
