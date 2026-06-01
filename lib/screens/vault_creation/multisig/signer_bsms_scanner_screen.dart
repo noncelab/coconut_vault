@@ -3,7 +3,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
-import 'package:coconut_vault/core/wallet/wallet_validator.dart';
+import 'package:coconut_vault/core/wallet/multisig_validator.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/common/qr_scanner_screen_base.dart';
 import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
@@ -144,7 +144,7 @@ class _SignerBsmsScannerScreenState extends QrScannerScreenBase<SignerBsmsScanne
 
     try {
       signerBsms = SignerBsms.parse(scanResult);
-      WalletValidator.validateSignerDerivationPath(signerBsms.derivationPath);
+      MultisigValidator.validateSignerDerivationPath(signerBsms.derivationPath);
     } catch (e) {
       _handleScanFailure(e.toString());
       return;

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:coconut_vault/core/wallet/taproot_validator.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
 import 'package:flutter/foundation.dart';
@@ -14,12 +15,6 @@ enum ChildKeyPreparationType { none, create, import }
 enum ChildNewKeyCreationType { none, coinFlip, diceRoll, autoGenerate }
 
 enum ChildExistingKeyImportType { none, currentVault, mnemonicInput, seedQrScan }
-
-class InheritanceVaultPolicy {
-  static const int maxParents = 2;
-  static const int minParents = 1;
-  static const int requiredChildren = 1;
-}
 
 class ChildCreationViewModel extends ChangeNotifier {
   static const int _initialProgressExcludedStepCount = 1;
@@ -53,9 +48,12 @@ class ChildCreationViewModel extends ChangeNotifier {
   }
 
   bool get isBeneficiaryMatch {
-    if (_scannedVaultItem == null || _masterFingerprint == null) return false;
+    if (_scannedVaultItem == null || _qrData == null) return false;
     try {
-      return _scannedVaultItem!.beneficiaries.any((b) => b.masterFingerprint == _masterFingerprint);
+      return TaprootValidator.isInheritanceDescriptorChildDescriptorMatched(
+        inheritanceDescriptor: _scannedVaultItem!.descriptor,
+        childDescriptor: _qrData!,
+      );
     } catch (e) {
       return false;
     }
@@ -128,14 +126,8 @@ class ChildCreationViewModel extends ChangeNotifier {
 
   bool _validateVault(TaprootVaultListItem item) {
     try {
-      final String desc = item.descriptor.trim();
-      final bool hasValidFormat = desc.isNotEmpty && desc.contains('tr(');
-      final bool hasValidParents =
-          item.owners.length >= InheritanceVaultPolicy.minParents &&
-          item.owners.length <= InheritanceVaultPolicy.maxParents;
-      final bool hasValidChildren = item.beneficiaries.length == InheritanceVaultPolicy.requiredChildren;
-
-      return hasValidFormat && hasValidParents && hasValidChildren;
+      TaprootValidator.validateInheritanceDescriptor(item.descriptor);
+      return true;
     } catch (e) {
       Logger.error('Vault validation error: $e');
       return false;

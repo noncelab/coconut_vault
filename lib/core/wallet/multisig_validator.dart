@@ -8,8 +8,8 @@ import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 ///
 /// Has no Flutter / state dependency, so call sites can use it from anywhere
 /// (provider, service, screen, isolate, unit test) without wiring DI.
-class WalletValidator {
-  WalletValidator._();
+class MultisigValidator {
+  MultisigValidator._();
 
   static final List<AddressType> allowedMultisigAddressTypes = [AddressType.p2wsh];
 
