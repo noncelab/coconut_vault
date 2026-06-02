@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:coconut_vault/core/wallet/taproot_validator.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
@@ -8,6 +7,7 @@ import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/taproot_wallet_sync_data.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 
 enum ChildKeyPreparationType { none, create, import }
@@ -85,43 +85,33 @@ class ChildCreationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool setScannedTaprootVault(String scannedData) {
-    final trimmedData = scannedData.trim();
-    if (trimmedData.isEmpty) return false;
+  bool setScannedTaprootVault(TaprootWalletSyncData syncData) {
+    final descriptor = syncData.descriptor.trim();
+    if (descriptor.isEmpty) return false;
 
-    _scannedVaultItem = _tryParseVaultData(trimmedData);
+    final item = TaprootVaultListItem(
+      id: -1,
+      name: syncData.name,
+      createdAt: DateTime.now(),
+      colorIndex: syncData.colorIndex,
+      iconIndex: syncData.iconIndex,
+      descriptor: descriptor,
+      keyPathSeedInfos: const [],
+      scriptPathSeedInfos: const [],
+    );
 
-    if (_scannedVaultItem == null || !_validateVault(_scannedVaultItem!)) {
+    if (!_validateVault(item)) {
       _scannedVaultItem = null;
       _scannedMasterFingerprint = null;
       notifyListeners();
       return false;
     }
 
-    if (_scannedVaultItem!.owners.isNotEmpty) {
-      _scannedMasterFingerprint = _scannedVaultItem!.owners.first.masterFingerprint;
-    } else {
-      _scannedMasterFingerprint = null;
-    }
+    _scannedVaultItem = item;
+    _scannedMasterFingerprint = item.owners.isNotEmpty ? item.owners.first.masterFingerprint : null;
 
     notifyListeners();
     return true;
-  }
-
-  TaprootVaultListItem? _tryParseVaultData(String data) {
-    try {
-      final decoded = jsonDecode(data);
-      if (decoded is Map<String, dynamic>) {
-        return TaprootVaultListItem.fromJson(decoded);
-      }
-    } catch (_) {
-      try {
-        return _parseRawDescriptorString(data);
-      } catch (_) {
-        return null;
-      }
-    }
-    return null;
   }
 
   bool _validateVault(TaprootVaultListItem item) {
@@ -132,38 +122,6 @@ class ChildCreationViewModel extends ChangeNotifier {
       Logger.error('Vault validation error: $e');
       return false;
     }
-  }
-
-  TaprootVaultListItem _parseRawDescriptorString(String data) {
-    String innerData = data.trim();
-    if (innerData.startsWith('{') && innerData.endsWith('}')) {
-      final content = innerData.substring(1, innerData.length - 1).trim();
-      return TaprootVaultListItem(
-        id: int.tryParse(_extractValue(content, 'id') ?? '') ?? -1,
-        name: _extractValue(content, 'name') ?? '스캔된 부모 지갑',
-        createdAt: DateTime.tryParse(_extractValue(content, 'createdAt') ?? '') ?? DateTime.now(),
-        colorIndex: int.tryParse(_extractValue(content, 'colorIndex') ?? '') ?? 0,
-        iconIndex: int.tryParse(_extractValue(content, 'iconIndex') ?? '') ?? 0,
-        descriptor: _extractValue(content, 'descriptor') ?? innerData,
-        keyPathSeedInfos: const [],
-        scriptPathSeedInfos: const [],
-      );
-    }
-    return TaprootVaultListItem(
-      id: -1,
-      name: '스캔된 부모 지갑',
-      colorIndex: 0,
-      iconIndex: 0,
-      createdAt: DateTime.now(),
-      descriptor: innerData,
-      keyPathSeedInfos: const [],
-      scriptPathSeedInfos: const [],
-    );
-  }
-
-  String? _extractValue(String content, String key) {
-    final match = RegExp('$key:\\s*(.*?)(?=\\s*(?:,\\s*[a-zA-Z0-9_]+:|\$))', dotAll: true).firstMatch(content);
-    return match?.group(1)?.trim();
   }
 
   String get scannedParentMfps => _scannedVaultItem?.owners.map((o) => o.masterFingerprint).join(', ') ?? '000000';

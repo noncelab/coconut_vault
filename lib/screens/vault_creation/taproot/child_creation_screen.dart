@@ -155,13 +155,14 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
   Widget _buildScannerScreen(ChildCreationViewModel viewModel) {
     return TaprootScannerScreen(
+      dataType: TaprootScannerDataType.walletSync,
       topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: _buildScannerTitle(viewModel)),
-      onTaprootVaultScanned: (beneficiaryVault) async {
+      onWalletSyncScanned: (syncData) async {
         if (_isProcessing) return false;
 
         vibrateExtraLight();
 
-        final bool isValid = viewModel.setScannedTaprootVault(beneficiaryVault.descriptor);
+        final bool isValid = viewModel.setScannedTaprootVault(syncData);
         if (!isValid) {
           throw FormatException(t.errors.invalid_qr);
         }
