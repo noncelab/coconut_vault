@@ -224,11 +224,6 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
                                 ),
                           ),
                           SingleButton(
-                            title: t.vault_menu_screen.view_xpub,
-                            onPressed:
-                                () => Navigator.pushNamed(context, AppRoutes.viewXpub, arguments: {'id': widget.id}),
-                          ),
-                          SingleButton(
                             title: t.view_mnemonic,
                             onPressed: () {
                               if (viewModel.isSigningOnlyMode) {
