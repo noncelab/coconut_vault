@@ -570,10 +570,18 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       textAlign: TextAlign.center,
     );
 
-    return TaprootScannerScreen(
-      topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
-      onTaprootVaultScanned:
-          (beneficiaryVault) => _onChildWalletImported(beneficiaryVault, source: ParentChildWalletSource.scanned),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final height = constraints.hasBoundedHeight ? constraints.maxHeight : MediaQuery.sizeOf(context).height;
+        return SizedBox(
+          height: height,
+          child: TaprootScannerScreen(
+            topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
+            onTaprootVaultScanned:
+                (beneficiaryVault) => _onChildWalletImported(beneficiaryVault, source: ParentChildWalletSource.scanned),
+          ),
+        );
+      },
     );
   }
 
@@ -1055,7 +1063,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
             key: const ValueKey('parent-creation-mnemonic-import'),
             onMnemonicConfirmationRequested: _onImportedParentMnemonicReady,
           ),
-          ParentExistingKeyImportType.seedQrScan => TaprootMnemonicFlowAdapter.buildSeedQrImportScreen(
+          ParentExistingKeyImportType.seedQrScan => _buildSeedQrImportScreen(
             key: const ValueKey('parent-creation-seed-qr-import'),
             onMnemonicConfirmationRequested: _onImportedParentMnemonicReady,
           ),
@@ -1064,6 +1072,24 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       case ParentKeyPreparationType.none:
         return null;
     }
+  }
+
+  Widget _buildSeedQrImportScreen({
+    Key? key,
+    required TaprootImportedMnemonicCallback onMnemonicConfirmationRequested,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final height = constraints.hasBoundedHeight ? constraints.maxHeight : MediaQuery.sizeOf(context).height;
+        return SizedBox(
+          height: height,
+          child: TaprootMnemonicFlowAdapter.buildSeedQrImportScreen(
+            key: key,
+            onMnemonicConfirmationRequested: onMnemonicConfirmationRequested,
+          ),
+        );
+      },
+    );
   }
 
   Widget? _buildNewMnemonicCreationScreen(ParentNewKeyCreationType creationType) {
