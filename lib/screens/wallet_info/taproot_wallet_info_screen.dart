@@ -116,7 +116,11 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
     final localParticipants = _getLocalParticipants(vault);
 
     if (localParticipants.length > 1) {
-      _showParticipantSelectionSheet(localParticipants);
+      _showParticipantSelectionSheet(
+        participants: localParticipants,
+        title: t.verify_passphrase,
+        onSelected: (xpub) => _navigateToVerification(xpub),
+      );
     } else if (localParticipants.isNotEmpty) {
       _navigateToVerification(localParticipants.first.xpub);
     }
@@ -144,12 +148,39 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
     return participants;
   }
 
-  void _showParticipantSelectionSheet(List<({String name, String xpub})> participants) {
+  void _onViewMnemonicPressed(TaprootVaultListItem vault, WalletInfoViewModel viewModel) {
+    final localParticipants = _getLocalParticipants(vault);
+
+    if (localParticipants.length > 1) {
+      _showParticipantSelectionSheet(
+        participants: localParticipants,
+        title: t.view_mnemonic,
+        onSelected: (xpub) => _handleMnemonicViewAuth(xpub, viewModel),
+      );
+    } else if (localParticipants.isNotEmpty) {
+      _handleMnemonicViewAuth(localParticipants.first.xpub, viewModel);
+    }
+  }
+
+  void _handleMnemonicViewAuth(String xpub, WalletInfoViewModel viewModel) {
+    if (viewModel.isSigningOnlyMode) {
+      _navigateToMnemonicView(xpub);
+      return;
+    }
+
+    _authenticateWithBiometricOrPin(context, PinCheckContextEnum.sensitiveAction, () => _navigateToMnemonicView(xpub));
+  }
+
+  void _showParticipantSelectionSheet({
+    required List<({String name, String xpub})> participants,
+    required String title,
+    required Function(String xpub) onSelected,
+  }) {
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: CoconutBottomSheet(
         useIntrinsicHeight: true,
-        appBar: CoconutAppBar.build(context: context, title: t.verify_passphrase, isBottom: true),
+        appBar: CoconutAppBar.build(context: context, title: title, isBottom: true),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Column(
@@ -163,7 +194,7 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
                         text: p.name,
                         onPressed: () {
                           Navigator.pop(context);
-                          _navigateToVerification(p.xpub);
+                          onSelected(p.xpub);
                         },
                       );
                     }).toList(),
@@ -177,6 +208,10 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
 
   void _navigateToVerification(String xpub) {
     Navigator.pushNamed(context, AppRoutes.passphraseVerification, arguments: {'id': widget.id, 'targetXpub': xpub});
+  }
+
+  void _navigateToMnemonicView(String xpub) {
+    Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id, 'targetXpub': xpub});
   }
 
   @override
@@ -296,29 +331,7 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
                           ),
                           SingleButton(
                             title: t.view_mnemonic,
-                            onPressed:
-                                !hasLocalSeed
-                                    ? null
-                                    : () {
-                                      if (viewModel.isSigningOnlyMode) {
-                                        Navigator.pushNamed(
-                                          context,
-                                          AppRoutes.mnemonicView,
-                                          arguments: {'id': widget.id},
-                                        );
-                                        return;
-                                      }
-
-                                      _authenticateWithBiometricOrPin(
-                                        context,
-                                        PinCheckContextEnum.sensitiveAction,
-                                        () => Navigator.pushNamed(
-                                          context,
-                                          AppRoutes.mnemonicView,
-                                          arguments: {'id': widget.id},
-                                        ),
-                                      );
-                                    },
+                            onPressed: !hasLocalSeed ? null : () => _onViewMnemonicPressed(vault, viewModel),
                           ),
                           if (hasPassphrase)
                             SingleButton(
