@@ -70,6 +70,44 @@ class TaprootMnemonicFlowAdapter {
     );
   }
 
+  static bool shouldSkipCreationConfirmation(TaprootMnemonicCreationMethod method) {
+    return _calledFrom(method) == AppRoutes.mnemonicVerify;
+  }
+
+  static Widget buildCreationConfirmationScreen({
+    required TaprootMnemonicCreationMethod method,
+    required VoidCallback onMnemonicReady,
+  }) {
+    return MnemonicConfirmationScreen(
+      calledFrom: _calledFrom(method),
+      isEmbedded: true,
+      isTaproot: true,
+      onMnemonicReady: onMnemonicReady,
+    );
+  }
+
+  static Widget buildImportedConfirmationScreen({required VoidCallback onMnemonicReady}) {
+    return MnemonicConfirmationScreen(
+      calledFrom: AppRoutes.mnemonicImport,
+      isEmbedded: true,
+      isTaproot: true,
+      onMnemonicReady: onMnemonicReady,
+    );
+  }
+
+  static Widget buildVerifyScreen({required VoidCallback onVerificationSuccess}) {
+    return MnemonicVerifyScreen(isEmbedded: true, isTaproot: true, onVerificationSuccess: onVerificationSuccess);
+  }
+
+  static Widget buildVerifiedConfirmationScreen({required VoidCallback onMnemonicReady}) {
+    return MnemonicConfirmationScreen(
+      calledFrom: AppRoutes.mnemonicVerify,
+      isEmbedded: true,
+      isTaproot: true,
+      onMnemonicReady: onMnemonicReady,
+    );
+  }
+
   static int addImportedConfirmationStep({
     required int Function(Widget widget) addEmbeddedStep,
     required VoidCallback onMnemonicReady,

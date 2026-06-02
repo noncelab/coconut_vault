@@ -35,12 +35,30 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
   @override
   void didUpdateWidget(covariant TimelineStepIndicator oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.timelineStepItemList != widget.timelineStepItemList) {
+    if (!_hasSameTimelineStepItems(oldWidget.timelineStepItemList, widget.timelineStepItemList)) {
       _currentIndex = _initialCurrentIndex;
       _animatingConnectorIndex = null;
       _completedUntilIndex = (_currentIndex ?? _initialCompletedUntilIndex + 1) - 1;
       _hasNotifiedCompleted = false;
     }
+  }
+
+  bool _hasSameTimelineStepItems(List<TimelineStepItem> left, List<TimelineStepItem> right) {
+    if (left.length != right.length) {
+      return false;
+    }
+
+    for (int index = 0; index < left.length; index++) {
+      final leftItem = left[index];
+      final rightItem = right[index];
+      if (leftItem.title != rightItem.title ||
+          leftItem.description != rightItem.description ||
+          leftItem.status != rightItem.status) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   @override
