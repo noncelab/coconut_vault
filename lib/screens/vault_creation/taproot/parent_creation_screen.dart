@@ -144,57 +144,58 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   List<TextSpan> _getTitleList(ParentCreationStep step) {
     return switch (step) {
       ParentCreationStep.intro => [
-          TextSpan(text: t.taproot.parent_creation_screen.creation_intro_title_1),
-          TextSpan(text: t.taproot.parent_creation_screen.creation_intro_title_2),
-        ],
+        TextSpan(text: t.taproot.parent_creation_screen.creation_intro_title_1),
+        TextSpan(text: t.taproot.parent_creation_screen.creation_intro_title_2),
+      ],
       ParentCreationStep.selectWalletType => [
-          TextSpan(text: t.taproot.parent_creation_screen.step_1.title_1),
-          TextSpan(text: t.taproot.parent_creation_screen.step_1.title_2),
-        ],
+        TextSpan(text: t.taproot.parent_creation_screen.step_1.title_1),
+        TextSpan(text: t.taproot.parent_creation_screen.step_1.title_2),
+      ],
       ParentCreationStep.multisigStartGuide => [
-          TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_start_with_another_vault_title_1),
-          TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_start_with_another_vault_title_2),
-        ],
+        TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_start_with_another_vault_title_1),
+        TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_start_with_another_vault_title_2),
+      ],
       ParentCreationStep.selectParentKeyPreparation => switch (_viewModel.selectedWalletType) {
-          ParentWalletType.singleSig => [
-              TextSpan(text: t.taproot.parent_creation_screen.step_1.single_sig_how_to_prepare_key_title_1),
-              TextSpan(text: t.taproot.parent_creation_screen.step_1.single_sig_how_to_prepare_key_title_2),
-            ],
-          ParentWalletType.multisig => [
-              TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_how_to_prepare_key_title_1),
-              TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_how_to_prepare_key_title_2),
-            ],
-          ParentWalletType.none => [const TextSpan(text: '')],
-        },
+        ParentWalletType.singleSig => [
+          TextSpan(text: t.taproot.parent_creation_screen.step_1.single_sig_how_to_prepare_key_title_1),
+          TextSpan(text: t.taproot.parent_creation_screen.step_1.single_sig_how_to_prepare_key_title_2),
+        ],
+        ParentWalletType.multisig => [
+          TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_how_to_prepare_key_title_1),
+          TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_how_to_prepare_key_title_2),
+        ],
+        ParentWalletType.none => [const TextSpan(text: '')],
+      },
       ParentCreationStep.selectParentKeyCreationOrImport => switch (_viewModel.selectedKeyPreparationType) {
-          ParentKeyPreparationType.create => _newWalletCreationOptionTitleList(),
-          ParentKeyPreparationType.import => [TextSpan(text: t.taproot.common.existing_mnemonic_title)],
-          ParentKeyPreparationType.none => [const TextSpan(text: '')],
-        },
+        ParentKeyPreparationType.create => _newWalletCreationOptionTitleList(),
+        ParentKeyPreparationType.import => [TextSpan(text: t.taproot.common.existing_mnemonic_title)],
+        ParentKeyPreparationType.none => [const TextSpan(text: '')],
+      },
       ParentCreationStep.currentVaultSelection => [
-          TextSpan(text: t.taproot.parent_creation_screen.step_1.single_sig_select_from_vault_title_1),
-          TextSpan(text: t.taproot.parent_creation_screen.step_1.single_sig_select_from_vault_title_2),
-        ],
+        TextSpan(text: t.taproot.parent_creation_screen.step_1.single_sig_select_from_vault_title_1),
+        TextSpan(text: t.taproot.parent_creation_screen.step_1.single_sig_select_from_vault_title_2),
+      ],
       ParentCreationStep.multisigParentExportQr => [
-          TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_qr_title_1),
-          TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_qr_title_2),
-        ],
+        TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_qr_title_1),
+        TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_qr_title_2),
+      ],
       ParentCreationStep.multisigParentList => [
-          TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_list_title_1),
-          TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_list_title_2),
-        ],
+        TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_list_title_1),
+        TextSpan(text: t.taproot.parent_creation_screen.step_1.multisig_list_title_2),
+      ],
       ParentCreationStep.childWalletSetup => [
-          TextSpan(text: t.taproot.parent_creation_screen.step_2.creation_script_path_intro_title_1),
-          TextSpan(text: t.taproot.parent_creation_screen.step_2.creation_script_path_intro_title_2),
-        ],
+        TextSpan(text: t.taproot.parent_creation_screen.step_2.creation_script_path_intro_title_1),
+        TextSpan(text: t.taproot.parent_creation_screen.step_2.creation_script_path_intro_title_2),
+      ],
       ParentCreationStep.childWalletCreationOption => _newWalletCreationOptionTitleList(),
       ParentCreationStep.childWalletImported => [
-          TextSpan(
-            text: _childWalletSource == ParentChildWalletSource.scanned
-                ? t.taproot.parent_creation_screen.step_2.imported_script_path_title
-                : t.taproot.parent_creation_screen.step_2.created_script_path_title,
-          ),
-        ],
+        TextSpan(
+          text:
+              _childWalletSource == ParentChildWalletSource.scanned
+                  ? t.taproot.parent_creation_screen.step_2.imported_script_path_title
+                  : t.taproot.parent_creation_screen.step_2.created_script_path_title,
+        ),
+      ],
       ParentCreationStep.timelockSetup => ParentTimelockSetupBody.titleList(),
       ParentCreationStep.timeline => ParentCreationCompletionSteps.timelineTitleList(),
       ParentCreationStep.exportQr => ParentCreationCompletionSteps.exportQrTitleList(),
@@ -210,18 +211,18 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       ParentCreationStep.selectParentKeyPreparation => [_buildParentKeyPreparationBody()],
       ParentCreationStep.selectParentKeyCreationOrImport => [_buildParentKeyCreationOrImportOptionBody()],
       ParentCreationStep.parentSecuritySelfCheck => [
-          SecuritySelfCheckScreen(isEmbedded: true, onNextPressed: _addSelectedKeyCreationOrImportScreen),
-        ],
+        SecuritySelfCheckScreen(isEmbedded: true, onNextPressed: _addSelectedKeyCreationOrImportScreen),
+      ],
       ParentCreationStep.parentKeyImport => [
-          Consumer<ParentCreationViewModel>(
-            builder: (context, viewModel, child) {
-              return _buildSelectedKeyCreationOrImportEmbeddedScreen() ?? const SizedBox.shrink();
-            },
-          ),
-        ],
+        Consumer<ParentCreationViewModel>(
+          builder: (context, viewModel, child) {
+            return _buildSelectedKeyCreationOrImportEmbeddedScreen() ?? const SizedBox.shrink();
+          },
+        ),
+      ],
       ParentCreationStep.parentMnemonicEntry => [
-          _buildSelectedKeyCreationOrImportEmbeddedScreen() ?? const SizedBox.shrink(),
-        ],
+        _buildSelectedKeyCreationOrImportEmbeddedScreen() ?? const SizedBox.shrink(),
+      ],
       ParentCreationStep.currentVaultSelection => [const Expanded(child: ParentExistingVaultSelectionBody())],
       ParentCreationStep.currentVaultMnemonicView => [_buildCurrentVaultMnemonicViewBody()],
       ParentCreationStep.multisigParentExportQr => [const ParentMultisigParentExportQr()],
@@ -230,21 +231,19 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       ParentCreationStep.childWalletScan => [_buildChildWalletScanBody()],
       ParentCreationStep.childWalletCreationOption => [_buildChildWalletCreationOptionBody()],
       ParentCreationStep.childSecuritySelfCheck => [
-          SecuritySelfCheckScreen(isEmbedded: true, onNextPressed: _addSelectedChildWalletCreationScreen),
-        ],
+        SecuritySelfCheckScreen(isEmbedded: true, onNextPressed: _addSelectedChildWalletCreationScreen),
+      ],
       ParentCreationStep.childMnemonicEntry => [
-          _buildNewMnemonicCreationScreen(_viewModel.selectedChildNewKeyCreationType) ?? const SizedBox.shrink(),
-        ],
-      ParentCreationStep.parentMnemonicConfirmation || ParentCreationStep.childMnemonicConfirmation => [
-          _buildMnemonicConfirmationBody()
-        ],
+        _buildNewMnemonicCreationScreen(_viewModel.selectedChildNewKeyCreationType) ?? const SizedBox.shrink(),
+      ],
+      ParentCreationStep.parentMnemonicConfirmation ||
+      ParentCreationStep.childMnemonicConfirmation => [_buildMnemonicConfirmationBody()],
       ParentCreationStep.parentMnemonicGeneratedReview || ParentCreationStep.childMnemonicGeneratedReview => [
-          _buildGeneratedMnemonicReviewBody(context.read<TaprootWalletCreationProvider>().secret),
-        ],
+        _buildGeneratedMnemonicReviewBody(context.read<TaprootWalletCreationProvider>().secret),
+      ],
       ParentCreationStep.parentMnemonicVerify || ParentCreationStep.childMnemonicVerify => [_buildMnemonicVerifyBody()],
-      ParentCreationStep.parentVerifiedMnemonicConfirmation || ParentCreationStep.childVerifiedMnemonicConfirmation => [
-          _buildVerifiedMnemonicConfirmationBody()
-        ],
+      ParentCreationStep.parentVerifiedMnemonicConfirmation ||
+      ParentCreationStep.childVerifiedMnemonicConfirmation => [_buildVerifiedMnemonicConfirmationBody()],
       ParentCreationStep.childWalletImported => _buildChildWalletImportedBody(),
       ParentCreationStep.timelockSetup => [_buildTimelockSetupBody(_timelockPickerToday ?? DateTime.now())],
       ParentCreationStep.vaultNameAndIconSetup => [_buildVaultNameAndIconSetupBody()],
@@ -266,8 +265,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       ParentCreationStep.childWalletSetup => _onChildWalletSetupSelected,
       ParentCreationStep.childWalletCreationOption => _onChildWalletCreationOptionSelected,
       ParentCreationStep.parentMnemonicGeneratedReview ||
-      ParentCreationStep.childMnemonicGeneratedReview =>
-        _addMnemonicVerifyStep,
+      ParentCreationStep.childMnemonicGeneratedReview => _addMnemonicVerifyStep,
       ParentCreationStep.childWalletImported => _addTimelockSetupStep,
       ParentCreationStep.timelockSetup => _addVaultNameAndIconSetupStep,
       ParentCreationStep.timeline => _addExportQrStep,
@@ -307,8 +305,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       ParentCreationStep.childMnemonicGeneratedReview ||
       ParentCreationStep.childMnemonicVerify ||
       ParentCreationStep.childVerifiedMnemonicConfirmation ||
-      ParentCreationStep.vaultNameAndIconSetup =>
-        true,
+      ParentCreationStep.vaultNameAndIconSetup => true,
       _ => false,
     };
   }
@@ -341,8 +338,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       ParentCreationStep.childMnemonicGeneratedReview ||
       ParentCreationStep.childMnemonicVerify ||
       ParentCreationStep.childVerifiedMnemonicConfirmation ||
-      ParentCreationStep.vaultNameAndIconSetup =>
-        true,
+      ParentCreationStep.vaultNameAndIconSetup => true,
       _ => false,
     };
   }
@@ -432,57 +428,57 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   Widget _buildParentKeyCreationOrImportOptionBody() {
     return switch (_viewModel.selectedKeyPreparationType) {
       ParentKeyPreparationType.create => ParentNewKeyCreationOptionMenu(
-          selectedType: (viewModel) => viewModel.selectedNewKeyCreationType,
-          onSelected: (viewModel, type) => viewModel.setNewKeyCreationType(type),
-        ),
+        selectedType: (viewModel) => viewModel.selectedNewKeyCreationType,
+        onSelected: (viewModel, type) => viewModel.setNewKeyCreationType(type),
+      ),
       ParentKeyPreparationType.import => Consumer<ParentCreationViewModel>(
-          builder: (context, viewModel, child) {
-            final hasNoSingleSigVault = context.select<WalletProvider, bool>(
-              (walletProvider) => walletProvider.getVaultsByWalletType(WalletType.singleSignature).isEmpty,
-            );
+        builder: (context, viewModel, child) {
+          final hasNoSingleSigVault = context.select<WalletProvider, bool>(
+            (walletProvider) => walletProvider.getVaultsByWalletType(WalletType.singleSignature).isEmpty,
+          );
 
-            return MenuGrid(
-              children: [
-                SelectableOptionCard(
-                  title: t.taproot.common.existing_option1,
-                  isDisabled: hasNoSingleSigVault,
-                  bottomAssetPath: 'assets/png/finger-picking.png',
-                  imageScale: 4.0,
-                  imageWidth: 67,
-                  isSelected: viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.currentVault,
-                  height: 118,
-                  onDisabledTap: () {
-                    CoconutToast.showToast(
-                      context: context,
-                      level: CoconutToastLevel.info,
-                      isVisibleIcon: true,
-                      text: t.taproot.common.existing_option1_toast,
-                    );
-                  },
-                  onTap: () => viewModel.setExistingKeyImportType(ParentExistingKeyImportType.currentVault),
-                ),
-                SelectableOptionCard(
-                  title: t.taproot.common.existing_option2,
-                  bottomAssetPath: 'assets/png/word.png',
-                  imageScale: 4.0,
-                  imageWidth: 67,
-                  isSelected: viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.mnemonicInput,
-                  height: 118,
-                  onTap: () => viewModel.setExistingKeyImportType(ParentExistingKeyImportType.mnemonicInput),
-                ),
-                SelectableOptionCard(
-                  title: t.taproot.common.existing_option3,
-                  bottomAssetPath: 'assets/png/scan-qr.png',
-                  imageScale: 4.0,
-                  imageWidth: 67,
-                  isSelected: viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.seedQrScan,
-                  height: 118,
-                  onTap: () => viewModel.setExistingKeyImportType(ParentExistingKeyImportType.seedQrScan),
-                ),
-              ],
-            );
-          },
-        ),
+          return MenuGrid(
+            children: [
+              SelectableOptionCard(
+                title: t.taproot.common.existing_option1,
+                isDisabled: hasNoSingleSigVault,
+                bottomAssetPath: 'assets/png/finger-picking.png',
+                imageScale: 4.0,
+                imageWidth: 67,
+                isSelected: viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.currentVault,
+                height: 118,
+                onDisabledTap: () {
+                  CoconutToast.showToast(
+                    context: context,
+                    level: CoconutToastLevel.info,
+                    isVisibleIcon: true,
+                    text: t.taproot.common.existing_option1_toast,
+                  );
+                },
+                onTap: () => viewModel.setExistingKeyImportType(ParentExistingKeyImportType.currentVault),
+              ),
+              SelectableOptionCard(
+                title: t.taproot.common.existing_option2,
+                bottomAssetPath: 'assets/png/word.png',
+                imageScale: 4.0,
+                imageWidth: 67,
+                isSelected: viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.mnemonicInput,
+                height: 118,
+                onTap: () => viewModel.setExistingKeyImportType(ParentExistingKeyImportType.mnemonicInput),
+              ),
+              SelectableOptionCard(
+                title: t.taproot.common.existing_option3,
+                bottomAssetPath: 'assets/png/scan-qr.png',
+                imageScale: 4.0,
+                imageWidth: 67,
+                isSelected: viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.seedQrScan,
+                height: 118,
+                onTap: () => viewModel.setExistingKeyImportType(ParentExistingKeyImportType.seedQrScan),
+              ),
+            ],
+          );
+        },
+      ),
       ParentKeyPreparationType.none => const SizedBox.shrink(),
     };
   }
@@ -574,10 +570,18 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       textAlign: TextAlign.center,
     );
 
-    return TaprootScannerScreen(
-      topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
-      onTaprootVaultScanned: (beneficiaryVault) =>
-          _onChildWalletImported(beneficiaryVault, source: ParentChildWalletSource.scanned),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final height = constraints.hasBoundedHeight ? constraints.maxHeight : MediaQuery.sizeOf(context).height;
+        return SizedBox(
+          height: height,
+          child: TaprootScannerScreen(
+            topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
+            onTaprootVaultScanned:
+                (beneficiaryVault) => _onChildWalletImported(beneficiaryVault, source: ParentChildWalletSource.scanned),
+          ),
+        );
+      },
     );
   }
 
@@ -964,12 +968,14 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     }
 
     final confirmationStep = TaprootMnemonicFlowAdapter.addCreationConfirmationStep(
-      addEmbeddedStep: (widget) => _addEmbeddedStep(
-        step: _isCreatingChildWallet
-            ? ParentCreationStep.childMnemonicConfirmation
-            : ParentCreationStep.parentMnemonicConfirmation,
-        embeddedScreen: widget,
-      ),
+      addEmbeddedStep:
+          (widget) => _addEmbeddedStep(
+            step:
+                _isCreatingChildWallet
+                    ? ParentCreationStep.childMnemonicConfirmation
+                    : ParentCreationStep.parentMnemonicConfirmation,
+            embeddedScreen: widget,
+          ),
       method: mnemonicCreationMethod,
       onMnemonicReady: _addMnemonicVerifyStep,
       onAutoGenerateReady: _addMnemonicVerifyStep,
@@ -985,10 +991,14 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     }
 
     _mnemonicVerifyStep = TaprootMnemonicFlowAdapter.addVerifyStep(
-      addEmbeddedStep: (widget) => _addEmbeddedStep(
-        step: _isCreatingChildWallet ? ParentCreationStep.childMnemonicVerify : ParentCreationStep.parentMnemonicVerify,
-        embeddedScreen: widget,
-      ),
+      addEmbeddedStep:
+          (widget) => _addEmbeddedStep(
+            step:
+                _isCreatingChildWallet
+                    ? ParentCreationStep.childMnemonicVerify
+                    : ParentCreationStep.parentMnemonicVerify,
+            embeddedScreen: widget,
+          ),
       onVerificationSuccess: _addVerifiedMnemonicConfirmationStep,
     );
   }
@@ -1001,12 +1011,14 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
   void _addVerifiedMnemonicConfirmationStep() {
     _verifiedMnemonicConfirmationStep = TaprootMnemonicFlowAdapter.addVerifiedConfirmationStep(
-      addEmbeddedStep: (widget) => _addEmbeddedStep(
-        step: _isCreatingChildWallet
-            ? ParentCreationStep.childVerifiedMnemonicConfirmation
-            : ParentCreationStep.parentVerifiedMnemonicConfirmation,
-        embeddedScreen: widget,
-      ),
+      addEmbeddedStep:
+          (widget) => _addEmbeddedStep(
+            step:
+                _isCreatingChildWallet
+                    ? ParentCreationStep.childVerifiedMnemonicConfirmation
+                    : ParentCreationStep.parentVerifiedMnemonicConfirmation,
+            embeddedScreen: widget,
+          ),
       onMnemonicReady: () {
         if (_isCreatingChildWallet) {
           _onCreatedChildWalletReady();
@@ -1048,13 +1060,13 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         return switch (_viewModel.selectedExistingKeyImportType) {
           ParentExistingKeyImportType.currentVault => null,
           ParentExistingKeyImportType.mnemonicInput => TaprootMnemonicFlowAdapter.buildMnemonicImportScreen(
-              key: const ValueKey('parent-creation-mnemonic-import'),
-              onMnemonicConfirmationRequested: _onImportedParentMnemonicReady,
-            ),
+            key: const ValueKey('parent-creation-mnemonic-import'),
+            onMnemonicConfirmationRequested: _onImportedParentMnemonicReady,
+          ),
           ParentExistingKeyImportType.seedQrScan => _buildSeedQrImportScreen(
-              key: const ValueKey('parent-creation-seed-qr-import'),
-              onMnemonicConfirmationRequested: _onImportedParentMnemonicReady,
-            ),
+            key: const ValueKey('parent-creation-seed-qr-import'),
+            onMnemonicConfirmationRequested: _onImportedParentMnemonicReady,
+          ),
           ParentExistingKeyImportType.none => null,
         };
       case ParentKeyPreparationType.none:
@@ -1478,9 +1490,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
     setState(() {
       _removeStepsAfter(targetStep!);
-      _stepHistory[targetStep - 1] = _isCreatingChildWallet
-          ? ParentCreationStep.childMnemonicGeneratedReview
-          : ParentCreationStep.parentMnemonicGeneratedReview;
+      _stepHistory[targetStep - 1] =
+          _isCreatingChildWallet
+              ? ParentCreationStep.childMnemonicGeneratedReview
+              : ParentCreationStep.parentMnemonicGeneratedReview;
       _currentStep = targetStep;
       _mnemonicVerifyStep = null;
       _verifiedMnemonicConfirmationStep = null;
@@ -1653,9 +1666,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
               Visibility(
                 visible: _showExistingKeyImportModeToggle,
                 child: IconButton(
-                  icon: _viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.mnemonicInput
-                      ? SvgPicture.asset('assets/svg/scan.svg')
-                      : SvgPicture.asset('assets/svg/paste.svg'),
+                  icon:
+                      _viewModel.selectedExistingKeyImportType == ParentExistingKeyImportType.mnemonicInput
+                          ? SvgPicture.asset('assets/svg/scan.svg')
+                          : SvgPicture.asset('assets/svg/paste.svg'),
                   color: CoconutColors.black,
                   onPressed: _toggleExistingKeyImportMode,
                 ),
@@ -1668,9 +1682,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
                 TaprootCreationBody(
                   titleLines: _titleLines(),
                   onBottomButtonPressed: _onNextPressed,
-                  bottomButtonText: _isTimelineStep
-                      ? t.taproot.parent_creation_screen.step_4.timeline.export_wallet_info
-                      : _isExportQrStep
+                  bottomButtonText:
+                      _isTimelineStep
+                          ? t.taproot.parent_creation_screen.step_4.timeline.export_wallet_info
+                          : _isExportQrStep
                           ? t.complete
                           : null,
                   fixedBottomSubWidget: _getFixedBottomSubWidget(_currentStepType),
@@ -1681,9 +1696,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
                   ignoreChildHorizontalPadding: _shouldIgnoreBodyHorizontalPadding(_currentStepType),
                   showHeader: _showHeader,
                   scrollChild: !_isProgressPaused && _shouldScrollChild(_currentStepType),
-                  child: _isProgressPaused
-                      ? _getBodyList(_currentStepType).first
-                      : Column(children: _getBodyList(_currentStepType)),
+                  child:
+                      _isProgressPaused
+                          ? _getBodyList(_currentStepType).first
+                          : Column(children: _getBodyList(_currentStepType)),
                 ),
                 TopProgressBar(
                   visible: !_isProgressPaused,

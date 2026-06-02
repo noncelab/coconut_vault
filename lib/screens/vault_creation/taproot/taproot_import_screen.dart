@@ -235,23 +235,31 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       textAlign: TextAlign.center,
     );
 
-    return TaprootScannerScreen(
-      dataType: TaprootScannerDataType.walletSync,
-      topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
-      onWalletSyncScanned: (walletSyncData) async {
-        final validationResult = _viewModel.validateWalletSyncData(walletSyncData);
-        if (validationResult == TaprootWalletSyncValidationResult.duplicate) {
-          await _showDuplicateWalletDialog();
-          return false;
-        }
-        if (validationResult == TaprootWalletSyncValidationResult.invalid) {
-          await _showInvalidWalletDialog();
-          return false;
-        }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final height = constraints.hasBoundedHeight ? constraints.maxHeight : MediaQuery.sizeOf(context).height;
+        return SizedBox(
+          height: height,
+          child: TaprootScannerScreen(
+            dataType: TaprootScannerDataType.walletSync,
+            topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
+            onWalletSyncScanned: (walletSyncData) async {
+              final validationResult = _viewModel.validateWalletSyncData(walletSyncData);
+              if (validationResult == TaprootWalletSyncValidationResult.duplicate) {
+                await _showDuplicateWalletDialog();
+                return false;
+              }
+              if (validationResult == TaprootWalletSyncValidationResult.invalid) {
+                await _showInvalidWalletDialog();
+                return false;
+              }
 
-        _viewModel.setWalletSyncData(walletSyncData);
-        _addImportedWalletStep();
-        return true;
+              _viewModel.setWalletSyncData(walletSyncData);
+              _addImportedWalletStep();
+              return true;
+            },
+          ),
+        );
       },
     );
   }

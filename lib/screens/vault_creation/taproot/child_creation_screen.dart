@@ -97,39 +97,37 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     final viewModel = context.read<ChildCreationViewModel>();
     return switch (step) {
       ChildCreationStep.intro => [
-        TextSpan(text: t.taproot.child_creation_screen.step1.title1),
-        TextSpan(text: t.taproot.child_creation_screen.step1.title2),
-      ],
+          TextSpan(text: t.taproot.child_creation_screen.step1.title1),
+          TextSpan(text: t.taproot.child_creation_screen.step1.title2),
+        ],
       ChildCreationStep.childPreparation => [
-        TextSpan(text: t.taproot.child_creation_screen.step2.title1),
-        TextSpan(text: t.taproot.child_creation_screen.step2.title2),
-      ],
-      ChildCreationStep.childCreationOption =>
-        viewModel.keyPreparationType == ChildKeyPreparationType.create
-            ? [TextSpan(text: t.taproot.child_creation_screen.step3.title_new)]
-            : [TextSpan(text: t.taproot.child_creation_screen.step3.title_existing)],
+          TextSpan(text: t.taproot.child_creation_screen.step2.title1),
+          TextSpan(text: t.taproot.child_creation_screen.step2.title2),
+        ],
+      ChildCreationStep.childCreationOption => viewModel.keyPreparationType == ChildKeyPreparationType.create
+          ? [TextSpan(text: t.taproot.child_creation_screen.step3.title_new)]
+          : [TextSpan(text: t.taproot.child_creation_screen.step3.title_existing)],
       ChildCreationStep.currentVaultSelection => [
-        TextSpan(text: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_title_1),
-        TextSpan(text: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_title_2),
-      ],
+          TextSpan(text: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_title_1),
+          TextSpan(text: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_title_2),
+        ],
       ChildCreationStep.childWalletQr => [
-        TextSpan(text: t.taproot.child_creation_screen.step4.title1),
-        TextSpan(text: t.taproot.child_creation_screen.step4.title2, style: CoconutTypography.body1_16),
-        TextSpan(text: t.taproot.child_creation_screen.step4.title3, style: CoconutTypography.body1_16),
-      ],
-      ChildCreationStep.summary =>
-        viewModel.isBeneficiaryMatch
-            ? [TextSpan(text: t.taproot.child_creation_screen.step6.title1)]
-            : [
+          TextSpan(text: t.taproot.child_creation_screen.step4.title1),
+          TextSpan(text: t.taproot.child_creation_screen.step4.title2, style: CoconutTypography.body1_16),
+          TextSpan(text: t.taproot.child_creation_screen.step4.title3, style: CoconutTypography.body1_16),
+        ],
+      ChildCreationStep.summary => viewModel.isBeneficiaryMatch
+          ? [TextSpan(text: t.taproot.child_creation_screen.step6.title1)]
+          : [
               TextSpan(
                 text: t.taproot.child_creation_screen.step6.title2,
                 style: const TextStyle(color: CoconutColors.hotPink),
               ),
             ],
       ChildCreationStep.timeline => [
-        TextSpan(text: t.taproot.child_creation_screen.step7.title1),
-        TextSpan(text: t.taproot.child_creation_screen.step7.title2),
-      ],
+          TextSpan(text: t.taproot.child_creation_screen.step7.title1),
+          TextSpan(text: t.taproot.child_creation_screen.step7.title2),
+        ],
       _ => const [],
     };
   }
@@ -140,8 +138,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       ChildCreationStep.childPreparation => [_buildChildPreparationStep(viewModel)],
       ChildCreationStep.childCreationOption => [_buildChildCreationOptionStep(viewModel)],
       ChildCreationStep.securitySelfCheck => [
-        SecuritySelfCheckScreen(isEmbedded: true, onNextPressed: () => _addFirstEmbeddedScreenForCreation(viewModel)),
-      ],
+          SecuritySelfCheckScreen(isEmbedded: true, onNextPressed: () => _addFirstEmbeddedScreenForCreation(viewModel)),
+        ],
       ChildCreationStep.mnemonicCreation => [_buildMnemonicCreationScreen(viewModel)],
       ChildCreationStep.mnemonicImport => [_buildMnemonicImportScreen()],
       ChildCreationStep.seedQrImport => [_buildSeedQrImportScreen(viewModel)],
@@ -164,9 +162,9 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       ChildCreationStep.childPreparation => _addChildCreationOptionStep,
       ChildCreationStep.childCreationOption => _onChildCreationOptionSelected,
       ChildCreationStep.currentVaultSelection => () {
-        setState(() => _isProcessing = true);
-        _onCurrentVaultSelected(viewModel);
-      },
+          setState(() => _isProcessing = true);
+          _onCurrentVaultSelected(viewModel);
+        },
       ChildCreationStep.childWalletQr => () => _addScannerStep(viewModel),
       ChildCreationStep.summary =>
         viewModel.isBeneficiaryMatch ? () => _addTimelineStep(viewModel) : _handleBackPressed,
@@ -186,10 +184,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     return switch (_currentStepType) {
       ChildCreationStep.childPreparation => viewModel.keyPreparationType != ChildKeyPreparationType.none,
       ChildCreationStep.childCreationOption => switch (viewModel.keyPreparationType) {
-        ChildKeyPreparationType.create => viewModel.newKeyCreationType != ChildNewKeyCreationType.none,
-        ChildKeyPreparationType.import => viewModel.existingKeyImportType != ChildExistingKeyImportType.none,
-        ChildKeyPreparationType.none => false,
-      },
+          ChildKeyPreparationType.create => viewModel.newKeyCreationType != ChildNewKeyCreationType.none,
+          ChildKeyPreparationType.import => viewModel.existingKeyImportType != ChildExistingKeyImportType.none,
+          ChildKeyPreparationType.none => false,
+        },
       ChildCreationStep.currentVaultSelection => viewModel.existingVaultId != null,
       _ => true,
     };
@@ -224,7 +222,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       ChildCreationStep.mnemonicConfirmation ||
       ChildCreationStep.importedMnemonicConfirmation ||
       ChildCreationStep.mnemonicVerify ||
-      ChildCreationStep.verifiedMnemonicConfirmation => true,
+      ChildCreationStep.verifiedMnemonicConfirmation =>
+        true,
       _ => false,
     };
   }
@@ -240,7 +239,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       ChildCreationStep.importedMnemonicConfirmation ||
       ChildCreationStep.mnemonicVerify ||
       ChildCreationStep.verifiedMnemonicConfirmation ||
-      ChildCreationStep.scanner => true,
+      ChildCreationStep.scanner =>
+        true,
       _ => false,
     };
   }
@@ -267,28 +267,36 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   Widget _buildScannerScreen(ChildCreationViewModel viewModel) {
-    return TaprootScannerScreen(
-      dataType: TaprootScannerDataType.walletSync,
-      topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: _buildScannerTitle(viewModel)),
-      onWalletSyncScanned: (syncData) async {
-        if (_isProcessing) return false;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final height = constraints.hasBoundedHeight ? constraints.maxHeight : MediaQuery.sizeOf(context).height;
+        return SizedBox(
+          height: height,
+          child: TaprootScannerScreen(
+            dataType: TaprootScannerDataType.walletSync,
+            topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: _buildScannerTitle(viewModel)),
+            onWalletSyncScanned: (syncData) async {
+              if (_isProcessing) return false;
 
-        vibrateExtraLight();
+              vibrateExtraLight();
 
-        final bool isValid = viewModel.setScannedTaprootVault(syncData);
-        if (!isValid) {
-          throw FormatException(t.errors.invalid_qr);
-        }
+              final bool isValid = viewModel.setScannedTaprootVault(syncData);
+              if (!isValid) {
+                throw FormatException(t.errors.invalid_qr);
+              }
 
-        setState(() {
-          _isProcessing = true;
-        });
+              setState(() {
+                _isProcessing = true;
+              });
 
-        await Future.delayed(const Duration(milliseconds: 1000));
-        if (!mounted) return false;
+              await Future.delayed(const Duration(milliseconds: 1000));
+              if (!mounted) return false;
 
-        _completeScannerStep();
-        return true;
+              _completeScannerStep();
+              return true;
+            },
+          ),
+        );
       },
     );
   }
@@ -802,10 +810,9 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
                 showHeader: !_isProgressPaused && !isScannerStep && !(_isSummaryStep && !viewModel.isBeneficiaryMatch),
                 scrollChild: _shouldScrollChild(_currentStepType),
                 onBottomButtonPressed: () => _onNextPressed(viewModel),
-                child:
-                    _isProgressPaused
-                        ? _getBodyList(_currentStepType, viewModel).first
-                        : Column(children: _getBodyList(_currentStepType, viewModel)),
+                child: _isProgressPaused
+                    ? _getBodyList(_currentStepType, viewModel).first
+                    : Column(children: _getBodyList(_currentStepType, viewModel)),
               ),
               TopProgressBar(
                 visible: !_isProgressPaused,
