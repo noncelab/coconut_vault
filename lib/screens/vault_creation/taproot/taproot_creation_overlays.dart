@@ -3,9 +3,9 @@ import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/screens/common/date_selector_bottom_sheet.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -124,90 +124,11 @@ class TaprootCreationOverlays {
     required DateTime? initialDateTime,
     required ValueChanged<DateTime> onDateTimeSelected,
   }) {
-    DateTime? selectedDate = initialDateTime;
-    var selectedTime =
-        initialDateTime == null
-            ? TimeOfDay.now()
-            : TimeOfDay(hour: initialDateTime.hour, minute: initialDateTime.minute);
-
-    MyBottomSheet.showBottomSheet(
-      title: t.bottom_sheet.date_picker.select_date,
+    DateSelectorBottomSheet.show(
       context: context,
-      isCloseButton: true,
-      child: StatefulBuilder(
-        builder: (context, setBottomSheetState) {
-          const bottomButtonAreaHeight =
-              FixedBottomButton.fixedBottomButtonDefaultHeight +
-              FixedBottomButton.fixedBottomButtonDefaultBottomPadding +
-              40;
-          final bottomSheetBodyHeight =
-              (MediaQuery.sizeOf(context).height - MediaQuery.viewInsetsOf(context).bottom - 300).clamp(360.0, 600.0);
-          return MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-            child: SafeArea(
-              child: SizedBox(
-                height: bottomSheetBodyHeight,
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(horizontal: 28),
-                              child: CoconutDatePicker(
-                                amLabel: t.bottom_sheet.date_picker.am,
-                                pmLabel: t.bottom_sheet.date_picker.pm,
-                                timeLabel: t.bottom_sheet.date_picker.time,
-                                onDateChanged: (date) {
-                                  debugPrint(date.toIso8601String());
-                                  selectedDate = date;
-                                },
-                                firstDate: today,
-                                lastDate: DateTime(today.year + 10, today.month, today.day),
-                                showTimeSelector: true,
-                                selectedTime: selectedTime,
-                                onTimeChanged: (time) {
-                                  setBottomSheetState(() {
-                                    selectedTime = time;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: bottomButtonAreaHeight,
-                      child: FixedBottomButton(
-                        isVisibleAboveKeyboard: false,
-                        bottomPadding: 0,
-                        onButtonClicked: () {
-                          final date = selectedDate ?? today;
-                          final selectedDateTime = DateTime(
-                            date.year,
-                            date.month,
-                            date.day,
-                            selectedTime.hour,
-                            selectedTime.minute,
-                          );
-
-                          onDateTimeSelected(selectedDateTime);
-                          Navigator.pop(context);
-                        },
-                        text: t.next,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
+      today: today,
+      initialDateTime: initialDateTime,
+      onDateTimeSelected: onDateTimeSelected,
     );
   }
 }

@@ -155,13 +155,14 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
   Widget _buildScannerScreen(ChildCreationViewModel viewModel) {
     return TaprootScannerScreen(
+      dataType: TaprootScannerDataType.walletSync,
       topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: _buildScannerTitle(viewModel)),
-      onTaprootVaultScanned: (beneficiaryVault) async {
+      onWalletSyncScanned: (syncData) async {
         if (_isProcessing) return false;
 
         vibrateExtraLight();
 
-        final bool isValid = viewModel.setScannedTaprootVault(beneficiaryVault.descriptor);
+        final bool isValid = viewModel.setScannedTaprootVault(syncData);
         if (!isValid) {
           throw FormatException(t.errors.invalid_qr);
         }
@@ -182,6 +183,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   void _addScannerStep(ChildCreationViewModel viewModel) {
     setState(() {
       _embeddedWidgets.add(_buildScannerScreen(viewModel));
+      // 스캔 안내 QR step에서 실제 TaprootScannerScreen embedded step으로 진입
       _currentStep = _embeddedStartIndex + _embeddedWidgets.length;
     });
   }
@@ -189,6 +191,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   void _completeScannerStep() {
     setState(() {
       _isProcessing = false;
+      // 스캔 embedded step 완료 후, 스캐너 step과 요약 step 보정분을 반영해 결과 요약 step으로 이동
       _currentStep += 3;
     });
   }
@@ -302,6 +305,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   int _addEmbeddedStep(Widget widget) {
     setState(() {
       _embeddedWidgets.add(widget);
+      // 보안 확인, 니모닉 생성/입력, 현재 볼트 니모닉 보기 같은 embedded step으로 이동
       _currentStep += 1;
     });
     return _currentStep;
@@ -312,6 +316,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       viewModel.setupChildWalletInfo();
       setState(() {
         _isProcessing = false;
+        // 자식 지갑 키 준비가 끝나면 준비된 자식 지갑 QR 표시 step으로 이동
         _currentStep += 1;
         _isProcessing = false;
       });
@@ -471,6 +476,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     }
 
     setState(() {
+      // 일반 다음 버튼 동작입니다. 현재 base step의 다음 step으로 이동
       _currentStep += 1;
     });
   }
@@ -488,6 +494,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
     setState(() {
       _embeddedWidgets.clear();
+      // 자식 지갑 준비 방법 선택 step으로 Back
       _currentStep = 3;
 
       if (viewModel.keyPreparationType == ChildKeyPreparationType.create) {
@@ -516,6 +523,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         if (_currentStep > _embeddedStartIndex && _currentStep <= _embeddedStartIndex + _embeddedWidgets.length) {
           _embeddedWidgets.removeLast();
         }
+        // 현재 step의 바로 이전 step으로 이동. embedded step이면 마지막 embedded 화면도 함께 제거
         _currentStep -= 1;
 
         if (_currentVaultSelectionStep != null && _currentStep < _currentVaultSelectionStep!) {
@@ -550,6 +558,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     setState(() {
       _embeddedWidgets.removeLast();
       final scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
+      // 스캐너 embedded step에서 뒤로 가면 부모 지갑 QR 표시 step으로 Back
       _currentStep = _embeddedWidgets.length + scannerStepIndex - 1;
       _isProcessing = false;
     });
@@ -577,6 +586,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   void _addCurrentVaultSelectionStep(ChildCreationViewModel viewModel) {
     setState(() {
       _currentVaultSelectionStep = 4;
+      // 기존 볼트에서 선택하기를 고르면 현재 볼트의 단일서명 지갑 선택 step으로 이동
       _currentStep = 4;
     });
   }
