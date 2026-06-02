@@ -221,22 +221,47 @@ class WalletIsolates {
   static Future<Map<String, dynamic>> verifyPassphrase(Map<String, dynamic> args) async {
     setNetworkType();
 
-    final vaultListItem = args['valutListItem'] as VaultListItemBase;
-    assert(vaultListItem.vaultType == WalletType.singleSignature);
-
-    final singleSigVaultListItem = vaultListItem.coconutVault as SingleSignatureVault;
-
+    final vaultListItem = args['vaultListItem'] as VaultListItemBase;
     Seed? seed;
     KeyStore? keyStore;
 
     try {
       seed = Seed.fromMnemonic(args['mnemonic'], passphrase: args['passphrase']);
-      keyStore = KeyStore.fromSeed(seed, AddressType.p2wpkh);
 
-      final savedMfp = singleSigVaultListItem.keyStore.masterFingerprint;
-      final recoveredMfp = keyStore.masterFingerprint;
-      final extendedPublicKey = singleSigVaultListItem.keyStore.extendedPublicKey.serialize();
-      final success = savedMfp == recoveredMfp;
+      String savedMfp = '';
+      String extendedPublicKey = '';
+
+      if (vaultListItem is SingleSigVaultListItem) {
+        final vault = vaultListItem.coconutVault as SingleSignatureVault;
+        keyStore = KeyStore.fromSeed(seed, vault.addressType);
+        savedMfp = vault.keyStore.masterFingerprint;
+        extendedPublicKey = vault.keyStore.extendedPublicKey.serialize();
+      } else if (vaultListItem is TaprootVaultListItem) {
+        final vault = vaultListItem.coconutVault as TaprootVault;
+        keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
+        extendedPublicKey = keyStore.extendedPublicKey.serialize();
+
+        // Taproot 지갑은 여러 참여자가 있을 수 있으므로, 현재 시드와 일치하는 참여자를 찾아 저장된 MFP를 가져옵니다.
+        for (var ks in vault.keyStoreList) {
+          if (ks.extendedPublicKey.serialize() == extendedPublicKey) {
+            savedMfp = ks.masterFingerprint;
+            break;
+          }
+        }
+
+        if (savedMfp.isEmpty) {
+          for (var policy in vault.policyList) {
+            if (policy is InheritancePolicy &&
+                policy.beneficiaryKeyStore.extendedPublicKey.serialize() == extendedPublicKey) {
+              savedMfp = policy.beneficiaryKeyStore.masterFingerprint;
+              break;
+            }
+          }
+        }
+      }
+
+      final recoveredMfp = keyStore?.masterFingerprint ?? '';
+      final success = savedMfp.isNotEmpty && savedMfp == recoveredMfp;
 
       return {
         "success": success,

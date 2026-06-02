@@ -250,7 +250,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
     final result = await compute(WalletIsolates.verifyPassphrase, {
       'mnemonic': secret,
       'passphrase': passphrase,
-      'valutListItem': walletProvider.getVaultById(widget.id),
+      'vaultListItem': walletProvider.getVaultById(widget.id),
     });
 
     if (result['success'] == true) {

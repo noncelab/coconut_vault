@@ -273,7 +273,7 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
       final result = await compute(WalletIsolates.verifyPassphrase, {
         'mnemonic': mnemonic,
         'passphrase': passphrase,
-        'valutListItem': vaultListItem,
+        'vaultListItem': vaultListItem,
       });
 
       mnemonic.wipe();
