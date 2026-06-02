@@ -153,6 +153,9 @@ class MnemonicViewScreenState extends State<MnemonicViewScreen> with TickerProvi
     }
 
     try {
+      if (!widget.isEmbedded && _mnemonic.isEmpty) {
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
       _mnemonic = await _walletProvider.getSecret(walletId);
     } on UserCanceledAuthException catch (_) {
       if (!mounted) return;

@@ -172,6 +172,9 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
               vault.owners.any((o) => o.isSeedStored && o.isPassphraseSet) ||
               vault.beneficiaries.any((b) => b.isSeedStored && b.isPassphraseSet);
 
+          final bool hasLocalSeed =
+              vault.owners.any((o) => o.isSeedStored) || vault.beneficiaries.any((b) => b.isSeedStored);
+
           return Scaffold(
             backgroundColor: CoconutColors.white,
             appBar: CoconutAppBar.build(
@@ -230,19 +233,29 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
                           ),
                           SingleButton(
                             title: t.view_mnemonic,
-                            onPressed: () {
-                              if (viewModel.isSigningOnlyMode) {
-                                Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id});
-                                return;
-                              }
+                            onPressed:
+                                !hasLocalSeed
+                                    ? null
+                                    : () {
+                                      if (viewModel.isSigningOnlyMode) {
+                                        Navigator.pushNamed(
+                                          context,
+                                          AppRoutes.mnemonicView,
+                                          arguments: {'id': widget.id},
+                                        );
+                                        return;
+                                      }
 
-                              _authenticateWithBiometricOrPin(
-                                context,
-                                PinCheckContextEnum.sensitiveAction,
-                                () =>
-                                    Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id}),
-                              );
-                            },
+                                      _authenticateWithBiometricOrPin(
+                                        context,
+                                        PinCheckContextEnum.sensitiveAction,
+                                        () => Navigator.pushNamed(
+                                          context,
+                                          AppRoutes.mnemonicView,
+                                          arguments: {'id': widget.id},
+                                        ),
+                                      );
+                                    },
                           ),
                           if (hasPassphrase)
                             SingleButton(
