@@ -6,6 +6,8 @@ import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
+import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -23,9 +25,10 @@ import 'package:vibration/vibration.dart';
 enum PassphraseCheckContext { export, sign }
 
 class PassphraseCheckScreen extends StatefulWidget {
-  const PassphraseCheckScreen({super.key, required this.id, required this.context});
+  const PassphraseCheckScreen({super.key, required this.id, required this.context, this.targetXpub});
   final int id;
   final PassphraseCheckContext context;
+  final String? targetXpub;
 
   @override
   State<PassphraseCheckScreen> createState() => _PassphraseCheckScreen();
@@ -246,11 +249,24 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
 
   Future<Seed?> _verifyPassphrase(Uint8List passphrase) async {
     final walletProvider = context.read<WalletProvider>();
-    final secret = await walletProvider.getSecret(widget.id);
+    final vaultListItem = walletProvider.getVaultById(widget.id);
+    Uint8List secret;
+
+    if (vaultListItem is TaprootVaultListItem && widget.targetXpub != null) {
+      secret = await walletProvider.getTaprootSecret(
+        widget.id,
+        TaprootSeedKeyIdentifier(extendedPublicKey: widget.targetXpub!),
+        autoAuth: false,
+      );
+    } else {
+      secret = await walletProvider.getSecret(widget.id, autoAuth: false);
+    }
+
     final result = await compute(WalletIsolates.verifyPassphrase, {
       'mnemonic': secret,
       'passphrase': passphrase,
-      'vaultListItem': walletProvider.getVaultById(widget.id),
+      'vaultListItem': vaultListItem,
+      'targetXpub': widget.targetXpub,
     });
 
     if (result['success'] == true) {

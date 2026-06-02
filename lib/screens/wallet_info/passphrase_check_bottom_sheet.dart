@@ -6,6 +6,8 @@ import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
+import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -22,9 +24,15 @@ import 'package:vibration/vibration.dart';
 
 class PassphraseVerificationBottomSheet extends StatefulWidget {
   final int vaultId;
+  final String? targetXpub;
   final Function(Uint8List) onVerificationSuccess;
 
-  const PassphraseVerificationBottomSheet({super.key, required this.vaultId, required this.onVerificationSuccess});
+  const PassphraseVerificationBottomSheet({
+    super.key,
+    required this.vaultId,
+    this.targetXpub,
+    required this.onVerificationSuccess,
+  });
 
   @override
   State<PassphraseVerificationBottomSheet> createState() => _PassphraseVerificationBottomSheetState();
@@ -252,10 +260,19 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
       await Future.delayed(const Duration(milliseconds: 50));
 
       final walletProvider = context.read<WalletProvider>();
+      final vaultListItem = walletProvider.getVaultById(widget.vaultId);
       Uint8List? mnemonic;
 
       try {
-        mnemonic = await walletProvider.getSecret(widget.vaultId);
+        if (vaultListItem is TaprootVaultListItem && widget.targetXpub != null) {
+          mnemonic = await walletProvider.getTaprootSecret(
+            widget.vaultId,
+            TaprootSeedKeyIdentifier(extendedPublicKey: widget.targetXpub!),
+            autoAuth: false,
+          );
+        } else {
+          mnemonic = await walletProvider.getSecret(widget.vaultId, autoAuth: false);
+        }
       } on UserCanceledAuthException catch (_) {
         _hideLoaderAndShowErrorPopup(
           t.alert.auth_canceled_when_decrypt.title,
@@ -268,12 +285,12 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
       }
 
       final passphrase = utf8.encode(_controller.text);
-      final vaultListItem = walletProvider.getVaultById(widget.vaultId);
 
       final result = await compute(WalletIsolates.verifyPassphrase, {
         'mnemonic': mnemonic,
         'passphrase': passphrase,
         'vaultListItem': vaultListItem,
+        'targetXpub': widget.targetXpub,
       });
 
       mnemonic.wipe();

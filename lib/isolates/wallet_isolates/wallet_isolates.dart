@@ -241,22 +241,12 @@ class WalletIsolates {
         keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
         extendedPublicKey = keyStore.extendedPublicKey.serialize();
 
-        // Taproot 지갑은 여러 참여자가 있을 수 있으므로, 현재 시드와 일치하는 참여자를 찾아 저장된 MFP를 가져옵니다.
-        for (var ks in vault.keyStoreList) {
-          if (ks.extendedPublicKey.serialize() == extendedPublicKey) {
-            savedMfp = ks.masterFingerprint;
-            break;
-          }
-        }
+        final String? explicitTargetXpub = args['targetXpub'];
 
-        if (savedMfp.isEmpty) {
-          for (var policy in vault.policyList) {
-            if (policy is InheritancePolicy &&
-                policy.beneficiaryKeyStore.extendedPublicKey.serialize() == extendedPublicKey) {
-              savedMfp = policy.beneficiaryKeyStore.masterFingerprint;
-              break;
-            }
-          }
+        if (explicitTargetXpub != null) {
+          savedMfp = _findMfpByXpub(vault, explicitTargetXpub);
+        } else {
+          savedMfp = _findMfpByXpub(vault, extendedPublicKey);
         }
       }
 
@@ -283,6 +273,28 @@ class WalletIsolates {
         (args['passphrase'] as Uint8List).wipe();
       }
     }
+  }
+
+  static String _findMfpByXpub(TaprootVault vault, String xpub) {
+    final target = _getRawXpub(xpub);
+
+    for (var ks in vault.keyStoreList) {
+      if (_getRawXpub(ks.extendedPublicKey.serialize()) == target) {
+        return ks.masterFingerprint;
+      }
+    }
+    for (var policy in vault.policyList) {
+      if (policy is InheritancePolicy &&
+          _getRawXpub(policy.beneficiaryKeyStore.extendedPublicKey.serialize()) == target) {
+        return policy.beneficiaryKeyStore.masterFingerprint;
+      }
+    }
+    return '';
+  }
+
+  static String _getRawXpub(String input) {
+    // [fingerprint/derivation]xpub... 형태에서 xpub 부분만 추출
+    return input.contains(']') ? input.split(']').last : input;
   }
 
   static Future<List<WalletAddress>> getAddressList(Map<String, dynamic> args) async {

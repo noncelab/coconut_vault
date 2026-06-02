@@ -16,6 +16,7 @@ import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_participant_card.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_setup_summary_card.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_vault_item_card.dart';
+import 'package:coconut_vault/screens/common/menu_grid.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -109,6 +110,73 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
     } else {
       Navigator.popUntil(context, (route) => route.isFirst);
     }
+  }
+
+  void _onVerifyPassphrasePressed(TaprootVaultListItem vault) {
+    final localParticipants = _getLocalParticipants(vault);
+
+    if (localParticipants.length > 1) {
+      _showParticipantSelectionSheet(localParticipants);
+    } else if (localParticipants.isNotEmpty) {
+      _navigateToVerification(localParticipants.first.xpub);
+    }
+  }
+
+  List<({String name, String xpub})> _getLocalParticipants(TaprootVaultListItem vault) {
+    final List<({String name, String xpub})> participants = [];
+
+    for (int i = 0; i < vault.owners.length; i++) {
+      if (vault.owners[i].isSeedStored) {
+        final name =
+            vault.owners.length == 1
+                ? t.taproot.parent_wallet
+                : '${t.taproot.parent_wallet} ${String.fromCharCode(65 + i)}';
+        participants.add((name: name, xpub: vault.owners[i].extendedPublicKey));
+      }
+    }
+
+    for (int i = 0; i < vault.beneficiaries.length; i++) {
+      if (vault.beneficiaries[i].isSeedStored) {
+        final name = vault.beneficiaries.length == 1 ? t.taproot.child_wallet : '${t.taproot.child_wallet} ${i + 1}';
+        participants.add((name: name, xpub: vault.beneficiaries[i].extendedPublicKey));
+      }
+    }
+    return participants;
+  }
+
+  void _showParticipantSelectionSheet(List<({String name, String xpub})> participants) {
+    MyBottomSheet.showBottomSheet_90(
+      context: context,
+      child: CoconutBottomSheet(
+        useIntrinsicHeight: true,
+        appBar: CoconutAppBar.build(context: context, title: t.verify_passphrase, isBottom: true),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CoconutLayout.spacing_400h,
+              MenuGrid(
+                children:
+                    participants.map((p) {
+                      return CoconutButton(
+                        text: p.name,
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _navigateToVerification(p.xpub);
+                        },
+                      );
+                    }).toList(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _navigateToVerification(String xpub) {
+    Navigator.pushNamed(context, AppRoutes.passphraseVerification, arguments: {'id': widget.id, 'targetXpub': xpub});
   }
 
   @override
@@ -255,12 +323,7 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
                           if (hasPassphrase)
                             SingleButton(
                               title: t.verify_passphrase,
-                              onPressed:
-                                  () => Navigator.pushNamed(
-                                    context,
-                                    AppRoutes.passphraseVerification,
-                                    arguments: {'id': widget.id},
-                                  ),
+                              onPressed: () => _onVerifyPassphrasePressed(vault),
                             ),
                           SingleButton(
                             title: t.vault_menu_screen.export_wallet,

@@ -6,6 +6,8 @@ import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
+import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -23,8 +25,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class PassphraseVerificationScreen extends StatefulWidget {
-  const PassphraseVerificationScreen({super.key, required this.id});
+  const PassphraseVerificationScreen({super.key, required this.id, this.targetXpub});
   final int id;
+  final String? targetXpub;
 
   @override
   State<PassphraseVerificationScreen> createState() => _PassphraseVerificationScreenState();
@@ -180,14 +183,27 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
       Uint8List? passphrase;
 
       try {
-        mnemonic = await walletProvider.getSecret(widget.id, autoAuth: false);
-        passphrase = utf8.encode(_inputController.text);
         final vaultListItem = walletProvider.getVaultById(widget.id);
+        final argsFromRoute = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+        final String? targetXpub = widget.targetXpub ?? argsFromRoute?['targetXpub'];
+
+        if (vaultListItem is TaprootVaultListItem && targetXpub != null) {
+          mnemonic = await walletProvider.getTaprootSecret(
+            widget.id,
+            TaprootSeedKeyIdentifier(extendedPublicKey: targetXpub),
+            autoAuth: false,
+          );
+        } else {
+          mnemonic = await walletProvider.getSecret(widget.id, autoAuth: false);
+        }
+
+        passphrase = utf8.encode(_inputController.text);
 
         final result = await compute(WalletIsolates.verifyPassphrase, {
           'mnemonic': mnemonic,
           'passphrase': passphrase,
           'vaultListItem': vaultListItem,
+          'targetXpub': targetXpub,
         });
 
         _previousInput = _inputController.text;
