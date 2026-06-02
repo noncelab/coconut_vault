@@ -218,19 +218,29 @@ class _CurrentWalletBadge extends StatelessWidget {
 }
 
 class ParentMultisigParentExportQr extends StatelessWidget {
-  const ParentMultisigParentExportQr({super.key});
+  const ParentMultisigParentExportQr({super.key, this.qrData});
+
+  final String? qrData;
 
   @override
   Widget build(BuildContext context) {
+    final providedQrData = qrData;
+    if (providedQrData != null) {
+      return _buildQrImage(providedQrData);
+    }
+
     return Consumer<ParentCreationViewModel>(
       builder: (context, viewModel, child) {
-        final qrData = viewModel.parentWalletQrData;
-        if (qrData == null || qrData.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        return AdaptiveQrImage(qrData: qrData);
+        return _buildQrImage(viewModel.parentWalletQrData);
       },
     );
+  }
+
+  Widget _buildQrImage(String? qrData) {
+    if (qrData == null || qrData.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return AdaptiveQrImage(qrData: qrData);
   }
 }
 
