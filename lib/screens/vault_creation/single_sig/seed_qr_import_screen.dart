@@ -193,6 +193,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     setState(() {
       this.controller = controller;
     });
+    controller.resumeCamera();
     List<String>? words;
     controller.scannedDataStream.listen((scanData) async {
       if (_isNavigating || _isProcessing) return;

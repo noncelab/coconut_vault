@@ -56,6 +56,10 @@ abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
       // INFO: 꼭 로딩 UI가 보일 필요는 없지만 프롬프트가 닫히기 전까지 onBarcodeDetected 방지
       isProcessing = true;
     }
+    await _stopCamera();
+    if (!mounted) {
+      return;
+    }
     await showDialog(
       context: context,
       barrierDismissible: false,
@@ -76,6 +80,14 @@ abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
         );
       },
     );
+  }
+
+  Future<void> _stopCamera() async {
+    try {
+      await controller?.stop();
+    } catch (e) {
+      debugPrint('QR scanner stop failed: $e');
+    }
   }
 
   void updateScanProgress(double progress) {
@@ -148,6 +160,7 @@ abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
   void dispose() {
     _progressNotifier.dispose();
     controller?.removeListener(_onCameraStateChanged);
+    controller?.stop();
     controller?.dispose();
     if (appLifecycleStateProvider.ignoredOperations.contains(AppLifecycleOperations.cameraAuthRequest)) {
       appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
@@ -226,7 +239,6 @@ abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
             ),
             ScannerOverlay(tooltipTextSpan: tooltipTextSpan),
             _buildProgressOverlay(context, tooltipTextSpan: tooltipTextSpan),
-
             topGuideWidget ??
                 CustomTooltip.buildInfoTooltip(
                   context,
