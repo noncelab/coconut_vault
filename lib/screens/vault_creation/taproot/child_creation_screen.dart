@@ -38,13 +38,37 @@ class _ChildCreationScreenContent extends StatefulWidget {
   State<_ChildCreationScreenContent> createState() => _ChildCreationScreenContentState();
 }
 
+enum ChildCreationStep {
+  intro,
+  childPreparation,
+  childCreationOption,
+  securitySelfCheck,
+  mnemonicCreation,
+  mnemonicImport,
+  seedQrImport,
+  currentVaultSelection,
+  currentVaultMnemonicView,
+  mnemonicConfirmation,
+  importedMnemonicConfirmation,
+  mnemonicVerify,
+  verifiedMnemonicConfirmation,
+  childWalletQr,
+  scanner,
+  summary,
+  timeline,
+}
+
 class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent> {
+  static const int _initialStepCount = 2;
   static const int _progressInitialStepCount = 1;
 
   int _currentStep = 1;
-  final List<Widget> _embeddedWidgets = [];
-  int? _currentVaultSelectionStep;
+  final List<ChildCreationStep> _stepHistory = [ChildCreationStep.intro, ChildCreationStep.childPreparation];
+  int? _childWalletQrStep;
+  int? _scannerStep;
+  GlobalKey<MnemonicViewScreenState>? _currentVaultMnemonicViewKey;
   bool _isProcessing = false;
+  bool _currentVaultMnemonicAuthRequested = false;
 
   @override
   void initState() {
@@ -56,33 +80,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     });
   }
 
-  int _totalStep(ChildCreationViewModel viewModel) => viewModel.visibleProgressStepCount + _embeddedWidgets.length;
+  ChildCreationStep get _currentStepType => _stepHistory[_currentStep - 1];
 
-  int get _embeddedStartIndex => _currentVaultSelectionStep != null ? 4 : 3;
-
-  int _progressCurrentStep(ChildCreationViewModel viewModel) {
-    final currentStep = switch (_currentStep) {
-      _ when _currentStep <= _embeddedStartIndex => _currentStep - _progressInitialStepCount,
-      _ when _currentStep <= _embeddedStartIndex + _embeddedWidgets.length =>
-        _embeddedStartIndex - _progressInitialStepCount,
-      _ => _currentStep - _embeddedWidgets.length - _progressInitialStepCount,
-    };
-
-    return currentStep.clamp(0, viewModel.progressTotalStep);
-  }
-
-  List<TextSpan> _titleLines(ChildCreationViewModel viewModel) {
-    final titles = _buildTitleList(viewModel);
-
-    List<TextSpan> textList;
-    if (_currentStep <= _embeddedStartIndex) {
-      textList = titles[_currentStep - 1];
-    } else if (_currentStep <= _embeddedStartIndex + _embeddedWidgets.length) {
-      return [const TextSpan(text: '')];
-    } else {
-      textList = titles[_currentStep - _embeddedWidgets.length - 1];
-    }
-
+  List<TextSpan> _titleLines() {
+    final textList = _getTitleList(_currentStepType);
     if (textList.length == 1) {
       return [const TextSpan(text: ''), textList[0], const TextSpan(text: '')];
     }
@@ -92,53 +93,169 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     return textList;
   }
 
-  List<List<TextSpan>> _buildTitleList(ChildCreationViewModel viewModel) {
-    List<List<TextSpan>> list = [
-      [
+  List<TextSpan> _getTitleList(ChildCreationStep step) {
+    final viewModel = context.read<ChildCreationViewModel>();
+    return switch (step) {
+      ChildCreationStep.intro => [
         TextSpan(text: t.taproot.child_creation_screen.step1.title1),
         TextSpan(text: t.taproot.child_creation_screen.step1.title2),
       ],
-      [
+      ChildCreationStep.childPreparation => [
         TextSpan(text: t.taproot.child_creation_screen.step2.title1),
         TextSpan(text: t.taproot.child_creation_screen.step2.title2),
       ],
-      viewModel.keyPreparationType == ChildKeyPreparationType.create
-          ? [TextSpan(text: t.taproot.child_creation_screen.step3.title_new)]
-          : [TextSpan(text: t.taproot.child_creation_screen.step3.title_existing)],
-    ];
-
-    if (_currentVaultSelectionStep != null) {
-      list.add([
+      ChildCreationStep.childCreationOption =>
+        viewModel.keyPreparationType == ChildKeyPreparationType.create
+            ? [TextSpan(text: t.taproot.child_creation_screen.step3.title_new)]
+            : [TextSpan(text: t.taproot.child_creation_screen.step3.title_existing)],
+      ChildCreationStep.currentVaultSelection => [
         TextSpan(text: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_title_1),
         TextSpan(text: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_title_2),
-      ]);
-    }
-
-    list.addAll([
-      [
+      ],
+      ChildCreationStep.childWalletQr => [
         TextSpan(text: t.taproot.child_creation_screen.step4.title1),
         TextSpan(text: t.taproot.child_creation_screen.step4.title2, style: CoconutTypography.body1_16),
         TextSpan(text: t.taproot.child_creation_screen.step4.title3, style: CoconutTypography.body1_16),
       ],
-      [
-        TextSpan(text: t.taproot.child_creation_screen.step5.title1),
-        TextSpan(text: t.taproot.child_creation_screen.step5.title2),
-      ],
-      viewModel.isBeneficiaryMatch
-          ? [TextSpan(text: t.taproot.child_creation_screen.step6.title1)]
-          : [
-            TextSpan(
-              text: t.taproot.child_creation_screen.step6.title2,
-              style: const TextStyle(color: CoconutColors.hotPink),
-            ),
-          ],
-      [
+      ChildCreationStep.summary =>
+        viewModel.isBeneficiaryMatch
+            ? [TextSpan(text: t.taproot.child_creation_screen.step6.title1)]
+            : [
+              TextSpan(
+                text: t.taproot.child_creation_screen.step6.title2,
+                style: const TextStyle(color: CoconutColors.hotPink),
+              ),
+            ],
+      ChildCreationStep.timeline => [
         TextSpan(text: t.taproot.child_creation_screen.step7.title1),
         TextSpan(text: t.taproot.child_creation_screen.step7.title2),
       ],
-    ]);
+      _ => const [],
+    };
+  }
 
-    return list;
+  List<Widget> _getBodyList(ChildCreationStep step, ChildCreationViewModel viewModel) {
+    return switch (step) {
+      ChildCreationStep.intro => [Center(child: Image.asset('assets/png/load-wallet.png', scale: 4.0, width: 210))],
+      ChildCreationStep.childPreparation => [_buildChildPreparationStep(viewModel)],
+      ChildCreationStep.childCreationOption => [_buildChildCreationOptionStep(viewModel)],
+      ChildCreationStep.securitySelfCheck => [
+        SecuritySelfCheckScreen(isEmbedded: true, onNextPressed: () => _addFirstEmbeddedScreenForCreation(viewModel)),
+      ],
+      ChildCreationStep.mnemonicCreation => [_buildMnemonicCreationScreen(viewModel)],
+      ChildCreationStep.mnemonicImport => [_buildMnemonicImportScreen()],
+      ChildCreationStep.seedQrImport => [_buildSeedQrImportScreen(viewModel)],
+      ChildCreationStep.currentVaultSelection => [_buildExistingVaultSelectionBody(viewModel)],
+      ChildCreationStep.currentVaultMnemonicView => [_buildCurrentVaultMnemonicViewBody(viewModel)],
+      ChildCreationStep.mnemonicConfirmation => [_buildMnemonicConfirmationBody(viewModel)],
+      ChildCreationStep.importedMnemonicConfirmation => [_buildImportedMnemonicConfirmationBody(viewModel)],
+      ChildCreationStep.mnemonicVerify => [_buildMnemonicVerifyBody()],
+      ChildCreationStep.verifiedMnemonicConfirmation => [_buildVerifiedMnemonicConfirmationBody(viewModel)],
+      ChildCreationStep.childWalletQr => [_buildQrSection(viewModel)],
+      ChildCreationStep.scanner => [_buildScannerScreen(viewModel)],
+      ChildCreationStep.summary => [_buildSummaryStep(viewModel)],
+      ChildCreationStep.timeline => [_buildTimelineStep(viewModel)],
+    };
+  }
+
+  VoidCallback? _getNextButtonAction(ChildCreationStep step, ChildCreationViewModel viewModel) {
+    return switch (step) {
+      ChildCreationStep.intro => _moveToNextStep,
+      ChildCreationStep.childPreparation => _addChildCreationOptionStep,
+      ChildCreationStep.childCreationOption => _onChildCreationOptionSelected,
+      ChildCreationStep.currentVaultSelection => () {
+        setState(() => _isProcessing = true);
+        _onCurrentVaultSelected(viewModel);
+      },
+      ChildCreationStep.childWalletQr => () => _addScannerStep(viewModel),
+      ChildCreationStep.summary =>
+        viewModel.isBeneficiaryMatch ? () => _addTimelineStep(viewModel) : _handleBackPressed,
+      ChildCreationStep.timeline => () => _saveVaultAndExit(viewModel),
+      _ => null,
+    };
+  }
+
+  VoidCallback? _currentStepAction(ChildCreationViewModel viewModel) {
+    if (!_canRunCurrentStepAction(viewModel)) {
+      return null;
+    }
+    return _getNextButtonAction(_currentStepType, viewModel);
+  }
+
+  bool _canRunCurrentStepAction(ChildCreationViewModel viewModel) {
+    return switch (_currentStepType) {
+      ChildCreationStep.childPreparation => viewModel.keyPreparationType != ChildKeyPreparationType.none,
+      ChildCreationStep.childCreationOption => switch (viewModel.keyPreparationType) {
+        ChildKeyPreparationType.create => viewModel.newKeyCreationType != ChildNewKeyCreationType.none,
+        ChildKeyPreparationType.import => viewModel.existingKeyImportType != ChildExistingKeyImportType.none,
+        ChildKeyPreparationType.none => false,
+      },
+      ChildCreationStep.currentVaultSelection => viewModel.existingVaultId != null,
+      _ => true,
+    };
+  }
+
+  bool _showBottomButton(ChildCreationViewModel viewModel) {
+    return _currentStepAction(viewModel) != null;
+  }
+
+  bool get _isProgressPaused => _shouldPauseProgress(_currentStepType);
+
+  bool get _isSummaryStep => _currentStepType == ChildCreationStep.summary;
+
+  bool get _isTimelineStep => _currentStepType == ChildCreationStep.timeline;
+
+  int _progressCurrentStep(ChildCreationViewModel viewModel) {
+    return (_stepHistory.take(_currentStep).where((step) => !_shouldPauseProgress(step)).length -
+            _progressInitialStepCount)
+        .clamp(0, viewModel.progressTotalStep);
+  }
+
+  bool _shouldIgnoreBodyHorizontalPadding(ChildCreationStep step) {
+    return switch (step) {
+      ChildCreationStep.currentVaultSelection ||
+      ChildCreationStep.scanner ||
+      ChildCreationStep.summary ||
+      ChildCreationStep.securitySelfCheck ||
+      ChildCreationStep.mnemonicCreation ||
+      ChildCreationStep.mnemonicImport ||
+      ChildCreationStep.seedQrImport ||
+      ChildCreationStep.currentVaultMnemonicView ||
+      ChildCreationStep.mnemonicConfirmation ||
+      ChildCreationStep.importedMnemonicConfirmation ||
+      ChildCreationStep.mnemonicVerify ||
+      ChildCreationStep.verifiedMnemonicConfirmation => true,
+      _ => false,
+    };
+  }
+
+  bool _shouldPauseProgress(ChildCreationStep step) {
+    return switch (step) {
+      ChildCreationStep.securitySelfCheck ||
+      ChildCreationStep.mnemonicCreation ||
+      ChildCreationStep.mnemonicImport ||
+      ChildCreationStep.seedQrImport ||
+      ChildCreationStep.currentVaultMnemonicView ||
+      ChildCreationStep.mnemonicConfirmation ||
+      ChildCreationStep.importedMnemonicConfirmation ||
+      ChildCreationStep.mnemonicVerify ||
+      ChildCreationStep.verifiedMnemonicConfirmation ||
+      ChildCreationStep.scanner => true,
+      _ => false,
+    };
+  }
+
+  bool _shouldScrollChild(ChildCreationStep step) {
+    return switch (step) {
+      ChildCreationStep.currentVaultSelection => false,
+      _ => true,
+    };
+  }
+
+  void _moveToNextStep() {
+    setState(() {
+      _currentStep += 1;
+    });
   }
 
   Widget _buildChildPreparationStep(ChildCreationViewModel viewModel) {
@@ -147,10 +264,6 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
   Widget _buildChildCreationOptionStep(ChildCreationViewModel viewModel) {
     return ChildCreationOptionStep(viewModel: viewModel);
-  }
-
-  Widget _buildScannerStep(ChildCreationViewModel viewModel) {
-    return _buildScannerScreen(viewModel);
   }
 
   Widget _buildScannerScreen(ChildCreationViewModel viewModel) {
@@ -181,19 +294,12 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   void _addScannerStep(ChildCreationViewModel viewModel) {
-    setState(() {
-      _embeddedWidgets.add(_buildScannerScreen(viewModel));
-      // 스캔 안내 QR step에서 실제 TaprootScannerScreen embedded step으로 진입
-      _currentStep = _embeddedStartIndex + _embeddedWidgets.length;
-    });
+    _scannerStep = _addEmbeddedStep(ChildCreationStep.scanner);
   }
 
   void _completeScannerStep() {
-    setState(() {
-      _isProcessing = false;
-      // 스캔 embedded step 완료 후, 스캐너 step과 요약 step 보정분을 반영해 결과 요약 step으로 이동
-      _currentStep += 3;
-    });
+    setState(() => _isProcessing = false);
+    _addSummaryStep(context.read<ChildCreationViewModel>());
   }
 
   Widget _buildScannerTitle(ChildCreationViewModel viewModel) {
@@ -212,9 +318,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   List<TextSpan> _scannerTitleLines(ChildCreationViewModel viewModel) {
-    final scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
-    final titleList = _buildTitleList(viewModel);
-    final textList = titleList[scannerStepIndex - 1];
+    final textList = [
+      TextSpan(text: t.taproot.child_creation_screen.step5.title1),
+      TextSpan(text: t.taproot.child_creation_screen.step5.title2),
+    ];
     if (textList.length == 1) {
       return [const TextSpan(text: ''), textList[0], const TextSpan(text: '')];
     }
@@ -232,94 +339,117 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     return ChildCreationTimelineStep(viewModel: viewModel);
   }
 
-  Widget _getCurrentChild(ChildCreationViewModel viewModel) {
-    if (_currentStep > _embeddedStartIndex && _currentStep <= _embeddedStartIndex + _embeddedWidgets.length) {
-      return _embeddedWidgets[_currentStep - _embeddedStartIndex - 1];
-    }
-
-    int baseCurrentStep = _currentStep;
-    if (_currentStep > _embeddedStartIndex + _embeddedWidgets.length) {
-      baseCurrentStep = _currentStep - _embeddedWidgets.length;
-    }
-
-    switch (baseCurrentStep) {
-      case 1:
-        return Center(child: Image.asset('assets/png/load-wallet.png', scale: 4.0, width: 210));
-      case 2:
-        return _buildChildPreparationStep(viewModel);
-      case 3:
-        return _buildChildCreationOptionStep(viewModel);
-      default:
-        int scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
-
-        if (_currentVaultSelectionStep != null && baseCurrentStep == 4) {
-          return _buildExistingVaultSelectionBody(viewModel);
-        }
-
-        if (baseCurrentStep == scannerStepIndex - 1) {
-          return _buildQrSection(viewModel);
-        } else if (baseCurrentStep == scannerStepIndex) {
-          return _buildScannerStep(viewModel);
-        } else if (baseCurrentStep == scannerStepIndex + 1) {
-          return _buildSummaryStep(viewModel);
-        } else if (baseCurrentStep == scannerStepIndex + 2) {
-          return _buildTimelineStep(viewModel);
-        }
-
-        return const SizedBox.shrink();
-    }
-  }
-
   Widget _buildQrSection(ChildCreationViewModel viewModel) {
     return ChildWalletQrSection(viewModel: viewModel);
   }
 
-  bool _isNextButtonVisible(ChildCreationViewModel viewModel) {
-    if (_currentStep == _currentVaultSelectionStep) {
-      return viewModel.existingVaultId != null;
-    }
-    if (_currentStep > _embeddedStartIndex && _currentStep <= _embeddedStartIndex + _embeddedWidgets.length) {
-      return false;
-    }
-    if (_currentStep == 2) {
-      return viewModel.keyPreparationType != ChildKeyPreparationType.none;
-    }
-    if (_currentStep == 3) {
-      if (viewModel.keyPreparationType == ChildKeyPreparationType.create) {
-        return viewModel.newKeyCreationType != ChildNewKeyCreationType.none;
-      } else {
-        return viewModel.existingKeyImportType != ChildExistingKeyImportType.none;
-      }
+  Widget _buildMnemonicCreationScreen(ChildCreationViewModel viewModel) {
+    final mnemonicCreationMethod = _mnemonicCreationMethodFrom(viewModel.newKeyCreationType);
+    if (mnemonicCreationMethod == null) {
+      return const SizedBox.shrink();
     }
 
-    int scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
-    int baseCurrentStep = _currentStep > _embeddedStartIndex ? _currentStep - _embeddedWidgets.length : _currentStep;
-
-    if (baseCurrentStep == scannerStepIndex) {
-      return false;
-    }
-
-    return true;
+    return TaprootMnemonicFlowAdapter.buildCreationScreen(
+      method: mnemonicCreationMethod,
+      onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
+    );
   }
 
-  int _addEmbeddedStep(Widget widget) {
+  Widget _buildMnemonicImportScreen() {
+    return TaprootMnemonicFlowAdapter.buildMnemonicImportScreen(onCompleted: _addImportedMnemonicConfirmationStep);
+  }
+
+  Widget _buildSeedQrImportScreen(ChildCreationViewModel viewModel) {
+    return TaprootMnemonicFlowAdapter.buildSeedQrImportScreen(
+      onMnemonicConfirmationRequested: (secret, passphrase) {
+        viewModel.setSecretAndPassphrase(secret, passphrase);
+        _onChildWalletSet(viewModel);
+      },
+    );
+  }
+
+  Widget _buildMnemonicConfirmationBody(ChildCreationViewModel viewModel) {
+    final mnemonicCreationMethod = _mnemonicCreationMethodFrom(viewModel.newKeyCreationType);
+    if (mnemonicCreationMethod == null) {
+      return const SizedBox.shrink();
+    }
+
+    return TaprootMnemonicFlowAdapter.buildCreationConfirmationScreen(
+      method: mnemonicCreationMethod,
+      onMnemonicReady: _addMnemonicVerifyStep,
+    );
+  }
+
+  Widget _buildImportedMnemonicConfirmationBody(ChildCreationViewModel viewModel) {
+    return TaprootMnemonicFlowAdapter.buildImportedConfirmationScreen(
+      onMnemonicReady: () => _onChildWalletSet(viewModel),
+    );
+  }
+
+  Widget _buildMnemonicVerifyBody() {
+    return TaprootMnemonicFlowAdapter.buildVerifyScreen(onVerificationSuccess: _addVerifiedMnemonicConfirmationStep);
+  }
+
+  Widget _buildVerifiedMnemonicConfirmationBody(ChildCreationViewModel viewModel) {
+    return TaprootMnemonicFlowAdapter.buildVerifiedConfirmationScreen(
+      onMnemonicReady: () => _onChildWalletSet(viewModel),
+    );
+  }
+
+  Widget _buildCurrentVaultMnemonicViewBody(ChildCreationViewModel viewModel) {
+    final selectedExistingVaultId = viewModel.existingVaultId;
+    if (selectedExistingVaultId == null) {
+      return const SizedBox.shrink();
+    }
+
+    final mnemonicViewKey = _currentVaultMnemonicViewKey ??= GlobalKey<MnemonicViewScreenState>();
+    if (!_currentVaultMnemonicAuthRequested) {
+      _currentVaultMnemonicAuthRequested = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _currentStepType != ChildCreationStep.currentVaultMnemonicView) {
+          return;
+        }
+        TaprootMnemonicViewFlowAdapter.showDeviceAuthDialog(
+          context: context,
+          mnemonicViewKey: mnemonicViewKey,
+          showDeviceAuthDialog: ChildCreationOverlays.showDeviceAuthDialog,
+          authenticateWithBiometricOrPin: ChildCreationOverlays.authenticateWithBiometricOrPin,
+        );
+      });
+    }
+
+    return TaprootMnemonicViewFlowAdapter.buildMnemonicViewStep(
+      mnemonicViewKey: mnemonicViewKey,
+      walletId: selectedExistingVaultId,
+      buildPassphraseToggle: context.read<VisibilityProvider>().isPassphraseUseEnabled,
+      emptyPassphraseAsNull: true,
+      onAuthCanceled: _handleBackPressed,
+      onMnemonicReady: (mnemonic, passphrase) {
+        final taprootProvider = context.read<TaprootWalletCreationProvider>();
+        taprootProvider.setSecretAndPassphrase(mnemonic, passphrase);
+        _onChildWalletSet(viewModel);
+      },
+    );
+  }
+
+  int _addStep(ChildCreationStep step) {
+    final addedStep = _stepHistory.length + 1;
     setState(() {
-      _embeddedWidgets.add(widget);
-      // 보안 확인, 니모닉 생성/입력, 현재 볼트 니모닉 보기 같은 embedded step으로 이동
+      _stepHistory.add(step);
       _currentStep += 1;
     });
-    return _currentStep;
+    return addedStep;
+  }
+
+  int _addEmbeddedStep(ChildCreationStep step) {
+    return _addStep(step);
   }
 
   void _onChildWalletSet(ChildCreationViewModel viewModel) {
     try {
       viewModel.setupChildWalletInfo();
-      setState(() {
-        _isProcessing = false;
-        // 자식 지갑 키 준비가 끝나면 준비된 자식 지갑 QR 표시 step으로 이동
-        _currentStep += 1;
-        _isProcessing = false;
-      });
+      setState(() => _isProcessing = false);
+      _addChildWalletQrStep(viewModel);
     } catch (e) {
       setState(() {
         _isProcessing = false;
@@ -331,6 +461,64 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     }
   }
 
+  void _addChildCreationOptionStep() {
+    _addStep(ChildCreationStep.childCreationOption);
+  }
+
+  void _onChildCreationOptionSelected() {
+    final viewModel = context.read<ChildCreationViewModel>();
+    viewModel.setCreationTypeToChild();
+
+    if (viewModel.keyPreparationType == ChildKeyPreparationType.create) {
+      _addEmbeddedStep(ChildCreationStep.securitySelfCheck);
+      return;
+    }
+
+    if (viewModel.keyPreparationType != ChildKeyPreparationType.import) {
+      return;
+    }
+
+    switch (viewModel.existingKeyImportType) {
+      case ChildExistingKeyImportType.currentVault:
+        _addCurrentVaultSelectionStep(viewModel);
+        return;
+      case ChildExistingKeyImportType.mnemonicInput:
+        _addEmbeddedStep(ChildCreationStep.mnemonicImport);
+        return;
+      case ChildExistingKeyImportType.seedQrScan:
+        _addEmbeddedStep(ChildCreationStep.seedQrImport);
+        return;
+      case ChildExistingKeyImportType.none:
+        return;
+    }
+  }
+
+  void _addChildWalletQrStep(ChildCreationViewModel viewModel) {
+    _childWalletQrStep = _addStep(ChildCreationStep.childWalletQr);
+  }
+
+  void _addSummaryStep(ChildCreationViewModel viewModel) {
+    _addStep(ChildCreationStep.summary);
+  }
+
+  void _addTimelineStep(ChildCreationViewModel viewModel) {
+    _addStep(ChildCreationStep.timeline);
+  }
+
+  Future<void> _saveVaultAndExit(ChildCreationViewModel viewModel) async {
+    vibrateExtraLight();
+
+    setState(() => _isProcessing = true);
+    try {
+      await viewModel.saveVault(context.read<WalletProvider>());
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
+
+    if (!mounted) return;
+    Navigator.popUntil(context, (route) => route.isFirst);
+  }
+
   void _addMnemonicConfirmationStep() {
     final viewModel = context.read<ChildCreationViewModel>();
     final mnemonicCreationMethod = _mnemonicCreationMethodFrom(viewModel.newKeyCreationType);
@@ -339,7 +527,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     }
 
     TaprootMnemonicFlowAdapter.addCreationConfirmationStep(
-      addEmbeddedStep: _addEmbeddedStep,
+      addEmbeddedStep: (widget) => _addEmbeddedStep(ChildCreationStep.mnemonicConfirmation),
       method: mnemonicCreationMethod,
       onMnemonicReady: _addMnemonicVerifyStep,
       onAutoGenerateReady: _addMnemonicVerifyStep,
@@ -348,7 +536,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
   void _addImportedMnemonicConfirmationStep() {
     TaprootMnemonicFlowAdapter.addImportedConfirmationStep(
-      addEmbeddedStep: _addEmbeddedStep,
+      addEmbeddedStep: (widget) => _addEmbeddedStep(ChildCreationStep.importedMnemonicConfirmation),
       onMnemonicReady: () {
         final viewModel = context.read<ChildCreationViewModel>();
         _onChildWalletSet(viewModel);
@@ -358,14 +546,14 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
   void _addMnemonicVerifyStep() {
     TaprootMnemonicFlowAdapter.addVerifyStep(
-      addEmbeddedStep: _addEmbeddedStep,
+      addEmbeddedStep: (widget) => _addEmbeddedStep(ChildCreationStep.mnemonicVerify),
       onVerificationSuccess: _addVerifiedMnemonicConfirmationStep,
     );
   }
 
   void _addVerifiedMnemonicConfirmationStep() {
     TaprootMnemonicFlowAdapter.addVerifiedConfirmationStep(
-      addEmbeddedStep: _addEmbeddedStep,
+      addEmbeddedStep: (widget) => _addEmbeddedStep(ChildCreationStep.verifiedMnemonicConfirmation),
       onMnemonicReady: () {
         final viewModel = context.read<ChildCreationViewModel>();
         _onChildWalletSet(viewModel);
@@ -379,12 +567,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       return;
     }
 
-    _addEmbeddedStep(
-      TaprootMnemonicFlowAdapter.buildCreationScreen(
-        method: mnemonicCreationMethod,
-        onMnemonicConfirmationRequested: _addMnemonicConfirmationStep,
-      ),
-    );
+    _addEmbeddedStep(ChildCreationStep.mnemonicCreation);
   }
 
   TaprootMnemonicCreationMethod? _mnemonicCreationMethodFrom(ChildNewKeyCreationType creationType) {
@@ -399,86 +582,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   void _onNextPressed(ChildCreationViewModel viewModel) async {
     if (_isProcessing) return;
 
-    if (_currentStep == _currentVaultSelectionStep) {
-      if (viewModel.existingVaultId != null) {
-        setState(() {
-          _isProcessing = true;
-        });
-        _onCurrentVaultSelected(viewModel);
-      }
-      return;
-    }
-
-    if (_currentStep == 3) {
-      viewModel.setCreationTypeToChild();
-
-      if (viewModel.keyPreparationType == ChildKeyPreparationType.create) {
-        _addEmbeddedStep(
-          SecuritySelfCheckScreen(
-            isEmbedded: true,
-            onNextPressed: () {
-              _addFirstEmbeddedScreenForCreation(viewModel);
-            },
-          ),
-        );
-        return;
-      } else if (viewModel.keyPreparationType == ChildKeyPreparationType.import) {
-        if (viewModel.existingKeyImportType == ChildExistingKeyImportType.currentVault) {
-          _addCurrentVaultSelectionStep(viewModel);
-          return;
-        } else if (viewModel.existingKeyImportType == ChildExistingKeyImportType.mnemonicInput) {
-          _addEmbeddedStep(
-            TaprootMnemonicFlowAdapter.buildMnemonicImportScreen(onCompleted: _addImportedMnemonicConfirmationStep),
-          );
-          return;
-        } else if (viewModel.existingKeyImportType == ChildExistingKeyImportType.seedQrScan) {
-          _addEmbeddedStep(
-            TaprootMnemonicFlowAdapter.buildSeedQrImportScreen(
-              onMnemonicConfirmationRequested: (secret, passphrase) {
-                viewModel.setSecretAndPassphrase(secret, passphrase);
-                _onChildWalletSet(viewModel);
-              },
-            ),
-          );
-          return;
-        }
-      }
-    }
-
-    int scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
-    int baseCurrentStep = _currentStep > _embeddedStartIndex ? _currentStep - _embeddedWidgets.length : _currentStep;
-
-    if (baseCurrentStep == scannerStepIndex - 1) {
-      _addScannerStep(viewModel);
-      return;
-    }
-
-    if (baseCurrentStep == scannerStepIndex + 1) {
-      if (!viewModel.isBeneficiaryMatch) {
-        _handleBackPressed();
-        return;
-      }
-    }
-
-    if (_currentStep >= _totalStep(viewModel)) {
-      vibrateExtraLight();
-
-      setState(() => _isProcessing = true);
-      try {
-        await viewModel.saveVault(context.read<WalletProvider>());
-      } finally {
-        if (mounted) setState(() => _isProcessing = false);
-      }
-
-      if (!mounted) return;
-      Navigator.popUntil(context, (route) => route.isFirst);
-      return;
-    }
-
-    setState(() {
-      // 일반 다음 버튼 동작입니다. 현재 base step의 다음 step으로 이동
-      _currentStep += 1;
-    });
+    _currentStepAction(viewModel)?.call();
   }
 
   Future<void> _showChildWalletResetDialog() async {
@@ -493,9 +597,9 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     viewModel.resetChildWalletData();
 
     setState(() {
-      _embeddedWidgets.clear();
       // 자식 지갑 준비 방법 선택 step으로 Back
       _currentStep = 3;
+      _removeStepsAfter(_currentStep);
 
       if (viewModel.keyPreparationType == ChildKeyPreparationType.create) {
         viewModel.setNewKeyCreationType(ChildNewKeyCreationType.none);
@@ -508,27 +612,25 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   void _handleBackPressed() {
     final viewModel = context.read<ChildCreationViewModel>();
 
-    if (_isScannerEmbeddedStep) {
+    if (_currentStep == _scannerStep) {
       _returnToChildWalletQrStep();
       return;
     }
 
-    if (_isChildWalletQrStep) {
+    if (_currentStep == _childWalletQrStep) {
       _showChildWalletResetDialog();
       return;
     }
 
     if (_currentStep > 1) {
       setState(() {
-        if (_currentStep > _embeddedStartIndex && _currentStep <= _embeddedStartIndex + _embeddedWidgets.length) {
-          _embeddedWidgets.removeLast();
-        }
         // 현재 step의 바로 이전 step으로 이동. embedded step이면 마지막 embedded 화면도 함께 제거
+        final removedStep = _currentStep;
         _currentStep -= 1;
-
-        if (_currentVaultSelectionStep != null && _currentStep < _currentVaultSelectionStep!) {
-          _currentVaultSelectionStep = null;
+        if (removedStep > _initialStepCount) {
+          _removeStepsAfter(_currentStep);
         }
+
         _isProcessing = false;
       });
 
@@ -548,35 +650,29 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     }
   }
 
-  bool get _isScannerEmbeddedStep {
-    return _embeddedWidgets.isNotEmpty &&
-        _embeddedWidgets.last is TaprootScannerScreen &&
-        _currentStep == _embeddedStartIndex + _embeddedWidgets.length;
-  }
-
   void _returnToChildWalletQrStep() {
     setState(() {
-      _embeddedWidgets.removeLast();
-      final scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
       // 스캐너 embedded step에서 뒤로 가면 부모 지갑 QR 표시 step으로 Back
-      _currentStep = _embeddedWidgets.length + scannerStepIndex - 1;
+      final childWalletQrStep = _childWalletQrStep;
+      if (childWalletQrStep != null) {
+        _currentStep = childWalletQrStep;
+        _removeStepsAfter(childWalletQrStep);
+      }
       _isProcessing = false;
     });
   }
 
-  bool get _isChildWalletQrStep {
-    final isEmbeddedActive =
-        _currentStep > _embeddedStartIndex && _currentStep <= _embeddedStartIndex + _embeddedWidgets.length;
-    if (isEmbeddedActive) {
-      return false;
+  void _removeStepsAfter(int step) {
+    while (_stepHistory.length > step) {
+      _stepHistory.removeLast();
     }
 
-    final baseCurrentStep =
-        _currentStep > _embeddedStartIndex + _embeddedWidgets.length
-            ? _currentStep - _embeddedWidgets.length
-            : _currentStep;
-    final scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
-    return baseCurrentStep == scannerStepIndex - 1;
+    _resetStepIndexesAfter(step);
+  }
+
+  void _resetStepIndexesAfter(int step) {
+    if ((_childWalletQrStep ?? 0) > step) _childWalletQrStep = null;
+    if ((_scannerStep ?? 0) > step) _scannerStep = null;
   }
 
   Widget _buildExistingVaultSelectionBody(ChildCreationViewModel viewModel) {
@@ -584,46 +680,28 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   void _addCurrentVaultSelectionStep(ChildCreationViewModel viewModel) {
-    setState(() {
-      _currentVaultSelectionStep = 4;
-      // 기존 볼트에서 선택하기를 고르면 현재 볼트의 단일서명 지갑 선택 step으로 이동
-      _currentStep = 4;
-    });
+    _addStep(ChildCreationStep.currentVaultSelection);
   }
 
   void _switchToSeedQrImport(ChildCreationViewModel viewModel) {
-    if (_embeddedWidgets.isEmpty || !TaprootMnemonicFlowAdapter.isMnemonicImportScreen(_embeddedWidgets.last)) {
+    if (_currentStepType != ChildCreationStep.mnemonicImport) {
       return;
     }
 
     setState(() {
-      _embeddedWidgets.removeLast();
       viewModel.setExistingKeyImportType(ChildExistingKeyImportType.seedQrScan);
-
-      final taprootProvider = context.read<TaprootWalletCreationProvider>();
-      _embeddedWidgets.add(
-        TaprootMnemonicFlowAdapter.buildSeedQrImportScreen(
-          onMnemonicConfirmationRequested: (secret, passphrase) {
-            taprootProvider.setSecretAndPassphrase(secret, passphrase);
-            _onChildWalletSet(viewModel);
-          },
-        ),
-      );
+      _stepHistory[_currentStep - 1] = ChildCreationStep.seedQrImport;
     });
   }
 
   void _switchToMnemonicImport(ChildCreationViewModel viewModel) {
-    if (_embeddedWidgets.isEmpty || !TaprootMnemonicFlowAdapter.isSeedQrImportScreen(_embeddedWidgets.last)) {
+    if (_currentStepType != ChildCreationStep.seedQrImport) {
       return;
     }
 
     setState(() {
-      _embeddedWidgets.removeLast();
       viewModel.setExistingKeyImportType(ChildExistingKeyImportType.mnemonicInput);
-
-      _embeddedWidgets.add(
-        TaprootMnemonicFlowAdapter.buildMnemonicImportScreen(onCompleted: _addImportedMnemonicConfirmationStep),
-      );
+      _stepHistory[_currentStep - 1] = ChildCreationStep.mnemonicImport;
     });
   }
 
@@ -639,7 +717,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     }
 
     if (shouldProceed == true) {
-      _proceedWithSelectedVault(viewModel, selectedExistingVaultId);
+      _proceedWithSelectedVault();
       return;
     }
 
@@ -648,63 +726,22 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     });
   }
 
-  void _proceedWithSelectedVault(ChildCreationViewModel viewModel, int selectedExistingVaultId) {
+  void _proceedWithSelectedVault() {
     if (!mounted) {
       return;
     }
 
-    final mnemonicViewKey = GlobalKey<MnemonicViewScreenState>();
-    _addEmbeddedStep(
-      TaprootMnemonicViewFlowAdapter.buildMnemonicViewStep(
-        mnemonicViewKey: mnemonicViewKey,
-        walletId: selectedExistingVaultId,
-        buildPassphraseToggle: context.read<VisibilityProvider>().isPassphraseUseEnabled,
-        emptyPassphraseAsNull: true,
-        onAuthCanceled: _handleBackPressed,
-        onMnemonicReady: (mnemonic, passphrase) {
-          final taprootProvider = context.read<TaprootWalletCreationProvider>();
-          taprootProvider.setSecretAndPassphrase(mnemonic, passphrase);
-          _onChildWalletSet(viewModel);
-        },
-      ),
-    );
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) {
-        return;
-      }
-      TaprootMnemonicViewFlowAdapter.showDeviceAuthDialog(
-        context: context,
-        mnemonicViewKey: mnemonicViewKey,
-        showDeviceAuthDialog: ChildCreationOverlays.showDeviceAuthDialog,
-        authenticateWithBiometricOrPin: ChildCreationOverlays.authenticateWithBiometricOrPin,
-      );
-    });
+    _currentVaultMnemonicViewKey = GlobalKey<MnemonicViewScreenState>();
+    _currentVaultMnemonicAuthRequested = false;
+    _addEmbeddedStep(ChildCreationStep.currentVaultMnemonicView);
   }
 
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<ChildCreationViewModel>();
-    final isVaultSelectionStep = _currentStep == _currentVaultSelectionStep;
-
-    int embeddedStartIndex = _currentVaultSelectionStep != null ? 4 : 3;
-    final isEmbeddedActive =
-        _currentStep > embeddedStartIndex && _currentStep <= embeddedStartIndex + _embeddedWidgets.length;
-
-    int scannerStepIndex = _currentVaultSelectionStep != null ? 6 : 5;
-    int baseCurrentStep = _currentStep > embeddedStartIndex ? _currentStep - _embeddedWidgets.length : _currentStep;
-    final isScannerStep = baseCurrentStep == scannerStepIndex;
-    final isSummaryStep = baseCurrentStep == scannerStepIndex + 1;
-    final isLastStep = _currentStep == _totalStep(viewModel);
-
-    Widget? currentEmbeddedWidget;
-    if (isEmbeddedActive) {
-      currentEmbeddedWidget = _embeddedWidgets[_currentStep - embeddedStartIndex - 1];
-    }
-    final bool showScanButton =
-        currentEmbeddedWidget != null && TaprootMnemonicFlowAdapter.isMnemonicImportScreen(currentEmbeddedWidget);
-    final bool showTypeButton =
-        currentEmbeddedWidget != null && TaprootMnemonicFlowAdapter.isSeedQrImportScreen(currentEmbeddedWidget);
+    final isScannerStep = _currentStepType == ChildCreationStep.scanner;
+    final bool showScanButton = _currentStepType == ChildCreationStep.mnemonicImport;
+    final bool showTypeButton = _currentStepType == ChildCreationStep.seedQrImport;
 
     return PopScope(
       canPop: false,
@@ -749,19 +786,21 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
             children: [
               TaprootCreationBody(
                 key: ValueKey(_currentStep),
-                titleLines: _titleLines(viewModel),
-                showBottomButton: _isNextButtonVisible(viewModel),
+                titleLines: _titleLines(),
+                showBottomButton: _showBottomButton(viewModel),
                 bottomButtonText:
-                    isSummaryStep && !viewModel.isBeneficiaryMatch ? t.rescan : (isLastStep ? t.complete : null),
-                ignoreChildHorizontalPadding:
-                    isEmbeddedActive || isVaultSelectionStep || isScannerStep || isSummaryStep,
-                showHeader: !isEmbeddedActive && !isScannerStep && !(isSummaryStep && !viewModel.isBeneficiaryMatch),
-                scrollChild: !isEmbeddedActive && !isVaultSelectionStep && !isScannerStep,
+                    _isSummaryStep && !viewModel.isBeneficiaryMatch ? t.rescan : (_isTimelineStep ? t.complete : null),
+                ignoreChildHorizontalPadding: _shouldIgnoreBodyHorizontalPadding(_currentStepType),
+                showHeader: !_isProgressPaused && !isScannerStep && !(_isSummaryStep && !viewModel.isBeneficiaryMatch),
+                scrollChild: _shouldScrollChild(_currentStepType),
                 onBottomButtonPressed: () => _onNextPressed(viewModel),
-                child: _getCurrentChild(viewModel),
+                child:
+                    _isProgressPaused
+                        ? _getBodyList(_currentStepType, viewModel).first
+                        : Column(children: _getBodyList(_currentStepType, viewModel)),
               ),
               TopProgressBar(
-                visible: !isEmbeddedActive,
+                visible: !_isProgressPaused,
                 total: viewModel.progressTotalStep,
                 current: _progressCurrentStep(viewModel),
               ),

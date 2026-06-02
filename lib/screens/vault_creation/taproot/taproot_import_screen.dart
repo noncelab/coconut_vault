@@ -32,40 +32,32 @@ class TaprootImportScreen extends StatefulWidget {
   State<TaprootImportScreen> createState() => _TaprootImportScreenState();
 }
 
+enum TaprootImportStep { intro, scanner, importedWallet, roleSelection, importWallet, importResult, timeline }
+
 class _TaprootImportScreenState extends State<TaprootImportScreen> {
   static const int _initialStepCount = 1;
 
-  late final List<List<TextSpan>> _titleList;
-  late final List<List<Widget>> _bodyList;
-  late final List<FutureOr<void> Function()?> _nextButtonActions;
-  late final List<bool> _ignoreBodyHorizontalPaddingList;
-  late final List<bool> _pauseProgressList;
-  late final List<bool> _scrollChildList;
   late final TaprootImportViewModel _viewModel;
+  final List<TaprootImportStep> _stepHistory = [TaprootImportStep.intro];
   int _currentStep = 1;
   int? _roleSelectionStep;
-  int? _importWalletStep;
-  int? _importResultStep;
-  int? _timelineStep;
   int? _createdTaprootVaultId;
   TaprootVaultCreationTimelineInfo? _timelineInfo;
   bool _isProcessingImport = false;
   bool _isTimelineAnimationCompleted = false;
 
-  bool get _isProgressPaused => _pauseProgressList[_currentStep - 1];
+  TaprootImportStep get _currentStepType => _stepHistory[_currentStep - 1];
+
+  bool get _isProgressPaused => _shouldPauseProgress(_currentStepType);
   bool get _showHeader => !_isProgressPaused;
   int get _progressCurrentStep =>
-      (_pauseProgressList.take(_currentStep).where((isPaused) => !isPaused).length - _initialStepCount).clamp(
+      (_stepHistory.take(_currentStep).where((step) => !_shouldPauseProgress(step)).length - _initialStepCount).clamp(
         0,
         _viewModel.progressTotalStep,
       );
 
   FutureOr<void> Function()? get _currentNextButtonAction {
-    final actionIndex = _currentStep - 1;
-    if (actionIndex < 0 || actionIndex >= _nextButtonActions.length) {
-      return null;
-    }
-    return _nextButtonActions[actionIndex];
+    return _getNextButtonAction(_currentStepType);
   }
 
   bool get _showBottomButton {
@@ -77,7 +69,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       return false;
     }
 
-    if (_currentStep == _roleSelectionStep) {
+    if (_currentStepType == TaprootImportStep.roleSelection) {
       return _viewModel.selectedRole != TaprootImportRole.none;
     }
 
@@ -85,15 +77,17 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   }
 
   bool get _showExtraMismatchBottomButtons {
-    return _currentStep == _importResultStep && _viewModel.hasExtraImport && !_viewModel.isExtraImportMatched;
+    return _currentStepType == TaprootImportStep.importResult &&
+        _viewModel.hasExtraImport &&
+        !_viewModel.isExtraImportMatched;
   }
 
   bool get _showImportModeToggle {
-    return _currentStep == _importWalletStep;
+    return _currentStepType == TaprootImportStep.importWallet;
   }
 
   bool get _isTimelineStep {
-    return _currentStep == _timelineStep;
+    return _currentStepType == TaprootImportStep.timeline;
   }
 
   bool get _runBottomButtonActionWithoutTransition {
@@ -101,7 +95,9 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   }
 
   String? get _bottomButtonText {
-    if (_currentStep == _importResultStep && !_viewModel.hasExtraImport && !_viewModel.isSelectedRoleMatch) {
+    if (_currentStepType == TaprootImportStep.importResult &&
+        !_viewModel.hasExtraImport &&
+        !_viewModel.isSelectedRoleMatch) {
       return t.taproot.taproot_import_screen.step6.enter_again;
     }
 
@@ -116,12 +112,6 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
           (descriptor) => context.read<WalletProvider>().findWalletByDescriptor(descriptor) != null,
       addTaprootVault: (walletCreateDto) => context.read<WalletProvider>().addTaprootVault(walletCreateDto),
     );
-    _titleList = _initialTitleList();
-    _bodyList = _initialBodyList();
-    _nextButtonActions = [_addScannerStep];
-    _ignoreBodyHorizontalPaddingList = [false];
-    _pauseProgressList = [false];
-    _scrollChildList = [true];
     _viewModel.addListener(_handleViewModelChanged);
   }
 
@@ -136,28 +126,8 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
     setState(() {});
   }
 
-  List<List<TextSpan>> _initialTitleList() {
-    return [
-      [
-        TextSpan(text: t.taproot.taproot_import_screen.step1.title1),
-        TextSpan(text: t.taproot.taproot_import_screen.step1.title2),
-      ],
-    ];
-  }
-
-  List<List<Widget>> _initialBodyList() {
-    return [
-      [
-        Padding(
-          padding: const EdgeInsets.only(left: 64, top: 36, right: 64),
-          child: Image.asset('assets/png/hand-bitcoin.png'),
-        ),
-      ],
-    ];
-  }
-
   List<TextSpan> _titleLines() {
-    final textList = _titleList[_currentStep - 1];
+    final textList = _getTitleList(_currentStepType);
     if (textList.length == 1) {
       return [const TextSpan(text: ''), textList[0], const TextSpan(text: '')];
     }
@@ -167,66 +137,126 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
     return textList;
   }
 
-  int _addStep({
-    required List<TextSpan> titleList,
-    required List<Widget> bodyList,
-    required FutureOr<void> Function()? nextButtonAction,
-    bool ignoreBodyHorizontalPadding = false,
-    bool pauseProgress = false,
-    bool scrollChild = true,
-  }) {
-    final addedStep = _titleList.length + 1;
+  List<TextSpan> _getTitleList(TaprootImportStep step) {
+    return switch (step) {
+      TaprootImportStep.intro => [
+        TextSpan(text: t.taproot.taproot_import_screen.step1.title1),
+        TextSpan(text: t.taproot.taproot_import_screen.step1.title2),
+      ],
+      TaprootImportStep.importedWallet => [TextSpan(text: t.taproot.taproot_import_screen.step3.title1)],
+      TaprootImportStep.roleSelection => [
+        TextSpan(text: t.taproot.taproot_import_screen.step4.title1),
+        TextSpan(text: t.taproot.taproot_import_screen.step4.title2),
+      ],
+      TaprootImportStep.timeline => [
+        TextSpan(text: t.taproot.taproot_import_screen.step7.title1),
+        TextSpan(text: t.taproot.taproot_import_screen.step7.title2),
+      ],
+      _ => const [],
+    };
+  }
+
+  List<Widget> _getBodyList(TaprootImportStep step) {
+    return switch (step) {
+      TaprootImportStep.intro => [
+        Padding(
+          padding: const EdgeInsets.only(left: 64, top: 36, right: 64),
+          child: Image.asset('assets/png/hand-bitcoin.png'),
+        ),
+      ],
+      TaprootImportStep.scanner => [_buildScannerStep()],
+      TaprootImportStep.importedWallet => [_buildVaultSummaryCards()],
+      TaprootImportStep.roleSelection => _buildRoleSelectionBody(),
+      TaprootImportStep.importWallet => [
+        Consumer<TaprootImportViewModel>(
+          builder: (context, viewModel, child) {
+            return _buildWalletImportScreen(viewModel.currentImportMode);
+          },
+        ),
+      ],
+      TaprootImportStep.importResult => [_buildSummaryWidget()],
+      TaprootImportStep.timeline => [_buildTimelineStepIndicator()],
+    };
+  }
+
+  FutureOr<void> Function()? _getNextButtonAction(TaprootImportStep step) {
+    return switch (step) {
+      TaprootImportStep.intro => _addScannerStep,
+      TaprootImportStep.importedWallet => _addParentConfigurationStep,
+      TaprootImportStep.roleSelection => _addParentWalletCheckStep,
+      TaprootImportStep.importResult => _handleImportResultNextButton,
+      TaprootImportStep.timeline => _navigateToHome,
+      _ => null,
+    };
+  }
+
+  bool _shouldIgnoreBodyHorizontalPadding(TaprootImportStep step) {
+    return switch (step) {
+      TaprootImportStep.scanner ||
+      TaprootImportStep.importedWallet ||
+      TaprootImportStep.importWallet ||
+      TaprootImportStep.importResult => true,
+      _ => false,
+    };
+  }
+
+  bool _shouldPauseProgress(TaprootImportStep step) {
+    return switch (step) {
+      TaprootImportStep.scanner || TaprootImportStep.importWallet => true,
+      _ => false,
+    };
+  }
+
+  bool _shouldScrollChild(TaprootImportStep step) {
+    return switch (step) {
+      TaprootImportStep.scanner || TaprootImportStep.importWallet => false,
+      _ => true,
+    };
+  }
+
+  int _addStep(TaprootImportStep step) {
+    final addedStep = _stepHistory.length + 1;
     setState(() {
-      _titleList.add(titleList);
-      _bodyList.add(bodyList);
-      _nextButtonActions.add(nextButtonAction);
-      _ignoreBodyHorizontalPaddingList.add(ignoreBodyHorizontalPadding);
-      _pauseProgressList.add(pauseProgress);
-      _scrollChildList.add(scrollChild);
+      _stepHistory.add(step);
       _currentStep += 1;
     });
     return addedStep;
   }
 
-  int _addEmbeddedStep(Widget embeddedScreen) {
-    return _addStep(
-      titleList: const [],
-      bodyList: [embeddedScreen],
-      nextButtonAction: null,
-      ignoreBodyHorizontalPadding: true,
-      pauseProgress: true,
-      scrollChild: false,
-    );
+  int _addEmbeddedStep(TaprootImportStep step) {
+    return _addStep(step);
   }
 
-  void _addScannerStep() {
+  Widget _buildScannerStep() {
     final guideText = Text(
       t.taproot.taproot_import_screen.step2.title1,
       style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.white),
       textAlign: TextAlign.center,
     );
 
-    _addEmbeddedStep(
-      TaprootScannerScreen(
-        dataType: TaprootScannerDataType.walletSync,
-        topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
-        onWalletSyncScanned: (walletSyncData) async {
-          final validationResult = _viewModel.validateWalletSyncData(walletSyncData);
-          if (validationResult == TaprootWalletSyncValidationResult.duplicate) {
-            await _showDuplicateWalletDialog();
-            return false;
-          }
-          if (validationResult == TaprootWalletSyncValidationResult.invalid) {
-            await _showInvalidWalletDialog();
-            return false;
-          }
+    return TaprootScannerScreen(
+      dataType: TaprootScannerDataType.walletSync,
+      topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
+      onWalletSyncScanned: (walletSyncData) async {
+        final validationResult = _viewModel.validateWalletSyncData(walletSyncData);
+        if (validationResult == TaprootWalletSyncValidationResult.duplicate) {
+          await _showDuplicateWalletDialog();
+          return false;
+        }
+        if (validationResult == TaprootWalletSyncValidationResult.invalid) {
+          await _showInvalidWalletDialog();
+          return false;
+        }
 
-          _viewModel.setWalletSyncData(walletSyncData);
-          _addImportedWalletStep();
-          return true;
-        },
-      ),
+        _viewModel.setWalletSyncData(walletSyncData);
+        _addImportedWalletStep();
+        return true;
+      },
     );
+  }
+
+  void _addScannerStep() {
+    _addEmbeddedStep(TaprootImportStep.scanner);
   }
 
   Future<void> _showDuplicateWalletDialog() async {
@@ -264,12 +294,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   }
 
   void _addImportedWalletStep() {
-    _addStep(
-      titleList: [TextSpan(text: t.taproot.taproot_import_screen.step3.title1)],
-      bodyList: [_buildVaultSummaryCards()],
-      nextButtonAction: _addParentConfigurationStep,
-      ignoreBodyHorizontalPadding: true,
-    );
+    _addStep(TaprootImportStep.importedWallet);
   }
 
   Widget _buildVaultSummaryCards({bool showSelectedRoleState = false}) {
@@ -344,58 +369,49 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
     }
   }
 
+  List<Widget> _buildRoleSelectionBody() {
+    return [
+      CharacterFadeInText(
+        text: t.taproot.taproot_import_screen.step4.description,
+        animationKey: 'taproot-import-body-role-description',
+        duration: const Duration(milliseconds: 700),
+        delay: const Duration(milliseconds: 1700),
+      ),
+      CoconutLayout.spacing_800h,
+      Consumer<TaprootImportViewModel>(
+        builder: (context, viewModel, child) {
+          return MenuGrid(
+            children: [
+              SelectableOptionCard(
+                title: t.taproot.taproot_import_screen.step4.signer,
+                bottomAssetPath: 'assets/png/single-key.png',
+                isSelected: viewModel.selectedRole == TaprootImportRole.signer,
+                onTap: () => viewModel.setRole(TaprootImportRole.signer),
+                imageScale: 5.5,
+                height: 130,
+              ),
+              SelectableOptionCard(
+                title: t.taproot.taproot_import_screen.step4.beneficiary,
+                bottomAssetPath: 'assets/png/bitcoin-on-hand.png',
+                isSelected: viewModel.selectedRole == TaprootImportRole.beneficiary,
+                onTap: () => viewModel.setRole(TaprootImportRole.beneficiary),
+                imageScale: 3.5,
+                height: 130,
+              ),
+            ],
+          );
+        },
+      ),
+    ];
+  }
+
   void _addParentConfigurationStep() {
-    _roleSelectionStep = _addStep(
-      titleList: [
-        TextSpan(text: t.taproot.taproot_import_screen.step4.title1),
-        TextSpan(text: t.taproot.taproot_import_screen.step4.title2),
-      ],
-      bodyList: [
-        CharacterFadeInText(
-          text: t.taproot.taproot_import_screen.step4.description,
-          animationKey: 'taproot-import-body-role-description',
-          duration: const Duration(milliseconds: 700),
-          delay: const Duration(milliseconds: 1700),
-        ),
-        CoconutLayout.spacing_800h,
-        Consumer<TaprootImportViewModel>(
-          builder: (context, viewModel, child) {
-            return MenuGrid(
-              children: [
-                SelectableOptionCard(
-                  title: t.taproot.taproot_import_screen.step4.signer,
-                  bottomAssetPath: 'assets/png/single-key.png',
-                  isSelected: viewModel.selectedRole == TaprootImportRole.signer,
-                  onTap: () => viewModel.setRole(TaprootImportRole.signer),
-                  imageScale: 5.5,
-                  height: 130,
-                ),
-                SelectableOptionCard(
-                  title: t.taproot.taproot_import_screen.step4.beneficiary,
-                  bottomAssetPath: 'assets/png/bitcoin-on-hand.png',
-                  isSelected: viewModel.selectedRole == TaprootImportRole.beneficiary,
-                  onTap: () => viewModel.setRole(TaprootImportRole.beneficiary),
-                  imageScale: 3.5,
-                  height: 130,
-                ),
-              ],
-            );
-          },
-        ),
-      ],
-      nextButtonAction: _addParentWalletCheckStep,
-    );
+    _roleSelectionStep = _addStep(TaprootImportStep.roleSelection);
   }
 
   void _addParentWalletCheckStep() {
     _viewModel.setImportMode(ImportMode.enter);
-    _importWalletStep = _addEmbeddedStep(
-      Consumer<TaprootImportViewModel>(
-        builder: (context, viewModel, child) {
-          return _buildWalletImportScreen(viewModel.currentImportMode);
-        },
-      ),
-    );
+    _addEmbeddedStep(TaprootImportStep.importWallet);
   }
 
   void _addExtraWalletCheckStep(TaprootImportRole role, String targetMasterFingerprint) {
@@ -519,12 +535,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   }
 
   void _addImportResultStep() {
-    _importResultStep = _addStep(
-      titleList: [],
-      bodyList: [_buildSummaryWidget()],
-      nextButtonAction: _handleImportResultNextButton,
-      ignoreBodyHorizontalPadding: true,
-    );
+    _addStep(TaprootImportStep.importResult);
   }
 
   Future<void> _handleImportResultNextButton() async {
@@ -576,7 +587,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   Future<void> _handleBeforeBottomButtonFadeOut() async {
     final canCreateWallet =
         _viewModel.hasExtraImport ? _viewModel.isExtraImportMatched : _viewModel.isSelectedRoleMatch;
-    if (_currentStep != _importResultStep || !canCreateWallet) {
+    if (_currentStepType != TaprootImportStep.importResult || !canCreateWallet) {
       return;
     }
 
@@ -622,14 +633,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
 
   void _addTimelineStep() {
     _isTimelineAnimationCompleted = false;
-    _timelineStep = _addStep(
-      titleList: [
-        TextSpan(text: t.taproot.taproot_import_screen.step7.title1),
-        TextSpan(text: t.taproot.taproot_import_screen.step7.title2),
-      ],
-      bodyList: [_buildTimelineStepIndicator()],
-      nextButtonAction: _navigateToHome,
-    );
+    _addStep(TaprootImportStep.timeline);
   }
 
   Widget _buildTimelineStepIndicator() {
@@ -751,7 +755,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   }
 
   Future<void> _handleBottomButtonPressed() async {
-    if (_currentStep == _roleSelectionStep && _viewModel.selectedRole == TaprootImportRole.none) {
+    if (_currentStepType == TaprootImportStep.roleSelection && _viewModel.selectedRole == TaprootImportRole.none) {
       return;
     }
 
@@ -787,27 +791,15 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
 
   void _returnToRoleSelectionStepAndResetImportedData() {
     final roleSelectionStep = _roleSelectionStep;
-    if (roleSelectionStep == null || roleSelectionStep < 1 || roleSelectionStep > _titleList.length) {
+    if (roleSelectionStep == null || roleSelectionStep < 1 || roleSelectionStep > _stepHistory.length) {
       return;
     }
 
     _viewModel.resetImportedWalletData();
 
     setState(() {
-      while (_titleList.length > roleSelectionStep) {
-        final lastIndex = _titleList.length - 1;
-        _titleList.removeAt(lastIndex);
-        _bodyList.removeAt(lastIndex);
-        _nextButtonActions.removeAt(lastIndex);
-        _ignoreBodyHorizontalPaddingList.removeAt(lastIndex);
-        _pauseProgressList.removeAt(lastIndex);
-        _scrollChildList.removeAt(lastIndex);
-      }
-
+      _removeStepsAfter(roleSelectionStep);
       _currentStep = roleSelectionStep;
-      _importWalletStep = null;
-      _importResultStep = null;
-      _timelineStep = null;
       _createdTaprootVaultId = null;
       _timelineInfo = null;
       _isTimelineAnimationCompleted = false;
@@ -824,7 +816,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       return;
     }
 
-    if (_currentStep == _importResultStep && _viewModel.scannedVaultItem != null) {
+    if (_currentStepType == TaprootImportStep.importResult && _viewModel.scannedVaultItem != null) {
       _showImportResultBackDialog();
       return;
     }
@@ -838,7 +830,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   }
 
   void _returnToPreviousStep() {
-    final shouldResetExtraImport = _currentStep == _importResultStep && _viewModel.hasExtraImport;
+    final shouldResetExtraImport = _currentStepType == TaprootImportStep.importResult && _viewModel.hasExtraImport;
 
     setState(() {
       if (_currentStep <= _initialStepCount) {
@@ -847,26 +839,18 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       }
 
       final currentStepIndex = _currentStep - 1;
-      _titleList.removeAt(currentStepIndex);
-      _bodyList.removeAt(currentStepIndex);
-      _nextButtonActions.removeAt(currentStepIndex);
-      _ignoreBodyHorizontalPaddingList.removeAt(currentStepIndex);
-      _pauseProgressList.removeAt(currentStepIndex);
-      _scrollChildList.removeAt(currentStepIndex);
-      if (_currentStep == _importWalletStep) {
-        _importWalletStep = null;
-      }
-      if (_currentStep == _importResultStep) {
-        _importResultStep = null;
-      }
-      if (_currentStep == _timelineStep) {
-        _timelineStep = null;
-      }
+      _stepHistory.removeAt(currentStepIndex);
       _currentStep -= 1;
     });
 
     if (shouldResetExtraImport) {
       _viewModel.resetExtraImport();
+    }
+  }
+
+  void _removeStepsAfter(int step) {
+    while (_stepHistory.length > step) {
+      _stepHistory.removeLast();
     }
   }
 
@@ -917,15 +901,15 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
                       onBeforeBottomButtonFadeOut: _handleBeforeBottomButtonFadeOut,
                       bottomButtonText: _bottomButtonText,
                       showBottomButton: showBottomButton,
-                      ignoreChildHorizontalPadding: _ignoreBodyHorizontalPaddingList[_currentStep - 1],
+                      ignoreChildHorizontalPadding: _shouldIgnoreBodyHorizontalPadding(_currentStepType),
                       showHeader: _showHeader,
-                      scrollChild: !_isProgressPaused && _scrollChildList[_currentStep - 1],
+                      scrollChild: !_isProgressPaused && _shouldScrollChild(_currentStepType),
                       runBottomButtonActionWithoutTransition: _runBottomButtonActionWithoutTransition,
                       keepHeaderVisibleDuringTransition: _isTimelineStep,
                       child:
                           _isProgressPaused
-                              ? _bodyList[_currentStep - 1].first
-                              : Column(children: _bodyList[_currentStep - 1]),
+                              ? _getBodyList(_currentStepType).first
+                              : Column(children: _getBodyList(_currentStepType)),
                     ),
                     TopProgressBar(
                       visible: !_isProgressPaused,
