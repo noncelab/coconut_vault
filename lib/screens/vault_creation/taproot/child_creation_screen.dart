@@ -360,10 +360,18 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   Widget _buildSeedQrImportScreen(ChildCreationViewModel viewModel) {
-    return TaprootMnemonicFlowAdapter.buildSeedQrImportScreen(
-      onMnemonicConfirmationRequested: (secret, passphrase) {
-        viewModel.setSecretAndPassphrase(secret, passphrase);
-        _onChildWalletSet(viewModel);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final height = constraints.hasBoundedHeight ? constraints.maxHeight : MediaQuery.sizeOf(context).height;
+        return SizedBox(
+          height: height,
+          child: TaprootMnemonicFlowAdapter.buildSeedQrImportScreen(
+            onMnemonicConfirmationRequested: (secret, passphrase) {
+              viewModel.setSecretAndPassphrase(secret, passphrase);
+              _onChildWalletSet(viewModel);
+            },
+          ),
+        );
       },
     );
   }
