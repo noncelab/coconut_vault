@@ -1370,7 +1370,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   void _showMultisigParentExportBottomSheet() {
-    ParentCreationOverlays.showMultisigParentExportBottomSheet(context);
+    ParentCreationOverlays.showMultisigParentExportBottomSheet(context, qrData: _viewModel.parentWalletQrData);
   }
 
   Future<void> _showMultisigParentScannerBottomSheet() async {
