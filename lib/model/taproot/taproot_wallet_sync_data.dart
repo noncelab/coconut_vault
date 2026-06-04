@@ -35,12 +35,14 @@ class TaprootWalletSyncData {
       colorIndex: _readInt(decoded, VaultListItemBase.fieldColorIndex),
       iconIndex: _readInt(decoded, VaultListItemBase.fieldIconIndex),
       descriptor: descriptor,
-      keyPathExtendedPublicKeys: _readStringList(decoded, TaprootVaultListItem.fieldKeyPathSeedInfos),
-      scriptPathSeedInfos:
-          _readMapList(
-            decoded,
-            TaprootVaultListItem.fieldScriptPathSeedInfos,
-          ).map(TaprootWalletSyncScriptPathData.fromJson).toList(),
+      keyPathExtendedPublicKeys: decoded.containsKey(TaprootVaultListItem.fieldKeyPathSeedInfos)
+          ? _readStringList(decoded, TaprootVaultListItem.fieldKeyPathSeedInfos)
+          : [],
+      scriptPathSeedInfos: decoded.containsKey(TaprootVaultListItem.fieldScriptPathSeedInfos)
+          ? _readMapList(decoded, TaprootVaultListItem.fieldScriptPathSeedInfos)
+              .map(TaprootWalletSyncScriptPathData.fromJson)
+              .toList()
+          : [],
     );
   }
 
