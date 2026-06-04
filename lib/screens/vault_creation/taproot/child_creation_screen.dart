@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/taproot/taproot_wallet_sync_data.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -275,7 +276,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           child: TaprootScannerScreen(
             dataType: TaprootScannerDataType.walletSync,
             topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: _buildScannerTitle(viewModel)),
-            onWalletSyncScanned: (syncData) async {
+            onWalletSyncScanned: (TaprootWalletSyncData syncData) async {
               if (_isProcessing) return false;
 
               vibrateExtraLight();
@@ -467,9 +468,6 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       setState(() => _isProcessing = false);
       _addChildWalletQrStep(viewModel);
     } catch (e) {
-      setState(() {
-        _isProcessing = false;
-      });
       Logger.error('Failed to generate child wallet: $e');
       setState(() {
         _isProcessing = false;

@@ -79,41 +79,43 @@ void main() {
     });
   });
 
-  group('TaprootValidator.isInheritanceDescriptorChildMatched', () {
-    test('returns true when descriptor child matches generated child P2TR signer BSMS', () {
-      final fixture = _inheritanceFixture(parentCount: 2);
-      final childSignerBsms = _signerBsmsFromKeyStore(fixture.childKeyStore);
-
-      final isMatched = TaprootValidator.isInheritanceDescriptorChildMatched(
-        inheritanceDescriptor: fixture.descriptor,
-        childSignerBsms: childSignerBsms,
-      );
-
-      expect(isMatched, isTrue);
-    });
-
-    test('returns false when descriptor child does not match generated child P2TR signer BSMS', () {
-      final fixture = _inheritanceFixture(parentCount: 2);
-      final otherChildSignerBsms = _signerBsmsFromKeyStore(_randomTaprootKeyStore());
-
-      final isMatched = TaprootValidator.isInheritanceDescriptorChildMatched(
-        inheritanceDescriptor: fixture.descriptor,
-        childSignerBsms: otherChildSignerBsms,
-      );
-
-      expect(isMatched, isFalse);
-    });
-
-    test('matches child descriptor through helper', () {
+  group('TaprootValidator.isBeneficiaryMatchedByDescriptor', () {
+    test('returns true when child descriptor matches inheritance vault beneficiary', () {
       final fixture = _inheritanceFixture(parentCount: 2);
       final childDescriptor = TaprootVault.fromKeyStoreList([fixture.childKeyStore], []).descriptor;
 
-      final isMatched = TaprootValidator.isInheritanceDescriptorChildDescriptorMatched(
+      final isMatched = TaprootValidator.isBeneficiaryMatchedByDescriptor(
         inheritanceDescriptor: fixture.descriptor,
         childDescriptor: childDescriptor,
       );
 
       expect(isMatched, isTrue);
+    });
+
+    test('returns false when child descriptor does not match inheritance vault beneficiary', () {
+      final fixture = _inheritanceFixture(parentCount: 2);
+      final otherChildDescriptor = TaprootVault.fromKeyStoreList([_randomTaprootKeyStore()], []).descriptor;
+
+      final isMatched = TaprootValidator.isBeneficiaryMatchedByDescriptor(
+        inheritanceDescriptor: fixture.descriptor,
+        childDescriptor: otherChildDescriptor,
+      );
+
+      expect(isMatched, isFalse);
+    });
+
+    test('throws when child descriptor contains multiple keys', () {
+      final fixture = _inheritanceFixture(parentCount: 2);
+      final multiKeyDescriptor =
+          TaprootVault.fromKeyStoreList([_randomTaprootKeyStore(), _randomTaprootKeyStore()], []).descriptor;
+
+      expect(
+        () => TaprootValidator.isBeneficiaryMatchedByDescriptor(
+          inheritanceDescriptor: fixture.descriptor,
+          childDescriptor: multiKeyDescriptor,
+        ),
+        throwsA(isA<FormatException>()),
+      );
     });
   });
 }

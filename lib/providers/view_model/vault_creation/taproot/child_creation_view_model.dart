@@ -32,10 +32,9 @@ class ChildCreationViewModel extends ChangeNotifier {
   ChildNewKeyCreationType _newKeyCreationType = ChildNewKeyCreationType.none;
   ChildExistingKeyImportType _existingKeyImportType = ChildExistingKeyImportType.none;
   int? _existingVaultId;
-  String? _qrData;
+  String? _childDescriptor;
   String? _masterFingerprint;
   TaprootVaultListItem? _scannedVaultItem;
-  String? _scannedMasterFingerprint;
 
   ChildCreationViewModel(this._taprootProvider);
 
@@ -48,28 +47,14 @@ class ChildCreationViewModel extends ChangeNotifier {
   }
 
   bool get isBeneficiaryMatch {
-    if (_scannedVaultItem == null || _qrData == null) return false;
+    if (_scannedVaultItem == null || _childDescriptor == null) return false;
     try {
-      return TaprootValidator.isInheritanceDescriptorChildDescriptorMatched(
+      return TaprootValidator.isBeneficiaryMatchedByDescriptor(
         inheritanceDescriptor: _scannedVaultItem!.descriptor,
-        childDescriptor: _qrData!,
+        childDescriptor: _childDescriptor!,
       );
     } catch (e) {
       return false;
-    }
-  }
-
-  void setupChildWalletInfo() {
-    final secret = _taprootProvider.secret;
-    final passphrase = _taprootProvider.passphrase;
-
-    if (secret.isEmpty) return;
-
-    try {
-      final result = _generateKeyStoreAndDescriptor(secret, passphrase);
-      _setQrDataAndFingerprint(result.descriptor, result.keyStore.masterFingerprint);
-    } catch (e) {
-      Logger.error('Failed to setup child wallet info: $e');
     }
   }
 
@@ -79,9 +64,17 @@ class ChildCreationViewModel extends ChangeNotifier {
     return (keyStore: ks, descriptor: descriptor);
   }
 
-  void _setQrDataAndFingerprint(String qrData, String masterFingerprint) {
-    _qrData = qrData;
-    _masterFingerprint = masterFingerprint;
+  void setupChildWalletInfo() {
+    final secret = _taprootProvider.secret;
+    final passphrase = _taprootProvider.passphrase;
+
+    if (secret.isEmpty) {
+      throw StateError('child secret is empty');
+    }
+
+    final result = _generateKeyStoreAndDescriptor(secret, passphrase);
+    _childDescriptor = result.descriptor;
+    _masterFingerprint = result.keyStore.masterFingerprint;
     notifyListeners();
   }
 
@@ -102,14 +95,11 @@ class ChildCreationViewModel extends ChangeNotifier {
 
     if (!_validateVault(item)) {
       _scannedVaultItem = null;
-      _scannedMasterFingerprint = null;
       notifyListeners();
       return false;
     }
 
     _scannedVaultItem = item;
-    _scannedMasterFingerprint = item.owners.isNotEmpty ? item.owners.first.masterFingerprint : null;
-
     notifyListeners();
     return true;
   }
@@ -124,8 +114,10 @@ class ChildCreationViewModel extends ChangeNotifier {
     }
   }
 
+  // TODO: scannedVaultItem의 owners 사용하지 말고 최종적으로 생성된 지갑 것을 사용하기
   String get scannedParentMfps => _scannedVaultItem?.owners.map((o) => o.masterFingerprint).join(', ') ?? '000000';
 
+  // TODO: scannedVaultItem의 owners 사용하지 말고 최종적으로 생성된 지갑 것을 사용하기
   String getFormattedLockTime(String lang) {
     if (_scannedVaultItem == null || _masterFingerprint == null) return '';
 
@@ -159,10 +151,9 @@ class ChildCreationViewModel extends ChangeNotifier {
   ChildNewKeyCreationType get newKeyCreationType => _newKeyCreationType;
   ChildExistingKeyImportType get existingKeyImportType => _existingKeyImportType;
   int? get existingVaultId => _existingVaultId;
-  String? get qrData => _qrData;
+  String? get qrData => _childDescriptor;
   String? get masterFingerprint => _masterFingerprint;
   TaprootVaultListItem? get scannedVaultItem => _scannedVaultItem;
-  String? get scannedMasterFingerprint => _scannedMasterFingerprint;
   int get progressTotalStep {
     return _keyPreparationProgressStepCount +
         _keyCreationOrImportOptionProgressStepCount +
@@ -208,14 +199,14 @@ class ChildCreationViewModel extends ChangeNotifier {
   void resetChildWalletData() {
     _taprootProvider.setCreationType(TaprootCreationType.child);
     _taprootProvider.resetSecretAndPassphrase();
-    _qrData = null;
+    _childDescriptor = null;
     _masterFingerprint = null;
     notifyListeners();
   }
 
   Future<void> saveVault(WalletProvider walletProvider) async {
     try {
-      final dto = createWalletCreateDto();
+      final dto = _createWalletCreateDto();
       Logger.log('[ChildCreationViewModel] Attempting to add taproot vault: ${dto.name}');
 
       final result = await walletProvider.addTaprootVault(dto);
@@ -235,7 +226,7 @@ class ChildCreationViewModel extends ChangeNotifier {
     }
   }
 
-  TaprootWalletCreateDto createWalletCreateDto() {
+  TaprootWalletCreateDto _createWalletCreateDto() {
     final String? myMfp = _masterFingerprint?.toUpperCase();
     final TaprootVaultListItem? scannedItem = _scannedVaultItem;
 
@@ -257,8 +248,8 @@ class ChildCreationViewModel extends ChangeNotifier {
       scannedItem.name,
       scannedItem.iconIndex,
       scannedItem.colorIndex,
-      keyPathSeeds.isEmpty ? null : keyPathSeeds,
-      keyPathSignerBsmses.isEmpty ? null : keyPathSignerBsmses,
+      keyPathSeeds.isEmpty ? null : keyPathSeeds, // TODO: 저는 자식이에요에서는 항상 null
+      keyPathSignerBsmses.isEmpty ? null : keyPathSignerBsmses, // TODO: 저는 자식이에요에서는 항상 not null
       inheritanceLeaves.isEmpty ? null : inheritanceLeaves,
     );
   }

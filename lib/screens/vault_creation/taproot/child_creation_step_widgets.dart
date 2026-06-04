@@ -239,10 +239,11 @@ class ChildCreationTimelineStep extends StatelessWidget {
           ),
           status: TimelineStepStatus.upcoming,
         ),
+        // TODO: scannedVaultItem 대신 생성 완료 된 지갑을 사용하기 
         TimelineStepItem(
           title: t.taproot.child_creation_screen.step7.timeline.imported_inheritance_info,
           description:
-              '${viewModel.scannedVaultItem?.name ?? 'Name'} | ${viewModel.scannedVaultItem?.owners.length == 1 ? t.taproot.child_creation_screen.step7.timeline.single_sig_wallet : t.taproot.child_creation_screen.step7.timeline.multisig_wallet}',
+              '${viewModel.scannedVaultItem!.name} | ${viewModel.scannedVaultItem!.owners.length == 1 ? t.taproot.child_creation_screen.step7.timeline.single_sig_wallet : t.taproot.child_creation_screen.step7.timeline.multisig_wallet}',
           status: TimelineStepStatus.upcoming,
         ),
         TimelineStepItem(
