@@ -120,10 +120,7 @@ class ChildCreationViewModel extends ChangeNotifier {
     return true;
   }
 
-  bool isWalletSyncDataImported(
-    TaprootWalletSyncData syncData, {
-    ChildWalletSyncDuplicateChecker? fallbackChecker,
-  }) {
+  bool isWalletSyncDataImported(TaprootWalletSyncData syncData, {ChildWalletSyncDuplicateChecker? fallbackChecker}) {
     final checker = _isWalletSyncDescriptorImported ?? fallbackChecker;
     return checker?.call(syncData.descriptor.trim()) ?? false;
   }

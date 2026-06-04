@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/enums/wallet_export_format_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
@@ -37,7 +38,23 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
   }
 
   void onTapExportWatchOnlyWallet() {
-    _showSyncOptionBottomSheet(widget.id, context);
+    if (widget.walletType == WalletType.taproot) {
+      Navigator.pushReplacementNamed(
+        context,
+        AppRoutes.syncToWallet,
+        arguments: {
+          'id': widget.id,
+          'syncOption': SyncOption(
+            title: t.watch_only_options.coconut_wallet,
+            format: WalletExportFormatEnum.coconut,
+            iconPath: 'assets/svg/coconut_logo.svg',
+          ),
+          'walletType': widget.walletType,
+        },
+      );
+    } else {
+      _showSyncOptionBottomSheet(widget.id, context);
+    }
   }
 
   void onTapBackupWalletData() {
@@ -59,7 +76,7 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
           Navigator.pushReplacementNamed(
             context,
             AppRoutes.syncToWallet,
-            arguments: {'id': walletId, 'syncOption': syncOption},
+            arguments: {'id': walletId, 'syncOption': syncOption, 'walletType': widget.walletType},
           );
         },
       ),
