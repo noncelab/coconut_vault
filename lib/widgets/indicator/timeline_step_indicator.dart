@@ -159,28 +159,15 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
     vibrateExtraLight();
 
     if (animatingConnectorIndex != null) {
-      final nextIndex = animatingConnectorIndex + 1;
-      setState(() {
-        _animatingConnectorIndex = null;
-        _currentIndex = nextIndex >= widget.timelineStepItemList.length ? null : nextIndex;
-      });
-      if (nextIndex >= widget.timelineStepItemList.length) {
-        _notifyCompleted();
-      }
+      _completeConnectorAnimation(animatingConnectorIndex);
       return;
     }
 
     final nextIndex = currentIndex! + 1;
     setState(() {
       _completedUntilIndex = currentIndex;
-      if (nextIndex >= widget.timelineStepItemList.length) {
-        _currentIndex = null;
-        _animatingConnectorIndex = null;
-        return;
-      }
-
-      _currentIndex = nextIndex;
       _animatingConnectorIndex = null;
+      _currentIndex = nextIndex >= widget.timelineStepItemList.length ? null : nextIndex;
     });
 
     if (nextIndex >= widget.timelineStepItemList.length) {

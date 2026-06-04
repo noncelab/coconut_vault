@@ -25,7 +25,11 @@ class ChildCreationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => ChildCreationViewModel(context.read<TaprootWalletCreationProvider>()),
+      create: (context) => ChildCreationViewModel(
+        context.read<TaprootWalletCreationProvider>(),
+        isWalletSyncDescriptorImported: (descriptor) =>
+            context.read<WalletProvider>().findWalletByDescriptor(descriptor) != null,
+      ),
       child: const _ChildCreationScreenContent(),
     );
   }
@@ -68,6 +72,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   int? _scannerStep;
   GlobalKey<MnemonicViewScreenState>? _currentVaultMnemonicViewKey;
   bool _isProcessing = false;
+  bool _isSavingVault = false;
   bool _currentVaultMnemonicAuthRequested = false;
 
   @override
@@ -97,39 +102,37 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     final viewModel = context.read<ChildCreationViewModel>();
     return switch (step) {
       ChildCreationStep.intro => [
-        TextSpan(text: t.taproot.child_creation_screen.step1.title1),
-        TextSpan(text: t.taproot.child_creation_screen.step1.title2),
-      ],
+          TextSpan(text: t.taproot.child_creation_screen.step1.title1),
+          TextSpan(text: t.taproot.child_creation_screen.step1.title2),
+        ],
       ChildCreationStep.childPreparation => [
-        TextSpan(text: t.taproot.child_creation_screen.step2.title1),
-        TextSpan(text: t.taproot.child_creation_screen.step2.title2),
-      ],
-      ChildCreationStep.childCreationOption =>
-        viewModel.keyPreparationType == ChildKeyPreparationType.create
-            ? [TextSpan(text: t.taproot.child_creation_screen.step3.title_new)]
-            : [TextSpan(text: t.taproot.child_creation_screen.step3.title_existing)],
+          TextSpan(text: t.taproot.child_creation_screen.step2.title1),
+          TextSpan(text: t.taproot.child_creation_screen.step2.title2),
+        ],
+      ChildCreationStep.childCreationOption => viewModel.keyPreparationType == ChildKeyPreparationType.create
+          ? [TextSpan(text: t.taproot.child_creation_screen.step3.title_new)]
+          : [TextSpan(text: t.taproot.child_creation_screen.step3.title_existing)],
       ChildCreationStep.currentVaultSelection => [
-        TextSpan(text: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_title_1),
-        TextSpan(text: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_title_2),
-      ],
+          TextSpan(text: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_title_1),
+          TextSpan(text: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_title_2),
+        ],
       ChildCreationStep.childWalletQr => [
-        TextSpan(text: t.taproot.child_creation_screen.step4.title1),
-        TextSpan(text: t.taproot.child_creation_screen.step4.title2, style: CoconutTypography.body1_16),
-        TextSpan(text: t.taproot.child_creation_screen.step4.title3, style: CoconutTypography.body1_16),
-      ],
-      ChildCreationStep.summary =>
-        viewModel.isBeneficiaryMatch
-            ? [TextSpan(text: t.taproot.child_creation_screen.step6.title1)]
-            : [
+          TextSpan(text: t.taproot.child_creation_screen.step4.title1),
+          TextSpan(text: t.taproot.child_creation_screen.step4.title2, style: CoconutTypography.body1_16),
+          TextSpan(text: t.taproot.child_creation_screen.step4.title3, style: CoconutTypography.body1_16),
+        ],
+      ChildCreationStep.summary => viewModel.isBeneficiaryMatch
+          ? [TextSpan(text: t.taproot.child_creation_screen.step6.title1)]
+          : [
               TextSpan(
                 text: t.taproot.child_creation_screen.step6.title2,
                 style: const TextStyle(color: CoconutColors.hotPink),
               ),
             ],
       ChildCreationStep.timeline => [
-        TextSpan(text: t.taproot.child_creation_screen.step7.title1),
-        TextSpan(text: t.taproot.child_creation_screen.step7.title2),
-      ],
+          TextSpan(text: t.taproot.child_creation_screen.step7.title1),
+          TextSpan(text: t.taproot.child_creation_screen.step7.title2),
+        ],
       _ => const [],
     };
   }
@@ -140,8 +143,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       ChildCreationStep.childPreparation => [_buildChildPreparationStep(viewModel)],
       ChildCreationStep.childCreationOption => [_buildChildCreationOptionStep(viewModel)],
       ChildCreationStep.securitySelfCheck => [
-        SecuritySelfCheckScreen(isEmbedded: true, onNextPressed: () => _addFirstEmbeddedScreenForCreation(viewModel)),
-      ],
+          SecuritySelfCheckScreen(isEmbedded: true, onNextPressed: () => _addFirstEmbeddedScreenForCreation(viewModel)),
+        ],
       ChildCreationStep.mnemonicCreation => [_buildMnemonicCreationScreen(viewModel)],
       ChildCreationStep.mnemonicImport => [_buildMnemonicImportScreen()],
       ChildCreationStep.seedQrImport => [_buildSeedQrImportScreen(viewModel)],
@@ -164,9 +167,9 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       ChildCreationStep.childPreparation => _addChildCreationOptionStep,
       ChildCreationStep.childCreationOption => _onChildCreationOptionSelected,
       ChildCreationStep.currentVaultSelection => () {
-        setState(() => _isProcessing = true);
-        _onCurrentVaultSelected(viewModel);
-      },
+          setState(() => _isProcessing = true);
+          _onCurrentVaultSelected(viewModel);
+        },
       ChildCreationStep.childWalletQr => () => _addScannerStep(viewModel),
       ChildCreationStep.summary =>
         viewModel.isBeneficiaryMatch ? () => _addTimelineStep(viewModel) : _handleBackPressed,
@@ -186,10 +189,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     return switch (_currentStepType) {
       ChildCreationStep.childPreparation => viewModel.keyPreparationType != ChildKeyPreparationType.none,
       ChildCreationStep.childCreationOption => switch (viewModel.keyPreparationType) {
-        ChildKeyPreparationType.create => viewModel.newKeyCreationType != ChildNewKeyCreationType.none,
-        ChildKeyPreparationType.import => viewModel.existingKeyImportType != ChildExistingKeyImportType.none,
-        ChildKeyPreparationType.none => false,
-      },
+          ChildKeyPreparationType.create => viewModel.newKeyCreationType != ChildNewKeyCreationType.none,
+          ChildKeyPreparationType.import => viewModel.existingKeyImportType != ChildExistingKeyImportType.none,
+          ChildKeyPreparationType.none => false,
+        },
       ChildCreationStep.currentVaultSelection => viewModel.existingVaultId != null,
       _ => true,
     };
@@ -224,7 +227,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       ChildCreationStep.mnemonicConfirmation ||
       ChildCreationStep.importedMnemonicConfirmation ||
       ChildCreationStep.mnemonicVerify ||
-      ChildCreationStep.verifiedMnemonicConfirmation => true,
+      ChildCreationStep.verifiedMnemonicConfirmation =>
+        true,
       _ => false,
     };
   }
@@ -240,7 +244,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       ChildCreationStep.importedMnemonicConfirmation ||
       ChildCreationStep.mnemonicVerify ||
       ChildCreationStep.verifiedMnemonicConfirmation ||
-      ChildCreationStep.scanner => true,
+      ChildCreationStep.scanner =>
+        true,
       _ => false,
     };
   }
@@ -279,6 +284,16 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
               if (_isProcessing) return false;
 
               vibrateExtraLight();
+
+              final isDuplicateWallet = viewModel.isWalletSyncDataImported(
+                syncData,
+                fallbackChecker: (descriptor) =>
+                    context.read<WalletProvider>().findWalletByDescriptor(descriptor) != null,
+              );
+              if (isDuplicateWallet) {
+                await ChildCreationOverlays.showDuplicateWalletDialog(context);
+                return false;
+              }
 
               final bool isValid = viewModel.setScannedTaprootVault(syncData);
               if (!isValid) {
@@ -524,11 +539,19 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   Future<void> _saveVaultAndExit(ChildCreationViewModel viewModel) async {
     vibrateExtraLight();
 
-    setState(() => _isProcessing = true);
+    setState(() {
+      _isProcessing = true;
+      _isSavingVault = true;
+    });
     try {
       await viewModel.saveVault(context.read<WalletProvider>());
     } finally {
-      if (mounted) setState(() => _isProcessing = false);
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+          _isSavingVault = false;
+        });
+      }
     }
 
     if (!mounted) return;
@@ -756,6 +779,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   Widget build(BuildContext context) {
     final viewModel = context.watch<ChildCreationViewModel>();
     final isScannerStep = _currentStepType == ChildCreationStep.scanner;
+    final isSeedQrImportStep = _currentStepType == ChildCreationStep.seedQrImport;
     final bool showScanButton = _currentStepType == ChildCreationStep.mnemonicImport;
     final bool showTypeButton = _currentStepType == ChildCreationStep.seedQrImport;
 
@@ -798,30 +822,36 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           ],
         ),
         body: SafeArea(
-          child: Stack(
-            children: [
-              TaprootCreationBody(
-                key: ValueKey(_currentStep),
-                titleLines: _titleLines(),
-                showBottomButton: _showBottomButton(viewModel),
-                bottomButtonText:
-                    _isSummaryStep && !viewModel.isBeneficiaryMatch ? t.rescan : (_isTimelineStep ? t.complete : null),
-                ignoreChildHorizontalPadding: _shouldIgnoreBodyHorizontalPadding(_currentStepType),
-                showHeader: !_isProgressPaused && !isScannerStep && !(_isSummaryStep && !viewModel.isBeneficiaryMatch),
-                scrollChild: !_isProgressPaused && _shouldScrollChild(_currentStepType),
-                onBottomButtonPressed: () => _onNextPressed(viewModel),
-                child:
-                    _isProgressPaused
-                        ? _getBodyList(_currentStepType, viewModel).first
-                        : Column(children: _getBodyList(_currentStepType, viewModel)),
-              ),
-              TopProgressBar(
-                visible: !_isProgressPaused,
-                total: viewModel.progressTotalStep,
-                current: _progressCurrentStep(viewModel),
-              ),
-            ],
-          ),
+          child: isSeedQrImportStep
+              ? _buildSeedQrImportScreen(viewModel)
+              : Stack(
+                  children: [
+                    TaprootCreationBody(
+                      key: ValueKey(_currentStep),
+                      titleLines: _titleLines(),
+                      showBottomButton: _showBottomButton(viewModel),
+                      bottomButtonText: _isSummaryStep && !viewModel.isBeneficiaryMatch
+                          ? t.rescan
+                          : (_isTimelineStep ? t.complete : null),
+                      ignoreChildHorizontalPadding: _shouldIgnoreBodyHorizontalPadding(_currentStepType),
+                      showHeader:
+                          !_isProgressPaused && !isScannerStep && !(_isSummaryStep && !viewModel.isBeneficiaryMatch),
+                      scrollChild: !_isProgressPaused && _shouldScrollChild(_currentStepType),
+                      onBottomButtonPressed: () => _onNextPressed(viewModel),
+                      runBottomButtonActionWithoutTransition: _isTimelineStep,
+                      child: _isProgressPaused
+                          ? _getBodyList(_currentStepType, viewModel).first
+                          : Column(children: _getBodyList(_currentStepType, viewModel)),
+                    ),
+                    TopProgressBar(
+                      visible: !_isProgressPaused,
+                      total: viewModel.progressTotalStep,
+                      current: _progressCurrentStep(viewModel),
+                    ),
+                    if (_isSavingVault)
+                      const Positioned.fill(child: AbsorbPointer(child: Center(child: CoconutCircularIndicator()))),
+                  ],
+                ),
         ),
       ),
     );

@@ -224,6 +224,7 @@ class ChildCreationTimelineStep extends StatelessWidget {
     final dateString = viewModel.getFormattedLockTime(lang);
 
     return TimelineStepIndicator(
+      enableTapToSkip: true,
       timelineStepItemList: [
         TimelineStepItem(
           title: t.taproot.child_creation_screen.step7.timeline.created_wallet,
