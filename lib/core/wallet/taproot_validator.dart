@@ -87,6 +87,12 @@ class TaprootValidator {
       throw FormatException('Invalid Taproot inheritance beneficiary count: $beneficiaryCount');
     }
 
+    final keyPathXpubs = vault.keyStoreList.map(_extendedPublicKeyFromKeyStore).toSet();
+    final beneficiaryXpubs = _beneficiaryExtendedPublicKeysFromVault(vault);
+    if (keyPathXpubs.intersection(beneficiaryXpubs).isNotEmpty) {
+      throw const FormatException('KeyPath and inheritance leaf must not use the same key');
+    }
+
     return vault;
   }
 
