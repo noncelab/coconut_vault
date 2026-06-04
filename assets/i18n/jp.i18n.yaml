@@ -549,6 +549,9 @@ taproot:
     wallet_type: "ウォレット種類"
     taproot_single_sig_wallet: "Taprootシングルシグウォレット"
     mfp: "MFP"
+  sync_qr_screen:
+    title: "다른 볼트와 공유"
+    description: "다른 볼트에서 이 지갑을 사용할 수 있도록 공유합니다."
   taproot_creation_option:
     parent_creation_title: "私は親です"
     parent_creation_description: "自分のウォレットに相続条件を設定します"

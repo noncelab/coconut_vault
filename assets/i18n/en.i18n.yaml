@@ -550,6 +550,9 @@ taproot:
     wallet_type: "Wallet type"
     taproot_single_sig_wallet: "Taproot Single Signature Wallet"
     mfp: "MFP"
+  sync_qr_screen:
+    title: "Share with Other Vaults"
+    description: "Share this wallet so it can be used on other vaults."
   taproot_creation_option:
     parent_creation_title: "I am a parent"
     parent_creation_description: "I'll set up inheritance conditions for my wallet"

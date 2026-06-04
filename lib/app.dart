@@ -64,6 +64,7 @@ import 'package:coconut_vault/screens/wallet_info/multisig_wallet_info_screen.da
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_verification_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/signer_bsms_qr_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/sync_to_wallet_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/taproot_sync_qr_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_wallet_info_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/taproot_wallet_info_screen.dart';
 import 'package:coconut_vault/widgets/overlays/signing_mode_edge_panel.dart';
@@ -522,6 +523,9 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               context,
                               (args) => TaprootWalletInfoScreen(id: args['id'], entryPoint: args['entryPoint']),
                             ),
+                        AppRoutes.taprootSyncView:
+                            (context) =>
+                                buildScreenWithArguments(context, (args) => TaprootSyncQrScreen(id: args['id'])),
                         AppRoutes.multisigBsmsView:
                             (context) =>
                                 buildScreenWithArguments(context, (args) => CoordinatorBsmsQrScreen(id: args['id'])),

@@ -31,7 +31,9 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
   }
 
   void onTapShareWithOtherVault() {
-    Navigator.pushReplacementNamed(context, AppRoutes.multisigBsmsView, arguments: {'id': widget.id});
+    final route = widget.walletType == WalletType.taproot ? AppRoutes.taprootSyncView : AppRoutes.multisigBsmsView;
+
+    Navigator.pushReplacementNamed(context, route, arguments: {'id': widget.id});
   }
 
   void onTapExportWatchOnlyWallet() {
@@ -76,8 +78,15 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  if (widget.walletType == WalletType.taproot) ...[
+                    _buildOption(
+                      t.taproot.sync_qr_screen.title,
+                      t.taproot.sync_qr_screen.description,
+                      onTapShareWithOtherVault,
+                      true,
+                    ),
+                  ],
                   if (widget.walletType == WalletType.multiSignature) ...[
-                    // 다른 볼트와 공유하기 (멀티시그)
                     _buildOption(
                       t.multi_sig_setting_screen.export_menu.share_bsms,
                       t.multi_sig_setting_screen.export_menu.share_bsms_description,
