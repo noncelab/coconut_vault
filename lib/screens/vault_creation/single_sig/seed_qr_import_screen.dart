@@ -58,7 +58,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     super.initState();
     _appLifecycleStateProvider = Provider.of<AppLifecycleStateProvider>(context, listen: false);
     controller = MobileScannerController(
-      detectionSpeed: DetectionSpeed.noDuplicates,
+      detectionSpeed: DetectionSpeed.normal,
       cameraResolution: const Size(1280, 720),
     );
     _requestCameraPermission();
@@ -148,36 +148,33 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     return widget.isEmbedded
         ? body
         : Scaffold(
+          backgroundColor: CoconutColors.white,
+          appBar: CoconutAppBar.build(
+            context: context,
+            title: t.seed_qr_import_screen.title,
             backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.build(
-              context: context,
-              title: t.seed_qr_import_screen.title,
-              backgroundColor: CoconutColors.white,
-              actionButtonList: [
-                IconButton(
-                  icon: SvgPicture.asset(
-                    'assets/svg/arrow-reload.svg',
-                    width: 20,
-                    height: 20,
-                    colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
-                  ),
-                  color: CoconutColors.black,
-                  onPressed: () {
-                    controller.switchCamera();
-                  },
+            actionButtonList: [
+              IconButton(
+                icon: SvgPicture.asset(
+                  'assets/svg/arrow-reload.svg',
+                  width: 20,
+                  height: 20,
+                  colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
                 ),
-              ],
-            ),
-            body: body,
-          );
+                color: CoconutColors.black,
+                onPressed: () {
+                  controller.switchCamera();
+                },
+              ),
+            ],
+          ),
+          body: body,
+        );
   }
 
   Widget _buildQrView(BuildContext context) {
     return Stack(
-      children: [
-        MobileScanner(controller: controller, onDetect: _onBarcodeDetected),
-        const ScannerOverlay(),
-      ],
+      children: [MobileScanner(controller: controller, onDetect: _onBarcodeDetected), const ScannerOverlay()],
     );
   }
 
@@ -220,15 +217,16 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
       if (!mounted) return;
       await showDialog(
         context: context,
-        builder: (context) => CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
-          title: t.seed_qr_import_screen.format_error_title,
-          description: t.seed_qr_import_screen.format_error_message,
-          rightButtonText: t.close,
-          onTapRight: () {
-            Navigator.pop(context);
-          },
-        ),
+        builder:
+            (context) => CoconutPopup(
+              languageCode: context.read<VisibilityProvider>().language,
+              title: t.seed_qr_import_screen.format_error_title,
+              description: t.seed_qr_import_screen.format_error_message,
+              rightButtonText: t.close,
+              onTapRight: () {
+                Navigator.pop(context);
+              },
+            ),
       );
       _isProcessing = false;
       return;
@@ -246,15 +244,16 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SeedQrConfirmationScreen(
-          scannedData: utf8.encode(scannedWords.join(' ')),
-          externalSigner: widget.externalSigner,
-          multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
-          isTaproot: widget.isTaproot,
-          requirePassphraseConfirmation: widget.requirePassphraseConfirmation,
-          onCompleted: widget.onCompleted,
-          onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
-        ),
+        builder:
+            (context) => SeedQrConfirmationScreen(
+              scannedData: utf8.encode(scannedWords.join(' ')),
+              externalSigner: widget.externalSigner,
+              multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
+              isTaproot: widget.isTaproot,
+              requirePassphraseConfirmation: widget.requirePassphraseConfirmation,
+              onCompleted: widget.onCompleted,
+              onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
+            ),
       ),
     ).then((result) {
       if (result == true && widget.isTaproot && mounted) {

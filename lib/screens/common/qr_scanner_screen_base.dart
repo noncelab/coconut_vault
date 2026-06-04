@@ -149,8 +149,8 @@ abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
     // });
 
     controller = MobileScannerController(
-      // 1. 중복 인식 방지
-      detectionSpeed: DetectionSpeed.noDuplicates,
+      // scanWindow 경계에서 먼저 감지된 동일 QR도 영역 안으로 들어온 뒤 다시 처리될 수 있어야 합니다.
+      detectionSpeed: DetectionSpeed.normal,
       // 2. 해상도를 HD급 이상으로 설정
       cameraResolution: const Size(1280, 720),
     )..addListener(_onCameraStateChanged);
@@ -208,10 +208,11 @@ abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
         final Size layoutSize = constraints.biggest;
         // ScannerOverlay와 동일한 크기의 정사각형 스캔 영역 계산
         final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context, tooltipTextSpan: tooltipTextSpan);
-        final Rect? scanWindow =
-            topGuideWidget == null
-                ? Rect.fromCenter(center: layoutSize.center(Offset.zero), width: scanAreaSize, height: scanAreaSize)
-                : null;
+        final scanWindow = Rect.fromCenter(
+          center: layoutSize.center(Offset.zero),
+          width: scanAreaSize,
+          height: scanAreaSize,
+        );
 
         return Stack(
           children: [
@@ -237,7 +238,7 @@ abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
                 return Center(child: Text(error.errorCode.message));
               },
             ),
-            ScannerOverlay(tooltipTextSpan: tooltipTextSpan),
+            ScannerOverlay(tooltipTextSpan: tooltipTextSpan, scanWindow: scanWindow),
             _buildProgressOverlay(context, tooltipTextSpan: tooltipTextSpan),
             topGuideWidget ??
                 CustomTooltip.buildInfoTooltip(
