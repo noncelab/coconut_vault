@@ -24,6 +24,17 @@ class ChildCreationOverlays {
     );
   }
 
+  static Future<void> showDuplicateWalletDialog(BuildContext context) {
+    final step2 = t.taproot.taproot_import_screen.step2;
+
+    return TaprootCreationOverlays.showInfoDialog(
+      context: context,
+      title: step2.duplicate_wallet_title,
+      description: step2.duplicate_wallet_description,
+      rightButtonText: t.confirm,
+    );
+  }
+
   static Future<void> showDeviceAuthDialog({
     required BuildContext context,
     required void Function(BuildContext dialogContext) onConfirm,

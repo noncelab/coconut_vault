@@ -16,6 +16,8 @@ enum ChildNewKeyCreationType { none, coinFlip, diceRoll, autoGenerate }
 
 enum ChildExistingKeyImportType { none, currentVault, mnemonicInput, seedQrScan }
 
+typedef ChildWalletSyncDuplicateChecker = bool Function(String descriptor);
+
 class ChildCreationViewModel extends ChangeNotifier {
   static const int _initialProgressExcludedStepCount = 1;
   static const int _keyPreparationProgressStepCount = 1;
@@ -27,6 +29,7 @@ class ChildCreationViewModel extends ChangeNotifier {
   static const int _timelineProgressStepCount = 1;
 
   final TaprootWalletCreationProvider _taprootProvider;
+  final ChildWalletSyncDuplicateChecker? _isWalletSyncDescriptorImported;
 
   ChildKeyPreparationType _keyPreparationType = ChildKeyPreparationType.none;
   ChildNewKeyCreationType _newKeyCreationType = ChildNewKeyCreationType.none;
@@ -37,7 +40,10 @@ class ChildCreationViewModel extends ChangeNotifier {
   TaprootVaultListItem? _scannedVaultItem;
   String? _scannedMasterFingerprint;
 
-  ChildCreationViewModel(this._taprootProvider);
+  ChildCreationViewModel(
+    this._taprootProvider, {
+    required ChildWalletSyncDuplicateChecker isWalletSyncDescriptorImported,
+  }) : _isWalletSyncDescriptorImported = isWalletSyncDescriptorImported;
 
   void setCreationTypeToChild() {
     _taprootProvider.setCreationType(TaprootCreationType.child);
@@ -112,6 +118,14 @@ class ChildCreationViewModel extends ChangeNotifier {
 
     notifyListeners();
     return true;
+  }
+
+  bool isWalletSyncDataImported(
+    TaprootWalletSyncData syncData, {
+    ChildWalletSyncDuplicateChecker? fallbackChecker,
+  }) {
+    final checker = _isWalletSyncDescriptorImported ?? fallbackChecker;
+    return checker?.call(syncData.descriptor.trim()) ?? false;
   }
 
   bool _validateVault(TaprootVaultListItem item) {
