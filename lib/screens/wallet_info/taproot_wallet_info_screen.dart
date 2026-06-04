@@ -120,14 +120,15 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
         participants: localParticipants,
         title: t.verify_passphrase,
         onSelected: (xpub) => _navigateToVerification(xpub),
+        checkPassphrase: true,
       );
     } else if (localParticipants.isNotEmpty) {
       _navigateToVerification(localParticipants.first.xpub);
     }
   }
 
-  List<({String name, String xpub})> _getLocalParticipants(TaprootVaultListItem vault) {
-    final List<({String name, String xpub})> participants = [];
+  List<({String name, String xpub, bool hasPassphrase})> _getLocalParticipants(TaprootVaultListItem vault) {
+    final List<({String name, String xpub, bool hasPassphrase})> participants = [];
 
     for (int i = 0; i < vault.owners.length; i++) {
       if (vault.owners[i].isSeedStored) {
@@ -135,14 +136,22 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
             vault.owners.length == 1
                 ? t.taproot.parent_wallet
                 : '${t.taproot.parent_wallet} ${String.fromCharCode(65 + i)}';
-        participants.add((name: name, xpub: vault.owners[i].extendedPublicKey));
+        participants.add((
+          name: name,
+          xpub: vault.owners[i].extendedPublicKey,
+          hasPassphrase: vault.owners[i].isPassphraseSet,
+        ));
       }
     }
 
     for (int i = 0; i < vault.beneficiaries.length; i++) {
       if (vault.beneficiaries[i].isSeedStored) {
         final name = vault.beneficiaries.length == 1 ? t.taproot.child_wallet : '${t.taproot.child_wallet} ${i + 1}';
-        participants.add((name: name, xpub: vault.beneficiaries[i].extendedPublicKey));
+        participants.add((
+          name: name,
+          xpub: vault.beneficiaries[i].extendedPublicKey,
+          hasPassphrase: vault.beneficiaries[i].isPassphraseSet,
+        ));
       }
     }
     return participants;
@@ -172,9 +181,10 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
   }
 
   void _showParticipantSelectionSheet({
-    required List<({String name, String xpub})> participants,
+    required List<({String name, String xpub, bool hasPassphrase})> participants,
     required String title,
     required Function(String xpub) onSelected,
+    bool checkPassphrase = false,
   }) {
     MyBottomSheet.showBottomSheet_90(
       context: context,
@@ -192,10 +202,14 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
                     participants.map((p) {
                       return CoconutButton(
                         text: p.name,
-                        onPressed: () {
-                          Navigator.pop(context);
-                          onSelected(p.xpub);
-                        },
+                        isActive: !checkPassphrase || p.hasPassphrase,
+                        onPressed:
+                            (!checkPassphrase || p.hasPassphrase)
+                                ? () {
+                                  Navigator.pop(context);
+                                  onSelected(p.xpub);
+                                }
+                                : () {},
                       );
                     }).toList(),
               ),
