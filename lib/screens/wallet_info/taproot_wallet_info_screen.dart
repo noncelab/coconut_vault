@@ -9,6 +9,8 @@ import 'package:coconut_vault/providers/view_model/wallet_info/wallet_info_view_
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
+import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
@@ -16,7 +18,6 @@ import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_participant_card.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_setup_summary_card.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_vault_item_card.dart';
-import 'package:coconut_vault/screens/common/menu_grid.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -117,7 +118,7 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
 
     if (localParticipants.length > 1) {
       _showParticipantSelectionSheet(
-        participants: localParticipants,
+        vault: vault,
         title: t.verify_passphrase,
         onSelected: (xpub) => _navigateToVerification(xpub),
         checkPassphrase: true,
@@ -162,7 +163,7 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
 
     if (localParticipants.length > 1) {
       _showParticipantSelectionSheet(
-        participants: localParticipants,
+        vault: vault,
         title: t.view_mnemonic,
         onSelected: (xpub) => _handleMnemonicViewAuth(xpub, viewModel),
       );
@@ -181,37 +182,110 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
   }
 
   void _showParticipantSelectionSheet({
-    required List<({String name, String xpub, bool hasPassphrase})> participants,
+    required TaprootVaultListItem vault,
     required String title,
     required Function(String xpub) onSelected,
     bool checkPassphrase = false,
   }) {
-    MyBottomSheet.showBottomSheet_90(
+    final owners = <({String name, String xpub, bool hasPassphrase, bool isParent})>[];
+    for (int i = 0; i < vault.owners.length; i++) {
+      if (vault.owners[i].isSeedStored) {
+        final name =
+            vault.owners.length == 1
+                ? t.taproot.parent_wallet
+                : '${t.taproot.parent_wallet} ${String.fromCharCode(65 + i)}';
+        owners.add((
+          name: name,
+          xpub: vault.owners[i].extendedPublicKey,
+          hasPassphrase: vault.owners[i].isPassphraseSet,
+          isParent: true,
+        ));
+      }
+    }
+
+    final beneficiaries = <({String name, String xpub, bool hasPassphrase, bool isParent})>[];
+    for (int i = 0; i < vault.beneficiaries.length; i++) {
+      if (vault.beneficiaries[i].isSeedStored) {
+        final name = vault.beneficiaries.length == 1 ? t.taproot.child_wallet : '${t.taproot.child_wallet} ${i + 1}';
+        beneficiaries.add((
+          name: name,
+          xpub: vault.beneficiaries[i].extendedPublicKey,
+          hasPassphrase: vault.beneficiaries[i].isPassphraseSet,
+          isParent: false,
+        ));
+      }
+    }
+
+    MyBottomSheet.showDraggableBottomSheet(
       context: context,
-      child: CoconutBottomSheet(
-        useIntrinsicHeight: true,
-        appBar: CoconutAppBar.build(context: context, title: title, isBottom: true),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+      title: title,
+      childBuilder:
+          (scrollController) => SelectVaultBottomSheet(
+            scrollController: scrollController,
             children: [
+              if (owners.isNotEmpty) ...owners.map((p) => _buildSelectionItem(p, vault, onSelected, checkPassphrase)),
+              if (beneficiaries.isNotEmpty)
+                ...beneficiaries.map((p) => _buildSelectionItem(p, vault, onSelected, checkPassphrase)),
               CoconutLayout.spacing_400h,
-              MenuGrid(
-                children:
-                    participants.map((p) {
-                      return CoconutButton(
-                        text: p.name,
-                        isActive: !checkPassphrase || p.hasPassphrase,
-                        onPressed:
-                            (!checkPassphrase || p.hasPassphrase)
-                                ? () {
-                                  Navigator.pop(context);
-                                  onSelected(p.xpub);
-                                }
-                                : () {},
-                      );
-                    }).toList(),
+            ],
+          ),
+    );
+  }
+
+  Widget _buildSelectionItem(
+    ({String name, String xpub, bool hasPassphrase, bool isParent}) p,
+    TaprootVaultListItem vault,
+    Function(String xpub) onSelected,
+    bool checkPassphrase,
+  ) {
+    final baseColors = [CoconutColors.lightSky.withValues(alpha: 0.2), CoconutColors.periwinkle.withValues(alpha: 0.2)];
+    final taprootGradientColors = p.isParent ? baseColors.reversed.toList() : baseColors;
+    final isActive = !checkPassphrase || p.hasPassphrase;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: ShrinkAnimationButton(
+        pressedColor: CoconutColors.gray150,
+        borderRadius: 8,
+        isActive: isActive,
+        onPressed: () {
+          Navigator.pop(context);
+          onSelected(p.xpub);
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: CoconutColors.gray200, width: 1),
+            gradient: LinearGradient(
+              colors: taprootGradientColors,
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: Row(
+            children: [
+              SvgPicture.asset(p.isParent ? 'assets/svg/parent.svg' : 'assets/svg/child.svg', width: 30, height: 30),
+              CoconutLayout.spacing_200w,
+              Expanded(
+                child: Text(
+                  p.name,
+                  style: CoconutTypography.body2_14_Bold.setColor(
+                    isActive ? CoconutColors.black : CoconutColors.gray400,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              CoconutLayout.spacing_200w,
+              SvgPicture.asset(
+                'assets/svg/chevron-right.svg',
+                width: 6,
+                height: 10,
+                colorFilter: ColorFilter.mode(
+                  isActive ? CoconutColors.gray800 : CoconutColors.gray300,
+                  BlendMode.srcIn,
+                ),
               ),
             ],
           ),
