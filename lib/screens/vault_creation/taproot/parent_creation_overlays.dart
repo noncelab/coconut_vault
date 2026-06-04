@@ -102,7 +102,7 @@ class ParentCreationOverlays {
     );
   }
 
-  static void showMultisigParentExportBottomSheet(BuildContext context) {
+  static void showMultisigParentExportBottomSheet(BuildContext context, {required String? qrData}) {
     MyBottomSheet.showBottomSheet_ratio(
       context: context,
       ratio: 0.8,
@@ -119,7 +119,7 @@ class ParentCreationOverlays {
               textAlign: TextAlign.center,
             ),
             CoconutLayout.spacing_2100h,
-            const ParentMultisigParentExportQr(),
+            ParentMultisigParentExportQr(qrData: qrData),
           ],
         ),
       ),
@@ -140,9 +140,16 @@ class ParentCreationOverlays {
       physics: const ClampingScrollPhysics(),
       enableSingleChildScroll: false,
       hideAppBar: true,
-      child: TaprootScannerScreen(
-        useCloseButton: true,
-        topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
+      child: Scaffold(
+        appBar: CoconutAppBar.build(
+          context: context,
+          backgroundColor: Colors.transparent,
+          title: t.taproot.parent_creation_screen.title,
+        ),
+        body: TaprootScannerScreen(
+          useCloseButton: true,
+          topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
+        ),
       ),
     );
   }
