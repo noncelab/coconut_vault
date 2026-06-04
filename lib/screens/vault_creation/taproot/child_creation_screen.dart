@@ -25,7 +25,12 @@ class ChildCreationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => ChildCreationViewModel(context.read<TaprootWalletCreationProvider>()),
+      create:
+          (context) => ChildCreationViewModel(
+            context.read<TaprootWalletCreationProvider>(),
+            isWalletSyncDescriptorImported:
+                (descriptor) => context.read<WalletProvider>().findWalletByDescriptor(descriptor) != null,
+          ),
       child: const _ChildCreationScreenContent(),
     );
   }
@@ -68,6 +73,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   int? _scannerStep;
   GlobalKey<MnemonicViewScreenState>? _currentVaultMnemonicViewKey;
   bool _isProcessing = false;
+  bool _isSavingVault = false;
   bool _currentVaultMnemonicAuthRequested = false;
 
   @override
@@ -145,7 +151,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       ChildCreationStep.mnemonicCreation => [_buildMnemonicCreationScreen(viewModel)],
       ChildCreationStep.mnemonicImport => [_buildMnemonicImportScreen()],
       ChildCreationStep.seedQrImport => [_buildSeedQrImportScreen(viewModel)],
-      ChildCreationStep.currentVaultSelection => [_buildExistingVaultSelectionBody(viewModel)],
+      ChildCreationStep.currentVaultSelection => [Expanded(child: _buildExistingVaultSelectionBody(viewModel))],
       ChildCreationStep.currentVaultMnemonicView => [_buildCurrentVaultMnemonicViewBody(viewModel)],
       ChildCreationStep.mnemonicConfirmation => [_buildMnemonicConfirmationBody(viewModel)],
       ChildCreationStep.importedMnemonicConfirmation => [_buildImportedMnemonicConfirmationBody(viewModel)],
@@ -204,6 +210,13 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   bool get _isSummaryStep => _currentStepType == ChildCreationStep.summary;
 
   bool get _isTimelineStep => _currentStepType == ChildCreationStep.timeline;
+
+  bool _runBottomButtonActionWithoutTransition(ChildCreationViewModel viewModel) {
+    return _isTimelineStep ||
+        _currentStepType == ChildCreationStep.currentVaultSelection ||
+        (_currentStepType == ChildCreationStep.childCreationOption &&
+            viewModel.keyPreparationType == ChildKeyPreparationType.import);
+  }
 
   int _progressCurrentStep(ChildCreationViewModel viewModel) {
     return (_stepHistory.take(_currentStep).where((step) => !_shouldPauseProgress(step)).length -
@@ -279,6 +292,16 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
               if (_isProcessing) return false;
 
               vibrateExtraLight();
+
+              final isDuplicateWallet = viewModel.isWalletSyncDataImported(
+                syncData,
+                fallbackChecker:
+                    (descriptor) => context.read<WalletProvider>().findWalletByDescriptor(descriptor) != null,
+              );
+              if (isDuplicateWallet) {
+                await ChildCreationOverlays.showDuplicateWalletDialog(context);
+                return false;
+              }
 
               final bool isValid = viewModel.setScannedTaprootVault(syncData);
               if (!isValid) {
@@ -524,11 +547,19 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   Future<void> _saveVaultAndExit(ChildCreationViewModel viewModel) async {
     vibrateExtraLight();
 
-    setState(() => _isProcessing = true);
+    setState(() {
+      _isProcessing = true;
+      _isSavingVault = true;
+    });
     try {
       await viewModel.saveVault(context.read<WalletProvider>());
     } finally {
-      if (mounted) setState(() => _isProcessing = false);
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+          _isSavingVault = false;
+        });
+      }
     }
 
     if (!mounted) return;
@@ -756,6 +787,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   Widget build(BuildContext context) {
     final viewModel = context.watch<ChildCreationViewModel>();
     final isScannerStep = _currentStepType == ChildCreationStep.scanner;
+    final isSeedQrImportStep = _currentStepType == ChildCreationStep.seedQrImport;
     final bool showScanButton = _currentStepType == ChildCreationStep.mnemonicImport;
     final bool showTypeButton = _currentStepType == ChildCreationStep.seedQrImport;
 
@@ -798,30 +830,39 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           ],
         ),
         body: SafeArea(
-          child: Stack(
-            children: [
-              TaprootCreationBody(
-                key: ValueKey(_currentStep),
-                titleLines: _titleLines(),
-                showBottomButton: _showBottomButton(viewModel),
-                bottomButtonText:
-                    _isSummaryStep && !viewModel.isBeneficiaryMatch ? t.rescan : (_isTimelineStep ? t.complete : null),
-                ignoreChildHorizontalPadding: _shouldIgnoreBodyHorizontalPadding(_currentStepType),
-                showHeader: !_isProgressPaused && !isScannerStep && !(_isSummaryStep && !viewModel.isBeneficiaryMatch),
-                scrollChild: _shouldScrollChild(_currentStepType),
-                onBottomButtonPressed: () => _onNextPressed(viewModel),
-                child:
-                    _isProgressPaused
-                        ? _getBodyList(_currentStepType, viewModel).first
-                        : Column(children: _getBodyList(_currentStepType, viewModel)),
-              ),
-              TopProgressBar(
-                visible: !_isProgressPaused,
-                total: viewModel.progressTotalStep,
-                current: _progressCurrentStep(viewModel),
-              ),
-            ],
-          ),
+          child:
+              isSeedQrImportStep
+                  ? _buildSeedQrImportScreen(viewModel)
+                  : Stack(
+                    children: [
+                      TaprootCreationBody(
+                        key: ValueKey(_currentStep),
+                        titleLines: _titleLines(),
+                        showBottomButton: _showBottomButton(viewModel),
+                        bottomButtonText:
+                            _isSummaryStep && !viewModel.isBeneficiaryMatch
+                                ? t.rescan
+                                : (_isTimelineStep ? t.complete : null),
+                        ignoreChildHorizontalPadding: _shouldIgnoreBodyHorizontalPadding(_currentStepType),
+                        showHeader:
+                            !_isProgressPaused && !isScannerStep && !(_isSummaryStep && !viewModel.isBeneficiaryMatch),
+                        scrollChild: !_isProgressPaused && _shouldScrollChild(_currentStepType),
+                        onBottomButtonPressed: () => _onNextPressed(viewModel),
+                        runBottomButtonActionWithoutTransition: _runBottomButtonActionWithoutTransition(viewModel),
+                        child:
+                            _isProgressPaused
+                                ? _getBodyList(_currentStepType, viewModel).first
+                                : Column(children: _getBodyList(_currentStepType, viewModel)),
+                      ),
+                      TopProgressBar(
+                        visible: !_isProgressPaused,
+                        total: viewModel.progressTotalStep,
+                        current: _progressCurrentStep(viewModel),
+                      ),
+                      if (_isSavingVault)
+                        const Positioned.fill(child: AbsorbPointer(child: Center(child: CoconutCircularIndicator()))),
+                    ],
+                  ),
         ),
       ),
     );
