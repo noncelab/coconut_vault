@@ -1,9 +1,9 @@
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
-import 'package:flutter/foundation.dart';
+import 'dart:typed_data';
 
 enum TaprootCreationType { parent, child }
 
-class TaprootWalletCreationProvider extends ChangeNotifier {
+class TaprootWalletCreationProvider {
   ({Uint8List secret, Uint8List? passphrase}) _parentKeyData = (secret: Uint8List(0), passphrase: Uint8List(0));
   ({Uint8List secret, Uint8List? passphrase}) _childKeyData = (secret: Uint8List(0), passphrase: Uint8List(0));
 
@@ -42,7 +42,6 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
       _childKeyData.passphrase?.wipe();
       _childKeyData = (secret: Uint8List(0), passphrase: Uint8List(0));
     }
-    notifyListeners();
   }
 
   void resetAll() {
@@ -53,7 +52,6 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
     _childKeyData.secret.wipe();
     _childKeyData.passphrase?.wipe();
     _childKeyData = (secret: Uint8List(0), passphrase: Uint8List(0));
-    notifyListeners();
   }
 
   Uint8List _copyPassphrase(Uint8List? passphrase) {
