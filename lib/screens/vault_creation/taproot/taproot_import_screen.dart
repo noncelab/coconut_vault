@@ -1,3 +1,4 @@
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'dart:async';
 import 'dart:typed_data';
 
@@ -6,13 +7,13 @@ import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/taproot_import_view_model.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/vault_name_and_icon_setup_view_model.dart';
-import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_scanner_screen.dart';
+import 'package:coconut_vault/utils/date_format_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_participant_card.dart';
@@ -656,7 +657,6 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
 
   Widget _buildTimelineStepIndicator() {
     final timeline = t.taproot.taproot_import_screen.timeline;
-    final activationDateTimeText = _activationDateTimeText;
     final isSigner = _viewModel.selectedRole == TaprootImportRole.signer;
     final scannedVaultItem = _viewModel.scannedVaultItem;
     final isSingleParent = scannedVaultItem == null || scannedVaultItem.owners.length == 1;
@@ -699,7 +699,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
         ),
         TimelineStepItem(
           title: timeline.inheritance_wallet_activation,
-          description: timeline.active_after(dateTime: activationDateTimeText),
+          description: timeline.active_after(dateTime: _activationDateTimeText),
           status: TimelineStepStatus.future,
         ),
       ],
@@ -738,16 +738,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
     }
 
     final dateTime = DateTime.fromMillisecondsSinceEpoch(lockTime * Duration.millisecondsPerSecond);
-    final hourOfPeriod = dateTime.hour % 12 == 0 ? 12 : dateTime.hour % 12;
-    final periodText = dateTime.hour < 12 ? t.bottom_sheet.date_picker.am : t.bottom_sheet.date_picker.pm;
-    return t.taproot.taproot_import_screen.timeline.activation_datetime(
-      year: dateTime.year,
-      month: dateTime.month,
-      day: dateTime.day,
-      period: periodText,
-      hour: hourOfPeriod.toString().padLeft(2, '0'),
-      minute: dateTime.minute.toString().padLeft(2, '0'),
-    );
+    return DateFormatUtil.formatLocalizedDateTime(dateTime, context.read<VisibilityProvider>().language);
   }
 
   void _navigateToHome() {

@@ -54,8 +54,8 @@ class DateSelectorBottomSheet {
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(horizontal: 28),
                               child: CoconutDatePicker(
-                                amLabel: t.bottom_sheet.date_picker.am,
-                                pmLabel: t.bottom_sheet.date_picker.pm,
+                                amLabel: t.am,
+                                pmLabel: t.pm,
                                 timeLabel: t.bottom_sheet.date_picker.time,
                                 initialDate: selectedDate ?? today,
                                 currentDate: today,
