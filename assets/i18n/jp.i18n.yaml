@@ -725,8 +725,6 @@ taproot:
     step2:
       title1: "相続ウォレットをスキャンしてください"
       invalid_wallet_sync_data: "有効な相続ウォレット情報ではありません"
-      duplicate_wallet_title: "相続ウォレットはすでに追加されています"
-      duplicate_wallet_description: "この相続ウォレットはすでにウォレット一覧にあります"
     step3:
       title1: "相続ウォレットを取り込みました"
     step4:

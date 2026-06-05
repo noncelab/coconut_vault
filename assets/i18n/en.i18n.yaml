@@ -723,8 +723,6 @@ taproot:
     step2:
       title1: "Scan the inheritance wallet"
       invalid_wallet_sync_data: "Invalid inheritance wallet data"
-      duplicate_wallet_title: "Inheritance wallet already added"
-      duplicate_wallet_description: "This inheritance wallet is already in your wallet list."
     step3:
       title1: "Inheritance wallet imported"
     step4:

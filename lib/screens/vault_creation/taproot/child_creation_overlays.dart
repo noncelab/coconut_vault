@@ -24,13 +24,11 @@ class ChildCreationOverlays {
     );
   }
 
-  static Future<void> showDuplicateWalletDialog(BuildContext context) {
-    final step2 = t.taproot.taproot_import_screen.step2;
-
+  static Future<void> showDuplicateWalletDialog(BuildContext context, String name) {
     return TaprootCreationOverlays.showInfoDialog(
       context: context,
-      title: step2.duplicate_wallet_title,
-      description: step2.duplicate_wallet_description,
+      title: t.alert.same_wallet.title,
+      description: t.alert.same_wallet.description(name: name),
       rightButtonText: t.confirm,
     );
   }

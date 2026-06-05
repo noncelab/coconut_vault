@@ -132,6 +132,9 @@ class _TaprootVaultItemCardState extends State<TaprootVaultItemCard> {
     final int colorIndex = widget.vaultItem.colorIndex;
     final int iconIndex = widget.vaultItem.iconIndex;
 
-    return VaultIcon(iconIndex: iconIndex, colorIndex: colorIndex);
+    return Container(
+      decoration: const BoxDecoration(color: CoconutColors.white, borderRadius: BorderRadius.all(Radius.circular(12))),
+      child: VaultIcon(iconIndex: iconIndex, colorIndex: colorIndex),
+    );
   }
 }

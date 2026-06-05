@@ -1,6 +1,7 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/core/wallet/taproot_validator.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
+import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
@@ -41,6 +42,7 @@ class ParentCreationViewModel extends ChangeNotifier {
   static const int _childWalletImportProgressStepCount = 4;
   static const int _childWalletCreateExtraProgressStepCount = 1;
 
+  final WalletProvider _walletProvider;
   ParentWalletType _selectedWalletType = ParentWalletType.none;
   ParentKeyPreparationType _selectedKeyPreparationType = ParentKeyPreparationType.none;
   ParentNewKeyCreationType _selectedNewKeyCreationType = ParentNewKeyCreationType.none;
@@ -59,6 +61,8 @@ class ParentCreationViewModel extends ChangeNotifier {
   String? _externalParentMasterFingerprint;
   String? _childWalletDescriptor;
   String? _childWalletMasterFingerprint;
+
+  ParentCreationViewModel(this._walletProvider);
 
   ParentWalletType get selectedWalletType => _selectedWalletType;
   ParentKeyPreparationType get selectedKeyPreparationType => _selectedKeyPreparationType;
@@ -290,8 +294,7 @@ class ParentCreationViewModel extends ChangeNotifier {
     return false;
   }
 
-  Future<ParentCreationSaveResult> saveVault(
-    WalletProvider walletProvider, {
+  Future<ParentCreationSaveResult> saveVault({
     required String name,
     required int iconIndex,
     required int colorIndex,
@@ -304,9 +307,30 @@ class ParentCreationViewModel extends ChangeNotifier {
         externalParentMasterFingerprint: _externalParentMasterFingerprint,
         childMasterFingerprint: _childWalletMasterFingerprint,
       );
-      final vault = await walletProvider.addTaprootVault(walletCreateDto);
+      final vault = await _walletProvider.addTaprootVault(walletCreateDto);
       resetAllWalletData();
       return ParentCreationSaveResult(vaultId: vault.id, timelineInfo: timelineInfo);
+    } finally {
+      walletCreateDto?.wipe();
+    }
+  }
+
+  String getWalletSyncString(int walletId) {
+    return _walletProvider.getVaultById(walletId).getWalletSyncString();
+  }
+
+  Future<String?> findSameWalletName() async {
+    final descriptor = await _buildPendingWalletDescriptor();
+    final wallet = _walletProvider.findWalletByDescriptor(descriptor);
+    return wallet?.name;
+  }
+
+  Future<String> _buildPendingWalletDescriptor() async {
+    TaprootWalletCreateDto? walletCreateDto;
+    try {
+      walletCreateDto = createWalletCreateDto(name: '', iconIndex: 0, colorIndex: 0)..id = 0;
+      final result = await compute(WalletIsolates.createTaprootVault, walletCreateDto.toJson());
+      return result.vault.descriptor;
     } finally {
       walletCreateDto?.wipe();
     }
