@@ -617,7 +617,9 @@ taproot:
       create_script_path_how_to_prepare_title_2: "the child wallet?"
       import_again: "Import again"
       same_child_wallet_as_parent_dialog_title: "Same as parent wallet"
-      same_child_wallet_as_parent_dialog_description: "This cannot be used as the child wallet. Please scan another wallet."
+      same_child_wallet_as_parent_dialog_description_scan: "This cannot be used as the child wallet. Please scan another wallet."
+      same_child_wallet_as_parent_dialog_description_select: "This cannot be used as the child wallet. Please select another wallet."
+      same_child_wallet_as_parent_dialog_description_enter: "This cannot be used as the child wallet. Please enter another wallet."
       child_wallet_reset_dialog_title: "Reset child wallet"
       child_wallet_reset_dialog_description: "The child wallet you just added will be reset. Do you want to continue?"
     step_3:

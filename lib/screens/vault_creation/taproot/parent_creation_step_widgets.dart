@@ -62,15 +62,18 @@ class ParentNewKeyCreationOptionMenu extends StatelessWidget {
 }
 
 class ParentExistingVaultSelectionBody extends StatelessWidget {
-  const ParentExistingVaultSelectionBody({super.key});
+  const ParentExistingVaultSelectionBody({super.key, required this.selectedVaultId, required this.onSelected});
 
   static const double _gradientHeight = 36.0;
+  final int? Function(ParentCreationViewModel viewModel) selectedVaultId;
+  final void Function(ParentCreationViewModel viewModel, int vaultId) onSelected;
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<WalletProvider, ParentCreationViewModel>(
       builder: (context, walletProvider, viewModel, child) {
         final vaultList = walletProvider.getVaultsByWalletType(WalletType.singleSignature);
+        final selectedId = selectedVaultId(viewModel);
 
         return Stack(
           children: [
@@ -88,11 +91,11 @@ class ParentExistingVaultSelectionBody extends StatelessWidget {
                     children: [
                       VaultRowItem(
                         vault: vault,
-                        onSelected: () => viewModel.setSelectedExistingVaultId(vault.id),
+                        onSelected: () => onSelected(viewModel, vault.id),
                         isNextIconVisible: false,
                         isKeyBorderVisible: true,
                         isSelectable: true,
-                        isSelected: viewModel.selectedExistingVaultId == vault.id,
+                        isSelected: selectedId == vault.id,
                       ),
                       if (index == vaultList.length - 1) CoconutLayout.spacing_2000h,
                     ],

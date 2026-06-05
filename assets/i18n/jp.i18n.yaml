@@ -619,7 +619,9 @@ taproot:
       create_script_path_how_to_prepare_title_2: "どう準備しますか？"
       import_again: "再インポート"
       same_child_wallet_as_parent_dialog_title: "親ウォレットと同じウォレット"
-      same_child_wallet_as_parent_dialog_description: "子ウォレットとして使用できません。別のウォレットをスキャンしてください。"
+      same_child_wallet_as_parent_dialog_description_scan: "子ウォレットとして使用できません。別のウォレットをスキャンしてください。"
+      same_child_wallet_as_parent_dialog_description_select: "子ウォレットとして使用できません。別のウォレットを選択してください。"
+      same_child_wallet_as_parent_dialog_description_enter: "子ウォレットとして使用できません。別のウォレットを入力してください。"
       child_wallet_reset_dialog_title: "子ウォレットを初期化"
       child_wallet_reset_dialog_description: "追加した子ウォレットが初期化されます。本当に続けますか？"
     step_3:

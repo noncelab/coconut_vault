@@ -30,6 +30,7 @@ class SeedQrImportScreen extends StatefulWidget {
   final bool isTaproot;
   final bool requirePassphraseConfirmation;
   final VoidCallback? onCompleted;
+  final FutureOr<bool> Function(Uint8List secret)? onMnemonicScanned;
   final FutureOr<void> Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
 
   const SeedQrImportScreen({
@@ -40,6 +41,7 @@ class SeedQrImportScreen extends StatefulWidget {
     this.isTaproot = false,
     this.requirePassphraseConfirmation = false,
     this.onCompleted,
+    this.onMnemonicScanned,
     this.onMnemonicConfirmationRequested,
   });
 
@@ -250,6 +252,19 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
 
       if (words!.length == 12 || words!.length == 24) {
         if (mounted) {
+          final secret = Uint8List.fromList(utf8.encode(words!.join(' ')));
+          final onMnemonicScanned = widget.onMnemonicScanned;
+          if (onMnemonicScanned != null) {
+            final shouldContinue = await onMnemonicScanned(secret);
+            if (!mounted) {
+              return;
+            }
+            if (!shouldContinue) {
+              _isProcessing = false;
+              return;
+            }
+          }
+
           _isNavigating = true;
           // 1. 네비게이션하기 전 카메라 끄기
           controller.pauseCamera();
@@ -259,7 +274,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
             MaterialPageRoute(
               builder:
                   (context) => SeedQrConfirmationScreen(
-                    scannedData: utf8.encode(words!.join(' ')),
+                    scannedData: secret,
                     externalSigner: widget.externalSigner,
                     multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
                     isTaproot: widget.isTaproot,

@@ -40,7 +40,10 @@ class ParentCreationViewModel extends ChangeNotifier {
   static const int _multisigParentProgressStepCount = 4;
   static const int _currentVaultSelectionProgressStepCount = 1;
   static const int _childWalletImportProgressStepCount = 4;
-  static const int _childWalletCreateExtraProgressStepCount = 1;
+  static const int _childKeyPreparationProgressStepCount = 1;
+  static const int _childKeyImportOptionProgressStepCount = 1;
+  static const int _childCurrentVaultSelectionProgressStepCount = 1;
+  static const int _childWalletCreateOptionProgressStepCount = 1;
 
   final WalletProvider _walletProvider;
   ParentWalletType _selectedWalletType = ParentWalletType.none;
@@ -48,8 +51,11 @@ class ParentCreationViewModel extends ChangeNotifier {
   ParentNewKeyCreationType _selectedNewKeyCreationType = ParentNewKeyCreationType.none;
   ParentExistingKeyImportType _selectedExistingKeyImportType = ParentExistingKeyImportType.none;
   ChildWalletSetupType _selectedChildWalletSetupType = ChildWalletSetupType.none;
+  ParentKeyPreparationType _selectedChildKeyPreparationType = ParentKeyPreparationType.none;
+  ParentExistingKeyImportType _selectedChildExistingKeyImportType = ParentExistingKeyImportType.none;
   ParentNewKeyCreationType _selectedChildNewKeyCreationType = ParentNewKeyCreationType.none;
   int? _selectedExistingVaultId;
+  int? _selectedChildExistingVaultId;
   DateTime? _selectedTimelockDateTime;
   Uint8List _parentSecret = Uint8List(0);
   Uint8List _parentPassphrase = Uint8List(0);
@@ -69,8 +75,11 @@ class ParentCreationViewModel extends ChangeNotifier {
   ParentNewKeyCreationType get selectedNewKeyCreationType => _selectedNewKeyCreationType;
   ParentExistingKeyImportType get selectedExistingKeyImportType => _selectedExistingKeyImportType;
   ChildWalletSetupType get selectedChildWalletSetupType => _selectedChildWalletSetupType;
+  ParentKeyPreparationType get selectedChildKeyPreparationType => _selectedChildKeyPreparationType;
+  ParentExistingKeyImportType get selectedChildExistingKeyImportType => _selectedChildExistingKeyImportType;
   ParentNewKeyCreationType get selectedChildNewKeyCreationType => _selectedChildNewKeyCreationType;
   int? get selectedExistingVaultId => _selectedExistingVaultId;
+  int? get selectedChildExistingVaultId => _selectedChildExistingVaultId;
   DateTime? get selectedTimelockDateTime => _selectedTimelockDateTime;
   String? get parentWalletQrData => _parentWalletQrData;
   String? get parentMasterFingerprint => _parentMasterFingerprint;
@@ -92,7 +101,10 @@ class ParentCreationViewModel extends ChangeNotifier {
         _parentWalletProgressStepCount +
         (_usesCurrentVaultParentKey ? _currentVaultSelectionProgressStepCount : 0) +
         _childWalletImportProgressStepCount +
-        (_usesCreatedChildWallet ? _childWalletCreateExtraProgressStepCount : 0);
+        (_usesCreatedChildWallet ? _childKeyPreparationProgressStepCount : 0) +
+        (_usesImportedChildWalletMnemonic ? _childKeyImportOptionProgressStepCount : 0) +
+        (_usesCurrentVaultChildKey ? _childCurrentVaultSelectionProgressStepCount : 0) +
+        (_usesNewChildWalletMnemonic ? _childWalletCreateOptionProgressStepCount : 0);
   }
 
   int get _parentWalletProgressStepCount {
@@ -108,6 +120,16 @@ class ParentCreationViewModel extends ChangeNotifier {
   }
 
   bool get _usesCreatedChildWallet => _selectedChildWalletSetupType == ChildWalletSetupType.create;
+
+  bool get _usesNewChildWalletMnemonic =>
+      _usesCreatedChildWallet && _selectedChildKeyPreparationType == ParentKeyPreparationType.create;
+
+  bool get _usesImportedChildWalletMnemonic =>
+      _usesCreatedChildWallet && _selectedChildKeyPreparationType == ParentKeyPreparationType.import;
+
+  bool get _usesCurrentVaultChildKey =>
+      _usesImportedChildWalletMnemonic &&
+      _selectedChildExistingKeyImportType == ParentExistingKeyImportType.currentVault;
 
   bool get hasSelectedKeyCreationOrImportOption {
     return switch (_selectedKeyPreparationType) {
@@ -146,6 +168,24 @@ class ParentCreationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setChildExistingKeyImportType(ParentExistingKeyImportType type) {
+    _selectedChildExistingKeyImportType =
+        _selectedChildExistingKeyImportType == type ? ParentExistingKeyImportType.none : type;
+    _selectedChildExistingVaultId = null;
+    notifyListeners();
+  }
+
+  void setSelectedChildExistingVaultId(int vaultId) {
+    _selectedChildExistingVaultId = _selectedChildExistingVaultId == vaultId ? null : vaultId;
+    notifyListeners();
+  }
+
+  void resetChildExistingKeyImportType() {
+    _selectedChildExistingKeyImportType = ParentExistingKeyImportType.none;
+    _selectedChildExistingVaultId = null;
+    notifyListeners();
+  }
+
   void resetSelection(ParentSelectionResetScope scope) {
     if (scope == ParentSelectionResetScope.walletType) {
       _selectedWalletType = ParentWalletType.none;
@@ -171,6 +211,18 @@ class ParentCreationViewModel extends ChangeNotifier {
     }
 
     _selectedChildWalletSetupType = type;
+    _selectedChildKeyPreparationType = ParentKeyPreparationType.none;
+    _selectedChildExistingKeyImportType = ParentExistingKeyImportType.none;
+    _selectedChildExistingVaultId = null;
+    _selectedChildNewKeyCreationType = ParentNewKeyCreationType.none;
+    notifyListeners();
+  }
+
+  void setChildKeyPreparationType(ParentKeyPreparationType type) {
+    _selectedChildKeyPreparationType = _selectedChildKeyPreparationType == type ? ParentKeyPreparationType.none : type;
+    _selectedChildExistingKeyImportType = ParentExistingKeyImportType.none;
+    _selectedChildExistingVaultId = null;
+    _selectedChildNewKeyCreationType = ParentNewKeyCreationType.none;
     notifyListeners();
   }
 
@@ -180,6 +232,14 @@ class ParentCreationViewModel extends ChangeNotifier {
   }
 
   void resetChildNewKeyCreationType() {
+    _selectedChildNewKeyCreationType = ParentNewKeyCreationType.none;
+    notifyListeners();
+  }
+
+  void resetChildKeyPreparationType() {
+    _selectedChildKeyPreparationType = ParentKeyPreparationType.none;
+    _selectedChildExistingKeyImportType = ParentExistingKeyImportType.none;
+    _selectedChildExistingVaultId = null;
     _selectedChildNewKeyCreationType = ParentNewKeyCreationType.none;
     notifyListeners();
   }
@@ -241,7 +301,7 @@ class ParentCreationViewModel extends ChangeNotifier {
     Uint8List? secret,
     Uint8List? passphrase,
   }) {
-    if (source == ParentChildWalletSource.scanned && isSameAsParentWalletDescriptor(beneficiaryVault.descriptor)) {
+    if (isSameAsParentWalletDescriptor(beneficiaryVault.descriptor)) {
       return ParentChildWalletSetResult.sameAsParent;
     }
 
@@ -292,6 +352,10 @@ class ParentCreationViewModel extends ChangeNotifier {
     }
 
     return false;
+  }
+
+  bool isSameAsParentMnemonicSecret(Uint8List secret) {
+    return _parentSecret.isNotEmpty && listEquals(_parentSecret, secret);
   }
 
   Future<ParentCreationSaveResult> saveVault({

@@ -618,7 +618,9 @@ taproot:
       create_script_path_how_to_prepare_title_2: "어떻게 준비할까요?"
       import_again: "다시 가져오기"
       same_child_wallet_as_parent_dialog_title: "부모 지갑과 동일한 지갑"
-      same_child_wallet_as_parent_dialog_description: "자식 지갑으로 사용할 수 없어요. 다른 지갑을 스캔해 주세요."
+      same_child_wallet_as_parent_dialog_description_scan: "자식 지갑으로 사용할 수 없어요. 다른 지갑을 스캔해 주세요."
+      same_child_wallet_as_parent_dialog_description_select: "자식 지갑으로 사용할 수 없어요. 다른 지갑을 선택해 주세요."
+      same_child_wallet_as_parent_dialog_description_enter: "자식 지갑으로 사용할 수 없어요. 다른 지갑을 입력해 주세요."
       child_wallet_reset_dialog_title: "자식 지갑 초기화"
       child_wallet_reset_dialog_description: "방금 추가한 자식 지갑이 초기화됩니다. 정말 계속하시겠어요?"
     step_3:
