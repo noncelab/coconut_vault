@@ -315,11 +315,20 @@ class _VaultRowItemState extends State<VaultRowItem> {
                   ),
                 ),
               ),
-            VaultIconSmall(
-              iconIndex: widget.vault.iconIndex,
-              colorIndex: widget.vault.colorIndex,
-              gradientColors:
-                  isMultiSig && multiSigners != null ? CustomColorHelper.getGradientColors(multiSigners) : null,
+            Container(
+              decoration:
+                  isTaproot
+                      ? const BoxDecoration(
+                        color: CoconutColors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      )
+                      : null,
+              child: VaultIconSmall(
+                iconIndex: widget.vault.iconIndex,
+                colorIndex: widget.vault.colorIndex,
+                gradientColors:
+                    isMultiSig && multiSigners != null ? CustomColorHelper.getGradientColors(multiSigners) : null,
+              ),
             ),
             CoconutLayout.spacing_200w,
             Expanded(

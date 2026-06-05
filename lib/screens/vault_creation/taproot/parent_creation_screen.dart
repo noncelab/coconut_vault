@@ -665,11 +665,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       isEmbedded: true,
       isTaproot: true,
       taprootVaultSaveHandler: ({required name, required iconIndex, required colorIndex}) async {
-        final result = await _viewModel.saveVault(
-          name: name,
-          iconIndex: iconIndex,
-          colorIndex: colorIndex,
-        );
+        final result = await _viewModel.saveVault(name: name, iconIndex: iconIndex, colorIndex: colorIndex);
         return VaultNameAndIconSetupSaveResult.navigateToHome(
           addedWalletId: result.vaultId,
           taprootTimelineInfo: result.timelineInfo,

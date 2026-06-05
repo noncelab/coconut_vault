@@ -314,7 +314,7 @@ class ParentCreationViewModel extends ChangeNotifier {
       walletCreateDto?.wipe();
     }
   }
-  
+
   String getWalletSyncString(int walletId) {
     return _walletProvider.getVaultById(walletId).getWalletSyncString();
   }
@@ -328,8 +328,7 @@ class ParentCreationViewModel extends ChangeNotifier {
   Future<String> _buildPendingWalletDescriptor() async {
     TaprootWalletCreateDto? walletCreateDto;
     try {
-      walletCreateDto = createWalletCreateDto(name: '', iconIndex: 0, colorIndex: 0)
-        ..id = 0;
+      walletCreateDto = createWalletCreateDto(name: '', iconIndex: 0, colorIndex: 0)..id = 0;
       final result = await compute(WalletIsolates.createTaprootVault, walletCreateDto.toJson());
       return result.vault.descriptor;
     } finally {
