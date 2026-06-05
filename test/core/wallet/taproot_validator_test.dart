@@ -80,15 +80,10 @@ void main() {
 
     test('throws when keyPath owner and inheritance leaf share the same key', () {
       final sharedKeyStore = _randomTaprootKeyStore();
-      final descriptor = TaprootVault.fromKeyStoreList(
-        [sharedKeyStore],
-        [InheritancePolicy(sharedKeyStore, 1779863880)],
-      ).descriptor;
+      final descriptor =
+          TaprootVault.fromKeyStoreList([sharedKeyStore], [InheritancePolicy(sharedKeyStore, 1779863880)]).descriptor;
 
-      expect(
-        () => TaprootValidator.parseInheritanceVaultDescriptor(descriptor),
-        throwsA(isA<FormatException>()),
-      );
+      expect(() => TaprootValidator.parseInheritanceVaultDescriptor(descriptor), throwsA(isA<FormatException>()));
     });
   });
 

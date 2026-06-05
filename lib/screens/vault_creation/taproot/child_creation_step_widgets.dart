@@ -228,7 +228,7 @@ class ChildCreationTimelineStep extends StatelessWidget {
         TimelineStepItem(
           title: t.taproot.child_creation_screen.step7.timeline.created_wallet,
           description: t.taproot.child_creation_screen.step7.timeline.singlesig_description(
-            mfp: viewModel.masterFingerprint ?? '000000',
+            mfp: viewModel.masterFingerprint!,
           ),
           status: TimelineStepStatus.current,
         ),
@@ -239,7 +239,6 @@ class ChildCreationTimelineStep extends StatelessWidget {
           ),
           status: TimelineStepStatus.upcoming,
         ),
-        // TODO: scannedVaultItem 대신 생성 완료 된 지갑을 사용하기 
         TimelineStepItem(
           title: t.taproot.child_creation_screen.step7.timeline.imported_inheritance_info,
           description:

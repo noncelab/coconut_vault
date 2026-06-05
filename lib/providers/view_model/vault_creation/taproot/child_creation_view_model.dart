@@ -24,9 +24,10 @@ class ChildCreationViewModel extends ChangeNotifier {
   static const int _childWalletQrProgressStepCount = 1;
   static const int _parentWalletScanProgressStepCount = 1;
   static const int _summaryProgressStepCount = 1;
-  static const int _timelineProgressStepCount = 1;
+  //static const int _timelineProgressStepCount = 1;
 
   final TaprootWalletCreationProvider _taprootProvider;
+  final WalletProvider _walletProvider;
 
   ChildKeyPreparationType _keyPreparationType = ChildKeyPreparationType.none;
   ChildNewKeyCreationType _newKeyCreationType = ChildNewKeyCreationType.none;
@@ -35,8 +36,9 @@ class ChildCreationViewModel extends ChangeNotifier {
   String? _childDescriptor;
   String? _masterFingerprint;
   TaprootVaultListItem? _scannedVaultItem;
+  TaprootVaultListItem? _addedWallet;
 
-  ChildCreationViewModel(this._taprootProvider);
+  ChildCreationViewModel(this._taprootProvider, this._walletProvider);
 
   void setCreationTypeToChild() {
     _taprootProvider.setCreationType(TaprootCreationType.child);
@@ -114,10 +116,8 @@ class ChildCreationViewModel extends ChangeNotifier {
     }
   }
 
-  // TODO: scannedVaultItem의 owners 사용하지 말고 최종적으로 생성된 지갑 것을 사용하기
-  String get scannedParentMfps => _scannedVaultItem?.owners.map((o) => o.masterFingerprint).join(', ') ?? '000000';
+  String get scannedParentMfps => _scannedVaultItem?.owners.map((o) => o.masterFingerprint).join(', ') ?? '';
 
-  // TODO: scannedVaultItem의 owners 사용하지 말고 최종적으로 생성된 지갑 것을 사용하기
   String getFormattedLockTime(String lang) {
     if (_scannedVaultItem == null || _masterFingerprint == null) return '';
 
@@ -154,14 +154,14 @@ class ChildCreationViewModel extends ChangeNotifier {
   String? get qrData => _childDescriptor;
   String? get masterFingerprint => _masterFingerprint;
   TaprootVaultListItem? get scannedVaultItem => _scannedVaultItem;
+  int? get addedWalletId => _addedWallet?.id;
   int get progressTotalStep {
     return _keyPreparationProgressStepCount +
         _keyCreationOrImportOptionProgressStepCount +
         (_usesCurrentVault ? _currentVaultSelectionProgressStepCount : 0) +
         _childWalletQrProgressStepCount +
         _parentWalletScanProgressStepCount +
-        _summaryProgressStepCount +
-        _timelineProgressStepCount;
+        _summaryProgressStepCount;
   }
 
   int get visibleProgressStepCount => progressTotalStep + _initialProgressExcludedStepCount;
@@ -204,25 +204,25 @@ class ChildCreationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveVault(WalletProvider walletProvider) async {
+  Future<void> saveVault() async {
+    TaprootWalletCreateDto? dto;
     try {
-      final dto = _createWalletCreateDto();
+      dto = _createWalletCreateDto();
       Logger.log('[ChildCreationViewModel] Attempting to add taproot vault: ${dto.name}');
 
-      final result = await walletProvider.addTaprootVault(dto);
-
+      _addedWallet = await _walletProvider.addTaprootVault(dto);
       Logger.log(
         '[ChildCreationViewModel] Successfully added taproot vault: '
-        'ID=${result.id}, '
-        'Name=${result.name}, '
-        'Owners=${result.owners.length}, '
-        'Beneficiaries=${result.beneficiaries.length}',
+        'ID=${_addedWallet?.id}, '
+        'Name=${_addedWallet?.name}, '
+        'Owners=${_addedWallet?.owners.length}, '
+        'Beneficiaries=${_addedWallet?.beneficiaries.length}',
       );
-
-      dto.wipe();
     } catch (e) {
       Logger.error('[ChildCreationViewModel] saveVault error: $e');
       rethrow;
+    } finally {
+      dto?.wipe();
     }
   }
 
@@ -240,55 +240,69 @@ class ChildCreationViewModel extends ChangeNotifier {
       passphrase: _taprootProvider.passphrase ?? Uint8List(0),
     );
 
-    final (keyPathSeeds, keyPathSignerBsmses) = _mapKeyPathOwners(vault, myMfp, mySeedSource);
-    final inheritanceLeaves = _mapInheritanceLeaves(vault, myMfp, mySeedSource);
+    final keyPathSignerBsmses = _mapKeyPathOwners(vault, myMfp);
+    final inheritanceLeaf = _mapInheritanceLeaves(vault, myMfp, mySeedSource);
 
     return TaprootWalletCreateDto(
       null,
       scannedItem.name,
       scannedItem.iconIndex,
       scannedItem.colorIndex,
-      keyPathSeeds.isEmpty ? null : keyPathSeeds, // TODO: 저는 자식이에요에서는 항상 null
-      keyPathSignerBsmses.isEmpty ? null : keyPathSignerBsmses, // TODO: 저는 자식이에요에서는 항상 not null
-      inheritanceLeaves.isEmpty ? null : inheritanceLeaves,
+      null,
+      keyPathSignerBsmses,
+      inheritanceLeaf,
     );
   }
 
-  (List<SeedSource>, List<String>) _mapKeyPathOwners(TaprootVault vault, String myMfp, SeedSource mySeedSource) {
-    final seeds = <SeedSource>[];
-    final bsmses = <String>[];
-
-    for (final keyStore in vault.keyStoreList) {
+  List<String> _mapKeyPathOwners(TaprootVault vault, String myMfp) {
+    return vault.keyStoreList.map((keyStore) {
       final mfp = keyStore.masterFingerprint.toUpperCase();
       if (mfp == myMfp) {
-        seeds.add(mySeedSource);
-      } else {
-        final path = WalletUtility.getDerivationPath(AddressType.p2tr, 0).replaceAll('m/', '');
-        final xpub = keyStore.extendedPublicKey.serialize();
-        bsmses.add('BSMS 1.0\n00\n[$mfp/$path]$xpub');
+        throw StateError('Child MFP must not be included as a key-path owner');
       }
-    }
-    return (seeds, bsmses);
+
+      return Bsms.fromSigner(
+        mfp,
+        vault.derivationPath.replaceAll('m/', ''),
+        keyStore.extendedPublicKey.serialize(),
+        '',
+      ).serializeSigner();
+    }).toList();
+    // final bsmses = <String>[];
+
+    // for (final keyStore in vault.keyStoreList) {
+    //   final mfp = keyStore.masterFingerprint.toUpperCase();
+    //   if (mfp == myMfp) {
+    //     throw StateError('Child MFP must not be included as a key-path owner');
+    //   } else {
+    //     final path = WalletUtility.getDerivationPath(AddressType.p2tr, 0).replaceAll('m/', '');
+    //     //final xpub = keyStore.extendedPublicKey.serialize();
+    //     bsmses.add(Bsms.fromSigner(
+    //       keyStore.masterFingerprint,
+    //       path,
+    //       keyStore.extendedPublicKey.serialize(),
+    //       ''
+    //     ).serializeSigner());
+    //     //bsmses.add('BSMS 1.0\n00\n[$mfp/$path]$xpub');
+    //   }
+    // }
+    // return bsmses;
   }
 
   List<InheritanceLeaf> _mapInheritanceLeaves(TaprootVault vault, String myMfp, SeedSource mySeedSource) {
-    final leaves = <InheritanceLeaf>[];
+    if (vault.policyList.length != 1) throw StateError('No policy in TaprootVault');
+    if (vault.policyList.single is! InheritancePolicy) throw StateError('Only one inheritancePolicy required.');
+    final inheritancePolicy = vault.policyList.single as InheritancePolicy;
+    final bMfp = inheritancePolicy.beneficiaryKeyStore.masterFingerprint.toUpperCase();
 
-    for (final policy in vault.policyList) {
-      if (policy is! InheritancePolicy) continue;
-
-      final bMfp = policy.beneficiaryKeyStore.masterFingerprint.toUpperCase();
-      if (bMfp == myMfp) {
-        leaves.add(InheritanceLeaf(secret: mySeedSource, lockTime: policy.locktime));
-      } else {
-        leaves.add(
-          InheritanceLeaf(
-            descriptor: TaprootVault.fromKeyStoreList([policy.beneficiaryKeyStore], []).descriptor,
-            lockTime: policy.locktime,
-          ),
-        );
-      }
+    if (bMfp == myMfp) {
+      return [InheritanceLeaf(secret: mySeedSource, lockTime: inheritancePolicy.locktime)];
+    } else {
+      throw StateError('InheritancePolicy was not made from my seed source');
+      // InheritanceLeaf(
+      //       descriptor: TaprootVault.fromKeyStoreList([policy.beneficiaryKeyStore], []).descriptor,
+      //       lockTime: policy.locktime,
+      //     ),
     }
-    return leaves;
   }
 }
