@@ -214,9 +214,10 @@ class ChildImportSummaryStep extends StatelessWidget {
 }
 
 class ChildCreationTimelineStep extends StatelessWidget {
-  const ChildCreationTimelineStep({super.key, required this.viewModel});
+  const ChildCreationTimelineStep({super.key, required this.viewModel, required this.onCompleted});
 
   final ChildCreationViewModel viewModel;
+  final VoidCallback onCompleted;
 
   @override
   Widget build(BuildContext context) {
@@ -224,6 +225,7 @@ class ChildCreationTimelineStep extends StatelessWidget {
     final dateString = viewModel.getFormattedLockTime(lang);
 
     return TimelineStepIndicator(
+      onCompleted: onCompleted,
       enableTapToSkip: true,
       timelineStepItemList: [
         TimelineStepItem(

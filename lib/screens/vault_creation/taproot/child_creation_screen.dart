@@ -77,6 +77,9 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   bool _isProcessing = false;
   bool _isSavingVault = false;
   bool _currentVaultMnemonicAuthRequested = false;
+  bool _isTitleAnimationCompleted = false;
+  bool _isTimelineAnimationCompleted = false;
+  Timer? _titleAnimationTimer;
 
   @override
   void initState() {
@@ -84,8 +87,15 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<ChildCreationViewModel>().resetChildWalletData();
+        _scheduleTitleAnimationCompletion();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _titleAnimationTimer?.cancel();
+    super.dispose();
   }
 
   ChildCreationStep get _currentStepType => _stepHistory[_currentStep - 1];
@@ -204,7 +214,9 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   bool _showBottomButton(ChildCreationViewModel viewModel) {
-    return _currentStepAction(viewModel) != null;
+    return _currentStepAction(viewModel) != null &&
+        (_currentStep <= _initialStepCount || _isTitleAnimationCompleted || _isSummaryStep) &&
+        (!_isTimelineStep || _isTimelineAnimationCompleted);
   }
 
   bool get _isProgressPaused => _shouldPauseProgress(_currentStepType);
@@ -224,6 +236,43 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     return (_stepHistory.take(_currentStep).where((step) => !_shouldPauseProgress(step)).length -
             _progressInitialStepCount)
         .clamp(0, viewModel.progressTotalStep);
+  }
+
+  Duration get _titleAnimationDuration {
+    const headerInitialDelay = Duration(milliseconds: 200);
+    const headerLineFadeInDuration = Duration(milliseconds: 700);
+    return headerInitialDelay + (headerLineFadeInDuration * _titleLines().length);
+  }
+
+  void _scheduleTitleAnimationCompletion() {
+    _titleAnimationTimer?.cancel();
+
+    if (!mounted) {
+      return;
+    }
+
+    if (_currentStep <= _initialStepCount ||
+        _isProgressPaused ||
+        _titleLines().every((line) => line.toPlainText().isEmpty)) {
+      setState(() {
+        _isTitleAnimationCompleted = true;
+      });
+      return;
+    }
+
+    setState(() {
+      _isTitleAnimationCompleted = false;
+    });
+
+    _titleAnimationTimer = Timer(_titleAnimationDuration, () {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _isTitleAnimationCompleted = true;
+      });
+    });
   }
 
   bool _shouldIgnoreBodyHorizontalPadding(ChildCreationStep step) {
@@ -271,6 +320,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     setState(() {
       _currentStep += 1;
     });
+    _scheduleTitleAnimationCompletion();
   }
 
   Widget _buildChildPreparationStep(ChildCreationViewModel viewModel) {
@@ -365,7 +415,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   Widget _buildTimelineStep(ChildCreationViewModel viewModel) {
-    return ChildCreationTimelineStep(viewModel: viewModel);
+    return ChildCreationTimelineStep(viewModel: viewModel, onCompleted: _handleTimelineAnimationCompleted);
   }
 
   Widget _buildQrSection(ChildCreationViewModel viewModel) {
@@ -475,6 +525,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       _stepHistory.add(step);
       _currentStep += 1;
     });
+    _scheduleTitleAnimationCompletion();
     return addedStep;
   }
 
@@ -553,8 +604,20 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     setState(() {
       _isSavingVault = false;
       _isProcessing = false;
+      _isTimelineAnimationCompleted = false;
       _stepHistory.add(ChildCreationStep.timeline);
       _currentStep += 1;
+    });
+    _scheduleTitleAnimationCompletion();
+  }
+
+  void _handleTimelineAnimationCompleted() {
+    if (!mounted || !_isTimelineStep || _isTimelineAnimationCompleted) {
+      return;
+    }
+
+    setState(() {
+      _isTimelineAnimationCompleted = true;
     });
   }
 
@@ -655,6 +718,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         viewModel.setExistingKeyImportType(ChildExistingKeyImportType.none);
       }
     });
+    _scheduleTitleAnimationCompletion();
   }
 
   void _navigateToHome(ChildCreationViewModel viewModel) {
@@ -695,6 +759,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
         _isProcessing = false;
       });
+      _scheduleTitleAnimationCompletion();
 
       if (_currentStep == 1) {
         viewModel.setKeyPreparationType(ChildKeyPreparationType.none);
@@ -722,6 +787,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       }
       _isProcessing = false;
     });
+    _scheduleTitleAnimationCompletion();
   }
 
   void _removeStepsAfter(int step) {
@@ -754,6 +820,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       viewModel.setExistingKeyImportType(ChildExistingKeyImportType.seedQrScan);
       _stepHistory[_currentStep - 1] = ChildCreationStep.seedQrImport;
     });
+    _scheduleTitleAnimationCompletion();
   }
 
   void _switchToMnemonicImport(ChildCreationViewModel viewModel) {
@@ -765,6 +832,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       viewModel.setExistingKeyImportType(ChildExistingKeyImportType.mnemonicInput);
       _stepHistory[_currentStep - 1] = ChildCreationStep.mnemonicImport;
     });
+    _scheduleTitleAnimationCompletion();
   }
 
   Future<void> _onCurrentVaultSelected(ChildCreationViewModel viewModel) async {
