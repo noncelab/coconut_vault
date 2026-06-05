@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/taproot/taproot_wallet_sync_data.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
+import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_overlays.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
@@ -26,11 +31,8 @@ class ChildCreationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create:
-          (context) => ChildCreationViewModel(
-            context.read<TaprootWalletCreationProvider>(),
-            isWalletSyncDescriptorImported:
-                (descriptor) => context.read<WalletProvider>().findWalletByDescriptor(descriptor) != null,
-          ),
+          (context) =>
+              ChildCreationViewModel(context.read<TaprootWalletCreationProvider>(), context.read<WalletProvider>()),
       child: const _ChildCreationScreenContent(),
     );
   }
@@ -164,7 +166,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     };
   }
 
-  VoidCallback? _getNextButtonAction(ChildCreationStep step, ChildCreationViewModel viewModel) {
+  FutureOr<void> Function()? _getNextButtonAction(ChildCreationStep step, ChildCreationViewModel viewModel) {
     return switch (step) {
       ChildCreationStep.intro => _moveToNextStep,
       ChildCreationStep.childPreparation => _addChildCreationOptionStep,
@@ -175,13 +177,13 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       },
       ChildCreationStep.childWalletQr => () => _addScannerStep(viewModel),
       ChildCreationStep.summary =>
-        viewModel.isBeneficiaryMatch ? () => _addTimelineStep(viewModel) : _handleBackPressed,
-      ChildCreationStep.timeline => () => _saveVaultAndExit(viewModel),
+        viewModel.isBeneficiaryMatch ? () => _saveVaultAndProceedToTimeline(viewModel) : _handleBackPressed,
+      ChildCreationStep.timeline => () => _navigateToHome(viewModel),
       _ => null,
     };
   }
 
-  VoidCallback? _currentStepAction(ChildCreationViewModel viewModel) {
+  FutureOr<void> Function()? _currentStepAction(ChildCreationViewModel viewModel) {
     if (!_canRunCurrentStepAction(viewModel)) {
       return null;
     }
@@ -288,16 +290,12 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
           child: TaprootScannerScreen(
             dataType: TaprootScannerDataType.walletSync,
             topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: _buildScannerTitle(viewModel)),
-            onWalletSyncScanned: (syncData) async {
+            onWalletSyncScanned: (TaprootWalletSyncData syncData) async {
               if (_isProcessing) return false;
 
               vibrateExtraLight();
 
-              final isDuplicateWallet = viewModel.isWalletSyncDataImported(
-                syncData,
-                fallbackChecker:
-                    (descriptor) => context.read<WalletProvider>().findWalletByDescriptor(descriptor) != null,
-              );
+              final isDuplicateWallet = viewModel.isAlreadyImported(syncData.descriptor);
               if (isDuplicateWallet) {
                 await ChildCreationOverlays.showDuplicateWalletDialog(context);
                 return false;
@@ -490,9 +488,6 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       setState(() => _isProcessing = false);
       _addChildWalletQrStep(viewModel);
     } catch (e) {
-      setState(() {
-        _isProcessing = false;
-      });
       Logger.error('Failed to generate child wallet: $e');
       setState(() {
         _isProcessing = false;
@@ -540,30 +535,27 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     _addStep(ChildCreationStep.summary);
   }
 
-  void _addTimelineStep(ChildCreationViewModel viewModel) {
-    _addStep(ChildCreationStep.timeline);
-  }
-
-  Future<void> _saveVaultAndExit(ChildCreationViewModel viewModel) async {
+  Future<void> _saveVaultAndProceedToTimeline(ChildCreationViewModel viewModel) async {
     vibrateExtraLight();
-
     setState(() {
       _isProcessing = true;
       _isSavingVault = true;
     });
     try {
-      await viewModel.saveVault(context.read<WalletProvider>());
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isProcessing = false;
-          _isSavingVault = false;
-        });
-      }
+      await viewModel.saveVault();
+    } catch (e) {
+      // TODO: 에러 핸들링
+      _isProcessing = false;
+      rethrow;
     }
 
     if (!mounted) return;
-    Navigator.popUntil(context, (route) => route.isFirst);
+    setState(() {
+      _isSavingVault = false;
+      _isProcessing = false;
+      _stepHistory.add(ChildCreationStep.timeline);
+      _currentStep += 1;
+    });
   }
 
   void _addMnemonicConfirmationStep() {
@@ -626,10 +618,19 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     };
   }
 
-  void _onNextPressed(ChildCreationViewModel viewModel) async {
+  Future<void> _onNextPressed(ChildCreationViewModel viewModel) async {
     if (_isProcessing) return;
-
-    _currentStepAction(viewModel)?.call();
+    try {
+      await _currentStepAction(viewModel)?.call();
+    } catch (e) {
+      Logger.error(e);
+      TaprootCreationOverlays.showInfoDialog(
+        context: context,
+        title: t.errors.unexpected_error_title,
+        description: e.toString(),
+        rightButtonText: t.confirm,
+      );
+    }
   }
 
   Future<void> _showChildWalletResetDialog() async {
@@ -656,8 +657,22 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     });
   }
 
+  void _navigateToHome(ChildCreationViewModel viewModel) {
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/',
+      (Route<dynamic> route) => false,
+      arguments: viewModel.addedWalletId == null ? null : VaultHomeNavArgs(addedWalletId: viewModel.addedWalletId!),
+    );
+  }
+
   void _handleBackPressed() {
     final viewModel = context.read<ChildCreationViewModel>();
+
+    if (_isTimelineStep) {
+      _navigateToHome(viewModel);
+      return;
+    }
 
     if (_currentStep == _scannerStep) {
       _returnToChildWalletQrStep();
@@ -801,6 +816,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         backgroundColor: CoconutColors.white,
         appBar: CoconutAppBar.build(
           title: t.taproot.child_creation_screen.title,
+          isBottom: _isTimelineStep,
+          isBackButton: !_isTimelineStep,
           context: context,
           backgroundColor: CoconutColors.white,
           onBackPressed: _handleBackPressed,

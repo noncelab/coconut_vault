@@ -114,7 +114,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     }
 
     if (widget.runBottomButtonActionWithoutTransition) {
-      onBottomButtonPressed();
+      await onBottomButtonPressed();
       return;
     }
 

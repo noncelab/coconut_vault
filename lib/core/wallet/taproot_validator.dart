@@ -87,27 +87,27 @@ class TaprootValidator {
       throw FormatException('Invalid Taproot inheritance beneficiary count: $beneficiaryCount');
     }
 
+    final keyPathXpubs = vault.keyStoreList.map(_extendedPublicKeyFromKeyStore).toSet();
+    final beneficiaryXpubs = _beneficiaryExtendedPublicKeysFromVault(vault);
+    if (keyPathXpubs.intersection(beneficiaryXpubs).isNotEmpty) {
+      throw const FormatException('KeyPath and inheritance leaf must not use the same key');
+    }
+
     return vault;
   }
 
   /// 4. 상속 지갑 Descriptor의 자식 정보가 방금 생성한 자식 지갑의 P2TR Signer BSMS와 일치하는지 확인.
-  static bool isInheritanceDescriptorChildMatched({
-    required String inheritanceDescriptor,
-    required String childSignerBsms,
-  }) {
-    final inheritanceVault = parseInheritanceVaultDescriptor(inheritanceDescriptor);
-    final childExtendedPublicKey = validateSignerBsms(childSignerBsms).extendedPublicKey.serialize();
-    return _beneficiaryExtendedPublicKeysFromVault(inheritanceVault).contains(childExtendedPublicKey);
-  }
-
-  static bool isInheritanceDescriptorChildDescriptorMatched({
+  static bool isBeneficiaryMatchedByDescriptor({
     required String inheritanceDescriptor,
     required String childDescriptor,
   }) {
-    return isInheritanceDescriptorChildMatched(
-      inheritanceDescriptor: inheritanceDescriptor,
-      childSignerBsms: signerBsmsFromSingleKeyTaprootDescriptor(childDescriptor),
-    );
+    final inheritanceVault = parseInheritanceVaultDescriptor(inheritanceDescriptor);
+    final childVault = parseTaprootDescriptor(childDescriptor);
+    if (childVault.keyStoreList.length != 1) {
+      throw const FormatException('Single-key Taproot descriptor is required as child');
+    }
+    final childXpub = childVault.keyStoreList.first.extendedPublicKey.serialize();
+    return _beneficiaryExtendedPublicKeysFromVault(inheritanceVault).contains(childXpub);
   }
 
   static TaprootVault parseTaprootDescriptor(String descriptor) {

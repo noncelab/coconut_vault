@@ -583,6 +583,10 @@ taproot:
       multisig_how_to_prepare_key_title_2: "for the multisig parent wallet?"
       multisig_qr_title_1: "Show the prepared parent wallet info"
       multisig_qr_title_2: "so another Vault can use it"
+      multisig_list_title_1: "Tap a parent wallet button below"
+      multisig_list_title_2: "to scan an additional parent wallet"
+      multisig_list_description_1: "Tap my wallet to"
+      multisig_list_description_2: "view its QR code"
       parent_wallet: "Parent wallet $index$masterFingerprintSuffix"
       device_auth_dialog_title: "Device authentication"
       device_auth_dialog_description: "Authenticate this device to access the mnemonic stored in the secure area."
@@ -1019,6 +1023,8 @@ coordinator_bsms_qr_screen:
   guide:
     text1: "Share this wallet so it can be used on other vaults."
     text2: "This wallet follows the standards (BIP-129, BSMS) for secure multi-signature management."
+    text3: "All keys required for signing are securely stored in this Vault."
+    text4: "The **$gen** key required for this multisig wallet is currently stored in another Vault."
 multi_sig_memo_bottom_sheet:
   imported_wallet_memo: "External Wallet Memo"
   placeholder: "Write memo."
@@ -1068,6 +1074,7 @@ sync_to_wallet_screen:
     sparrow_singlesig:
       guide0_1: "From the menu"
       guide1_1: "Import Wallet"
+      guide2_1: "Keystone"
       guide1_2: "Keystone"
       guide3_1: "or click the xPub/Watch Only Wallet button and "
     nunchuk: 
@@ -1151,12 +1158,17 @@ bottom_sheet:
     description: "Make sure to remember your account number."
     placeholder: "Please enter the account number"
     account_error_message: "Enter a value in the range 0 and 2,147,483,647."
+  verify_passphrase:
+    title: "Verify Passphrase"
+    description: "Verify your passphrase to change the account number"
+    placeholder: "Please enter your passphrase"
+    passphrase_error_message: "Passphrase does not match. Please enter it again."
   date_picker:
     select_date: "Select date"
-  time: "Time"
-  am: "AM"
-  pm: "PM"
-  placeholder: "Select date and time"
+    time: "Time"
+    am: "AM"
+    pm: "PM"
+    placeholder: "Select date and time"
 
 permission:
   biometric: 
@@ -1296,6 +1308,7 @@ errors:
   vault_not_found_error: "No matching vault found"
   extended_public_key_not_found_error: "Please select the wallet you want to use directly and use the Multisig Signing feature"
   user_cancelled_auth: "User cancelled authentication."
+  unexpected_error_title: "An Error Occurred"
 
 exceptions:
   seed_invalidated: 
