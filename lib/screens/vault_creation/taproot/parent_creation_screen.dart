@@ -1983,6 +1983,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _resetMnemonicStepIndexes();
       _viewModel.resetChildExistingKeyImportType();
     }
+
+    if (previousStepType == ParentCreationStep.timelockSetup || _currentStepType == ParentCreationStep.timelockSetup) {
+      _resetTimelockDate();
+    }
   }
 
   void _resetMnemonicStepIndexes() {
