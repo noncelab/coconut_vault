@@ -1,6 +1,7 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/core/wallet/taproot_validator.dart';
 import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
+import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
@@ -8,15 +9,14 @@ import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
 import 'package:coconut_vault/model/taproot/stored_taproot_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/taproot_wallet_sync_data.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/foundation.dart';
 
 enum TaprootImportRole { none, signer, beneficiary }
 
 enum ImportMode { enter, scan }
 
-enum TaprootWalletSyncValidationResult { valid, duplicate, invalid }
-
-typedef TaprootWalletSyncDuplicateChecker = bool Function(String descriptor);
+typedef TaprootWalletSyncDuplicateChecker = VaultListItemBase? Function(String descriptor);
 typedef TaprootVaultAdder = Future<TaprootVaultListItem> Function(TaprootWalletCreateDto walletCreateDto);
 
 class TaprootImportParticipantCardState {
@@ -106,7 +106,7 @@ class _ImportedTaprootSeed {
 class TaprootImportViewModel extends ChangeNotifier {
   static const int _progressStepCount = 4;
 
-  final TaprootWalletSyncDuplicateChecker _isWalletSyncDescriptorImported;
+  final TaprootWalletSyncDuplicateChecker _findWalletByDescriptor;
   final TaprootVaultAdder _addTaprootVault;
   TaprootWalletSyncData? _walletSyncData;
   TaprootVaultListItem? _scannedVaultItem;
@@ -126,9 +126,9 @@ class TaprootImportViewModel extends ChangeNotifier {
   bool _isExtraImportMatched = false;
 
   TaprootImportViewModel({
-    required TaprootWalletSyncDuplicateChecker isWalletSyncDescriptorImported,
+    required TaprootWalletSyncDuplicateChecker findWalletByDescriptor,
     required TaprootVaultAdder addTaprootVault,
-  }) : _isWalletSyncDescriptorImported = isWalletSyncDescriptorImported,
+  }) : _findWalletByDescriptor = findWalletByDescriptor,
        _addTaprootVault = addTaprootVault;
 
   TaprootVaultListItem? get scannedVaultItem => _scannedVaultItem;
@@ -144,18 +144,19 @@ class TaprootImportViewModel extends ChangeNotifier {
   bool get isExtraImportMatched => _isExtraImportMatched;
   int get progressTotalStep => _progressStepCount;
 
-  TaprootWalletSyncValidationResult validateWalletSyncData(TaprootWalletSyncData walletSyncData) {
+  bool isValidDescriptor(String descriptor) {
     try {
-      TaprootValidator.parseInheritanceVaultDescriptor(walletSyncData.descriptor);
-    } catch (_) {
-      return TaprootWalletSyncValidationResult.invalid;
+      TaprootValidator.parseInheritanceVaultDescriptor(descriptor);
+      return true;
+    } catch (e) {
+      Logger.error(e);
+      return false;
     }
+  }
 
-    if (_isWalletSyncDescriptorImported(walletSyncData.descriptor)) {
-      return TaprootWalletSyncValidationResult.duplicate;
-    }
-
-    return TaprootWalletSyncValidationResult.valid;
+  String? findSameWalletName(String descriptor) {
+    final wallet = _findWalletByDescriptor(descriptor);
+    return wallet?.name;
   }
 
   void setWalletSyncData(TaprootWalletSyncData walletSyncData) {

@@ -77,7 +77,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   static const int _progressInitialStepCount = 1;
   static const Color _parentWalletActiveColor = CoconutColors.purple;
 
-  final ParentCreationViewModel _viewModel = ParentCreationViewModel();
+  late final ParentCreationViewModel _viewModel;
   final List<ParentCreationStep> _stepHistory = [ParentCreationStep.intro, ParentCreationStep.selectWalletType];
   int _currentStep = 1;
   int? _keyPreparationStep;
@@ -100,6 +100,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   bool _isTitleAnimationCompleted = false;
   bool _isTimelineAnimationCompleted = false;
   bool _isDuplicateChildWalletDialogVisible = false;
+  bool _isCheckingDuplicateWallet = false;
   bool _isCreatingChildWallet = false;
   bool _currentVaultMnemonicAuthRequested = false;
 
@@ -108,6 +109,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   @override
   void initState() {
     super.initState();
+    _viewModel = ParentCreationViewModel(context.read<WalletProvider>());
     _viewModel.addListener(_handleViewModelChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _scheduleTitleAnimationCompletion());
   }
@@ -664,7 +666,6 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       isTaproot: true,
       taprootVaultSaveHandler: ({required name, required iconIndex, required colorIndex}) async {
         final result = await _viewModel.saveVault(
-          context.read<WalletProvider>(),
           name: name,
           iconIndex: iconIndex,
           colorIndex: colorIndex,
@@ -693,7 +694,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return const SizedBox.shrink();
     }
 
-    final qrData = context.read<WalletProvider>().getVaultById(addedWalletId).getWalletSyncString();
+    final qrData = _viewModel.getWalletSyncString(addedWalletId);
     return ParentCreationCompletionSteps.exportQrBody(qrData: qrData);
   }
 
@@ -1267,8 +1268,32 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     _addStep(ParentCreationStep.timelockSetup);
   }
 
-  void _addVaultNameAndIconSetupStep() {
-    _addEmbeddedStep(step: ParentCreationStep.vaultNameAndIconSetup, embeddedScreen: const SizedBox.shrink());
+  Future<void> _addVaultNameAndIconSetupStep() async {
+    if (_isCheckingDuplicateWallet) {
+      return;
+    }
+
+    _isCheckingDuplicateWallet = true;
+
+    try {
+      final sameWalletName = await _viewModel.findSameWalletName();
+      if (!mounted) {
+        return;
+      }
+
+      if (sameWalletName != null) {
+        await ParentCreationOverlays.showDuplicateWalletDialog(context, sameWalletName);
+        return;
+      }
+
+      if (!mounted) {
+        return;
+      }
+
+      _addEmbeddedStep(step: ParentCreationStep.vaultNameAndIconSetup, embeddedScreen: const SizedBox.shrink());
+    } finally {
+      _isCheckingDuplicateWallet = false;
+    }
   }
 
   void _addTimelineStep(VaultNameAndIconSetupSaveResult result) {

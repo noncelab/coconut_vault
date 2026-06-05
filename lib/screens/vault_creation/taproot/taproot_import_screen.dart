@@ -108,8 +108,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   void initState() {
     super.initState();
     _viewModel = TaprootImportViewModel(
-      isWalletSyncDescriptorImported:
-          (descriptor) => context.read<WalletProvider>().findWalletByDescriptor(descriptor) != null,
+      findWalletByDescriptor: (descriptor) => context.read<WalletProvider>().findWalletByDescriptor(descriptor),
       addTaprootVault: (walletCreateDto) => context.read<WalletProvider>().addTaprootVault(walletCreateDto),
     );
     _viewModel.addListener(_handleViewModelChanged);
@@ -243,13 +242,14 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
             dataType: TaprootScannerDataType.walletSync,
             topGuideWidget: Positioned(top: 80, left: 24, right: 24, child: guideText),
             onWalletSyncScanned: (walletSyncData) async {
-              final validationResult = _viewModel.validateWalletSyncData(walletSyncData);
-              if (validationResult == TaprootWalletSyncValidationResult.duplicate) {
-                await _showDuplicateWalletDialog();
+              if (!_viewModel.isValidDescriptor(walletSyncData.descriptor)) {
+                await _showInvalidWalletDialog();
                 return false;
               }
-              if (validationResult == TaprootWalletSyncValidationResult.invalid) {
-                await _showInvalidWalletDialog();
+
+              final sameWalletName = _viewModel.findSameWalletName(walletSyncData.descriptor);
+              if (sameWalletName != null) {
+                await _showDuplicateWalletDialog(sameWalletName);
                 return false;
               }
 
@@ -267,16 +267,14 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
     _addEmbeddedStep(TaprootImportStep.scanner);
   }
 
-  Future<void> _showDuplicateWalletDialog() async {
-    final step2 = t.taproot.taproot_import_screen.step2;
-
+  Future<void> _showDuplicateWalletDialog(String sameWalletName) async {
     await showDialog(
       context: context,
       builder: (dialogContext) {
         return CoconutPopup(
           languageCode: context.read<VisibilityProvider>().language,
-          title: step2.duplicate_wallet_title,
-          description: step2.duplicate_wallet_description,
+          title: t.alert.same_wallet.title,
+          description: t.alert.same_wallet.description(name: sameWalletName),
           rightButtonText: t.confirm,
           onTapRight: () => Navigator.pop(dialogContext),
         );

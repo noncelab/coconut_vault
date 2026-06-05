@@ -345,9 +345,9 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
               vibrateExtraLight();
 
-              final isDuplicateWallet = viewModel.isAlreadyImported(syncData.descriptor);
-              if (isDuplicateWallet) {
-                await ChildCreationOverlays.showDuplicateWalletDialog(context);
+              final sameWalletName = viewModel.findSameWalletName(syncData.descriptor);
+              if (sameWalletName != null ) {
+                await ChildCreationOverlays.showDuplicateWalletDialog(context, sameWalletName);
                 return false;
               }
 
