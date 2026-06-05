@@ -292,8 +292,14 @@ class ParentTimelockSetupBody extends StatelessWidget {
 
     final hourOfPeriod = selectedDateTime.hour % 12 == 0 ? 12 : selectedDateTime.hour % 12;
     final periodText = selectedDateTime.hour < 12 ? t.bottom_sheet.date_picker.am : t.bottom_sheet.date_picker.pm;
-    return '${selectedDateTime.year}년 ${selectedDateTime.month}월 ${selectedDateTime.day}일 '
-        '$periodText ${hourOfPeriod.toString().padLeft(2, '0')}:${selectedDateTime.minute.toString().padLeft(2, '0')}';
+    return t.taproot.taproot_import_screen.timeline.activation_datetime(
+      year: selectedDateTime.year,
+      month: selectedDateTime.month,
+      day: selectedDateTime.day,
+      period: periodText,
+      hour: hourOfPeriod.toString().padLeft(2, '0'),
+      minute: selectedDateTime.minute.toString().padLeft(2, '0'),
+    );
   }
 
   @override
