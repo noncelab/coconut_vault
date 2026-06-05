@@ -25,6 +25,7 @@ import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_s
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/mnemonic_view_screen.dart';
 import 'package:coconut_vault/widgets/box/info_box.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
+import 'package:coconut_vault/widgets/coconut_loading_overlay.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:coconut_vault/widgets/text/character_fade_in_text.dart';
@@ -1543,13 +1544,15 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return;
     }
 
-    _isCheckingDuplicateWallet = true;
+    _setCheckingDuplicateWallet(true);
 
     try {
       final sameWalletName = await _viewModel.findSameWalletName();
       if (!mounted) {
         return;
       }
+
+      _setCheckingDuplicateWallet(false);
 
       if (sameWalletName != null) {
         await ParentCreationOverlays.showDuplicateWalletDialog(context, sameWalletName);
@@ -1562,8 +1565,18 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
       _addEmbeddedStep(step: ParentCreationStep.vaultNameAndIconSetup, embeddedScreen: const SizedBox.shrink());
     } finally {
-      _isCheckingDuplicateWallet = false;
+      _setCheckingDuplicateWallet(false);
     }
+  }
+
+  void _setCheckingDuplicateWallet(bool isChecking) {
+    if (!mounted || _isCheckingDuplicateWallet == isChecking) {
+      return;
+    }
+
+    setState(() {
+      _isCheckingDuplicateWallet = isChecking;
+    });
   }
 
   void _addTimelineStep(VaultNameAndIconSetupSaveResult result) {
@@ -1984,7 +1997,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _viewModel.resetChildExistingKeyImportType();
     }
 
-    if (previousStepType == ParentCreationStep.timelockSetup || _currentStepType == ParentCreationStep.timelockSetup) {
+    if (previousStepType == ParentCreationStep.timelockSetup) {
       _resetTimelockDate();
     }
   }
@@ -2060,6 +2073,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
                   total: _viewModel.progressTotalStep,
                   current: _progressCurrentStep,
                 ),
+                if (_isCheckingDuplicateWallet)
+                  const Positioned.fill(child: CoconutLoadingOverlay(applyFullScreen: true)),
               ],
             ),
           ),
