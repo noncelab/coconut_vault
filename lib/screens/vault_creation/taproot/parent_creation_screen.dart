@@ -10,6 +10,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/parent_creation_view_model.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/vault_name_and_icon_setup_view_model.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
@@ -23,6 +24,7 @@ import 'package:coconut_vault/screens/vault_creation/taproot/parent_creation_ste
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/mnemonic_view_screen.dart';
+import 'package:coconut_vault/utils/date_format_util.dart';
 import 'package:coconut_vault/widgets/box/info_box.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
@@ -77,6 +79,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   static const int _progressInitialStepCount = 1;
   static const Color _parentWalletActiveColor = CoconutColors.purple;
 
+  late final String _language;
   late final ParentCreationViewModel _viewModel;
   final List<ParentCreationStep> _stepHistory = [ParentCreationStep.intro, ParentCreationStep.selectWalletType];
   int _currentStep = 1;
@@ -94,6 +97,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   int? _createdTaprootVaultId;
   ParentChildWalletSource? _childWalletSource;
   DateTime? _timelockPickerToday;
+  DateTime? _timelineTimelockDateTime;
   TaprootVaultCreationTimelineInfo? _timelineInfo;
   GlobalKey<MnemonicViewScreenState>? _currentVaultMnemonicViewKey;
   Timer? _titleAnimationTimer;
@@ -109,6 +113,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   @override
   void initState() {
     super.initState();
+    _language = context.read<VisibilityProvider>().language;
     _viewModel = ParentCreationViewModel(context.read<WalletProvider>());
     _viewModel.addListener(_handleViewModelChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _scheduleTitleAnimationCompletion());
@@ -665,11 +670,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       isEmbedded: true,
       isTaproot: true,
       taprootVaultSaveHandler: ({required name, required iconIndex, required colorIndex}) async {
-        final result = await _viewModel.saveVault(
-          name: name,
-          iconIndex: iconIndex,
-          colorIndex: colorIndex,
-        );
+        final timelockDateTime = _viewModel.selectedTimelockDateTime;
+        final result = await _viewModel.saveVault(name: name, iconIndex: iconIndex, colorIndex: colorIndex);
+        _timelineTimelockDateTime = timelockDateTime;
+
         return VaultNameAndIconSetupSaveResult.navigateToHome(
           addedWalletId: result.vaultId,
           taprootTimelineInfo: result.timelineInfo,
@@ -680,10 +684,18 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   Widget _buildTimelineBody() {
+    assert(_timelineTimelockDateTime != null);
+    if (_timelineTimelockDateTime == null) {
+      throw StateError('_timelineTimelockDateTime is null');
+    }
+
     return ParentCreationCompletionSteps.timelineIndicator(
       parentWalletType: _viewModel.selectedWalletType,
       timelineInfo: _timelineInfo,
-      timelockDateTimeText: ParentTimelockSetupBody.dateTimeText(_viewModel.selectedTimelockDateTime),
+      timelockDateTimeText: DateFormatUtil.formatLocalizedDateTime(
+        _timelineTimelockDateTime!,
+        _language,
+      ),
       onCompleted: _handleTimelineAnimationCompleted,
     );
   }
@@ -1345,6 +1357,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     return ParentTimelockSetupBody(
       selectedDateTime: _viewModel.selectedTimelockDateTime,
       onDatePressed: () => _showDatePicker(today),
+      language: _language,
     );
   }
 

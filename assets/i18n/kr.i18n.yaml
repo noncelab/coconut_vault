@@ -17,6 +17,9 @@ unit: "단위"
 hour: "시간"
 minute: "분"
 second: "초"
+am: "오전"
+pm: "오후"
+locale_datetime: "${year}년 ${month}월 ${day}일 ${dayPeriod} ${hour}:${minute}"
 settings: "설정"
 OK: "확인"
 confirm: "확인"
@@ -759,8 +762,6 @@ taproot:
       inheritance_wallet_restored: "상속 지갑을 복구했어요"
       inheritance_wallet_activation: "상속 지갑이 활성화 돼요"
       active_after: "${dateTime} 이후"
-      activation_datetime: "${year}년 ${month}월 ${day}일 ${period} ${hour}:${minute}"
-
 mnemonic_coin_flip_screen:
   title: "니모닉 문구 만들기"
   guide: "동전을 던진 후 나온 면을 선택해 주세요"
@@ -1164,8 +1165,6 @@ bottom_sheet:
   date_picker:
     select_date: "날짜 선택"
     time: "시간"
-    am: "오전"
-    pm: "오후"
     placeholder: "일시를 지정해주세요"
 
 permission:

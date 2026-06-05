@@ -4,6 +4,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/parent_creation_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
+import 'package:coconut_vault/utils/date_format_util.dart';
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/widgets/button/assignable_pill_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -270,10 +271,17 @@ class ParentWalletSyncQr extends StatelessWidget {
 }
 
 class ParentTimelockSetupBody extends StatelessWidget {
-  const ParentTimelockSetupBody({super.key, required this.selectedDateTime, required this.onDatePressed});
+  const ParentTimelockSetupBody({
+    super.key,
+    required this.selectedDateTime,
+    required this.onDatePressed,
+    required this.language,
+  });
 
   final DateTime? selectedDateTime;
   final VoidCallback onDatePressed;
+
+  final String language;
 
   static List<TextSpan> titleList() {
     return [
@@ -282,15 +290,12 @@ class ParentTimelockSetupBody extends StatelessWidget {
     ];
   }
 
-  static String dateTimeText(DateTime? selectedDateTime) {
+  String dateTimeText(DateTime? selectedDateTime) {
     if (selectedDateTime == null) {
       return t.bottom_sheet.date_picker.placeholder;
     }
 
-    final hourOfPeriod = selectedDateTime.hour % 12 == 0 ? 12 : selectedDateTime.hour % 12;
-    final periodText = selectedDateTime.hour < 12 ? t.bottom_sheet.date_picker.am : t.bottom_sheet.date_picker.pm;
-    return '${selectedDateTime.year}년 ${selectedDateTime.month}월 ${selectedDateTime.day}일 '
-        '$periodText ${hourOfPeriod.toString().padLeft(2, '0')}:${selectedDateTime.minute.toString().padLeft(2, '0')}';
+    return DateFormatUtil.formatLocalizedDateTime(selectedDateTime, language);
   }
 
   @override
