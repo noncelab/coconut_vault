@@ -721,8 +721,6 @@ taproot:
     step2:
       title1: "상속 지갑을 스캔하세요"
       invalid_wallet_sync_data: "유효한 상속 지갑 정보가 아닙니다"
-      duplicate_wallet_title: "이미 추가된 상속 지갑이에요"
-      duplicate_wallet_description: "이미 지갑 목록에 있는 상속 지갑이에요"
     step3:
       title1: "상속 지갑을 가져왔어요"
     step4:

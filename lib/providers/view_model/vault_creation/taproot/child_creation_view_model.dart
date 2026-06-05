@@ -108,9 +108,9 @@ class ChildCreationViewModel extends ChangeNotifier {
     return true;
   }
 
-  bool isAlreadyImported(String descriptor) {
-    final wallet = _walletProvider.findWalletByDescriptor(descriptor);
-    return wallet != null;
+  String? findSameWalletName(String descriptor) {
+    final result = _walletProvider.findWalletByDescriptor(descriptor);
+    return result?.name;
   }
 
   bool _validateVault(TaprootVaultListItem item) {

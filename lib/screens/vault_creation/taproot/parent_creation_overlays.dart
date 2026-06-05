@@ -38,6 +38,15 @@ class ParentCreationOverlays {
     );
   }
 
+  static Future<void> showDuplicateWalletDialog(BuildContext context, String name) {
+    return TaprootCreationOverlays.showInfoDialog(
+      context: context,
+      title: t.alert.same_wallet.title,
+      description: t.alert.same_wallet.description(name: name),
+      rightButtonText: t.confirm,
+    );
+  }
+
   static Future<bool?> showSameParentWalletDialog(BuildContext context) {
     return TaprootCreationOverlays.showConfirmDialog(
       context: context,
