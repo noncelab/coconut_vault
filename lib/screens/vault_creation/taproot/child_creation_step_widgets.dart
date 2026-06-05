@@ -229,7 +229,7 @@ class ChildCreationTimelineStep extends StatelessWidget {
         TimelineStepItem(
           title: t.taproot.child_creation_screen.step7.timeline.created_wallet,
           description: t.taproot.child_creation_screen.step7.timeline.singlesig_description(
-            mfp: viewModel.masterFingerprint ?? '000000',
+            mfp: viewModel.masterFingerprint!,
           ),
           status: TimelineStepStatus.current,
         ),
@@ -243,7 +243,7 @@ class ChildCreationTimelineStep extends StatelessWidget {
         TimelineStepItem(
           title: t.taproot.child_creation_screen.step7.timeline.imported_inheritance_info,
           description:
-              '${viewModel.scannedVaultItem?.name ?? 'Name'} | ${viewModel.scannedVaultItem?.owners.length == 1 ? t.taproot.child_creation_screen.step7.timeline.single_sig_wallet : t.taproot.child_creation_screen.step7.timeline.multisig_wallet}',
+              '${viewModel.scannedVaultItem!.name} | ${viewModel.scannedVaultItem!.owners.length == 1 ? t.taproot.child_creation_screen.step7.timeline.single_sig_wallet : t.taproot.child_creation_screen.step7.timeline.multisig_wallet}',
           status: TimelineStepStatus.upcoming,
         ),
         TimelineStepItem(

@@ -324,6 +324,8 @@ single_sig_sign_screen:
   creating_qr_code: "QRコードを生成します"
 signer_qr_bottom_sheet:
   title: "$nameにトランザクションをエクスポート"
+  at_hww: "$hwwTypeで"
+  scan_the_qr: "下記のQRコードをスキャンしてください。"
   vault_text1: "番鍵が保管されているボルトから"
   vault_text2: "マルチシグ"
   vault_text3: " 下記のQRコードをスキャンしてください。"
@@ -469,6 +471,7 @@ settings_screen:
     need_biometrics_setting_title: "生体認証を使用"
     need_biometrics_setting_desc: "生体認証を設定してください。"
     btn_move_to_setting: "設定に移動"
+    use_passphrase_title: "パスフレーズを使用"
     use_passphrase_description: "パスフレーズの使用は\n新しいウォレットを\n作成するのと同じです。\n誤って使用すると\nビットコインを\n永久に失う可能性があります。"
     use_passphrase_btn: "理解しました"
     change_account_title: "アカウント番号の変更"
@@ -585,6 +588,10 @@ taproot:
       multisig_how_to_prepare_key_title_2: "キーをどう準備しますか？"
       multisig_qr_title_1: "別のVaultで使えるように"
       multisig_qr_title_2: "準備済みの親ウォレット情報を表示します"
+      multisig_list_title_1: "下の親ウォレットボタンを押して"
+      multisig_list_title_2: "追加の親ウォレットをスキャンしてください"
+      multisig_list_description_1: "自分のウォレットを押すと"
+      multisig_list_description_2: "QRコードを確認できます"
       parent_wallet: "親ウォレット $index$masterFingerprintSuffix"
       device_auth_dialog_title: "デバイス認証"
       device_auth_dialog_description: "セキュア領域に保存されたニーモニックにアクセスするため、デバイス認証を行います。"
@@ -952,6 +959,7 @@ bsms_scanner_screen:
   import_bsms: "BSMSインポート"
   import_multisig_wallet: "マルチシグウォレットインポート"
   select: "選択"
+  press_button: "ボタンを押す"
   guide1_1: "他のボルトで作成されたマルチシグウォレットをインポートできます。"
   guide1_2: "別のボールトのホーム画面で、"
   guide1_3: "マルチシグウォレット"
@@ -1019,6 +1027,8 @@ coordinator_bsms_qr_screen:
   guide:
     text1: "他のボルトにこのウォレットを共有します。"
     text2: "すべてのキーはボルトに保存されています。"
+    text3: "署名に必要なすべてのキーはこのボルトに安全に保管されています。"
+    text4: "このマルチシグウォレットに必要な **$gen** キーは現在、別のボルトに保管されています。"
 multi_sig_memo_bottom_sheet:
   imported_wallet_memo: "外部ウォレットメモ"
   placeholder: "メモを書いてください。"
@@ -1151,12 +1161,17 @@ bottom_sheet:
     description: "必ずアカウント番号を覚えておいてください"
     placeholder: "アカウント番号を入力してください"
     account_error_message: "0〜2,147,483,647の範囲の値を入力してください。"
+  verify_passphrase:
+    title: "パスフレーズ確認"
+    description: "アカウント番号を変更するためにパスフレーズを確認します"
+    placeholder: "パスフレーズを入力してください"
+    passphrase_error_message: "パスフレーズが一致しません。もう一度入力してください。"
   date_picker:
     select_date: "日付を選択"
-  time: "時間"
-  am: "午前"
-  pm: "午後"
-  placeholder: "日時を指定してください"
+    time: "時間"
+    am: "午前"
+    pm: "午後"
+    placeholder: "日時を指定してください"
 
 permission:
   biometric: 
@@ -1296,6 +1311,7 @@ errors:
   vault_not_found_error: "署名できるウォレットがありません"
   extended_public_key_not_found_error: "直接使用したいウォレットを選択してマルチシグ機能を使用してください"
   user_cancelled_auth: "ユーザーがデバイス認証をキャンセルしました。"
+  unexpected_error_title: "エラーが発生しました"
   
 exceptions:
   seed_invalidated: 

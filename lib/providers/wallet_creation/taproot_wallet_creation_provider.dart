@@ -30,7 +30,6 @@ class TaprootWalletCreationProvider extends ChangeNotifier {
     } else {
       _childKeyData = keyData;
     }
-    notifyListeners();
   }
 
   void resetSecretAndPassphrase() {
