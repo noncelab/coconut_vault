@@ -29,11 +29,11 @@ class ParentCreationOverlays {
     );
   }
 
-  static Future<void> showSameChildWalletAsParentDialog(BuildContext context) {
+  static Future<void> showSameChildWalletAsParentDialog(BuildContext context, {required String description}) {
     return TaprootCreationOverlays.showInfoDialog(
       context: context,
       title: t.taproot.parent_creation_screen.step_2.same_child_wallet_as_parent_dialog_title,
-      description: t.taproot.parent_creation_screen.step_2.same_child_wallet_as_parent_dialog_description,
+      description: description,
       rightButtonText: t.confirm,
     );
   }

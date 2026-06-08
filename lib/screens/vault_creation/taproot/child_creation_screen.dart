@@ -435,7 +435,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   Widget _buildMnemonicImportScreen() {
-    return TaprootMnemonicFlowAdapter.buildMnemonicImportScreen(onCompleted: _addImportedMnemonicConfirmationStep);
+    return TaprootMnemonicFlowAdapter.buildMnemonicImportScreen(
+      showPassphraseWarningSubWidget: true,
+      onCompleted: _addImportedMnemonicConfirmationStep,
+    );
   }
 
   Widget _buildSeedQrImportScreen(ChildCreationViewModel viewModel) {
@@ -445,6 +448,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         return SizedBox(
           height: height,
           child: TaprootMnemonicFlowAdapter.buildSeedQrImportScreen(
+            showPassphraseWarningSubWidget: true,
             onMnemonicConfirmationRequested: (secret, passphrase) {
               viewModel.setSecretAndPassphrase(secret, passphrase);
               _onChildWalletSet(viewModel);
@@ -510,6 +514,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       walletId: selectedExistingVaultId,
       buildPassphraseToggle: context.read<VisibilityProvider>().isPassphraseUseEnabled,
       emptyPassphraseAsNull: true,
+      showPassphraseWarningSubWidget: true,
       onAuthCanceled: _handleBackPressed,
       onMnemonicReady: (mnemonic, passphrase) {
         final taprootProvider = context.read<TaprootWalletCreationProvider>();

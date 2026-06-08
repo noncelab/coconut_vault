@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
-import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/app_settings_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -265,7 +264,7 @@ abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
   Future<void> _showCameraPermissionDialog() async {
     await showConfirmDialog(
       context,
-      context.read<PreferenceProvider>().language,
+      context.read<VisibilityProvider>().language,
       t.coconut_qr_scanner.camera_error.title,
       t.coconut_qr_scanner.camera_error.need_camera_permission,
       rightButtonText: t.go_to_settings,

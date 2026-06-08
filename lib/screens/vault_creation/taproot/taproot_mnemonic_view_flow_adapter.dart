@@ -28,6 +28,7 @@ class TaprootMnemonicViewFlowAdapter {
     required int walletId,
     required bool buildPassphraseToggle,
     required bool emptyPassphraseAsNull,
+    bool showPassphraseWarningSubWidget = false,
     required VoidCallback onAuthCanceled,
     required TaprootMnemonicViewReadyCallback onMnemonicReady,
   }) {
@@ -40,6 +41,7 @@ class TaprootMnemonicViewFlowAdapter {
           isEmbedded: true,
           buildPassphraseToggle: buildPassphraseToggle,
           requirePassphraseConfirmation: true,
+          showPassphraseWarningSubWidget: showPassphraseWarningSubWidget,
           onAuthCanceled: onAuthCanceled,
           onNextButtonPressed: () {
             final mnemonicViewState = mnemonicViewKey.currentState;

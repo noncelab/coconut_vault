@@ -1,6 +1,7 @@
 import 'package:coconut_vault/core/wallet/taproot_validator.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
+import 'package:coconut_vault/utils/date_format_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -131,27 +132,8 @@ class ChildCreationViewModel extends ChangeNotifier {
     final matching = _scannedVaultItem!.beneficiaries.where((b) => b.masterFingerprint == _masterFingerprint);
     if (matching.isEmpty) return '';
 
-    final lockTime = matching.first.lockTime;
-    final date = DateTime.fromMillisecondsSinceEpoch(lockTime * 1000);
-    final year = date.year;
-    final month = date.month;
-    final day = date.day;
-    final hour24 = date.hour;
-    final hour12 = hour24 % 12 == 0 ? 12 : hour24 % 12;
-    final minute = date.minute.toString().padLeft(2, '0');
-    final paddedHour = hour12.toString().padLeft(2, '0');
-
-    if (lang == 'kr') {
-      final amPm = hour24 >= 12 ? '오후' : '오전';
-      return '$year년 $month월 $day일 $amPm $paddedHour:$minute';
-    } else if (lang == 'jp') {
-      final amPm = hour24 >= 12 ? '午後' : '午前';
-      return '$year年 $month월 $day일 $amPm $paddedHour:$minute';
-    } else {
-      final amPm = hour24 >= 12 ? 'PM' : 'AM';
-      final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      return '${months[month - 1]} $day, $year $paddedHour:$minute $amPm';
-    }
+    final datetime = DateTime.fromMillisecondsSinceEpoch(matching.first.lockTime * 1000);
+    return DateFormatUtil.formatLocalizedDateTime(datetime, lang);
   }
 
   ChildKeyPreparationType get keyPreparationType => _keyPreparationType;

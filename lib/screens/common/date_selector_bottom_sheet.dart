@@ -25,13 +25,19 @@ class DateSelectorBottomSheet {
       isCloseButton: true,
       child: StatefulBuilder(
         builder: (context, setBottomSheetState) {
+          final mediaQuery = MediaQuery.of(context);
+          final keyboardHeight = mediaQuery.viewInsets.bottom;
+          final isKeyboardVisible = keyboardHeight > 0;
           final bottomButtonAreaHeight =
-              FixedBottomButton.fixedBottomButtonDefaultHeight + MediaQuery.paddingOf(context).bottom + 20;
+              FixedBottomButton.fixedBottomButtonDefaultHeight + mediaQuery.padding.bottom + 20;
 
-          final maxHeight = (MediaQuery.sizeOf(context).height * 0.7).clamp(480.0, 650.0);
+          final screenHeight = mediaQuery.size.height;
+          final defaultMaxHeight = (screenHeight * 0.7).clamp(480.0, 650.0).toDouble();
+          final keyboardVisibleMaxHeight = (screenHeight - keyboardHeight - 96).clamp(260.0, 650.0).toDouble();
+          final maxHeight = isKeyboardVisible ? keyboardVisibleMaxHeight : defaultMaxHeight;
 
           return MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+            data: mediaQuery.copyWith(textScaler: const TextScaler.linear(1.0)),
             child: ConstrainedBox(
               constraints: BoxConstraints(maxHeight: maxHeight),
               child: SafeArea(
@@ -39,6 +45,8 @@ class DateSelectorBottomSheet {
                   children: [
                     Expanded(
                       child: SingleChildScrollView(
+                        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                        padding: EdgeInsets.only(bottom: isKeyboardVisible ? bottomButtonAreaHeight : 0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
@@ -46,9 +54,11 @@ class DateSelectorBottomSheet {
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(horizontal: 28),
                               child: CoconutDatePicker(
-                                amLabel: t.bottom_sheet.date_picker.am,
-                                pmLabel: t.bottom_sheet.date_picker.pm,
+                                amLabel: t.am,
+                                pmLabel: t.pm,
                                 timeLabel: t.bottom_sheet.date_picker.time,
+                                initialDate: selectedDate ?? today,
+                                currentDate: today,
                                 onDateChanged: (date) {
                                   debugPrint(date.toIso8601String());
                                   selectedDate = date;
