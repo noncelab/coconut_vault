@@ -386,6 +386,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                     Navigator.pushNamed(context, AppRoutes.multisigSetupInfo, arguments: {'id': vault.id});
                     return;
                   case WalletType.taproot:
+                    Navigator.pushNamed(context, AppRoutes.taprootSetupInfo, arguments: {'id': vault.id});
                     return;
                 }
               },

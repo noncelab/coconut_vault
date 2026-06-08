@@ -349,8 +349,26 @@ class WalletRepository {
   }
 
   Future<({Uint8List secret, Uint8List? passphrase})> _decryptSingleSigSeed(int id, {bool autoAuth = true}) async {
-    assert(getVaultById(id) is SingleSigVaultListItem);
-    final key = WalletStorageKeys.walletKey(id, WalletType.singleSignature);
+    final vault = getVaultById(id);
+    String key;
+
+    if (vault is SingleSigVaultListItem) {
+      key = WalletStorageKeys.walletKey(id, WalletType.singleSignature);
+    } else if (vault is TaprootVaultListItem) {
+      // Taproot 지갑의 경우, 로컬에 시드가 저장된 참여자의 정보를 찾아 키를 생성합니다.
+      // keyPath 또는 scriptPath 중 시드가 존재하는 첫 번째 정보를 사용합니다.
+      final seedInfo =
+          vault.keyPathSeedInfos.firstOrNull ?? vault.scriptPathSeedInfos.expand((s) => s.seedInfos).firstOrNull;
+
+      if (seedInfo == null) {
+        throw Exception('No local seed found for Taproot vault $id');
+      }
+
+      key = WalletStorageKeys.taprootSeedKey(id, seedInfo.extendedPublicKey);
+    } else {
+      throw ArgumentError('Unsupported vault type for seed decryption: ${vault?.runtimeType}');
+    }
+
     return _decryptSeed(key, autoAuth: autoAuth);
   }
 

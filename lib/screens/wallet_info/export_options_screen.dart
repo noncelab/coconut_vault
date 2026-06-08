@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/enums/wallet_export_format_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
@@ -31,11 +32,29 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
   }
 
   void onTapShareWithOtherVault() {
-    Navigator.pushReplacementNamed(context, AppRoutes.multisigBsmsView, arguments: {'id': widget.id});
+    final route = widget.walletType == WalletType.taproot ? AppRoutes.taprootSyncView : AppRoutes.multisigBsmsView;
+
+    Navigator.pushReplacementNamed(context, route, arguments: {'id': widget.id});
   }
 
   void onTapExportWatchOnlyWallet() {
-    _showSyncOptionBottomSheet(widget.id, context);
+    if (widget.walletType == WalletType.taproot) {
+      Navigator.pushReplacementNamed(
+        context,
+        AppRoutes.syncToWallet,
+        arguments: {
+          'id': widget.id,
+          'syncOption': SyncOption(
+            title: t.watch_only_options.coconut_wallet,
+            format: WalletExportFormatEnum.coconut,
+            iconPath: 'assets/svg/coconut_logo.svg',
+          ),
+          'walletType': widget.walletType,
+        },
+      );
+    } else {
+      _showSyncOptionBottomSheet(widget.id, context);
+    }
   }
 
   void onTapBackupWalletData() {
@@ -57,7 +76,7 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
           Navigator.pushReplacementNamed(
             context,
             AppRoutes.syncToWallet,
-            arguments: {'id': walletId, 'syncOption': syncOption},
+            arguments: {'id': walletId, 'syncOption': syncOption, 'walletType': widget.walletType},
           );
         },
       ),
@@ -76,8 +95,15 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
+                  if (widget.walletType == WalletType.taproot) ...[
+                    _buildOption(
+                      t.taproot.sync_qr_screen.title,
+                      t.taproot.sync_qr_screen.description,
+                      onTapShareWithOtherVault,
+                      true,
+                    ),
+                  ],
                   if (widget.walletType == WalletType.multiSignature) ...[
-                    // 다른 볼트와 공유하기 (멀티시그)
                     _buildOption(
                       t.multi_sig_setting_screen.export_menu.share_bsms,
                       t.multi_sig_setting_screen.export_menu.share_bsms_description,

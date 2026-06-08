@@ -5,6 +5,8 @@ import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
+import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/passphrase_warning_util.dart';
@@ -19,6 +21,7 @@ class MnemonicViewScreen extends StatefulWidget {
   const MnemonicViewScreen({
     super.key,
     this.walletId,
+    this.targetXpub,
     this.initialMnemonic,
     this.autoLoadMnemonic = true,
     this.isEmbedded = false,
@@ -30,6 +33,7 @@ class MnemonicViewScreen extends StatefulWidget {
   }) : assert(walletId != null || initialMnemonic != null);
 
   final int? walletId;
+  final String? targetXpub;
   final Uint8List? initialMnemonic;
   final bool autoLoadMnemonic;
   final bool isEmbedded;
@@ -178,7 +182,22 @@ class MnemonicViewScreenState extends State<MnemonicViewScreen> with TickerProvi
     }
 
     try {
-      _mnemonic = await _walletProvider.getSecret(walletId);
+      if (!widget.isEmbedded && _mnemonic.isEmpty) {
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
+
+      final vaultListItem = _walletProvider.getVaultById(walletId);
+      final argsFromRoute = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      final String? targetXpub = widget.targetXpub ?? argsFromRoute?['targetXpub'];
+
+      if (vaultListItem is TaprootVaultListItem && targetXpub != null) {
+        _mnemonic = await _walletProvider.getTaprootSecret(
+          walletId,
+          TaprootSeedKeyIdentifier(extendedPublicKey: targetXpub),
+        );
+      } else {
+        _mnemonic = await _walletProvider.getSecret(walletId);
+      }
     } on UserCanceledAuthException catch (_) {
       if (!mounted) return;
       if (widget.isEmbedded) {
