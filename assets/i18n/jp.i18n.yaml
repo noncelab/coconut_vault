@@ -764,6 +764,7 @@ taproot:
       inheritance_wallet_added: "相続人ウォレットを追加しました"
       inheritance_wallet_restored: "相続ウォレットを復元しました"
       inheritance_wallet_activation: "相続ウォレットが有効になります"
+      inheritance_wallet_activated: "相続ウォレットが有効になりました"
       active_after: "${dateTime}以降"
 mnemonic_coin_flip_screen:
   title: "ニーモニック作成"

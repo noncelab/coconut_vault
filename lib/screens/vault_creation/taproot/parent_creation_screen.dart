@@ -821,6 +821,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       parentWalletType: _viewModel.selectedWalletType,
       timelineInfo: _timelineInfo,
       timelockDateTimeText: DateFormatUtil.formatLocalizedDateTime(_timelineTimelockDateTime!, _language),
+      timelockEpochTime: _timelineTimelockDateTime!.millisecondsSinceEpoch ~/ Duration.millisecondsPerSecond,
       onCompleted: _handleTimelineAnimationCompleted,
     );
   }

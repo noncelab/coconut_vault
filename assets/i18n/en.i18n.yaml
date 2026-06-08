@@ -762,6 +762,7 @@ taproot:
       inheritance_wallet_added: "Beneficiary wallet added"
       inheritance_wallet_restored: "Inheritance wallet restored"
       inheritance_wallet_activation: "Inheritance wallet will be activated"
+      inheritance_wallet_activated: "Inheritance wallet is active"
       active_after: "After ${dateTime}"
 mnemonic_coin_flip_screen:
   title: "Mnemonic Generation"
