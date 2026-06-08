@@ -1,13 +1,9 @@
-// bsms_scanner_base.dart
 import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
-import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/app_settings_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
@@ -19,9 +15,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
-/// BSMS 스캐너 공통 베이스
-abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
-  final String wrongFormatMessage = t.coordinator_bsms_config_scanner_screen.error_message;
+abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
+  String get wrongFormatPromptTitle => t.errors.invalid_qr_title;
+  String get wrongFormatPromptMessage => t.errors.invalid_qr;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   late VisibilityProvider visibilityProvider;
@@ -34,19 +30,24 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   bool showProgressBar = false;
   bool _isScanningExtraData = false;
 
-  /// AppBar 타이틀
-  String get appBarTitle => t.bsms_scanner_screen.import_bsms;
+  String get appBarTitle => t.scan_qr;
   bool get useBottomAppBar => false;
   bool get showBackButton => true;
+  bool get showAppBar => true;
   bool get showBottomButton => false;
+  String get bottomButtonText => '';
 
   bool _isShowedCameraPermissionDialog = false;
 
   /// 툴팁 RichText
   List<TextSpan> buildTooltipRichText(BuildContext context, VisibilityProvider visibilityProvider);
 
+  Widget? buildTopGuideWidget(BuildContext context) => null;
+
   /// 실제 스캔 정보 처리 로직
   void onBarcodeDetected(BarcodeCapture capture);
+
+  void onBottomButtonClicked() {}
 
   /// 스캔 실패 시 다이얼로그 + 카메라 재시작
   Future<void> onFailedScanning(String message) async {
@@ -54,18 +55,38 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
       // INFO: 꼭 로딩 UI가 보일 필요는 없지만 프롬프트가 닫히기 전까지 onBarcodeDetected 방지
       isProcessing = true;
     }
-    await showAlertDialog(
+    await _stopCamera();
+    if (!mounted) {
+      return;
+    }
+    await showDialog(
       context: context,
-      content: message,
-      onConfirmPressed: () {
-        if (!mounted) return;
-        if (isProcessing) {
-          setState(() {
-            isProcessing = false;
-          });
-        }
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return CoconutPopup(
+          languageCode: visibilityProvider.language,
+          title: wrongFormatPromptTitle,
+          description: message,
+          rightButtonText: t.confirm,
+          onTapRight: () {
+            if (mounted && isProcessing) {
+              setState(() {
+                isProcessing = false;
+              });
+            }
+            Navigator.pop(dialogContext);
+          },
+        );
       },
     );
+  }
+
+  Future<void> _stopCamera() async {
+    try {
+      await controller?.stop();
+    } catch (e) {
+      debugPrint('QR scanner stop failed: $e');
+    }
   }
 
   void updateScanProgress(double progress) {
@@ -118,7 +139,8 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
 
     // WidgetsBinding.instance.addPostFrameCallback((_) async {
     //   await Future.delayed(const Duration(milliseconds: 1000));
-    //   // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아 progress hide 합니다. 현재는 1초 후 hide
+    //   // fixme 추후 QRCodeScanner가 개선되면 QRCodeScanner 의 카메라 뷰 생성 완료된 콜백 찾아
+    //   // progress hide 합니다. 현재는 1초 후 hide
     //   if (!mounted) return;
     //   setState(() {
     //     isProcessing = false;
@@ -126,8 +148,8 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
     // });
 
     controller = MobileScannerController(
-      // 1. 중복 인식 방지
-      detectionSpeed: DetectionSpeed.noDuplicates,
+      // scanWindow 경계에서 먼저 감지된 동일 QR도 영역 안으로 들어온 뒤 다시 처리될 수 있어야 합니다.
+      detectionSpeed: DetectionSpeed.normal,
       // 2. 해상도를 HD급 이상으로 설정
       cameraResolution: const Size(1280, 720),
     )..addListener(_onCameraStateChanged);
@@ -137,6 +159,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   void dispose() {
     _progressNotifier.dispose();
     controller?.removeListener(_onCameraStateChanged);
+    controller?.stop();
     controller?.dispose();
     if (appLifecycleStateProvider.ignoredOperations.contains(AppLifecycleOperations.cameraAuthRequest)) {
       appLifecycleStateProvider.endOperation(AppLifecycleOperations.cameraAuthRequest);
@@ -148,39 +171,43 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   Widget build(BuildContext context) {
     return CustomLoadingOverlay(
       child: Scaffold(
-        appBar: CoconutAppBar.build(
-          title: appBarTitle,
-          backgroundColor: CoconutColors.white,
-          context: context,
-          isBackButton: showBackButton,
-          isBottom: useBottomAppBar,
-          actionButtonList: [
-            IconButton(
-              icon: const Icon(CupertinoIcons.camera_rotate, size: 22),
-              color: CoconutColors.black,
-              onPressed: () {
-                controller?.switchCamera();
-              },
-            ),
-          ],
-        ),
+        appBar:
+            showAppBar
+                ? CoconutAppBar.build(
+                  title: appBarTitle,
+                  backgroundColor: CoconutColors.white,
+                  context: context,
+                  isBackButton: showBackButton,
+                  isBottom: useBottomAppBar,
+                  actionButtonList: [
+                    IconButton(
+                      icon: const Icon(CupertinoIcons.camera_rotate, size: 22),
+                      color: CoconutColors.black,
+                      onPressed: () {
+                        controller?.switchCamera();
+                      },
+                    ),
+                  ],
+                )
+                : null,
         body: SafeArea(top: false, child: _buildChild(context)),
       ),
     );
   }
 
   Widget _buildChild(BuildContext context) {
-    final tooltipTextSpan = TextSpan(
-      style: CoconutTypography.body2_14,
-      children: buildTooltipRichText(context, visibilityProvider),
-    );
+    final topGuideWidget = buildTopGuideWidget(context);
+    final tooltipTextSpan =
+        topGuideWidget == null
+            ? TextSpan(style: CoconutTypography.body2_14, children: buildTooltipRichText(context, visibilityProvider))
+            : null;
 
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final Size layoutSize = constraints.biggest;
         // ScannerOverlay와 동일한 크기의 정사각형 스캔 영역 계산
         final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context, tooltipTextSpan: tooltipTextSpan);
-        final Rect scanWindow = Rect.fromCenter(
+        final scanWindow = Rect.fromCenter(
           center: layoutSize.center(Offset.zero),
           width: scanAreaSize,
           height: scanAreaSize,
@@ -192,6 +219,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
               controller: controller,
               scanWindow: scanWindow,
               onDetect: (capture) {
+                debugPrint('QR scanner detected barcode count: ${capture.barcodes.length}');
                 if (isProcessing) return;
                 if (!mounted) return;
                 onBarcodeDetected(capture);
@@ -202,29 +230,27 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
                   WidgetsBinding.instance.addPostFrameCallback((_) async {
                     if (!mounted) return;
                     await _showCameraPermissionDialog();
-                    if (!mounted) return;
+                    if (!mounted || !context.mounted) return;
                     Navigator.pop(context);
                   });
                 }
                 return Center(child: Text(error.errorCode.message));
               },
             ),
-            ScannerOverlay(tooltipTextSpan: tooltipTextSpan),
-            _buildProgressOverlay(context, tooltipTextSpan),
-
-            CustomTooltip.buildInfoTooltip(
-              context,
-              richText: RichText(text: tooltipTextSpan),
-              isBackgroundWhite: false,
-              paddingTop: 20,
-            ),
+            ScannerOverlay(tooltipTextSpan: tooltipTextSpan, scanWindow: scanWindow),
+            _buildProgressOverlay(context, tooltipTextSpan: tooltipTextSpan),
+            topGuideWidget ??
+                CustomTooltip.buildInfoTooltip(
+                  context,
+                  richText: RichText(text: tooltipTextSpan!),
+                  isBackgroundWhite: false,
+                  paddingTop: 20,
+                ),
             _buildLoadingOverlay(context),
             if (showBottomButton)
               FixedBottomButton(
-                onButtonClicked: () {
-                  Navigator.pushReplacementNamed(context, AppRoutes.bsmsPaste);
-                },
-                text: t.bsms_scanner_base.paste,
+                onButtonClicked: onBottomButtonClicked,
+                text: bottomButtonText,
                 showGradient: false,
                 backgroundColor: CoconutColors.white,
                 textColor: CoconutColors.black,
@@ -238,7 +264,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
   Future<void> _showCameraPermissionDialog() async {
     await showConfirmDialog(
       context,
-      context.read<PreferenceProvider>().language,
+      context.read<VisibilityProvider>().language,
       t.coconut_qr_scanner.camera_error.title,
       t.coconut_qr_scanner.camera_error.need_camera_permission,
       rightButtonText: t.go_to_settings,
@@ -264,7 +290,7 @@ abstract class BsmsScannerBase<T extends StatefulWidget> extends State<T> {
     );
   }
 
-  Widget _buildProgressOverlay(BuildContext context, TextSpan tooltipTextSpan) {
+  Widget _buildProgressOverlay(BuildContext context, {TextSpan? tooltipTextSpan}) {
     final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context, tooltipTextSpan: tooltipTextSpan);
     final scanAreaTop = (MediaQuery.of(context).size.height - scanAreaSize) / 2;
     final scanAreaBottom = scanAreaTop + scanAreaSize;

@@ -8,6 +8,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/usecases/reset_credentials_and_wallets_usecase.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
@@ -73,72 +74,76 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     });
 
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!_isAppLaunched) {
-        setState(() {
-          _isPinInputLocked = false;
-        });
-        return;
-      }
-
-      if (_authProvider.isPermanentlyLocked) {
-        setState(() {
-          _isPinInputLocked = true;
-        });
-        return;
-      }
-
-      if (!_authProvider.isUnlockAvailable) {
-        setState(() {
-          _isPinInputLocked = true;
-          if (_authProvider.unlockAvailableAt != null) {
-            _startCountdownTimerUntil(_authProvider.unlockAvailableAt!);
-          }
-        });
-      } else {
-        setState(() {
-          _isPinInputLocked = false;
-          _isLastChanceToTry = _authProvider.currentTurn + 1 == kMaxTurn;
-
-          if (!_authProvider.isPermanentlyLocked && _isLastChanceToTry) {
-            _errorMessage = t.errors.remaining_times_away_from_reset_error(
-              count: kMaxAttemptPerTurn - _authProvider.currentAttemptInTurn,
-            );
-          }
-        });
-      }
-
-      final authenticated = await _authenticateWithBiometricsIfEligible();
-      if (authenticated) {
-        _handleAuthenticationSuccess();
-      } else {
-        if (_shouldDelayKeyboard) {
-          setState(() {
-            _shouldDelayKeyboard = false;
-          });
-
-          if (_pinType == PinType.character) {
-            if (mounted) {
-              FocusScope.of(context).unfocus();
-
-              if (mounted && _characterFocusNode.canRequestFocus) {
-                _characterFocusNode.requestFocus();
-
-                if (Platform.isAndroid) {
-                  await Future.delayed(const Duration(milliseconds: 100));
-                  SystemChannels.textInput.invokeMethod('TextInput.show');
-                }
-              }
-            }
-          }
-        }
-      }
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _initializeLockState());
 
     _shuffledPinNumbers = _authProvider.getShuffledNumberList();
 
     if (_isAppLaunched && _authProvider.isPermanentlyLocked) {
       _errorMessage = t.errors.pin_max_attempts_exceeded_error;
+    }
+  }
+
+  Future<void> _initializeLockState() async {
+    if (!_isAppLaunched) {
+      setState(() {
+        _isPinInputLocked = false;
+      });
+      return;
+    }
+
+    if (_authProvider.isPermanentlyLocked) {
+      setState(() {
+        _isPinInputLocked = true;
+      });
+      return;
+    }
+
+    if (!_authProvider.isUnlockAvailable) {
+      setState(() {
+        _isPinInputLocked = true;
+        if (_authProvider.unlockAvailableAt != null) {
+          _startCountdownTimerUntil(_authProvider.unlockAvailableAt!);
+        }
+      });
+    } else {
+      setState(() {
+        _isPinInputLocked = false;
+        _isLastChanceToTry = _authProvider.currentTurn + 1 == kMaxTurn;
+
+        if (_isLastChanceToTry) {
+          _errorMessage = t.errors.remaining_times_away_from_reset_error(
+            count: kMaxAttemptPerTurn - _authProvider.currentAttemptInTurn,
+          );
+        }
+      });
+    }
+
+    final authenticated = await _authenticateWithBiometricsIfEligible();
+    if (authenticated) {
+      _handleAuthenticationSuccess();
+    } else if (_shouldDelayKeyboard) {
+      _handleKeyboardFocus();
+    }
+  }
+
+  void _handleKeyboardFocus() async {
+    setState(() {
+      _shouldDelayKeyboard = false;
+    });
+
+    if (_pinType == PinType.character) {
+      if (mounted) {
+        FocusScope.of(context).unfocus();
+
+        if (mounted && _characterFocusNode.canRequestFocus) {
+          _characterFocusNode.requestFocus();
+
+          if (Platform.isAndroid) {
+            await Future.delayed(const Duration(milliseconds: 100));
+            SystemChannels.textInput.invokeMethod('TextInput.show');
+          }
+        }
+      }
     }
   }
 
@@ -154,7 +159,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   }
 
   void _onKeyTap(String value) async {
-    if (_isPinInputLocked == null || _isPinInputLocked == true || _isAppLaunched && _authProvider.isPermanentlyLocked) {
+    if (_isPinInputLocked != false) {
       return;
     }
 
@@ -218,6 +223,10 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       return;
     }
 
+    _handleAuthenticationFailure();
+  }
+
+  void _handleAuthenticationFailure() {
     if (_isAppLaunched) {
       if (_authProvider.isPermanentlyLocked) {
         Logger.log('1 - _handlePermanentLockout');
@@ -302,15 +311,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     return timeComponents.join(' ');
   }
 
-  void _handlePermanentLockout() {
-    setState(() {
-      _isLastChanceToTry = false;
-      _errorMessage = t.errors.pin_max_attempts_exceeded_error;
-    });
-    _authProvider.resetData(context.read<PreferenceProvider>());
-    widget.onPermanentlyLocked?.call();
-  }
-
   void _showResetDialog() {
     showDialog(
       context: context,
@@ -338,12 +338,31 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   }
 
   Future<void> _reset() async {
-    await _authProvider.resetPin(context.read<PreferenceProvider>());
+    // PinCheckScreen은 appLaunch 플로우에서 사용되어 WalletProvider가 아직 트리에 없으므로 walletProvider 전달하지 않음.
+    await ResetCredentialsAndWalletsUsecase.execute(
+      authProvider: _authProvider,
+      preferenceProvider: context.read<PreferenceProvider>(),
+    );
 
     if (mounted) {
       Navigator.of(context).pop();
     }
     widget.onReset?.call();
+  }
+
+  Future<void> _handlePermanentLockout() async {
+    setState(() {
+      _isLastChanceToTry = false;
+      _errorMessage = t.errors.pin_max_attempts_exceeded_error;
+      _isPinInputLocked = true;
+    });
+    // PinCheckScreen은 appLaunch 플로우에서 사용되어 WalletProvider가 아직 트리에 없으므로 walletProvider 전달하지 않음.
+    await ResetCredentialsAndWalletsUsecase.execute(
+      authProvider: _authProvider,
+      preferenceProvider: context.read<PreferenceProvider>(),
+    );
+
+    widget.onPermanentlyLocked?.call();
   }
 
   @override

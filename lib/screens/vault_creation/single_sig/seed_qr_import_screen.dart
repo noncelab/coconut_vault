@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -7,14 +8,12 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
-import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_confirmation_screen.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
 import 'package:crypto/crypto.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -26,7 +25,24 @@ import 'package:permission_handler/permission_handler.dart';
 class SeedQrImportScreen extends StatefulWidget {
   final MultisigSigner? externalSigner;
   final int? multisigVaultIdOfExternalSigner;
-  const SeedQrImportScreen({super.key, this.externalSigner, this.multisigVaultIdOfExternalSigner});
+  final bool isEmbedded;
+  final bool isTaproot;
+  final bool requirePassphraseConfirmation;
+  final bool showPassphraseWarningSubWidget;
+  final VoidCallback? onCompleted;
+  final FutureOr<void> Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
+
+  const SeedQrImportScreen({
+    super.key,
+    this.externalSigner,
+    this.multisigVaultIdOfExternalSigner,
+    this.isEmbedded = false,
+    this.isTaproot = false,
+    this.requirePassphraseConfirmation = false,
+    this.showPassphraseWarningSubWidget = false,
+    this.onCompleted,
+    this.onMnemonicConfirmationRequested,
+  });
 
   @override
   State<SeedQrImportScreen> createState() => _SeedQrImportScreenState();
@@ -73,7 +89,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
   Future<void> _showCameraPermissionDialog() async {
     await showConfirmDialog(
       context,
-      context.read<PreferenceProvider>().language,
+      context.read<VisibilityProvider>().language,
       t.coconut_qr_scanner.camera_error.title,
       t.coconut_qr_scanner.camera_error.need_camera_permission,
       rightButtonText: t.go_to_settings,
@@ -106,50 +122,53 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CoconutColors.white,
-      appBar: CoconutAppBar.build(
-        context: context,
-        title: t.seed_qr_import_screen.title,
-        backgroundColor: CoconutColors.white,
-        actionButtonList: [
-          IconButton(
-            icon: SvgPicture.asset(
-              'assets/svg/arrow-reload.svg',
-              width: 20,
-              height: 20,
-              colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+    final body = Stack(
+      children: [
+        if (_hasPermission) _buildQrView(context) else const Center(child: CoconutCircularIndicator()),
+        CustomTooltip.buildInfoTooltip(
+          context,
+          richText: RichText(
+            text: TextSpan(
+              style: CoconutTypography.body2_14,
+              children: [
+                TextSpan(
+                  text: t.seed_qr_import_screen.guide,
+                  style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
+                ),
+              ],
             ),
-            color: CoconutColors.black,
-            onPressed: () {
-              controller?.flipCamera();
-            },
           ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          if (_hasPermission) _buildQrView(context) else const Center(child: CircularProgressIndicator()),
-
-          CustomTooltip.buildInfoTooltip(
-            context,
-            richText: RichText(
-              text: TextSpan(
-                style: CoconutTypography.body2_14,
-                children: [
-                  TextSpan(
-                    text: t.seed_qr_import_screen.guide,
-                    style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
-                  ),
-                ],
-              ),
-            ),
-            paddingTop: 20,
-            isBackgroundWhite: false,
-          ),
-        ],
-      ),
+          paddingTop: 20,
+          isBackgroundWhite: false,
+        ),
+      ],
     );
+
+    return widget.isEmbedded
+        ? body
+        : Scaffold(
+          backgroundColor: CoconutColors.white,
+          appBar: CoconutAppBar.build(
+            context: context,
+            title: t.seed_qr_import_screen.title,
+            backgroundColor: CoconutColors.white,
+            actionButtonList: [
+              IconButton(
+                icon: SvgPicture.asset(
+                  'assets/svg/arrow-reload.svg',
+                  width: 20,
+                  height: 20,
+                  colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+                ),
+                color: CoconutColors.black,
+                onPressed: () {
+                  controller?.flipCamera();
+                },
+              ),
+            ],
+          ),
+          body: body,
+        );
   }
 
   Widget _buildQrView(BuildContext context) {
@@ -175,6 +194,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
     setState(() {
       this.controller = controller;
     });
+    controller.resumeCamera();
     List<String>? words;
     controller.scannedDataStream.listen((scanData) async {
       if (_isNavigating || _isProcessing) return;
@@ -231,6 +251,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
 
       if (words!.length == 12 || words!.length == 24) {
         if (mounted) {
+          final secret = Uint8List.fromList(utf8.encode(words!.join(' ')));
           _isNavigating = true;
           // 1. 네비게이션하기 전 카메라 끄기
           controller.pauseCamera();
@@ -240,12 +261,21 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
             MaterialPageRoute(
               builder:
                   (context) => SeedQrConfirmationScreen(
-                    scannedData: utf8.encode(words!.join(' ')),
+                    scannedData: secret,
                     externalSigner: widget.externalSigner,
                     multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
+                    isTaproot: widget.isTaproot,
+                    requirePassphraseConfirmation: widget.requirePassphraseConfirmation,
+                    showPassphraseWarningSubWidget: widget.showPassphraseWarningSubWidget,
+                    onCompleted: widget.onCompleted,
+                    onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
                   ),
             ),
-          ).then((_) {
+          ).then((result) {
+            if (result == true && widget.isTaproot && mounted) {
+              Navigator.pop(context, true);
+              return;
+            }
             // 2. 돌아왔을 때 카메라 재개하기
             if (mounted) {
               controller.resumeCamera();

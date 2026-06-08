@@ -40,4 +40,8 @@ class AppRoutes {
   static const String mnemonicDiceRoll = '/mnemonic-dice-roll';
   static const String mnemonicAutoGen = '/mnemonic-auto-gen';
   static const String bsmsPaste = '/bsms-paste';
+  static const String taprootCreationOptions = '/taproot-creation';
+  static const String taprootParentCreation = '/taproot-parent-creation';
+  static const String taprootChildCreation = '/taproot-child-creation';
+  static const String taprootPreparedCreation = '/taproot-prepared-creation';
 }

@@ -4,6 +4,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -23,29 +24,25 @@ class VaultRowItem extends StatefulWidget {
     this.entryPoint,
     this.isSelectable = false,
     this.onSelected,
-    this.isPressed = false,
+    this.isSelected = false,
     this.isStarVisible = false,
     this.isFavorite = false,
     this.isPrimaryWallet,
     this.isEditMode = false,
-    this.isLastItem,
     this.onTapStar,
     this.onLongPressed,
     this.index,
     this.isNextIconVisible = true,
     this.isKeyBorderVisible = false,
-    this.isSelected = false,
   });
 
   final VaultListItemBase vault;
   final bool isSelectable;
   final VoidCallback? onSelected;
-  final bool isPressed;
   final bool isStarVisible;
   final bool isFavorite;
   final bool? isPrimaryWallet;
   final bool isEditMode;
-  final bool? isLastItem;
   final ValueChanged<(bool, int)>? onTapStar;
   final String? entryPoint;
   final VoidCallback? onLongPressed;
@@ -124,54 +121,53 @@ class VaultRowItem extends StatefulWidget {
 }
 
 class _VaultRowItemState extends State<VaultRowItem> {
-  bool isPressing = false;
-
-  bool _isMultiSig = false;
-  String _subtitleText = '';
-  bool _isUsedToMultiSig = false;
-  List<MultisigSigner>? _multiSigners;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  void _updateVault() {
-    _isMultiSig = false;
-    _subtitleText = '';
-    _isUsedToMultiSig = false;
-    _multiSigners = null;
-
-    if (widget.vault.vaultType == WalletType.multiSignature) {
-      _isMultiSig = true;
-      final multi = widget.vault as MultisigVaultListItem;
-      _subtitleText = '${multi.requiredSignatureCount}/${multi.signers.length}';
-      _multiSigners = multi.signers;
-    } else {
-      final single = widget.vault as SingleSigVaultListItem;
-      if (single.linkedMultisigInfo != null) {
-        final multisigKey = single.linkedMultisigInfo!;
-        if (multisigKey.keys.isNotEmpty) {
-          final model = Provider.of<WalletProvider>(context, listen: false);
-          try {
-            final multisig = model.getVaultById(multisigKey.keys.first);
-            _subtitleText = t.wallet_subtitle(
-              name: TextUtils.ellipsisIfLonger(multisig.name),
-              index: multisigKey.values.first + 1,
-            );
-            _isUsedToMultiSig = true;
-          } catch (_) {}
-        }
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    _updateVault();
+    final vault = widget.vault;
+    final walletProvider = context.read<WalletProvider>();
+
+    final bool isMultiSig = vault.vaultType == WalletType.multiSignature;
+    final bool isTaproot = vault.vaultType == WalletType.taproot;
+    String subtitleText = '';
+    bool isUsedToMultiSig = false;
+    List<MultisigSigner>? multiSigners;
+    List<Color>? taprootGradientColors;
+
+    if (isMultiSig) {
+      final multi = vault as MultisigVaultListItem;
+      subtitleText = '${multi.requiredSignatureCount}/${multi.signers.length}';
+      multiSigners = multi.signers;
+    } else if (vault.vaultType == WalletType.singleSignature) {
+      final single = vault as SingleSigVaultListItem;
+      if (single.linkedMultisigInfo != null && single.linkedMultisigInfo!.keys.isNotEmpty) {
+        final multisigKey = single.linkedMultisigInfo!;
+        try {
+          final multisig = walletProvider.getVaultById(multisigKey.keys.first);
+          subtitleText = t.wallet_subtitle(
+            name: TextUtils.ellipsisIfLonger(multisig.name),
+            index: multisigKey.values.first + 1,
+          );
+          isUsedToMultiSig = true;
+        } catch (_) {}
+      }
+    } else if (isTaproot) {
+      final taproot = vault as TaprootVaultListItem;
+      subtitleText = taproot.isParent ? t.taproot.parent_wallet : t.taproot.child_wallet;
+      final baseColors = [
+        CoconutColors.lightSky.withValues(alpha: 0.2),
+        CoconutColors.periwinkle.withValues(alpha: 0.2),
+      ];
+      taprootGradientColors = taproot.isParent ? baseColors.reversed.toList() : baseColors;
+    }
 
     if (widget.isEditMode) {
       return _buildVaultContainerWidget(
+        isTaproot: isTaproot,
+        isMultiSig: isMultiSig,
+        isUsedToMultiSig: isUsedToMultiSig,
+        subtitleText: subtitleText,
+        multiSigners: multiSigners,
+        taprootGradientColors: taprootGradientColors,
         onTapStar: (pair) {
           if (widget.isPrimaryWallet != null) {
             widget.onTapStar?.call(pair);
@@ -183,10 +179,12 @@ class _VaultRowItemState extends State<VaultRowItem> {
     return ShrinkAnimationButton(
       pressedColor: CoconutColors.gray150,
       borderGradientColors:
-          widget.isKeyBorderVisible
-              ? [CoconutColors.black.withValues(alpha: 0.08), CoconutColors.black.withValues(alpha: 0.08)]
+          !isTaproot && widget.isKeyBorderVisible
+              ? widget.isSelected
+                  ? [CoconutColors.gray800, CoconutColors.gray800]
+                  : [CoconutColors.black.withValues(alpha: 0.08), CoconutColors.black.withValues(alpha: 0.08)]
               : null,
-      borderWidth: 1,
+      borderWidth: isTaproot ? 0 : 1,
       borderRadius: 8,
       onPressed: () async {
         if (widget.onSelected != null) {
@@ -194,14 +192,26 @@ class _VaultRowItemState extends State<VaultRowItem> {
           return;
         }
         final walletProvider = context.read<WalletProvider>();
+        final vaultType = walletProvider.getVaultById(widget.vault.id).vaultType;
+
+        if (vaultType == WalletType.multiSignature) {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.multisigSetupInfo,
+            arguments: {'id': widget.vault.id, 'entryPoint': widget.entryPoint},
+          );
+          return;
+        } else if (vaultType == WalletType.taproot) {
+          // TODO: 탭루트 지갑을 위한 전용 상세 정보 화면이 구현되면 해당 경로로 연결
+          return;
+        }
+
         bool shouldShowPassphraseVerifyMenu =
             walletProvider.isSigningOnlyMode ? false : await walletProvider.hasPassphrase(widget.vault.id);
         if (!context.mounted) return;
         Navigator.pushNamed(
           context,
-          widget.vault.vaultType == WalletType.multiSignature
-              ? AppRoutes.multisigSetupInfo
-              : AppRoutes.singleSigSetupInfo,
+          AppRoutes.singleSigSetupInfo,
           arguments: {
             'id': widget.vault.id,
             'entryPoint': widget.entryPoint,
@@ -212,13 +222,73 @@ class _VaultRowItemState extends State<VaultRowItem> {
       onLongPressed: () {
         widget.onLongPressed?.call();
       },
-      child: _buildVaultContainerWidget(),
+      child: _buildVaultContainerWidget(
+        isTaproot: isTaproot,
+        isMultiSig: isMultiSig,
+        isUsedToMultiSig: isUsedToMultiSig,
+        subtitleText: subtitleText,
+        multiSigners: multiSigners,
+        taprootGradientColors: taprootGradientColors,
+      ),
     );
   }
 
-  Widget _buildVaultContainerWidget({ValueChanged<(bool, int)>? onTapStar, int? index}) {
+  Widget _buildDragHandle(int index) {
+    return ReorderableDragStartListener(
+      index: index,
+      child: GestureDetector(
+        child: Padding(padding: const EdgeInsets.only(right: 8), child: SvgPicture.asset('assets/svg/hamburger.svg')),
+      ),
+    );
+  }
+
+  Widget _buildTrailingWidget(int? index) {
+    if (widget.isNextIconVisible) {
+      if (widget.isEditMode) {
+        return _buildDragHandle(index!);
+      }
+      return SvgPicture.asset('assets/svg/chevron-right.svg', width: 6, height: 10);
+    }
+    if (widget.isSelectable) {
+      return Icon(
+        Icons.check_rounded,
+        size: 24,
+        color: CoconutColors.black.withValues(alpha: widget.isSelected ? 1 : 0.1),
+      );
+    }
+    if (widget.isEditMode) {
+      return _buildDragHandle(index!);
+    }
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildVaultContainerWidget({
+    required bool isTaproot,
+    required bool isMultiSig,
+    required bool isUsedToMultiSig,
+    required String subtitleText,
+    List<MultisigSigner>? multiSigners,
+    List<Color>? taprootGradientColors,
+    ValueChanged<(bool, int)>? onTapStar,
+    int? index,
+  }) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: widget.isEditMode ? 8 : 20, vertical: 12),
+      decoration:
+          isTaproot
+              ? BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: CoconutColors.gray200, width: 1),
+                gradient:
+                    taprootGradientColors != null
+                        ? LinearGradient(
+                          colors: taprootGradientColors,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                        : null,
+              )
+              : null,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 37),
         child: Row(
@@ -245,11 +315,20 @@ class _VaultRowItemState extends State<VaultRowItem> {
                   ),
                 ),
               ),
-            VaultIconSmall(
-              iconIndex: widget.vault.iconIndex,
-              colorIndex: widget.vault.colorIndex,
-              gradientColors:
-                  _isMultiSig && _multiSigners != null ? CustomColorHelper.getGradientColors(_multiSigners!) : null,
+            Container(
+              decoration:
+                  isTaproot
+                      ? const BoxDecoration(
+                        color: CoconutColors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      )
+                      : null,
+              child: VaultIconSmall(
+                iconIndex: widget.vault.iconIndex,
+                colorIndex: widget.vault.colorIndex,
+                gradientColors:
+                    isMultiSig && multiSigners != null ? CustomColorHelper.getGradientColors(multiSigners) : null,
+              ),
             ),
             CoconutLayout.spacing_200w,
             Expanded(
@@ -269,14 +348,14 @@ class _VaultRowItemState extends State<VaultRowItem> {
                       alignment: Alignment.centerLeft,
                       child: Row(
                         children: [
-                          if (_isMultiSig || _isUsedToMultiSig) ...{
+                          if (isMultiSig || isUsedToMultiSig || isTaproot) ...{
                             Text(
-                              _subtitleText,
+                              subtitleText,
                               style: CoconutTypography.body2_14.copyWith(color: CoconutColors.gray600),
                             ),
                           },
                           if (widget.isPrimaryWallet == true) ...[
-                            if (_isMultiSig || _isUsedToMultiSig)
+                            if (isMultiSig || isUsedToMultiSig || isTaproot)
                               Text(
                                 ' • ${t.vault_list_screen.primary_wallet}',
                                 style: CoconutTypography.body2_14.setColor(CoconutColors.gray500),
@@ -295,35 +374,7 @@ class _VaultRowItemState extends State<VaultRowItem> {
               ),
             ),
             CoconutLayout.spacing_200w,
-            widget.isNextIconVisible
-                ? widget.isEditMode
-                    ? ReorderableDragStartListener(
-                      index: index!,
-                      child: GestureDetector(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: SvgPicture.asset('assets/svg/hamburger.svg'),
-                        ),
-                      ),
-                    )
-                    : SvgPicture.asset('assets/svg/chevron-right.svg', width: 6, height: 10)
-                : widget.isSelectable
-                ? Icon(
-                  Icons.check_rounded,
-                  size: 24,
-                  color: CoconutColors.black.withValues(alpha: widget.isSelected ? 1 : 0.1),
-                )
-                : widget.isEditMode
-                ? ReorderableDragStartListener(
-                  index: index!,
-                  child: GestureDetector(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: SvgPicture.asset('assets/svg/hamburger.svg'),
-                    ),
-                  ),
-                )
-                : const SizedBox.shrink(),
+            _buildTrailingWidget(index),
           ],
         ),
       ),

@@ -4,7 +4,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -209,24 +208,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         animationEndValue: 0.97,
                         onPressed: () async {
                           final authProvider = context.read<AuthProvider>();
-                          final lifecycleProvider = context.read<AppLifecycleStateProvider>();
-                          lifecycleProvider.startOperation(AppLifecycleOperations.biometricAuthentication);
-                          try {
-                            if (await authProvider.isBiometricsAuthValid()) {
-                              await _showPinSettingScreen();
-                              return;
-                            }
-
-                            if (!context.mounted) return;
-                            await MyBottomSheet.showBottomSheet_90(
-                              context: context,
-                              child: const LoaderOverlay(
-                                child: PinCheckScreen(pinCheckContext: PinCheckContextEnum.pinChange),
-                              ),
-                            );
-                          } finally {
-                            lifecycleProvider.endOperation(AppLifecycleOperations.biometricAuthentication);
+                          if (await authProvider.isBiometricsAuthValid()) {
+                            await _showPinSettingScreen();
+                            return;
                           }
+
+                          if (!context.mounted) return;
+                          await MyBottomSheet.showBottomSheet_90(
+                            context: context,
+                            child: const LoaderOverlay(
+                              child: PinCheckScreen(pinCheckContext: PinCheckContextEnum.pinChange),
+                            ),
+                          );
                         },
                       ),
                     } else ...{

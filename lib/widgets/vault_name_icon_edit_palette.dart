@@ -184,26 +184,26 @@ class _VaultNameIconEditPaletteState extends State<VaultNameIconEditPalette> {
                     controller: _controller,
                     focusNode: _focusNode,
                     padding: const EdgeInsets.all(16.0),
-                    suffix: IconButton(
-                      highlightColor: CoconutColors.gray200,
-                      iconSize: 14,
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        setState(() {
-                          _controller.text = '';
-                        });
-                      },
-                      icon:
-                          _controller.text.isNotEmpty
-                              ? SvgPicture.asset(
+                    suffix:
+                        _controller.text.isNotEmpty
+                            ? IconButton(
+                              highlightColor: CoconutColors.gray200,
+                              iconSize: 14,
+                              padding: EdgeInsets.zero,
+                              onPressed: () {
+                                setState(() {
+                                  _controller.text = '';
+                                });
+                              },
+                              icon: SvgPicture.asset(
                                 'assets/svg/text-field-clear.svg',
                                 colorFilter: ColorFilter.mode(
                                   _focusNode.hasFocus ? CoconutColors.gray800 : CoconutColors.gray400,
                                   BlendMode.srcIn,
                                 ),
-                              )
-                              : Container(),
-                    ),
+                              ),
+                            )
+                            : null,
                     onChanged: (text) {
                       setState(() {
                         _name = text;

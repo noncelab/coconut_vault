@@ -17,3 +17,13 @@ class Uint8ListBase64Converter implements JsonConverter<Uint8List?, String?> {
     return base64Encode(object);
   }
 }
+
+class RequiredUint8ListBase64Converter implements JsonConverter<Uint8List, String> {
+  const RequiredUint8ListBase64Converter();
+
+  @override
+  Uint8List fromJson(String json) => Uint8List.fromList(base64Decode(json));
+
+  @override
+  String toJson(Uint8List object) => base64Encode(object);
+}

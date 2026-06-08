@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/view_model/home/vault_list_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/services/wallet/wallet_service.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/home/vault_item_setting_bottom_sheet.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -80,9 +81,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
           // 편집모드에서 모든 볼트를 다 삭제했을 때 홈화면으로 자동 전환
           if (vaultListItem.isEmpty) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.popUntil(context, (route) {
-                return route.settings.name == '/';
-              });
+              Navigator.popUntil(context, (route) => route.isFirst);
             });
           }
 
@@ -187,7 +186,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       height: 16,
       colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
     );
-    debugPrint('_visibilityProvider.isEnglish: ${_visibilityProvider.isEnglish}');
+    bool isEnglishWordOrder = _visibilityProvider.isEnglishWordOrder;
     return Container(
       width: MediaQuery.sizeOf(context).width,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -199,22 +198,22 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       child: Column(
         children: [
           _buildEditModeHeaderLine([
-            if (_visibilityProvider.isEnglish) ...[
+            if (isEnglishWordOrder) ...[
               TextSpan(text: '${t.select} '),
               WidgetSpan(alignment: PlaceholderAlignment.top, child: starIcon),
               const TextSpan(text: ' '),
             ],
-            if (_visibilityProvider.isKorean) WidgetSpan(alignment: PlaceholderAlignment.top, child: starIcon),
+            if (!isEnglishWordOrder) WidgetSpan(alignment: PlaceholderAlignment.top, child: starIcon),
             TextSpan(text: t.vault_list_screen.edit.star_description),
           ]),
           CoconutLayout.spacing_100h,
           _buildEditModeHeaderLine([
-            if (_visibilityProvider.isEnglish) ...[
+            if (isEnglishWordOrder) ...[
               TextSpan(text: '${t.tap} '),
               WidgetSpan(alignment: PlaceholderAlignment.top, child: hamburgerIcon),
               const TextSpan(text: ' '),
             ],
-            if (_visibilityProvider.isKorean) WidgetSpan(alignment: PlaceholderAlignment.top, child: hamburgerIcon),
+            if (!isEnglishWordOrder) WidgetSpan(alignment: PlaceholderAlignment.top, child: hamburgerIcon),
             TextSpan(text: t.vault_list_screen.edit.order_description),
           ]),
           CoconutLayout.spacing_100h,
@@ -331,15 +330,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
     return Column(
       children: [
         if (isEditMode) CoconutLayout.spacing_100h,
-        _getVaultRowItem(
-          Key(vault.id.toString()),
-          vault,
-          isLastItem,
-          isFirstItem,
-          isEditMode,
-          isFavorite,
-          index: index,
-        ),
+        _getVaultRowItem(Key(vault.id.toString()), vault, isFirstItem, isEditMode, isFavorite, index: index),
         isEditMode
             ? CoconutLayout.spacing_100h
             : isLastItem
@@ -352,7 +343,6 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
   Widget _getVaultRowItem(
     Key key,
     VaultListItemBase vault,
-    bool isLastItem,
     bool isFirstItem,
     bool isEditMode,
     bool isFavorite, {
@@ -363,11 +353,10 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
     return VaultRowItem(
       key: key,
       vault: vault,
-      isLastItem: isLastItem,
       isPrimaryWallet: isFirstItem,
       isEditMode: isEditMode,
       isFavorite: isFavorite,
-      isStarVisible: isFavorite || _viewModel.tempFavoriteVaultIds.length < kMaxStarLength, // 즐겨찾기 제한 만큼 설정
+      isStarVisible: isFavorite || _viewModel.tempFavoriteVaultIds.length < kMaxFavoriteWallets, // 즐겨찾기 제한 만큼 설정
       onTapStar: (pair) {
         // pair: (bool isFavorite, int walletId)
 

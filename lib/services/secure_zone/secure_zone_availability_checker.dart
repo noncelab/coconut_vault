@@ -4,12 +4,11 @@ import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
-import 'package:coconut_vault/providers/auth_provider.dart';
-import 'package:coconut_vault/providers/preference_provider.dart';
-import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
 
 class SecureZoneManager {
@@ -37,10 +36,36 @@ class SecureZoneManager {
   Future<bool> isAndroidSecureZoneAccessible(WalletProvider walletProvider) async {
     assert(Platform.isAndroid && walletProvider.vaultList.isNotEmpty);
 
-    final firstSingleSignatureWalletId =
-        walletProvider.vaultList.firstWhere((vault) => vault.vaultType == WalletType.singleSignature).id;
+    final singleSig = walletProvider.vaultList.firstWhereOrNull(
+      (vault) => vault.vaultType == WalletType.singleSignature,
+    );
+    List<TaprootVaultListItem> taproots = [];
+    if (singleSig == null) {
+      taproots.addAll(walletProvider.vaultList.whereType<TaprootVaultListItem>());
+    }
     try {
-      await walletProvider.getSecret(firstSingleSignatureWalletId, autoAuth: false);
+      if (singleSig != null) {
+        await walletProvider.getSecret(singleSig.id, autoAuth: false);
+      } else if (taproots.isNotEmpty) {
+        for (final taprootVault in taproots) {
+          if (taprootVault.keyPathSeedInfos.isEmpty && taprootVault.scriptPathSeedInfos.isEmpty) {
+            continue;
+          }
+
+          final seedStoredParticipant =
+              taprootVault.owners.firstWhereOrNull((owner) => owner.isSeedStored) ??
+              taprootVault.beneficiaries.firstWhereOrNull((beneficiary) => beneficiary.isSeedStored);
+
+          if (seedStoredParticipant != null) {
+            await walletProvider.getTaprootSecret(
+              taprootVault.id,
+              seedStoredParticipant.seedKeyIdentifier,
+              autoAuth: false,
+            );
+            return true;
+          }
+        }
+      }
       return true;
     } on SeedInvalidatedException catch (_) {
       return false;
@@ -50,51 +75,6 @@ class SecureZoneManager {
         return true;
       }
       rethrow;
-    }
-  }
-
-  /// 보안 영역 접근 불가 시 저장된 데이터 초기화
-  Future<bool> deleteStoredData(
-    AuthProvider authProvider,
-    WalletProvider? walletProvider,
-    VisibilityProvider visibilityProvider,
-    PreferenceProvider preferenceProvider,
-  ) async {
-    try {
-      // Keep some data to restore
-      final hasSeenGuide = SharedPrefsRepository().getBool(SharedPrefsKeys.hasShownStartGuide) == true;
-      final selectedVaultMode = SharedPrefsRepository().getString(SharedPrefsKeys.kVaultMode);
-      final language = SharedPrefsRepository().getString(SharedPrefsKeys.kLanguage);
-      final isBtcUnit = SharedPrefsRepository().getBool(SharedPrefsKeys.kIsBtcUnit);
-      final isPassphraseUseEnabled = SharedPrefsRepository().getBool(SharedPrefsKeys.kPassphraseUseEnabled);
-
-      await SharedPrefsRepository().clearSharedPref();
-      await SecureStorageRepository().deleteAll();
-      await authProvider.resetPinData();
-
-      // Restore some data
-      if (hasSeenGuide) {
-        await SharedPrefsRepository().setBool(SharedPrefsKeys.hasShownStartGuide, true);
-      }
-      if (selectedVaultMode != '') {
-        await SharedPrefsRepository().setString(SharedPrefsKeys.kVaultMode, selectedVaultMode);
-      }
-      if (language != '') {
-        await SharedPrefsRepository().setString(SharedPrefsKeys.kLanguage, language);
-      }
-      if (isBtcUnit != null) {
-        await SharedPrefsRepository().setBool(SharedPrefsKeys.kIsBtcUnit, isBtcUnit);
-      }
-      if (isPassphraseUseEnabled != null) {
-        await SharedPrefsRepository().setBool(SharedPrefsKeys.kPassphraseUseEnabled, isPassphraseUseEnabled);
-      }
-
-      await walletProvider?.reloadRelatedToVault();
-      visibilityProvider.reloadRelatedToVault();
-      preferenceProvider.reloadRelatedToVault();
-      return true;
-    } catch (e) {
-      return false;
     }
   }
 }

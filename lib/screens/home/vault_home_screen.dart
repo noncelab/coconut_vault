@@ -18,6 +18,7 @@ import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_check_screen.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
+import 'package:coconut_vault/usecases/reset_credentials_and_wallets_usecase.dart';
 import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
@@ -33,9 +34,9 @@ import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
 class VaultHomeScreen extends StatefulWidget {
-  final Function onAllWalletDeleted;
+  final Function onSigningModeReset;
   final Function? onSecureZoneUnaccessible;
-  const VaultHomeScreen({super.key, required this.onAllWalletDeleted, this.onSecureZoneUnaccessible});
+  const VaultHomeScreen({super.key, required this.onSigningModeReset, this.onSecureZoneUnaccessible});
 
   @override
   State<VaultHomeScreen> createState() => _VaultHomeScreenState();
@@ -71,10 +72,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       if (!mounted) return;
 
       /// Android 비밀번호 삭제 여부 확인
-      if (Platform.isAndroid &&
-          !_viewModel.isSigningOnlyMode &&
-          _viewModel.vaultCount > 0 &&
-          _viewModel.hasSingleSigVault) {
+      if (Platform.isAndroid && !_viewModel.isSigningOnlyMode && _viewModel.vaultCount > 0 && _viewModel.hasSeed) {
         setState(() {
           _isAndroidSecureZoneChecking = true;
         });
@@ -373,19 +371,22 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
               vault: vault,
               isSelectable: false,
               onSelected: () async {
-                if (vault.vaultType == WalletType.multiSignature) {
-                  Navigator.pushNamed(context, AppRoutes.multisigSetupInfo, arguments: {'id': vault.id});
-                  return;
-                }
-
-                bool shouldShowPassphraseVerifyMenu =
-                    _viewModel.isSigningOnlyMode ? false : await _viewModel.hasPassphrase(vault.id);
-                if (mounted) {
-                  Navigator.pushNamed(
-                    context,
-                    AppRoutes.singleSigSetupInfo,
-                    arguments: {'id': vault.id, 'shouldShowPassphraseVerifyMenu': shouldShowPassphraseVerifyMenu},
-                  );
+                switch (vault.vaultType) {
+                  case WalletType.singleSignature:
+                    bool shouldShowPassphraseVerifyMenu =
+                        _viewModel.isSigningOnlyMode ? false : await _viewModel.hasPassphrase(vault.id);
+                    if (!mounted) return;
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.singleSigSetupInfo,
+                      arguments: {'id': vault.id, 'shouldShowPassphraseVerifyMenu': shouldShowPassphraseVerifyMenu},
+                    );
+                    return;
+                  case WalletType.multiSignature:
+                    Navigator.pushNamed(context, AppRoutes.multisigSetupInfo, arguments: {'id': vault.id});
+                    return;
+                  case WalletType.taproot:
+                    return;
                 }
               },
             );
@@ -565,11 +566,14 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                                   Navigator.pop(dialogContext);
                                 },
                                 onTapRight: () async {
-                                  await context.read<WalletProvider>().deleteAllWallets();
-                                  if (!context.mounted) return;
-                                  await context.read<PreferenceProvider>().resetVaultOrderAndFavorites();
+                                  assert(isSigningOnlyMode);
+                                  await ResetCredentialsAndWalletsUsecase.execute(
+                                    authProvider: context.read<AuthProvider>(),
+                                    walletProvider: context.read<WalletProvider>(),
+                                    preferenceProvider: context.read<PreferenceProvider>(),
+                                  );
 
-                                  widget.onAllWalletDeleted.call();
+                                  widget.onSigningModeReset.call();
                                 },
                               );
                             },

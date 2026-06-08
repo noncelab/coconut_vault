@@ -3,29 +3,29 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
+import 'package:coconut_vault/core/wallet/multisig_validator.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/screens/vault_creation/multisig/bsms_scanner_base.dart';
+import 'package:coconut_vault/screens/common/qr_scanner_screen_base.dart';
 import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/signer_bsms_qr_data_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:provider/provider.dart';
 
 // 멀티시그 서명 지갑 생성 시 HWW으로부터
 // Signer bsms 및 descriptor 정보를 스캔합니다.
 class SignerBsmsScannerScreen extends StatefulWidget {
   final int? id;
   final HardwareWalletType? hardwareWalletType;
+
   const SignerBsmsScannerScreen({super.key, this.id, this.hardwareWalletType = HardwareWalletType.coconutVault});
 
   @override
   State<SignerBsmsScannerScreen> createState() => _SignerBsmsScannerScreenState();
 }
 
-class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScreen> {
+class _SignerBsmsScannerScreenState extends QrScannerScreenBase<SignerBsmsScannerScreen> {
   static final String networkMismatchMessage = t.errors.invalid_network_type_error;
   late final SignerBsmsQrDataHandler _qrDataHandler;
   bool _isFirstScanData = true;
@@ -46,6 +46,12 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
   String get appBarTitle => widget.hardwareWalletType!.displayName;
 
   @override
+  String get wrongFormatPromptMessage => t.coordinator_bsms_config_scanner_screen.error_message;
+
+  @override
+  Widget? buildTopGuideWidget(BuildContext context) => null;
+
+  @override
   void onBarcodeDetected(BarcodeCapture capture) async {
     final codes = capture.barcodes;
     if (codes.isEmpty) {
@@ -57,6 +63,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
     }
 
     final scanData = barcode.rawValue!;
+    Logger.log('--> SignerBsmsScannerScreen: detected raw data: $scanData');
 
     SignerBsms? signerBsms;
     String? scanResult;
@@ -64,7 +71,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
     try {
       if (_isFirstScanData) {
         if (!_qrDataHandler.validateFormat(scanData)) {
-          onFailedScanning(wrongFormatMessage);
+          onFailedScanning(wrongFormatPromptMessage);
           return;
         }
         _isFirstScanData = false;
@@ -73,7 +80,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
       final joinResult = _qrDataHandler.joinData(scanData);
 
       if (joinResult == false && !_qrDataHandler.isFragmentedDataScanned) {
-        _handleScanFailure(wrongFormatMessage);
+        _handleScanFailure(wrongFormatPromptMessage);
         return;
       }
 
@@ -89,7 +96,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
 
       final result = _qrDataHandler.result;
       if (result == null) {
-        _handleScanFailure(wrongFormatMessage);
+        _handleScanFailure(wrongFormatPromptMessage);
         return;
       }
 
@@ -122,7 +129,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
     } catch (e) {
       if (e is UnimplementedError) rethrow;
 
-      String errorMessage = wrongFormatMessage;
+      String errorMessage = wrongFormatPromptMessage;
       if (e is NetworkMismatchException) {
         errorMessage =
             NetworkType.currentNetworkType.isTestnet
@@ -137,7 +144,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
 
     try {
       signerBsms = SignerBsms.parse(scanResult);
-      Provider.of<WalletProvider>(context, listen: false).validateSignerDerivationPath(signerBsms.derivationPath);
+      MultisigValidator.validateSignerDerivationPath(signerBsms.derivationPath);
     } catch (e) {
       _handleScanFailure(e.toString());
       return;
@@ -193,6 +200,11 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
 
       return TextSpan(children: children);
     }
+
+    final kruxNetworkGuide =
+        NetworkType.currentNetworkType.isTestnet
+            ? t.bsms_scanner_screen.krux.guide2_7_regtest
+            : t.bsms_scanner_screen.krux.guide2_7;
 
     switch (widget.hardwareWalletType) {
       case HardwareWalletType.keystone:
@@ -310,7 +322,7 @@ class _SignerBsmsScannerScreenState extends BsmsScannerBase<SignerBsmsScannerScr
               buildTextSpan('\n'),
               buildStep(
                 '5. ',
-                '${t.bsms_scanner_screen.krux.guide2_6} → ${NetworkType.currentNetworkType.isTestnet ? t.bsms_scanner_screen.krux.guide2_7_regtest : t.bsms_scanner_screen.krux.guide2_7}',
+                '${t.bsms_scanner_screen.krux.guide2_6} → $kruxNetworkGuide',
                 t.bsms_scanner_screen.select,
               ),
             ],

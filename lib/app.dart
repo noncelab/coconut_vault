@@ -8,7 +8,8 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
-import 'package:coconut_vault/providers/wallet_creation_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -26,6 +27,10 @@ import 'package:coconut_vault/screens/precheck/jail_break_detection_screen.dart'
 import 'package:coconut_vault/screens/vault_creation/multisig/coordinator_bsms_paste_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/coordinator_bsms_config_scanner_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/multisig/multisig_creation_options_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/taproot/child_creation_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/taproot/parent_creation_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_options_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/taproot/taproot_import_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/multisig_menu/backup_wallet_data_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/extended_pub_key_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/export_options_screen.dart';
@@ -337,7 +342,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         );
       case AppEntryFlow.vaultHome:
         return VaultHomeScreen(
-          onAllWalletDeleted: () {
+          onSigningModeReset: () {
             _updateEntryFlow(AppEntryFlow.vaultResetCompleted);
           },
           onSecureZoneUnaccessible: () {
@@ -401,6 +406,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
         ),
         if (_appEntryFlow == AppEntryFlow.vaultHome) ...[
           Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
+          Provider<TaprootWalletCreationProvider>(create: (_) => TaprootWalletCreationProvider()),
           Provider<SignProvider>(create: (_) => SignProvider()),
           ChangeNotifierProvider.value(
             value: _ensureWalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider),
@@ -449,13 +455,18 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         AppRoutes.vaultTypeSelection: (context) => const VaultTypeSelectionScreen(),
                         AppRoutes.signerAssignment: (context) => const SignerAssignmentScreen(),
                         AppRoutes.vaultCreationOptions: (context) => const VaultCreationOptions(),
-                        AppRoutes.mnemonicVerify: (context) => const MnemonicVerifyScreen(),
+                        AppRoutes.mnemonicVerify:
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => MnemonicVerifyScreen(isTaproot: args['isTaproot'] ?? false),
+                            ),
                         AppRoutes.mnemonicImport:
                             (context) => buildScreenWithArguments(
                               context,
                               (args) => MnemonicImportScreen(
                                 externalSigner: args['externalSigner'],
                                 multisigVaultIdOfExternalSigner: args['multisigVaultIdOfExternalSigner'],
+                                isTaprootCreationChild: args['isTaproot'] ?? false,
                               ),
                             ),
                         AppRoutes.seedQrImport:
@@ -464,12 +475,16 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               (args) => SeedQrImportScreen(
                                 externalSigner: args['externalSigner'],
                                 multisigVaultIdOfExternalSigner: args['multisigVaultIdOfExternalSigner'],
+                                isTaproot: args['isTaproot'] ?? false,
                               ),
                             ),
                         AppRoutes.mnemonicConfirmation:
                             (context) => buildScreenWithArguments(
                               context,
-                              (args) => MnemonicConfirmationScreen(calledFrom: args['calledFrom']),
+                              (args) => MnemonicConfirmationScreen(
+                                calledFrom: args['calledFrom'],
+                                isTaproot: args['isTaproot'] ?? false,
+                              ),
                             ),
                         AppRoutes.mnemonicView:
                             (context) =>
@@ -553,12 +568,34 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                           return SecuritySelfCheckScreen(onNextPressed: onNextPressed);
                         },
                         AppRoutes.mnemonicAutoGen:
-                            (context) => const MnemonicAutoGenScreen(entropyType: EntropyType.auto),
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => MnemonicAutoGenScreen(
+                                entropyType: EntropyType.auto,
+                                isTaproot: args['isTaproot'] ?? false,
+                              ),
+                            ),
                         AppRoutes.mnemonicCoinflip:
-                            (context) => const MnemonicCoinflipScreen(entropyType: EntropyType.manual),
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => MnemonicCoinflipScreen(
+                                entropyType: EntropyType.manual,
+                                isTaproot: args['isTaproot'] ?? false,
+                              ),
+                            ),
                         AppRoutes.mnemonicDiceRoll:
-                            (context) => const MnemonicDiceRollScreen(entropyType: EntropyType.manual),
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => MnemonicDiceRollScreen(
+                                entropyType: EntropyType.manual,
+                                isTaproot: args['isTaproot'] ?? false,
+                              ),
+                            ),
                         AppRoutes.appInfo: (context) => const AppInfoScreen(),
+                        AppRoutes.taprootCreationOptions: (context) => const TaprootCreationOptionScreen(),
+                        AppRoutes.taprootParentCreation: (context) => const ParentCreationScreen(),
+                        AppRoutes.taprootChildCreation: (context) => const ChildCreationScreen(),
+                        AppRoutes.taprootPreparedCreation: (context) => const TaprootImportScreen(),
                         AppRoutes.welcome: (context) {
                           onComplete() {
                             _updateEntryFlow(AppEntryFlow.vaultHome);
