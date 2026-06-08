@@ -570,6 +570,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       walletId: selectedExistingVaultId,
       buildPassphraseToggle: true,
       emptyPassphraseAsNull: false,
+      showPassphraseWarningSubWidget: true,
       onAuthCanceled: _returnToPreviousStep,
       onMnemonicReady: (mnemonic, passphrase) {
         if (_viewModel.selectedWalletType == ParentWalletType.multisig) {
@@ -624,6 +625,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       walletId: selectedExistingVaultId,
       buildPassphraseToggle: true,
       emptyPassphraseAsNull: false,
+      showPassphraseWarningSubWidget: true,
       onAuthCanceled: _returnToPreviousStep,
       onMnemonicReady: _onCurrentVaultChildMnemonicReady,
     );
@@ -706,10 +708,12 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         ParentExistingKeyImportType.currentVault => _buildChildCurrentVaultMnemonicViewBody(),
         ParentExistingKeyImportType.mnemonicInput => TaprootMnemonicFlowAdapter.buildMnemonicImportScreen(
           key: const ValueKey('parent-creation-child-mnemonic-import'),
+          showPassphraseWarningSubWidget: true,
           onMnemonicConfirmationRequested: _onImportedChildMnemonicReady,
         ),
         ParentExistingKeyImportType.seedQrScan => _buildSeedQrImportScreen(
           key: const ValueKey('parent-creation-child-seed-qr-import'),
+          showPassphraseWarningSubWidget: true,
           onMnemonicConfirmationRequested: _onSeedQrChildMnemonicReady,
         ),
         ParentExistingKeyImportType.none => const SizedBox.shrink(),
@@ -816,10 +820,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     return ParentCreationCompletionSteps.timelineIndicator(
       parentWalletType: _viewModel.selectedWalletType,
       timelineInfo: _timelineInfo,
-      timelockDateTimeText: DateFormatUtil.formatLocalizedDateTime(
-        _timelineTimelockDateTime!,
-        _language,
-      ),
+      timelockDateTimeText: DateFormatUtil.formatLocalizedDateTime(_timelineTimelockDateTime!, _language),
       onCompleted: _handleTimelineAnimationCompleted,
     );
   }
@@ -1255,10 +1256,12 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
           ParentExistingKeyImportType.currentVault => null,
           ParentExistingKeyImportType.mnemonicInput => TaprootMnemonicFlowAdapter.buildMnemonicImportScreen(
             key: const ValueKey('parent-creation-mnemonic-import'),
+            showPassphraseWarningSubWidget: true,
             onMnemonicConfirmationRequested: _onImportedParentMnemonicReady,
           ),
           ParentExistingKeyImportType.seedQrScan => _buildSeedQrImportScreen(
             key: const ValueKey('parent-creation-seed-qr-import'),
+            showPassphraseWarningSubWidget: true,
             onMnemonicConfirmationRequested: _onImportedParentMnemonicReady,
           ),
           ParentExistingKeyImportType.none => null,
@@ -1270,6 +1273,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
   Widget _buildSeedQrImportScreen({
     Key? key,
+    bool showPassphraseWarningSubWidget = false,
     required TaprootImportedMnemonicCallback onMnemonicConfirmationRequested,
   }) {
     return LayoutBuilder(
@@ -1279,6 +1283,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
           height: height,
           child: TaprootMnemonicFlowAdapter.buildSeedQrImportScreen(
             key: key,
+            showPassphraseWarningSubWidget: showPassphraseWarningSubWidget,
             onMnemonicConfirmationRequested: onMnemonicConfirmationRequested,
           ),
         );

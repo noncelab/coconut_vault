@@ -28,6 +28,7 @@ class SeedQrImportScreen extends StatefulWidget {
   final bool isEmbedded;
   final bool isTaproot;
   final bool requirePassphraseConfirmation;
+  final bool showPassphraseWarningSubWidget;
   final VoidCallback? onCompleted;
   final FutureOr<void> Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
 
@@ -38,6 +39,7 @@ class SeedQrImportScreen extends StatefulWidget {
     this.isEmbedded = false,
     this.isTaproot = false,
     this.requirePassphraseConfirmation = false,
+    this.showPassphraseWarningSubWidget = false,
     this.onCompleted,
     this.onMnemonicConfirmationRequested,
   });
@@ -264,6 +266,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
                     multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
                     isTaproot: widget.isTaproot,
                     requirePassphraseConfirmation: widget.requirePassphraseConfirmation,
+                    showPassphraseWarningSubWidget: widget.showPassphraseWarningSubWidget,
                     onCompleted: widget.onCompleted,
                     onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
                   ),

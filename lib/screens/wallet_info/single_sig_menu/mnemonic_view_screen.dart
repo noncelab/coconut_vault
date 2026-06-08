@@ -7,6 +7,7 @@ import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/utils/passphrase_warning_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
@@ -23,6 +24,7 @@ class MnemonicViewScreen extends StatefulWidget {
     this.isEmbedded = false,
     this.buildPassphraseToggle = false,
     this.requirePassphraseConfirmation = false,
+    this.showPassphraseWarningSubWidget = false,
     this.onAuthCanceled,
     this.onNextButtonPressed,
   }) : assert(walletId != null || initialMnemonic != null);
@@ -35,6 +37,7 @@ class MnemonicViewScreen extends StatefulWidget {
   final VoidCallback? onNextButtonPressed;
   final bool buildPassphraseToggle;
   final bool requirePassphraseConfirmation;
+  final bool showPassphraseWarningSubWidget;
 
   @override
   State<MnemonicViewScreen> createState() => MnemonicViewScreenState();
@@ -113,6 +116,28 @@ class MnemonicViewScreenState extends State<MnemonicViewScreen> with TickerProvi
     setState(() {
       _passphraseConfirm = _passphraseConfirmController.text;
     });
+  }
+
+  Widget _buildPassphraseWarningSubWidget() {
+    final warningMessage = _passphraseWarningMessage;
+    if (!_usePassphrase || warningMessage.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return FittedBox(
+      child: Text(
+        warningMessage,
+        style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  String get _passphraseWarningMessage {
+    return PassphraseWarningUtil.warningMessages([
+      _passphrase,
+      if (widget.requirePassphraseConfirmation) _passphraseConfirm,
+    ]).join('\n');
   }
 
   void _handlePassphraseFocusChanged() async {
@@ -279,6 +304,7 @@ class MnemonicViewScreenState extends State<MnemonicViewScreen> with TickerProvi
                   onButtonClicked: () {
                     widget.onNextButtonPressed?.call();
                   },
+                  subWidget: widget.showPassphraseWarningSubWidget ? _buildPassphraseWarningSubWidget() : null,
                 ),
               ],
               const WarningWidget(visible: true),

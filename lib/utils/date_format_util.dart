@@ -10,10 +10,7 @@ class DateFormatUtil {
     'ja': AppLocale.jp,
   };
 
-  static String formatLocalizedDateTime(
-    DateTime dateTime,
-    String languageCode,
-  ) {
+  static String formatLocalizedDateTime(DateTime dateTime, String languageCode) {
     final translations = _getTranslations(languageCode);
     final dayPeriod = dateTime.hour < 12 ? translations.am : translations.pm;
     final hourOfPeriod = dateTime.hour % 12 == 0 ? 12 : dateTime.hour % 12;
@@ -29,8 +26,7 @@ class DateFormatUtil {
   }
 
   static Translations _getTranslations(String languageCode) {
-    final locale = _appLocaleByLanguageCode[languageCode] ??
-        _appLocaleByLanguageCode[defaultLanguageCode]!;
+    final locale = _appLocaleByLanguageCode[languageCode] ?? _appLocaleByLanguageCode[defaultLanguageCode]!;
     return locale.translations;
   }
 }

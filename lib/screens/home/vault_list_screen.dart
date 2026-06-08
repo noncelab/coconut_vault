@@ -203,7 +203,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
               WidgetSpan(alignment: PlaceholderAlignment.top, child: starIcon),
               const TextSpan(text: ' '),
             ],
-            if(!isEnglishWordOrder) WidgetSpan(alignment: PlaceholderAlignment.top, child: starIcon),
+            if (!isEnglishWordOrder) WidgetSpan(alignment: PlaceholderAlignment.top, child: starIcon),
             TextSpan(text: t.vault_list_screen.edit.star_description),
           ]),
           CoconutLayout.spacing_100h,

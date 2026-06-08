@@ -433,6 +433,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
         isEmbedded: true,
         isTaprootCreationChild: true,
         requirePassphraseConfirmation: true,
+        showPassphraseWarningSubWidget: true,
         onMnemonicConfirmationRequested: _setImportedSeed,
       ),
       ImportMode.scan => _buildSeedQrImportScreen(),
@@ -450,6 +451,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
             isEmbedded: true,
             isTaproot: true,
             requirePassphraseConfirmation: true,
+            showPassphraseWarningSubWidget: true,
             onMnemonicConfirmationRequested: _setImportedSeedFromSeedQr,
           ),
         );
