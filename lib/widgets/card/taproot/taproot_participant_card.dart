@@ -77,12 +77,11 @@ class TaprootParticipantCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     if (locktime != null) ...[
-                      Text(_formattedLocktime, style: CoconutTypography.body3_12),
+                      Flexible(child: Text(_formattedLocktime, style: CoconutTypography.body3_12)),
                     ] else ...[
                       Text(walletName ?? '', style: CoconutTypography.body3_12_Bold),
                     ],
-                    CoconutLayout.spacing_100w,
-                    if (_lockStatusIcon != null) _lockStatusIcon!,
+                    if (_lockStatusIcon != null) ...[CoconutLayout.spacing_200w, _lockStatusIcon!],
                   ],
                 ),
                 Text('$mfp · $derivationPath', style: CoconutTypography.caption_10.setColor(CoconutColors.gray600)),
@@ -198,7 +197,7 @@ class TaprootParticipantCard extends StatelessWidget {
     }
 
     final dateTime = DateTime.fromMillisecondsSinceEpoch(_toMilliseconds(locktime));
-    final formattedDateTime = DateFormat('yyyy.MM.dd HH:mm').format(dateTime);
+    final formattedDateTime = DateFormat('yyyy.MM.dd\nHH:mm').format(dateTime);
 
     return t.taproot.participant_card.locktime_after(dateTime: formattedDateTime);
   }
