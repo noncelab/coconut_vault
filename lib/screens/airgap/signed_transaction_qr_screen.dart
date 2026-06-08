@@ -1,4 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -103,14 +104,14 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
   }
 
   List<TextSpan> _getTooltipRichText() {
-    return [
-      TextSpan(
-        text:
-            _signProvider.isMultisig!
-                ? t.signed_transaction_qr_screen.guide_multisig
-                : t.signed_transaction_qr_screen.guide_single_sig(name: _signProvider.walletName!),
-        style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
-      ),
-    ];
+    String text = '';
+    switch (_signProvider.vaultType!) {
+      case WalletType.singleSignature:
+      case WalletType.taproot:
+        text = t.signed_transaction_qr_screen.guide_single_sig(name: _signProvider.walletName!);
+      case WalletType.multiSignature:
+        text = t.signed_transaction_qr_screen.guide_multisig;
+    }
+    return [TextSpan(text: text, style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black))];
   }
 }

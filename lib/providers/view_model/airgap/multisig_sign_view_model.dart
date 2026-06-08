@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
@@ -69,7 +70,7 @@ class MultisigSignViewModel extends ChangeNotifier {
 
   void initPsbtSignState() {
     assert(!_signStateInitialized); // 오직 한번만 호출
-    assert(_signProvider.isMultisig == true);
+    assert(_signProvider.vaultType == WalletType.multiSignature);
     _signStateInitialized = true;
 
     final psbt = _signProvider.psbt!;
@@ -79,7 +80,7 @@ class MultisigSignViewModel extends ChangeNotifier {
       }
     }
 
-    if (_signProvider.isMultisig == true) {
+    if (_signProvider.vaultType == WalletType.multiSignature) {
       Map<String, String> input0PubkeyMap = {};
       final unsignedPsbt = Psbt.parse(unsignedPsbtBase64);
       final keystoreList = (_vaultListItem.coconutVault as MultisignatureVault).keyStoreList;

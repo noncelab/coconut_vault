@@ -69,6 +69,7 @@ class SignIsolates {
     return true;
   }
 
+  /// INFO: keyPath, scriptPath 서명 가능 여부는 여기서 판단 안하고 TaprootSignScreen에서 확인 후 안내
   static Future<bool> canSignToPsbtWithTaprootVault(List<dynamic> dataList) async {
     assert(dataList[0] is TaprootVault);
     assert(dataList[1] is String);

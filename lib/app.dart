@@ -18,6 +18,7 @@ import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
 import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
 import 'package:coconut_vault/screens/airgap/single_sig_sign_screen.dart';
+import 'package:coconut_vault/screens/airgap/taproot_sign_screen.dart';
 import 'package:coconut_vault/screens/common/app_unavailable_notification_screen.dart';
 import 'package:coconut_vault/screens/common/vault_mode_selection_screen.dart';
 import 'package:coconut_vault/screens/home/vault_home_screen.dart';
@@ -562,6 +563,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                 buildScreenWithArguments(context, (args) => BackupWalletDataScreen(id: args['id'])),
                         AppRoutes.multisigSign: (context) => const MultisigSignScreen(),
                         AppRoutes.singleSigSign: (context) => const SingleSigSignScreen(),
+                        AppRoutes.taprootSign: (context) => const TaprootSignScreen(),
                         AppRoutes.securitySelfCheck: (context) {
                           final VoidCallback? onNextPressed =
                               ModalRoute.of(context)?.settings.arguments as VoidCallback?;

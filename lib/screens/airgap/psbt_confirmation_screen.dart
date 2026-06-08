@@ -1,5 +1,4 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -134,10 +133,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                     text: t.next,
                     isActive: !_showLoading && viewModel.totalAmount != null,
                     onButtonClicked: () {
-                      Navigator.pushNamed(
-                        context,
-                        viewModel.isMultisig ? AppRoutes.multisigSign : AppRoutes.singleSigSign,
-                      );
+                      Navigator.pushNamed(context, viewModel.nextScreen);
                     },
                   ),
                   Visibility(

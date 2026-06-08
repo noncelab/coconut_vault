@@ -1,6 +1,8 @@
 import 'dart:collection';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/extensions/int_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -26,7 +28,18 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
     _unsignedPsbtBase64 = _signProvider.unsignedPsbtBase64!;
   }
 
-  bool get isMultisig => _signProvider.isMultisig!;
+  String get nextScreen {
+    switch (_signProvider.vaultType!) {
+      case WalletType.singleSignature:
+        return AppRoutes.singleSigSign;
+      case WalletType.multiSignature:
+        return AppRoutes.multisigSign;
+      case WalletType.taproot:
+        return AppRoutes.taprootSign;
+    }
+  }
+
+  WalletType get vaultType => _signProvider.vaultType!;
   bool get isSendingToMyAddress => _isSendingToMyAddress;
   List<String> get recipientAddress => UnmodifiableListView(_recipientAddresses);
   int? get sendingAmount => _sendingAmount;
