@@ -45,4 +45,6 @@ class AppRoutes {
   static const String taprootChildCreation = '/taproot-child-creation';
   static const String taprootPreparedCreation = '/taproot-prepared-creation';
   static const String taprootSign = '/taproot-sign';
+  static const String taprootSetupInfo = '/taproot-setting';
+  static const String taprootSyncView = '/taproot-sync';
 }

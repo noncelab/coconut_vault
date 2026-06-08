@@ -6,10 +6,13 @@ import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
+import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -20,11 +23,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
-import 'package:vibration/vibration.dart';
 
 class PassphraseVerificationScreen extends StatefulWidget {
-  const PassphraseVerificationScreen({super.key, required this.id});
+  const PassphraseVerificationScreen({super.key, required this.id, this.targetXpub});
   final int id;
+  final String? targetXpub;
 
   @override
   State<PassphraseVerificationScreen> createState() => _PassphraseVerificationScreenState();
@@ -177,75 +180,79 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
       _isPassphraseVerified = false;
       final walletProvider = context.read<WalletProvider>();
       Uint8List? mnemonic;
+      Uint8List? passphrase;
 
       try {
-        mnemonic = await walletProvider.getSecret(widget.id);
-      } on UserCanceledAuthException catch (_) {
+        final vaultListItem = walletProvider.getVaultById(widget.id);
+        final argsFromRoute = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+        final String? targetXpub = widget.targetXpub ?? argsFromRoute?['targetXpub'];
+
+        if (vaultListItem is TaprootVaultListItem && targetXpub != null) {
+          mnemonic = await walletProvider.getTaprootSecret(
+            widget.id,
+            TaprootSeedKeyIdentifier(extendedPublicKey: targetXpub),
+            autoAuth: false,
+          );
+        } else {
+          mnemonic = await walletProvider.getSecret(widget.id, autoAuth: false);
+        }
+
+        passphrase = utf8.encode(_inputController.text);
+
+        final result = await compute(WalletIsolates.verifyPassphrase, {
+          'mnemonic': mnemonic,
+          'passphrase': passphrase,
+          'vaultListItem': vaultListItem,
+          'targetXpub': targetXpub,
+        });
+
+        _previousInput = _inputController.text;
+
+        if (result['success']) {
+          vibrateLight();
+        } else {
+          vibrateLightDouble();
+        }
+
         if (!mounted) return;
         Navigator.of(context).pop(); // hide loading dialog
-        showDialog(
-          context: context,
-          builder:
-              (context) => CoconutPopup(
-                languageCode: context.read<VisibilityProvider>().language,
-                title: t.alert.auth_canceled_when_decrypt.title,
-                description: t.alert.auth_canceled_when_decrypt.description_passphrase_verify,
-                onTapRight: () {
-                  Navigator.pop(context);
-                },
-              ),
-        );
-        Vibration.vibrate(duration: 100);
-        return;
+
+        setState(() {
+          _isPassphraseVerified = true;
+          _isVerificationResultSuccess = result['success'];
+          _savedMfp = result['savedMfp'];
+          _recoveredMfp = result['recoveredMfp'];
+          _extendedPublicKey = result['extendedPublicKey'] as String?;
+        });
       } catch (e) {
+        Logger.error('Passphrase verification failed: $e');
         if (!mounted) return;
         Navigator.of(context).pop(); // hide loading dialog
+
+        String title = t.passphrase_check_screen.alert.failed.title;
+        String description = e.toString();
+        if (e is UserCanceledAuthException) {
+          title = t.alert.auth_canceled_when_decrypt.title;
+          description = t.alert.auth_canceled_when_decrypt.description_passphrase_verify;
+        }
+
         showDialog(
           context: context,
           builder:
               (context) => CoconutPopup(
                 languageCode: context.read<VisibilityProvider>().language,
-                title: t.passphrase_check_screen.alert.failed.title,
-                description: e.toString(),
-                onTapRight: () {
-                  Navigator.pop(context);
-                },
+                title: title,
+                description: description,
+                onTapRight: () => Navigator.pop(context),
               ),
         );
-        Vibration.vibrate(duration: 100);
-        return;
-      }
-
-      final passphrase = utf8.encode(_inputController.text);
-      final vaultListItem = walletProvider.getVaultById(widget.id);
-
-      final result = await compute(WalletIsolates.verifyPassphrase, {
-        'mnemonic': mnemonic,
-        'passphrase': passphrase,
-        'valutListItem': vaultListItem,
-      });
-
-      mnemonic.wipe();
-      if (passphrase.isNotEmpty) {
-        passphrase.wipe();
-      }
-
-      _previousInput = _inputController.text;
-
-      if (result['success']) {
-        vibrateLight();
-      } else {
         vibrateLightDouble();
+      } finally {
+        mnemonic?.wipe();
+        if (passphrase != null && passphrase.isNotEmpty) {
+          passphrase.wipe();
+        }
       }
-
-      if (!mounted) return;
-      Navigator.of(context).pop(); // hide loading dialog
-      _isPassphraseVerified = true;
-      _isVerificationResultSuccess = result['success'];
-      _savedMfp = result['savedMfp'];
-      _recoveredMfp = result['recoveredMfp'];
-      _extendedPublicKey = result['extendedPublicKey'] as String?;
-      setState(() {});
     } finally {
       setState(() {
         _isSubmitting = false;

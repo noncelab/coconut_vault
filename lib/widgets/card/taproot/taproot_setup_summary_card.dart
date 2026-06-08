@@ -4,8 +4,8 @@ import 'package:coconut_vault/widgets/card/taproot/taproot_participant_card.dart
 import 'package:flutter/material.dart';
 
 class TaprootSetupSummaryCard extends StatelessWidget {
-  static const double _guideLineX = 0;
-  static const double _sectionIndent = 12.5;
+  static const double _guideLineX = 18;
+  static const double _sectionIndent = 32;
   static const double _cardSpacing = 4;
   static const double _sectionSpacing = 25;
   static const double _sectionTitleSpacing = 8;
@@ -60,7 +60,7 @@ class TaprootSetupSummaryCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const _GuideSpacer(height: 40),
+        const _GuideSpacer(height: 20, showGuideLine: true),
         _SummarySection(
           title: t.taproot.setup_summary_card.signer_configuration,
           isLastSection: inheritanceItems.isEmpty,

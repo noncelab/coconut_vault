@@ -554,6 +554,9 @@ taproot:
     wallet_type: "지갑 종류"
     taproot_single_sig_wallet: "탭루트 단일 서명 지갑"
     mfp: "MFP"
+  sync_qr_screen:
+    title: "다른 볼트와 공유하기"
+    description: "다른 볼트에서 이 지갑을 사용할 수 있도록 공유합니다."
   taproot_creation_option:
     parent_creation_title: "저는 부모입니다"
     parent_creation_description: "사용하려는 지갑에 상속 조건을 함께 준비할게요"
