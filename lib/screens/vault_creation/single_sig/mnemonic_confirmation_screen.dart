@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
@@ -16,24 +17,43 @@ import 'package:provider/provider.dart';
 // 마지막 확인: 그 외
 class MnemonicConfirmationScreen extends StatefulWidget {
   final String calledFrom;
-  const MnemonicConfirmationScreen({super.key, required this.calledFrom});
+  final bool isTaproot;
+  final bool isEmbedded;
+  final VoidCallback? onMnemonicReady;
+
+  const MnemonicConfirmationScreen({
+    super.key,
+    required this.calledFrom,
+    this.isTaproot = false,
+    this.isEmbedded = false,
+    this.onMnemonicReady,
+  });
 
   @override
   State<MnemonicConfirmationScreen> createState() => _MnemonicConfirmationScreenState();
 }
 
 class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen> {
-  late WalletCreationProvider _walletCreationProvider;
   late int step;
   final ScrollController _scrollController = ScrollController();
   late Uint8List _mnemonic;
+  Uint8List? _passphrase;
   bool _isWarningVisible = true;
 
   @override
   void initState() {
     super.initState();
-    _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false);
-    _mnemonic = Uint8List.fromList(_walletCreationProvider.secret);
+
+    final secret =
+        widget.isTaproot
+            ? Provider.of<TaprootWalletCreationProvider>(context, listen: false).secret
+            : Provider.of<WalletCreationProvider>(context, listen: false).secret;
+    _passphrase =
+        widget.isTaproot
+            ? Provider.of<TaprootWalletCreationProvider>(context, listen: false).passphrase
+            : Provider.of<WalletCreationProvider>(context, listen: false).passphrase;
+
+    _mnemonic = Uint8List.fromList(secret);
     step = 0;
   }
 
@@ -44,7 +64,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   }
 
   NextButtonState _getNextButtonState() {
-    if (_walletCreationProvider.passphrase?.isEmpty ?? true) {
+    if (_passphrase?.isEmpty ?? true) {
       return NextButtonState.completeActive;
     }
     if (step == 0) {
@@ -64,72 +84,93 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
             ? t.mnemonic_view_screen.security_guide
             : t.mnemonic_confirm_screen.description;
 
+    final body = Stack(
+      children: [
+        SingleChildScrollView(
+          controller: _scrollController,
+          child: Column(
+            children: [
+              buildStepIndicator(),
+              step == 0
+                  ? MnemonicList(mnemonic: _mnemonic, guideText: screenDescription)
+                  : Padding(padding: const EdgeInsets.symmetric(horizontal: 16.0), child: _passphraseGridViewWidget()),
+              const SizedBox(height: 100),
+            ],
+          ),
+        ),
+        FixedBottomButton(
+          isActive: _getNextButtonState().isActive && !_isWarningVisible,
+          text: _getNextButtonState().text,
+          backgroundColor: CoconutColors.black,
+          onButtonClicked: _onNextButtonClicked,
+        ),
+        WarningWidget(
+          visible: true,
+          onWarningDismissed: () {
+            setState(() {
+              _isWarningVisible = false;
+            });
+          },
+        ),
+      ],
+    );
+
     return PopScope(
       canPop: false,
       child: GestureDetector(
         onTap: () {
           FocusScope.of(context).unfocus();
         },
-        child: Scaffold(
-          appBar: CoconutAppBar.build(title: screenTitle, context: context),
-          backgroundColor: CoconutColors.white,
-          body: SafeArea(
-            child: Stack(
-              children: [
-                SingleChildScrollView(
-                  controller: _scrollController,
-                  child: Column(
-                    children: [
-                      buildStepIndicator(),
-                      step == 0
-                          ? MnemonicList(mnemonic: _mnemonic, guideText: screenDescription)
-                          : Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: _passphraseGridViewWidget(),
-                          ),
-                      const SizedBox(height: 100),
-                    ],
-                  ),
+        child:
+            widget.isEmbedded
+                ? body
+                : Scaffold(
+                  appBar: CoconutAppBar.build(title: screenTitle, context: context),
+                  backgroundColor: CoconutColors.white,
+                  body: SafeArea(child: body),
                 ),
-                FixedBottomButton(
-                  isActive: _getNextButtonState().isActive && !_isWarningVisible,
-                  text: _getNextButtonState().text,
-                  backgroundColor: CoconutColors.black,
-                  onButtonClicked: () {
-                    if (step == 0 && (_walletCreationProvider.passphrase?.isNotEmpty ?? false)) {
-                      setState(() {
-                        // 패스프레이즈 확인 단계로 이동
-                        step = 1;
-                      });
-                      return;
-                    }
-                    if (widget.calledFrom == AppRoutes.mnemonicCoinflip ||
-                        widget.calledFrom == AppRoutes.mnemonicDiceRoll) {
-                      Navigator.pushReplacementNamed(context, AppRoutes.mnemonicVerify);
-                    } else {
-                      Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
-                    }
-                  },
-                ),
-                WarningWidget(
-                  visible: true,
-                  onWarningDismissed: () {
-                    setState(() {
-                      _isWarningVisible = false;
-                    });
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
 
+  Future<void> _onNextButtonClicked() async {
+    if (step == 0 && (_passphrase?.isNotEmpty ?? false)) {
+      setState(() {
+        step = 1;
+      });
+      return;
+    }
+
+    if (widget.isEmbedded) {
+      widget.onMnemonicReady?.call();
+      return;
+    }
+
+    if (widget.calledFrom == AppRoutes.mnemonicCoinflip || widget.calledFrom == AppRoutes.mnemonicDiceRoll) {
+      if (widget.isTaproot) {
+        final result = await Navigator.pushNamed(
+          context,
+          AppRoutes.mnemonicVerify,
+          arguments: {'isTaproot': widget.isTaproot},
+        );
+        if (result == true && mounted) {
+          Navigator.pop(context, true);
+        }
+      } else {
+        Navigator.pushReplacementNamed(context, AppRoutes.mnemonicVerify, arguments: {'isTaproot': widget.isTaproot});
+      }
+    } else {
+      if (widget.isTaproot) {
+        Navigator.pop(context, true);
+      } else {
+        Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
+      }
+    }
+  }
+
   Widget buildStepIndicator() {
     return EntropyStepIndicator(
-      usePassphrase: _walletCreationProvider.passphrase?.isNotEmpty ?? false,
+      usePassphrase: _passphrase?.isNotEmpty ?? false,
       step: step,
       onStepSelected: (selectedStep) {
         setState(() {
@@ -140,7 +181,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   }
 
   Widget _passphraseGridViewWidget() {
-    final passphrase = _walletCreationProvider.passphrase;
+    final passphrase = _passphrase;
     if (passphrase == null) return Container();
 
     final decodedPassphrase = utf8.decode(passphrase);

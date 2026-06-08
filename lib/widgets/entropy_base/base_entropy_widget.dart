@@ -5,6 +5,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
@@ -24,6 +25,9 @@ abstract class BaseEntropyWidget extends StatefulWidget {
   final EntropyType entropyType;
   final Uint8List? mnemonic;
   final ValueNotifier<int>? stepNotifier; // 니모닉 or 패스프레이즈 입력 단계
+  final bool isTaproot;
+  final bool isEmbedded;
+  final VoidCallback? onMnemonicConfirmationRequested;
 
   const BaseEntropyWidget({
     super.key,
@@ -33,6 +37,9 @@ abstract class BaseEntropyWidget extends StatefulWidget {
     required this.entropyType,
     this.mnemonic,
     this.stepNotifier,
+    this.isTaproot = false,
+    this.isEmbedded = false,
+    this.onMnemonicConfirmationRequested,
   });
 }
 
@@ -64,7 +71,24 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
     ...List.generate(26, (i) => String.fromCharCode('A'.codeUnitAt(0) + i)), // A-Z
     ...List.generate(10, (i) => i.toString()), // 0-9
     '[', ']', '{', '}', '#', '%', '^', '*', '+', '=', '_', '\\', '|', '~',
-    '<', '>', '-', '/', ':', ';', '(', ')', r'$', '&', '"', '`', '.', ',', '?', '!', '\'', '@',
+    '<',
+    '>',
+    '-',
+    '/',
+    ':',
+    ';',
+    '(',
+    ')',
+    r'$',
+    '&',
+    '"',
+    '`',
+    '.',
+    ',',
+    '?',
+    '!',
+    '\'',
+    '@',
   };
 
   String passphraseErrorMessage = '';
@@ -247,8 +271,9 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
     if (!widget.usePassphrase && step == 0) {
       if (widget.entropyType == EntropyType.auto) {
         _passphrase = utf8.encode(_passphraseController.text);
-        Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+        _saveSecretAndPassphrase();
       }
+      return;
     }
 
     // 패스프레이즈 사용함 | 패스프레이즈 입력 화면
@@ -259,11 +284,6 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
       assert(_passphraseConfirm.isNotEmpty);
       assert(listEquals(_passphrase, _passphraseConfirm));
 
-      if (widget.entropyType == EntropyType.manual) {
-        _setMnemonicFromEntropy();
-      }
-
-      Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
       _passphraseFocusNode.unfocus();
       _passphraseConfirmFocusNode.unfocus();
 
@@ -294,7 +314,10 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
 
   void _checkDuplicateThenProceed() {
     if (widget.entropyType == EntropyType.manual) {
-      _setMnemonicFromEntropy();
+      final isMnemonicSet = _setMnemonicFromEntropy();
+      if (!isMnemonicSet) {
+        return;
+      }
     }
 
     if (Provider.of<WalletProvider>(context, listen: false).isSeedDuplicated(_mnemonic, _passphrase)) {
@@ -302,8 +325,19 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
       return;
     }
 
-    Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+    _saveSecretAndPassphrase();
     onNavigateToNext();
+  }
+
+  void _saveSecretAndPassphrase() {
+    if (widget.isTaproot) {
+      Provider.of<TaprootWalletCreationProvider>(
+        context,
+        listen: false,
+      ).setSecretAndPassphrase(Uint8List.fromList(_mnemonic), Uint8List.fromList(_passphrase));
+    } else {
+      Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+    }
   }
 
   // 추상 메서드 (각 구현체에서 정의)

@@ -19,7 +19,7 @@ class TaprootParticipant {
   });
 
   /// 상세화면이 이 participant의 seed를 secure storage에서 불러올 때 사용하는 키 식별자.
-  TaprootSeedKeyIdentifier get seedKeyIdentifier => KeyPathSeedKeyIdentifier(extendedPublicKey: extendedPublicKey);
+  TaprootSeedKeyIdentifier get seedKeyIdentifier => TaprootSeedKeyIdentifier(extendedPublicKey: extendedPublicKey);
 }
 
 class TaprootBeneficiaryParticipant extends TaprootParticipant {
@@ -35,8 +35,4 @@ class TaprootBeneficiaryParticipant extends TaprootParticipant {
     required this.lockTime,
     required this.scriptKey,
   });
-
-  @override
-  TaprootSeedKeyIdentifier get seedKeyIdentifier =>
-      ScriptPathSeedKeyIdentifier(scriptKey: scriptKey, extendedPublicKey: extendedPublicKey);
 }

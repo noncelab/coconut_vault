@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/wallet_info/account_number_settings_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/passphrase_check_bottom_sheet.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/button/tooltip_button.dart';
 import 'package:coconut_vault/widgets/icon/vault_icon.dart';
 import 'package:flutter/material.dart';
@@ -182,7 +183,14 @@ class _VaultItemCardState extends State<VaultItemCard> {
 
     return Selector<WalletProvider, ({String derivationPath, int currentAccount})>(
       selector: (context, provider) {
-        final vault = provider.getVaultById(widget.vaultItem.id) as SingleSigVaultListItem;
+        // 지갑 삭제 시 notifyListeners()가 호출되면 부모 위젯이 이 카드를 트리에서
+        // 제거하기 전에 selector가 먼저 실행될 수 있음. getVaultById() 대신
+        // getVaultByIdOrNull()을 사용해 해당 타이밍에 null을 반환하도록 처리.
+        final vault = provider.getVaultByIdOrNull(widget.vaultItem.id) as SingleSigVaultListItem?;
+        if (vault == null) {
+          final fallback = widget.vaultItem as SingleSigVaultListItem;
+          return (derivationPath: fallback.derivationPath, currentAccount: fallback.currentAccountIndex);
+        }
         return (derivationPath: vault.derivationPath, currentAccount: vault.currentAccountIndex);
       },
       builder: (context, data, child) {

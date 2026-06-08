@@ -15,7 +15,6 @@ import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
-import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
 import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
@@ -280,15 +279,14 @@ class WalletRepository {
     final newTaprootVault = result.vault;
     Logger.logLongString('${newTaprootVault.toJson()}');
     vaults.add(newTaprootVault);
+    final seedInfosForAdd = [...result.keyPathSaves, ...result.scriptPathSaves];
+    assert(
+      seedInfosForAdd.map((e) => e.extendedPublicKey).toSet().length == seedInfosForAdd.length,
+      'Duplicate extendedPublicKey detected in taproot seedInfosForAdd',
+    );
     try {
       await _strategy.mutate(
-        execute:
-            (ops) => ops.persistTaprootAdd(
-              id: nextId,
-              item: newTaprootVault,
-              keyPathSeedInfosForAdd: result.keyPathSaves,
-              scriptSeedInfosForAdd: result.scriptPathSaves,
-            ),
+        execute: (ops) => ops.persistTaprootAdd(id: nextId, item: newTaprootVault, seedInfosForAdd: seedInfosForAdd),
         snapshot: () => vaults,
       );
     } catch (error) {
@@ -375,7 +373,7 @@ class WalletRepository {
     bool autoAuth = true,
   }) async {
     assert(getVaultById(id) is TaprootVaultListItem);
-    final key = WalletStorageKeys.taprootSeedKey(id, seedIdentifier);
+    final key = WalletStorageKeys.taprootSeedKey(id, seedIdentifier.extendedPublicKey);
     return _decryptSeed(key, autoAuth: autoAuth);
   }
 
@@ -394,7 +392,7 @@ class WalletRepository {
   }
 
   Future<bool> hasPassphrase(int walletId) async {
-    assert(getVaultById(walletId) is SingleSigVaultListItem);
+    if (getVaultById(walletId) is! SingleSigVaultListItem) return false;
     return _strategy.hasPassphrase(walletId);
   }
 
@@ -443,12 +441,12 @@ class WalletRepository {
       // 연결된 MultisigVaultListItem의 signers 객체도 UI 업데이트가 필요
       if (linkedMultisigInfo != null && linkedMultisigInfo.isNotEmpty) {
         for (var entry in linkedMultisigInfo.entries) {
-          if (getVaultById(id) != null) {
-            MultisigVaultListItem msv = getVaultById(entry.key) as MultisigVaultListItem;
-            msv.signers[entry.value].name = newName;
-            msv.signers[entry.value].colorIndex = colorIndex;
-            msv.signers[entry.value].iconIndex = iconIndex;
-          }
+          final linkedVault = getVaultById(entry.key);
+          if (linkedVault is! MultisigVaultListItem) continue;
+
+          linkedVault.signers[entry.value].name = newName;
+          linkedVault.signers[entry.value].colorIndex = colorIndex;
+          linkedVault.signers[entry.value].iconIndex = iconIndex;
         }
       }
 
@@ -538,30 +536,24 @@ class WalletRepository {
           }
 
           if (vault is TaprootVaultListItem) {
-            final keyPathSeedInfosForAdd = <TaprootSeedInfoForSave>[];
+            final seedInfosForAdd = <TaprootSeedInfoForSave>[];
             for (final seedInfo in vault.keyPathSeedInfos) {
               final seed = await getTaprootSeedInSigningOnlyMode(
                 vault.id,
-                KeyPathSeedKeyIdentifier(extendedPublicKey: seedInfo.extendedPublicKey),
+                TaprootSeedKeyIdentifier(extendedPublicKey: seedInfo.extendedPublicKey),
               );
-              keyPathSeedInfosForAdd.add(
+              seedInfosForAdd.add(
                 TaprootSeedInfoForSave(
                   secretPassphrasePair: (secret: seed.mnemonic, passphrase: null),
                   extendedPublicKey: seedInfo.extendedPublicKey,
                 ),
               );
             }
-
-            final scriptSeedInfosForAdd = <ScriptPathSeedInfoForSave>[];
             for (final scriptPathSeedInfo in vault.scriptPathSeedInfos) {
-              final seedInfosForAdd = <TaprootSeedInfoForSave>[];
               for (final seedInfo in scriptPathSeedInfo.seedInfos) {
                 final seed = await getTaprootSeedInSigningOnlyMode(
                   vault.id,
-                  ScriptPathSeedKeyIdentifier(
-                    scriptKey: scriptPathSeedInfo.key,
-                    extendedPublicKey: seedInfo.extendedPublicKey,
-                  ),
+                  TaprootSeedKeyIdentifier(extendedPublicKey: seedInfo.extendedPublicKey),
                 );
                 seedInfosForAdd.add(
                   TaprootSeedInfoForSave(
@@ -570,21 +562,9 @@ class WalletRepository {
                   ),
                 );
               }
-              scriptSeedInfosForAdd.add(
-                ScriptPathSeedInfoForSave(
-                  key: scriptPathSeedInfo.key,
-                  role: scriptPathSeedInfo.role,
-                  seedInfos: seedInfosForAdd,
-                ),
-              );
             }
 
-            await ops.persistTaprootAdd(
-              id: vault.id,
-              item: vault,
-              keyPathSeedInfosForAdd: keyPathSeedInfosForAdd,
-              scriptSeedInfosForAdd: scriptSeedInfosForAdd,
-            );
+            await ops.persistTaprootAdd(id: vault.id, item: vault, seedInfosForAdd: seedInfosForAdd);
             continue;
           }
 

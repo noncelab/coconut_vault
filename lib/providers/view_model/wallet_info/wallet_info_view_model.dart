@@ -1,3 +1,4 @@
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
@@ -124,7 +125,9 @@ class WalletInfoViewModel extends ChangeNotifier {
   }
 
   bool existsLinkedMultisigVault(int id) {
-    return walletProvider.vaultList.any((element) => element.id == id);
+    return walletProvider.vaultList.any(
+      (element) => element.id == id && element.vaultType == WalletType.multiSignature,
+    );
   }
 
   ///----------------------------------------------------

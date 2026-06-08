@@ -8,6 +8,7 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -27,7 +28,22 @@ import 'package:provider/provider.dart';
 class MnemonicImportScreen extends StatefulWidget {
   final MultisigSigner? externalSigner;
   final int? multisigVaultIdOfExternalSigner;
-  const MnemonicImportScreen({super.key, this.externalSigner, this.multisigVaultIdOfExternalSigner});
+  final bool isEmbedded;
+  final bool isTaprootCreationChild;
+  final bool requirePassphraseConfirmation;
+  final VoidCallback? onCompleted;
+  final void Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
+
+  const MnemonicImportScreen({
+    super.key,
+    this.externalSigner,
+    this.multisigVaultIdOfExternalSigner,
+    this.isEmbedded = false,
+    this.isTaprootCreationChild = false,
+    this.requirePassphraseConfirmation = false,
+    this.onCompleted,
+    this.onMnemonicConfirmationRequested,
+  });
 
   @override
   State<MnemonicImportScreen> createState() => _MnemonicImportScreenState();
@@ -51,6 +67,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   // State variables
   bool _usePassphrase = false;
   String _passphrase = '';
+  String _passphraseConfirm = '';
   bool _passphraseObscured = false;
   bool? _isMnemonicValid;
   bool _isSuggestionWordsVisible = false;
@@ -70,7 +87,9 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   // 포커스를 잃었다가 다시 돌아온 완성 단어 필드에서만 다음 입력 초기화 로직을 적용
   final Set<int> _resetOnNextEditAfterRefocus = <int>{};
   final TextEditingController _passphraseController = TextEditingController();
+  final TextEditingController _passphraseConfirmController = TextEditingController();
   final FocusNode _passphraseFocusNode = FocusNode();
+  final FocusNode _passphraseConfirmFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   final ScrollController _suggestionScrollController = ScrollController();
 
@@ -227,6 +246,12 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         _scrollToBottom();
       }
     });
+    _passphraseConfirmFocusNode.addListener(() async {
+      if (_passphraseConfirmFocusNode.hasFocus) {
+        await Future.delayed(_passphraseScrollDelay);
+        _scrollToBottom();
+      }
+    });
   }
 
   void _scrollToBottom() {
@@ -305,11 +330,17 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         _passphrase = _passphraseController.text;
       });
     });
+    _passphraseConfirmController.addListener(() {
+      setState(() {
+        _passphraseConfirm = _passphraseConfirmController.text;
+      });
+    });
   }
 
   @override
   void dispose() {
     _passphrase = '';
+    _passphraseConfirm = '';
     _passphraseObscured = false;
     _isMnemonicValid = null;
     _isSuggestionWordsVisible = false;
@@ -323,7 +354,9 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
     _disposeTextFields();
     _passphraseController.dispose();
+    _passphraseConfirmController.dispose();
     _passphraseFocusNode.dispose();
+    _passphraseConfirmFocusNode.dispose();
     _suggestionScrollController.dispose();
     super.dispose();
   }
@@ -579,7 +612,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   }
 
   bool _canPopWithoutDialog() {
-    return _controllers.every((controller) => controller.text.isEmpty) && _passphrase.isEmpty && mounted;
+    return _controllers.every((controller) => controller.text.isEmpty) &&
+        _passphrase.isEmpty &&
+        _passphraseConfirm.isEmpty &&
+        mounted;
   }
 
   Future<void> _handleNextButton() async {
@@ -587,6 +623,22 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       final secret = _buildMnemonicSecret();
       final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
       final externalSigner = widget.externalSigner;
+
+      if (widget.isTaprootCreationChild) {
+        final onMnemonicConfirmationRequested = widget.onMnemonicConfirmationRequested;
+        if (onMnemonicConfirmationRequested != null) {
+          onMnemonicConfirmationRequested(secret, passphrase);
+          return;
+        }
+
+        final taprootWalletCreationProvider = context.read<TaprootWalletCreationProvider>();
+
+        taprootWalletCreationProvider.setSecretAndPassphrase(secret, passphrase);
+        _walletCreationProvider.setSecretAndPassphrase(Uint8List.fromList(secret), Uint8List.fromList(passphrase));
+
+        widget.onCompleted?.call();
+        return;
+      }
 
       if (externalSigner != null) {
         if (!mounted) return;
@@ -601,7 +653,9 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       }
 
       if (_walletProvider.isSeedDuplicated(secret, passphrase)) {
-        CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+        if (mounted) {
+          CoconutToast.showToast(context: context, text: t.toast.mnemonic_already_added, isVisibleIcon: true);
+        }
         return;
       }
 
@@ -613,6 +667,11 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
       if (mounted) {
         context.loaderOverlay.hide();
+        if (widget.onCompleted != null) {
+          widget.onCompleted!();
+          return;
+        }
+
         Navigator.pushNamed(
           context,
           AppRoutes.mnemonicConfirmation,
@@ -753,6 +812,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   Widget build(BuildContext context) {
     return CustomLoadingOverlay(
       child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
         onTap: _handleGlobalTap,
         child: PopScope(
           canPop: false,
@@ -761,12 +821,15 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
               await _handleBackNavigation();
             }
           },
-          child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            backgroundColor: CoconutColors.white,
-            appBar: _buildAppBar(),
-            body: _buildBody(),
-          ),
+          child:
+              widget.isEmbedded
+                  ? _buildBody(isEmbedded: true)
+                  : Scaffold(
+                    resizeToAvoidBottomInset: true,
+                    backgroundColor: CoconutColors.white,
+                    appBar: _buildAppBar(),
+                    body: _buildBody(),
+                  ),
         ),
       ),
     );
@@ -801,19 +864,23 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
     );
   }
 
-  Widget _buildBody() {
-    return SafeArea(
-      child: Stack(
-        children: [
-          SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: Column(children: [_buildWordCountSelector(), Expanded(child: _buildMnemonicInputSection())]),
-          ),
-          if (!_isSuggestionWordsVisible) _buildBottomButton(),
-          if (_isSuggestionWordsVisible) _buildSuggestionSection(),
-        ],
-      ),
+  Widget _buildBody({bool isEmbedded = false}) {
+    final body = Stack(
+      children: [
+        SizedBox(
+          height: MediaQuery.of(context).size.height,
+          child: Column(children: [_buildWordCountSelector(), Expanded(child: _buildMnemonicInputSection())]),
+        ),
+        if (!_isSuggestionWordsVisible) _buildBottomButton(),
+        if (_isSuggestionWordsVisible) _buildSuggestionSection(),
+      ],
     );
+
+    if (isEmbedded) {
+      return body;
+    }
+
+    return SafeArea(child: body);
   }
 
   Widget _buildWordCountSelector() {
@@ -1003,7 +1070,19 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   bool _isNextButtonActive() {
     return _controllers.any((controller) => controller.text.isNotEmpty) &&
         _isMnemonicValid == true &&
-        (_usePassphrase ? _passphrase.isNotEmpty : true);
+        (_usePassphrase ? _isPassphraseInputValid : true);
+  }
+
+  bool get _isPassphraseInputValid {
+    if (_passphrase.isEmpty || _passphrase.length > 100) {
+      return false;
+    }
+
+    if (!widget.requirePassphraseConfirmation) {
+      return true;
+    }
+
+    return _passphraseConfirm.isNotEmpty && _passphrase == _passphraseConfirm;
   }
 
   Widget? _buildErrorSubWidget() {
@@ -1178,6 +1257,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
           onChanged: (value) {
             setState(() {
               _usePassphrase = value;
+              if (!value) {
+                _passphraseController.clear();
+                _passphraseConfirmController.clear();
+              }
             });
           },
         ),
@@ -1225,39 +1308,66 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   Widget _buildPassphraseTextField() {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 12),
-          child: SizedBox(
-            child: CoconutTextField(
-              focusNode: _passphraseFocusNode,
-              controller: _passphraseController,
-              placeholderText: t.mnemonic_import_screen.enter_passphrase,
-              onChanged: (_) {},
-              isError: _passphrase.length > 100,
-              maxLines: 1,
-              isLengthVisible: false,
-              obscureText: _passphraseObscured,
-              suffix: _buildPassphraseVisibilityToggle(),
-              maxLength: 100,
-            ),
-          ),
+        _buildPassphraseInputField(
+          focusNode: _passphraseFocusNode,
+          controller: _passphraseController,
+          placeholderText: t.mnemonic_import_screen.enter_passphrase,
+          isError: _passphrase.length > 100,
         ),
+        if (widget.requirePassphraseConfirmation)
+          _buildPassphraseInputField(
+            focusNode: _passphraseConfirmFocusNode,
+            controller: _passphraseConfirmController,
+            placeholderText: t.mnemonic_generate_screen.passphrase_confirm_guide,
+            isError: _passphraseConfirm.isNotEmpty && _passphrase != _passphraseConfirm,
+            errorText: t.mnemonic_generate_screen.passphrase_not_matched,
+          ),
         _buildPassphraseLengthIndicator(),
       ],
     );
   }
 
+  Widget _buildPassphraseInputField({
+    required FocusNode focusNode,
+    required TextEditingController controller,
+    required String placeholderText,
+    required bool isError,
+    String? errorText,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: SizedBox(
+        child: CoconutTextField(
+          focusNode: focusNode,
+          controller: controller,
+          placeholderText: placeholderText,
+          onChanged: (_) {},
+          isError: isError,
+          errorText: errorText,
+          maxLines: 1,
+          isLengthVisible: false,
+          obscureText: _passphraseObscured,
+          suffix: _buildPassphraseVisibilityToggle(),
+          maxLength: 100,
+        ),
+      ),
+    );
+  }
+
   Widget _buildPassphraseVisibilityToggle() {
-    return CupertinoButton(
-      onPressed: () {
-        setState(() {
-          _passphraseObscured = !_passphraseObscured;
-        });
-      },
-      child:
-          _passphraseObscured
-              ? const Icon(CupertinoIcons.eye_slash, color: CoconutColors.gray800, size: 18)
-              : const Icon(CupertinoIcons.eye, color: CoconutColors.gray800, size: 18),
+    return SizedBox(
+      width: 44,
+      height: 44,
+      child: CupertinoButton(
+        padding: EdgeInsets.zero,
+        minSize: 0,
+        onPressed: () => setState(() => _passphraseObscured = !_passphraseObscured),
+        child: Icon(
+          _passphraseObscured ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+          color: CoconutColors.gray800,
+          size: 18,
+        ),
+      ),
     );
   }
 

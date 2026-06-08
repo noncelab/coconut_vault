@@ -10,15 +10,21 @@ import 'package:coconut_vault/widgets/entropy_base/base_entropy_widget.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 
 class MnemonicCoinflipScreen extends BaseMnemonicEntropyScreen {
-  const MnemonicCoinflipScreen({super.key, required super.entropyType});
+  const MnemonicCoinflipScreen({
+    super.key,
+    required super.entropyType,
+    super.isEmbedded,
+    super.isTaproot,
+    super.onMnemonicConfirmationRequested,
+  });
 
   @override
-  State<MnemonicCoinflipScreen> createState() => _MnemonicDiceRollScreenState();
+  State<MnemonicCoinflipScreen> createState() => _MnemonicCoinflipScreenState();
 }
 
-class _MnemonicDiceRollScreenState extends BaseMnemonicEntropyScreenState<MnemonicCoinflipScreen> {
+class _MnemonicCoinflipScreenState extends BaseMnemonicEntropyScreenState<MnemonicCoinflipScreen> {
   @override
-  String get screenTitle => t.mnemonic_dice_roll_screen.title;
+  String get screenTitle => t.mnemonic_coin_flip_screen.title;
   @override
   Widget buildEntropyWidget() {
     return CoinFlip(
@@ -26,6 +32,9 @@ class _MnemonicDiceRollScreenState extends BaseMnemonicEntropyScreenState<Mnemon
       usePassphrase: usePassphrase,
       onReset: onReset,
       entropyType: EntropyType.manual,
+      isTaproot: widget.isTaproot,
+      isEmbedded: widget.isEmbedded,
+      onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
     );
   }
 }
@@ -37,6 +46,9 @@ class CoinFlip extends BaseEntropyWidget {
     required super.usePassphrase,
     required super.onReset,
     required super.entropyType,
+    super.isEmbedded,
+    super.onMnemonicConfirmationRequested,
+    super.isTaproot,
   });
 
   @override
@@ -71,8 +83,23 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
   }
 
   @override
-  void onNavigateToNext() {
-    Navigator.pushNamed(context, AppRoutes.mnemonicConfirmation, arguments: {'calledFrom': AppRoutes.mnemonicCoinflip});
+  void onNavigateToNext() async {
+    if (widget.isEmbedded) {
+      widget.onMnemonicConfirmationRequested?.call();
+      return;
+    }
+
+    final result = await Navigator.pushNamed(
+      context,
+      AppRoutes.mnemonicConfirmation,
+      arguments: {'calledFrom': AppRoutes.mnemonicCoinflip, 'isTaproot': widget.isTaproot},
+    );
+
+    if (result == true && widget.isTaproot) {
+      if (mounted) {
+        Navigator.pop(context, true);
+      }
+    }
   }
 
   @override

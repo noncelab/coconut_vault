@@ -9,24 +9,24 @@ class CustomLoadingOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.sizeOf(context);
+
     return LoaderOverlay(
       overlayColor: CoconutColors.white.withValues(alpha: 0.5),
       overlayWidgetBuilder: (_) {
-        return const Stack(
-          children: [
-            // 🛑 클릭 차단을 위한 ModalBarrier 추가
-            ModalBarrier(
-              dismissible: false,
-              color: Colors.transparent, // 투명하게 유지
-            ),
-            Positioned(
-              top: kToolbarHeight,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Center(child: CoconutCircularIndicator()),
-            ),
-          ],
+        return SizedBox(
+          width: screenSize.width,
+          height: screenSize.height,
+          child: const Stack(
+            children: [
+              // 🛑 클릭 차단을 위한 ModalBarrier 추가
+              ModalBarrier(
+                dismissible: false,
+                color: Colors.transparent, // 투명하게 유지
+              ),
+              Center(child: CoconutCircularIndicator()),
+            ],
+          ),
         );
       },
       child: child,

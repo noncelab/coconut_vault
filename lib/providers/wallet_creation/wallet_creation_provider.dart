@@ -12,8 +12,7 @@ class WalletCreationProvider {
   List<MultisigSigner>? _signers;
 
   /// singleSig
-  Uint8List _secret = Uint8List(0); // utf8.encode(mnemonicWordsString)
-  Uint8List _passphrase = Uint8List(0); // utf8.encode(passphraseString)
+  ({Uint8List secret, Uint8List? passphrase}) _keyData = (secret: Uint8List(0), passphrase: Uint8List(0));
   MultisigSigner? _externalSigner; // 멀티시그 지갑에서 외부지갑 키 추가 시
   int? _multisigVaultIdOfExternalSigner; // 멀티시그 지갑에서 외부지갑 키 추가 시 호출한 화면의 vault id
   String? _singleSigCreationOption; // 현재는 'mnemonicAutoGen'일 때만 할당하고 있음. 'mnemonicCoinflip' or 'mnemonicDiceRoll'은 생략
@@ -24,8 +23,9 @@ class WalletCreationProvider {
   List<MultisigSigner>? get signers => _signers != null ? List.unmodifiable(_signers!) : null;
 
   /// singleSig
-  Uint8List get secret => _secret;
-  Uint8List? get passphrase => _passphrase.isNotEmpty ? _passphrase : null;
+  Uint8List get secret => _keyData.secret;
+  Uint8List? get passphrase =>
+      _keyData.passphrase != null && _keyData.passphrase!.isNotEmpty ? _keyData.passphrase : null;
   MultisigSigner? get externalSigner => _externalSigner;
   int? get multisigVaultIdOfExternalSigner => _multisigVaultIdOfExternalSigner;
   String? get singleSigCreationOption => _singleSigCreationOption;
@@ -34,12 +34,15 @@ class WalletCreationProvider {
     if (_requiredSignatureCount != null &&
         _totalSignatureCount != null &&
         _signers != null &&
-        _secret.isEmpty &&
-        _passphrase.isEmpty) {
+        _keyData.secret.isEmpty &&
+        (_keyData.passphrase == null || _keyData.passphrase!.isEmpty)) {
       return WalletType.multiSignature;
     }
 
-    if (_requiredSignatureCount == null && _totalSignatureCount == null && _signers == null && _secret.isNotEmpty) {
+    if (_requiredSignatureCount == null &&
+        _totalSignatureCount == null &&
+        _signers == null &&
+        _keyData.secret.isNotEmpty) {
       return WalletType.singleSignature;
     }
 
@@ -69,8 +72,7 @@ class WalletCreationProvider {
 
   /// SingleSig
   void setSecretAndPassphrase(Uint8List secret, Uint8List? passphrase) {
-    _secret = secret;
-    _passphrase = passphrase ?? Uint8List(0);
+    _keyData = (secret: secret, passphrase: passphrase ?? Uint8List(0));
   }
 
   void setSingleSigCreationOption(String routeName) {
@@ -79,10 +81,9 @@ class WalletCreationProvider {
 
   /// SingleSig
   void resetSecretAndPassphrase() {
-    _secret.wipe();
-    _passphrase.wipe();
-    _secret = Uint8List(0);
-    _passphrase = Uint8List(0);
+    _keyData.secret.wipe();
+    _keyData.passphrase?.wipe();
+    _keyData = (secret: Uint8List(0), passphrase: Uint8List(0));
     _singleSigCreationOption = null;
   }
 
