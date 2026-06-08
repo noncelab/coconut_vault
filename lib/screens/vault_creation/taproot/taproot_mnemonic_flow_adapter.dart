@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:coconut_vault/constants/app_routes.dart';
@@ -13,7 +14,7 @@ import 'package:flutter/material.dart';
 
 enum TaprootMnemonicCreationMethod { coinFlip, diceRoll, autoGenerate }
 
-typedef TaprootImportedMnemonicCallback = void Function(Uint8List secret, Uint8List? passphrase);
+typedef TaprootImportedMnemonicCallback = FutureOr<void> Function(Uint8List secret, Uint8List? passphrase);
 
 class TaprootMnemonicFlowAdapter {
   TaprootMnemonicFlowAdapter._();
@@ -148,6 +149,7 @@ class TaprootMnemonicFlowAdapter {
   static Widget buildMnemonicImportScreen({
     Key? key,
     VoidCallback? onCompleted,
+    bool showPassphraseWarningSubWidget = false,
     TaprootImportedMnemonicCallback? onMnemonicConfirmationRequested,
   }) {
     return MnemonicImportScreen(
@@ -155,6 +157,7 @@ class TaprootMnemonicFlowAdapter {
       isEmbedded: true,
       isTaprootCreationChild: true,
       requirePassphraseConfirmation: true,
+      showPassphraseWarningSubWidget: showPassphraseWarningSubWidget,
       onCompleted: onCompleted,
       onMnemonicConfirmationRequested: onMnemonicConfirmationRequested,
     );
@@ -162,6 +165,7 @@ class TaprootMnemonicFlowAdapter {
 
   static Widget buildSeedQrImportScreen({
     Key? key,
+    bool showPassphraseWarningSubWidget = false,
     required TaprootImportedMnemonicCallback onMnemonicConfirmationRequested,
   }) {
     return SeedQrImportScreen(
@@ -169,6 +173,7 @@ class TaprootMnemonicFlowAdapter {
       isEmbedded: true,
       isTaproot: true,
       requirePassphraseConfirmation: true,
+      showPassphraseWarningSubWidget: showPassphraseWarningSubWidget,
       onMnemonicConfirmationRequested: onMnemonicConfirmationRequested,
     );
   }

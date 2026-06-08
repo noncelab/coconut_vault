@@ -11,6 +11,7 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
+import 'package:coconut_vault/utils/passphrase_warning_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/cupertino.dart';
@@ -31,6 +32,7 @@ class MnemonicImportScreen extends StatefulWidget {
   final bool isEmbedded;
   final bool isTaprootCreationChild;
   final bool requirePassphraseConfirmation;
+  final bool showPassphraseWarningSubWidget;
   final VoidCallback? onCompleted;
   final void Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
 
@@ -41,6 +43,7 @@ class MnemonicImportScreen extends StatefulWidget {
     this.isEmbedded = false,
     this.isTaprootCreationChild = false,
     this.requirePassphraseConfirmation = false,
+    this.showPassphraseWarningSubWidget = false,
     this.onCompleted,
     this.onMnemonicConfirmationRequested,
   });
@@ -1093,7 +1096,26 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         style: CoconutTypography.body2_14.setColor(CoconutColors.hotPink),
       );
     }
+    if (widget.showPassphraseWarningSubWidget) {
+      final warningMessage = _passphraseWarningMessage;
+      if (_usePassphrase && warningMessage.isNotEmpty) {
+        return FittedBox(
+          child: Text(
+            warningMessage,
+            style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
+            textAlign: TextAlign.center,
+          ),
+        );
+      }
+    }
     return null;
+  }
+
+  String get _passphraseWarningMessage {
+    return PassphraseWarningUtil.warningMessages([
+      _passphrase,
+      if (widget.requirePassphraseConfirmation) _passphraseConfirm,
+    ]).join('\n');
   }
 
   Widget _buildMnemonicTextFieldLine(int line) {

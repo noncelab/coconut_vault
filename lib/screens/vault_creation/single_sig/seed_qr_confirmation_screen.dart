@@ -10,6 +10,7 @@ import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/utils/passphrase_warning_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
@@ -26,6 +27,7 @@ class SeedQrConfirmationScreen extends StatefulWidget {
   final int? multisigVaultIdOfExternalSigner;
   final bool isTaproot;
   final bool requirePassphraseConfirmation;
+  final bool showPassphraseWarningSubWidget;
   final VoidCallback? onCompleted;
   final FutureOr<void> Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
 
@@ -36,6 +38,7 @@ class SeedQrConfirmationScreen extends StatefulWidget {
     this.multisigVaultIdOfExternalSigner,
     this.isTaproot = false,
     this.requirePassphraseConfirmation = false,
+    this.showPassphraseWarningSubWidget = false,
     this.onCompleted,
     this.onMnemonicConfirmationRequested,
   });
@@ -190,6 +193,7 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
                   isActive: _usePassphrase ? _isPassphraseInputValid && !_isWarningVisible : !_isWarningVisible,
                   backgroundColor: CoconutColors.black,
                   onButtonClicked: () => _handleNextButton(),
+                  subWidget: widget.showPassphraseWarningSubWidget ? _buildPassphraseWarningSubWidget() : null,
                 ),
                 WarningWidget(
                   visible: _isWarningVisible,
@@ -293,6 +297,28 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
     }
 
     return _passphraseConfirm.isNotEmpty && _passphrase == _passphraseConfirm;
+  }
+
+  Widget _buildPassphraseWarningSubWidget() {
+    final warningMessage = _passphraseWarningMessage;
+    if (!_usePassphrase || warningMessage.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return FittedBox(
+      child: Text(
+        warningMessage,
+        style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  String get _passphraseWarningMessage {
+    return PassphraseWarningUtil.warningMessages([
+      _passphrase,
+      if (widget.requirePassphraseConfirmation) _passphraseConfirm,
+    ]).join('\n');
   }
 
   Future<bool> _isSignerMfpMatched(MultisigSigner signer, Uint8List mnemonicBytes, Uint8List passphraseBytes) async {

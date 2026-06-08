@@ -17,6 +17,9 @@ unit: "단위"
 hour: "시간"
 minute: "분"
 second: "초"
+am: "오전"
+pm: "오후"
+locale_datetime: "${year}년 ${month}월 ${day}일 ${dayPeriod} ${hour}:${minute}"
 settings: "설정"
 OK: "확인"
 confirm: "확인"
@@ -618,7 +621,9 @@ taproot:
       create_script_path_how_to_prepare_title_2: "어떻게 준비할까요?"
       import_again: "다시 가져오기"
       same_child_wallet_as_parent_dialog_title: "부모 지갑과 동일한 지갑"
-      same_child_wallet_as_parent_dialog_description: "자식 지갑으로 사용할 수 없어요. 다른 지갑을 스캔해 주세요."
+      same_child_wallet_as_parent_dialog_description_scan: "자식 지갑으로 사용할 수 없어요. 다른 지갑을 스캔해 주세요."
+      same_child_wallet_as_parent_dialog_description_select: "자식 지갑으로 사용할 수 없어요. 다른 지갑을 선택해 주세요."
+      same_child_wallet_as_parent_dialog_description_enter: "자식 지갑으로 사용할 수 없어요. 다른 지갑을 입력해 주세요."
       child_wallet_reset_dialog_title: "자식 지갑 초기화"
       child_wallet_reset_dialog_description: "방금 추가한 자식 지갑이 초기화됩니다. 정말 계속하시겠어요?"
     step_3:
@@ -759,8 +764,6 @@ taproot:
       inheritance_wallet_restored: "상속 지갑을 복구했어요"
       inheritance_wallet_activation: "상속 지갑이 활성화 돼요"
       active_after: "${dateTime} 이후"
-      activation_datetime: "${year}년 ${month}월 ${day}일 ${period} ${hour}:${minute}"
-
 mnemonic_coin_flip_screen:
   title: "니모닉 문구 만들기"
   guide: "동전을 던진 후 나온 면을 선택해 주세요"
@@ -1164,8 +1167,6 @@ bottom_sheet:
   date_picker:
     select_date: "날짜 선택"
     time: "시간"
-    am: "오전"
-    pm: "오후"
     placeholder: "일시를 지정해주세요"
 
 permission:

@@ -8,7 +8,6 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
-import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_confirmation_screen.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
@@ -29,6 +28,7 @@ class SeedQrImportScreen extends StatefulWidget {
   final bool isEmbedded;
   final bool isTaproot;
   final bool requirePassphraseConfirmation;
+  final bool showPassphraseWarningSubWidget;
   final VoidCallback? onCompleted;
   final FutureOr<void> Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
 
@@ -39,6 +39,7 @@ class SeedQrImportScreen extends StatefulWidget {
     this.isEmbedded = false,
     this.isTaproot = false,
     this.requirePassphraseConfirmation = false,
+    this.showPassphraseWarningSubWidget = false,
     this.onCompleted,
     this.onMnemonicConfirmationRequested,
   });
@@ -88,7 +89,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
   Future<void> _showCameraPermissionDialog() async {
     await showConfirmDialog(
       context,
-      context.read<PreferenceProvider>().language,
+      context.read<VisibilityProvider>().language,
       t.coconut_qr_scanner.camera_error.title,
       t.coconut_qr_scanner.camera_error.need_camera_permission,
       rightButtonText: t.go_to_settings,
@@ -250,6 +251,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
 
       if (words!.length == 12 || words!.length == 24) {
         if (mounted) {
+          final secret = Uint8List.fromList(utf8.encode(words!.join(' ')));
           _isNavigating = true;
           // 1. 네비게이션하기 전 카메라 끄기
           controller.pauseCamera();
@@ -259,11 +261,12 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
             MaterialPageRoute(
               builder:
                   (context) => SeedQrConfirmationScreen(
-                    scannedData: utf8.encode(words!.join(' ')),
+                    scannedData: secret,
                     externalSigner: widget.externalSigner,
                     multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
                     isTaproot: widget.isTaproot,
                     requirePassphraseConfirmation: widget.requirePassphraseConfirmation,
+                    showPassphraseWarningSubWidget: widget.showPassphraseWarningSubWidget,
                     onCompleted: widget.onCompleted,
                     onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
                   ),

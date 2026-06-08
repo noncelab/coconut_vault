@@ -17,6 +17,9 @@ unit: "単位"
 hour: "時間"
 minute: "分"
 second: "秒"
+am: "午前"
+pm: "午後"
+locale_datetime: "${year}年${month}月${day}日 ${dayPeriod} ${hour}:${minute}"
 settings: "設定"
 OK: "OK"
 confirm: "確認"
@@ -156,8 +159,8 @@ vault_list_screen:
     primary_wallet_abled_description: "他のウォレットをプライマリに設定すると、この設定は自動的に無効になります。"
   edit:
     wallet_list: "ウォレットリスト編集"
-    star_description: "ホーム画面に表示するウォレットを最大5個まで選択できます。"
-    order_description: "タップしてウォレットの順序を変更できます。"
+    star_description: "を最大5つ選択して、ホーム画面に表示するウォレットを選べます。"
+    order_description: "を長押しして、ウォレットの表示順を変更できます。"
     delete_description: "ウォレットを左にスワイプして削除できます。"
     finish: "編集完了"
     unsaved_changes_confirm_exit: "未保存の変更があります。\n本当に終了しますか？"  
@@ -619,7 +622,9 @@ taproot:
       create_script_path_how_to_prepare_title_2: "どう準備しますか？"
       import_again: "再インポート"
       same_child_wallet_as_parent_dialog_title: "親ウォレットと同じウォレット"
-      same_child_wallet_as_parent_dialog_description: "子ウォレットとして使用できません。別のウォレットをスキャンしてください。"
+      same_child_wallet_as_parent_dialog_description_scan: "子ウォレットとして使用できません。別のウォレットをスキャンしてください。"
+      same_child_wallet_as_parent_dialog_description_select: "子ウォレットとして使用できません。別のウォレットを選択してください。"
+      same_child_wallet_as_parent_dialog_description_enter: "子ウォレットとして使用できません。別のウォレットを入力してください。"
       child_wallet_reset_dialog_title: "子ウォレットを初期化"
       child_wallet_reset_dialog_description: "追加した子ウォレットが初期化されます。本当に続けますか？"
     step_3:
@@ -760,7 +765,6 @@ taproot:
       inheritance_wallet_restored: "相続ウォレットを復元しました"
       inheritance_wallet_activation: "相続ウォレットが有効になります"
       active_after: "${dateTime}以降"
-      activation_datetime: "${year}年${month}月${day}日 ${period} ${hour}:${minute}"
 mnemonic_coin_flip_screen:
   title: "ニーモニック作成"
   guide: "コインを投げて出た面を選択してください"
@@ -1164,8 +1168,6 @@ bottom_sheet:
   date_picker:
     select_date: "日付を選択"
     time: "時間"
-    am: "午前"
-    pm: "午後"
     placeholder: "日時を指定してください"
 
 permission:

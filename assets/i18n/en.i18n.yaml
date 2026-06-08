@@ -16,6 +16,9 @@ satoshi: "Satoshi"
 hour: "hour"
 minute: "min"
 second: "sec"
+am: "AM"
+pm: "PM"
+locale_datetime: "$month/$day/$year $hour:$minute $dayPeriod"
 settings: "Settings"
 OK: "OK"
 confirm: "Confirm"
@@ -617,7 +620,9 @@ taproot:
       create_script_path_how_to_prepare_title_2: "the child wallet?"
       import_again: "Import again"
       same_child_wallet_as_parent_dialog_title: "Same as parent wallet"
-      same_child_wallet_as_parent_dialog_description: "This cannot be used as the child wallet. Please scan another wallet."
+      same_child_wallet_as_parent_dialog_description_scan: "This cannot be used as the child wallet. Please scan another wallet."
+      same_child_wallet_as_parent_dialog_description_select: "This cannot be used as the child wallet. Please select another wallet."
+      same_child_wallet_as_parent_dialog_description_enter: "This cannot be used as the child wallet. Please enter another wallet."
       child_wallet_reset_dialog_title: "Reset child wallet"
       child_wallet_reset_dialog_description: "The child wallet you just added will be reset. Do you want to continue?"
     step_3:
@@ -758,7 +763,6 @@ taproot:
       inheritance_wallet_restored: "Inheritance wallet restored"
       inheritance_wallet_activation: "Inheritance wallet will be activated"
       active_after: "After ${dateTime}"
-      activation_datetime: "$month/$day/$year $period $hour:$minute"
 mnemonic_coin_flip_screen:
   title: "Mnemonic Generation"
   guide: "Please select the side that came out after flipping the coin"
@@ -1164,8 +1168,6 @@ bottom_sheet:
   date_picker:
     select_date: "Select date"
     time: "Time"
-    am: "AM"
-    pm: "PM"
     placeholder: "Select date and time"
 
 permission:
