@@ -15,7 +15,6 @@ import 'package:flutter/material.dart';
 enum TaprootMnemonicCreationMethod { coinFlip, diceRoll, autoGenerate }
 
 typedef TaprootImportedMnemonicCallback = FutureOr<void> Function(Uint8List secret, Uint8List? passphrase);
-typedef TaprootScannedMnemonicCallback = FutureOr<bool> Function(Uint8List secret);
 
 class TaprootMnemonicFlowAdapter {
   TaprootMnemonicFlowAdapter._();
@@ -164,7 +163,6 @@ class TaprootMnemonicFlowAdapter {
 
   static Widget buildSeedQrImportScreen({
     Key? key,
-    TaprootScannedMnemonicCallback? onMnemonicScanned,
     required TaprootImportedMnemonicCallback onMnemonicConfirmationRequested,
   }) {
     return SeedQrImportScreen(
@@ -172,7 +170,6 @@ class TaprootMnemonicFlowAdapter {
       isEmbedded: true,
       isTaproot: true,
       requirePassphraseConfirmation: true,
-      onMnemonicScanned: onMnemonicScanned,
       onMnemonicConfirmationRequested: onMnemonicConfirmationRequested,
     );
   }

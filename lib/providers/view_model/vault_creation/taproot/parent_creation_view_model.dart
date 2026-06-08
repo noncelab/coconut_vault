@@ -354,10 +354,6 @@ class ParentCreationViewModel extends ChangeNotifier {
     return false;
   }
 
-  bool isSameAsParentMnemonicSecret(Uint8List secret) {
-    return _parentSecret.isNotEmpty && listEquals(_parentSecret, secret);
-  }
-
   Future<ParentCreationSaveResult> saveVault({
     required String name,
     required int iconIndex,

@@ -710,7 +710,6 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         ),
         ParentExistingKeyImportType.seedQrScan => _buildSeedQrImportScreen(
           key: const ValueKey('parent-creation-child-seed-qr-import'),
-          onMnemonicScanned: _validateScannedChildSeedQrMnemonic,
           onMnemonicConfirmationRequested: _onSeedQrChildMnemonicReady,
         ),
         ParentExistingKeyImportType.none => const SizedBox.shrink(),
@@ -1271,7 +1270,6 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
   Widget _buildSeedQrImportScreen({
     Key? key,
-    TaprootScannedMnemonicCallback? onMnemonicScanned,
     required TaprootImportedMnemonicCallback onMnemonicConfirmationRequested,
   }) {
     return LayoutBuilder(
@@ -1281,7 +1279,6 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
           height: height,
           child: TaprootMnemonicFlowAdapter.buildSeedQrImportScreen(
             key: key,
-            onMnemonicScanned: onMnemonicScanned,
             onMnemonicConfirmationRequested: onMnemonicConfirmationRequested,
           ),
         );
@@ -1314,15 +1311,6 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   void _onImportedChildMnemonicReady(Uint8List secret, Uint8List? passphrase) {
     _setImportedChildMnemonic(secret, passphrase);
     _addImportedChildMnemonicConfirmationStep();
-  }
-
-  Future<bool> _validateScannedChildSeedQrMnemonic(Uint8List secret) async {
-    if (!_viewModel.isSameAsParentMnemonicSecret(secret)) {
-      return true;
-    }
-
-    await _showSameChildWalletAsParentDialog(ParentChildWalletSource.created);
-    return false;
   }
 
   void _onCurrentVaultChildMnemonicReady(Uint8List secret, Uint8List? passphrase) {
