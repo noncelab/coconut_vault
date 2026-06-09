@@ -497,15 +497,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     if (!_currentVaultMnemonicAuthRequested) {
       _currentVaultMnemonicAuthRequested = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || _currentStepType != ChildCreationStep.currentVaultMnemonicView) {
-          return;
-        }
-        TaprootMnemonicViewFlowAdapter.showDeviceAuthDialog(
-          context: context,
-          mnemonicViewKey: mnemonicViewKey,
-          showDeviceAuthDialog: ChildCreationOverlays.showDeviceAuthDialog,
-          authenticateWithBiometricOrPin: ChildCreationOverlays.authenticateWithBiometricOrPin,
-        );
+        _loadCurrentVaultMnemonic(viewModel, mnemonicViewKey);
       });
     }
 
@@ -521,6 +513,24 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         taprootProvider.setSecretAndPassphrase(mnemonic, passphrase);
         _onChildWalletSet(viewModel);
       },
+    );
+  }
+
+  void _loadCurrentVaultMnemonic(ChildCreationViewModel viewModel, GlobalKey<MnemonicViewScreenState> mnemonicViewKey) {
+    if (!mounted || _currentStepType != ChildCreationStep.currentVaultMnemonicView) {
+      return;
+    }
+
+    if (viewModel.isSigningOnlyMode) {
+      mnemonicViewKey.currentState?.setMnemonic();
+      return;
+    }
+
+    TaprootMnemonicViewFlowAdapter.showDeviceAuthDialog(
+      context: context,
+      mnemonicViewKey: mnemonicViewKey,
+      showDeviceAuthDialog: ChildCreationOverlays.showDeviceAuthDialog,
+      authenticateWithBiometricOrPin: ChildCreationOverlays.authenticateWithBiometricOrPin,
     );
   }
 
