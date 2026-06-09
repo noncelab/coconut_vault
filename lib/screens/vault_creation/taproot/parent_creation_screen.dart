@@ -553,15 +553,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     if (!_currentVaultMnemonicAuthRequested) {
       _currentVaultMnemonicAuthRequested = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || _currentStepType != ParentCreationStep.currentVaultMnemonicView) {
-          return;
-        }
-        TaprootMnemonicViewFlowAdapter.showDeviceAuthDialog(
-          context: context,
-          mnemonicViewKey: mnemonicViewKey,
-          showDeviceAuthDialog: ParentCreationOverlays.showDeviceAuthDialog,
-          authenticateWithBiometricOrPin: ParentCreationOverlays.authenticateWithBiometricOrPin,
-        );
+        _loadCurrentVaultMnemonic(mnemonicViewKey, ParentCreationStep.currentVaultMnemonicView);
       });
     }
 
@@ -608,15 +600,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     if (!_currentVaultMnemonicAuthRequested) {
       _currentVaultMnemonicAuthRequested = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || _currentStepType != ParentCreationStep.childMnemonicEntry) {
-          return;
-        }
-        TaprootMnemonicViewFlowAdapter.showDeviceAuthDialog(
-          context: context,
-          mnemonicViewKey: mnemonicViewKey,
-          showDeviceAuthDialog: ParentCreationOverlays.showDeviceAuthDialog,
-          authenticateWithBiometricOrPin: ParentCreationOverlays.authenticateWithBiometricOrPin,
-        );
+        _loadCurrentVaultMnemonic(mnemonicViewKey, ParentCreationStep.childMnemonicEntry);
       });
     }
 
@@ -628,6 +612,24 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       showPassphraseWarningSubWidget: true,
       onAuthCanceled: _returnToPreviousStep,
       onMnemonicReady: _onCurrentVaultChildMnemonicReady,
+    );
+  }
+
+  void _loadCurrentVaultMnemonic(GlobalKey<MnemonicViewScreenState> mnemonicViewKey, ParentCreationStep expectedStep) {
+    if (!mounted || _currentStepType != expectedStep) {
+      return;
+    }
+
+    if (_viewModel.isSigningOnlyMode) {
+      mnemonicViewKey.currentState?.setMnemonic();
+      return;
+    }
+
+    TaprootMnemonicViewFlowAdapter.showDeviceAuthDialog(
+      context: context,
+      mnemonicViewKey: mnemonicViewKey,
+      showDeviceAuthDialog: ParentCreationOverlays.showDeviceAuthDialog,
+      authenticateWithBiometricOrPin: ParentCreationOverlays.authenticateWithBiometricOrPin,
     );
   }
 
@@ -821,6 +823,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       parentWalletType: _viewModel.selectedWalletType,
       timelineInfo: _timelineInfo,
       timelockDateTimeText: DateFormatUtil.formatLocalizedDateTime(_timelineTimelockDateTime!, _language),
+      timelockEpochTime: _timelineTimelockDateTime!.millisecondsSinceEpoch ~/ Duration.millisecondsPerSecond,
       onCompleted: _handleTimelineAnimationCompleted,
     );
   }

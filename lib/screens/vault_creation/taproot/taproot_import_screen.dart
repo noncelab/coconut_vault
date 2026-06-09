@@ -703,6 +703,8 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
           title: timeline.inheritance_wallet_activation,
           description: timeline.active_after(dateTime: _activationDateTimeText),
           status: TimelineStepStatus.future,
+          futureEpochTime: _activationEpochTime,
+          pastFutureTitle: timeline.inheritance_wallet_activated,
         ),
       ],
     );
@@ -733,14 +735,18 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   }
 
   String get _activationDateTimeText {
-    final beneficiaries = _viewModel.scannedVaultItem?.beneficiaries;
-    final lockTime = beneficiaries == null || beneficiaries.isEmpty ? null : beneficiaries.first.lockTime;
+    final lockTime = _activationEpochTime;
     if (lockTime == null) {
       return '';
     }
 
     final dateTime = DateTime.fromMillisecondsSinceEpoch(lockTime * Duration.millisecondsPerSecond);
     return DateFormatUtil.formatLocalizedDateTime(dateTime, context.read<VisibilityProvider>().language);
+  }
+
+  int? get _activationEpochTime {
+    final beneficiaries = _viewModel.scannedVaultItem?.beneficiaries;
+    return beneficiaries == null || beneficiaries.isEmpty ? null : beneficiaries.first.lockTime;
   }
 
   void _navigateToHome() {

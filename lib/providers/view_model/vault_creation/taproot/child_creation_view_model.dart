@@ -43,6 +43,8 @@ class ChildCreationViewModel extends ChangeNotifier {
 
   ChildCreationViewModel(this._taprootProvider, this._walletProvider);
 
+  bool get isSigningOnlyMode => _walletProvider.isSigningOnlyMode;
+
   void setCreationTypeToChild() {
     _taprootProvider.setCreationType(TaprootCreationType.child);
   }
