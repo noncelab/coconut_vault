@@ -160,12 +160,13 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     _appEntryFlow = appEntryFlow;
     if (appEntryFlow == AppEntryFlow.vaultHome) {
       _shouldShowPrivacyScreen = false;
+      lifecycleProvider.unregisterAllCallbacks();
 
-      lifecycleProvider.registerCallbacks(
-        onAppGoBackground: _handleAppGoBackgroundOfMainRoute,
-        onAppGoInactive: _handleAppGoInactiveOfMainRoute,
-        onAppGoActive: _handleAppGoActiveOfMainRoute,
-      );
+      // lifecycleProvider.registerCallbacks(
+      //   onAppGoBackground: _handleAppGoBackgroundOfMainRoute,
+      //   onAppGoInactive: _handleAppGoInactiveOfMainRoute,
+      //   onAppGoActive: _handleAppGoActiveOfMainRoute,
+      // );
     } else {
       lifecycleProvider.unregisterAllCallbacks();
     }
