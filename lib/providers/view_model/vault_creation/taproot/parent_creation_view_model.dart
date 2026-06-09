@@ -86,6 +86,7 @@ class ParentCreationViewModel extends ChangeNotifier {
   String? get externalParentSignerBsms => _externalParentSignerBsms;
   String? get externalParentMasterFingerprint => _externalParentMasterFingerprint;
   String? get childWalletMasterFingerprint => _childWalletMasterFingerprint;
+  bool get isSigningOnlyMode => _walletProvider.isSigningOnlyMode;
   bool get isSingleSigSelected => _selectedWalletType == ParentWalletType.singleSig;
   bool get isMultisigSelected => _selectedWalletType == ParentWalletType.multisig;
   bool get isCreateKeySelected => _selectedKeyPreparationType == ParentKeyPreparationType.create;
