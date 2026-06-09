@@ -334,6 +334,8 @@ class TaprootImportViewModel extends ChangeNotifier {
       return [];
     }
 
+    final bool hasStoredOwnerSeed = _hasStoredOwnerSeed;
+
     return [
       ...scannedVaultItem.owners.asMap().entries.map((entry) {
         final index = entry.key;
@@ -403,7 +405,7 @@ class TaprootImportViewModel extends ChangeNotifier {
           derivationPath: scannedVaultItem.derivationPath,
           lockTime: beneficiary.lockTime,
           hasBackgroundColor: isMatchedBeneficiary || isMatchedExtraBeneficiary,
-          isMine: isMatchedBeneficiary || isMatchedExtraBeneficiary,
+          isMine: !hasStoredOwnerSeed && (isMatchedBeneficiary || isMatchedExtraBeneficiary),
           isValid:
               isInvalidExtraBeneficiary
                   ? false
@@ -412,6 +414,11 @@ class TaprootImportViewModel extends ChangeNotifier {
         );
       }),
     ];
+  }
+
+  bool get _hasStoredOwnerSeed {
+    return (_scannedVaultItem?.owners.any((owner) => owner.isSeedStored) ?? false) ||
+        (_scannedExtraVaultItem?.owners.any((owner) => owner.isSeedStored) ?? false);
   }
 
   @override
