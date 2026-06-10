@@ -149,6 +149,7 @@ class TaprootMnemonicFlowAdapter {
   static Widget buildMnemonicImportScreen({
     Key? key,
     VoidCallback? onCompleted,
+    bool showPassphraseWarningSubWidget = false,
     TaprootImportedMnemonicCallback? onMnemonicConfirmationRequested,
   }) {
     return MnemonicImportScreen(
@@ -156,6 +157,7 @@ class TaprootMnemonicFlowAdapter {
       isEmbedded: true,
       isTaprootCreationChild: true,
       requirePassphraseConfirmation: true,
+      showPassphraseWarningSubWidget: showPassphraseWarningSubWidget,
       onCompleted: onCompleted,
       onMnemonicConfirmationRequested: onMnemonicConfirmationRequested,
     );
@@ -163,6 +165,7 @@ class TaprootMnemonicFlowAdapter {
 
   static Widget buildSeedQrImportScreen({
     Key? key,
+    bool showPassphraseWarningSubWidget = false,
     required TaprootImportedMnemonicCallback onMnemonicConfirmationRequested,
   }) {
     return SeedQrImportScreen(
@@ -170,6 +173,7 @@ class TaprootMnemonicFlowAdapter {
       isEmbedded: true,
       isTaproot: true,
       requirePassphraseConfirmation: true,
+      showPassphraseWarningSubWidget: showPassphraseWarningSubWidget,
       onMnemonicConfirmationRequested: onMnemonicConfirmationRequested,
     );
   }

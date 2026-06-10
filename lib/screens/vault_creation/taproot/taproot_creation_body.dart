@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/extensions/widget_animation_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 
@@ -126,6 +127,13 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
 
     try {
       await widget.onBeforeBottomButtonFadeOut?.call();
+    } on UserCanceledAuthException {
+      if (mounted && transitionGeneration == _transitionGeneration) {
+        setState(() {
+          _isContentTransitioning = false;
+        });
+      }
+      return;
     } catch (_) {
       if (mounted && transitionGeneration == _transitionGeneration) {
         setState(() {

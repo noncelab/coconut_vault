@@ -318,6 +318,7 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
           }
 
           final vault = viewModel.vaultItem as TaprootVaultListItem;
+          final bool hasStoredOwnerSeed = vault.owners.any((owner) => owner.isSeedStored);
 
           final List<TaprootParticipantCard> participantCards = [
             // 상위 지갑 참여자 (Key Path)
@@ -353,7 +354,7 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
                 derivationPath: vault.derivationPath,
                 walletName: beneficiary.isSeedStored ? vault.name : null,
                 locktime: beneficiary.lockTime,
-                isMine: isMine,
+                isMine: isMine && !hasStoredOwnerSeed,
                 hasBackgroundColor: isMine || isLocktimeNotPassed,
               );
             }),

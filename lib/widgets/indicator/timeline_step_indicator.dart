@@ -53,7 +53,9 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
       final rightItem = right[index];
       if (leftItem.title != rightItem.title ||
           leftItem.description != rightItem.description ||
-          leftItem.status != rightItem.status) {
+          leftItem.status != rightItem.status ||
+          leftItem.futureEpochTime != rightItem.futureEpochTime ||
+          leftItem.pastFutureTitle != rightItem.pastFutureTitle) {
         return false;
       }
     }
@@ -68,9 +70,9 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
         for (int index = 0; index < widget.timelineStepItemList.length; index++)
           _TimelineStepTile(
             item: _itemWithDisplayStatus(index),
-            originalStatus: widget.timelineStepItemList[index].status,
+            originalStatus: _connectorDisplayStatus(index),
             nextOriginalStatus:
-                index == widget.timelineStepItemList.length - 1 ? null : widget.timelineStepItemList[index + 1].status,
+                index == widget.timelineStepItemList.length - 1 ? null : _connectorDisplayStatus(index + 1),
             isLast: index == widget.timelineStepItemList.length - 1,
             isConnectorAnimating: _animatingConnectorIndex == index,
             onCurrentAnimationCompleted: () => _completeCurrentStep(index),
@@ -145,6 +147,13 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
     final nextIndex = connectorIndex + 1;
     setState(() {
       _animatingConnectorIndex = null;
+      _completedUntilIndex = connectorIndex;
+      if (nextIndex >= widget.timelineStepItemList.length) {
+        _currentIndex = null;
+        _notifyCompleted();
+        return;
+      }
+
       _currentIndex = nextIndex;
     });
   }
@@ -184,7 +193,12 @@ class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
             ? TimelineStepStatus.current
             : item.status;
 
-    return item.copyWith(status: status);
+    return item.copyWith(status: status, title: item.isPastFutureItem ? item.pastFutureTitle : null);
+  }
+
+  TimelineStepStatus _connectorDisplayStatus(int index) {
+    final item = widget.timelineStepItemList[index];
+    return item.isPastFutureItem ? TimelineStepStatus.completed : item.status;
   }
 }
 
@@ -542,11 +556,32 @@ class TimelineStepItem {
   final String title;
   final String description;
   final TimelineStepStatus status;
+  final int? futureEpochTime;
+  final String? pastFutureTitle;
 
-  const TimelineStepItem({required this.title, required this.description, required this.status});
+  const TimelineStepItem({
+    required this.title,
+    required this.description,
+    required this.status,
+    this.futureEpochTime,
+    this.pastFutureTitle,
+  });
 
-  TimelineStepItem copyWith({TimelineStepStatus? status}) {
-    return TimelineStepItem(title: title, description: description, status: status ?? this.status);
+  bool get isPastFutureItem {
+    final epochTime = futureEpochTime;
+    return status == TimelineStepStatus.future &&
+        epochTime != null &&
+        epochTime < DateTime.now().millisecondsSinceEpoch ~/ Duration.millisecondsPerSecond;
+  }
+
+  TimelineStepItem copyWith({String? title, TimelineStepStatus? status}) {
+    return TimelineStepItem(
+      title: title ?? this.title,
+      description: description,
+      status: status ?? this.status,
+      futureEpochTime: futureEpochTime,
+      pastFutureTitle: pastFutureTitle,
+    );
   }
 }
 

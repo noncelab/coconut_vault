@@ -766,6 +766,7 @@ taproot:
       inheritance_wallet_added: "상속자 지갑을 추가했어요"
       inheritance_wallet_restored: "상속 지갑을 복구했어요"
       inheritance_wallet_activation: "상속 지갑이 활성화 돼요"
+      inheritance_wallet_activated: "상속 지갑이 활성화 됐어요"
       active_after: "${dateTime} 이후"
 mnemonic_coin_flip_screen:
   title: "니모닉 문구 만들기"
