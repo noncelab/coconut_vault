@@ -30,6 +30,32 @@ class SignIsolates {
     return signedPsbt;
   }
 
+  // Taproot
+  static Future<String> signWithSingleKeyPath(List<dynamic> dataList) async {
+    assert(dataList[0] is Seed);
+    assert(dataList[1] is String);
+    WalletIsolates.setNetworkType();
+
+    final psbtBase64 = dataList[1] as String;
+    final taprootVault = TaprootVault.fromKeyStoreList([KeyStore.fromSeed(dataList[0] as Seed, AddressType.p2tr)], []);
+    String signedPsbt = taprootVault.addSignatureToPsbt(psbtBase64);
+    return signedPsbt;
+  }
+
+  // Taproot - Script Path (beneficiary)
+  static Future<String> signWithBeneficiary(List<dynamic> dataList) async {
+    assert(dataList[0] is Seed);
+    assert(dataList[1] is String);
+    assert(dataList[2] is String);
+    WalletIsolates.setNetworkType();
+
+    final psbtBase64 = dataList[1] as String;
+    TaprootVault childVault = TaprootVault.fromCoordinatorBsms(dataList[2] as String);
+    childVault.bindSeedToBeneficiaryKeyStore(dataList[0] as Seed);
+    String signedPsbt = childVault.addSignatureToPsbt(psbtBase64);
+    return signedPsbt;
+  }
+
   static Future<bool> canSignToPsbtWithSingleSignatureVault(List<dynamic> dataList) async {
     assert(dataList[0] is SingleSignatureVault);
     assert(dataList[1] is String);

@@ -1151,6 +1151,10 @@ passphrase_check_screen:
 multisig_signer_bsms_export_screen:
   fail_bsms: "BSMS 로드 실패"
 
+taproot_sign_screen:
+  exceptions:
+    mixed_path_psbt_error: "지원하지 않는 Taproot PSBT예요.\nKey path와 script path 서명이 섞인 PSBT는 지원하지 않아요."
+
 bottom_sheet:
   view_mit_license: "MIT 라이선스 전문 보기"
   contact_by_email: "이메일 문의"
@@ -1320,6 +1324,10 @@ exceptions:
   needs_multisig_setup: "$name 지갑으로 서명하려면 다중 서명 지갑을 먼저 추가해 주세요."
   account_change_failed:
     title: "계정 변경 실패"
+  taproot:
+    invalid_psbt_sign_type:
+      key_path: "부모 지갑으로 서명 가능한 트랜잭션이에요"
+      script_path: "자식 지갑으로 서명 가능한 트랜잭션이에요"
 
 tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."

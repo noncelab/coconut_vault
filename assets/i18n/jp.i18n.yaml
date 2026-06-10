@@ -1152,6 +1152,10 @@ passphrase_check_screen:
 multisig_signer_bsms_export_screen:
   fail_bsms: "BSMSの読み込みに失敗しました"
 
+taproot_sign_screen:
+  exceptions:
+    mixed_path_psbt_error: "サポートされていないTaproot PSBTです。\nkey pathとscript pathの署名が混在したPSBTはサポートされていません。"
+
 bottom_sheet:
   view_mit_license: "完全なMITライセンスを表示"
   contact_by_email: "メールで連絡"
@@ -1320,6 +1324,10 @@ exceptions:
   needs_multisig_setup: "$name で署名するには、まずマルチシグウォレットを追加してください。"
   account_change_failed:
     title: "アカウント変更失敗"
+  taproot:
+    invalid_psbt_sign_type:
+      key_path: "親ウォレットで署名可能なトランザクションです"
+      script_path: "子ウォレットで署名可能なトランザクションです"
 
 tooltip:
   mfp: "ウォレットの固有値。\nマスターフィンガープリント(MFP)とも呼ばれます。"

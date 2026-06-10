@@ -1080,7 +1080,6 @@ sync_to_wallet_screen:
       guide0_1: "From the menu"
       guide1_1: "Import Wallet"
       guide2_1: "Keystone"
-      guide1_2: "Keystone"
       guide3_1: "or click the xPub/Watch Only Wallet button and "
     nunchuk: 
       guide1_1: "Bottom Menu"
@@ -1151,6 +1150,10 @@ passphrase_check_screen:
 
 multisig_signer_bsms_export_screen:
   fail_bsms: "Failed to load BSMS"
+
+taproot_sign_screen:
+  exceptions:
+    mixed_path_psbt_error: "Unsupported Taproot PSBT.\nPSBTs with mixed key path and script path signatures are not supported."
 
 bottom_sheet:
   view_mit_license: "View Full MIT License"
@@ -1320,6 +1323,10 @@ exceptions:
   needs_multisig_setup: "Please add a multisig wallet first in order to sign with $name."
   account_change_failed:
     title: "Failed to change account"
+  taproot:
+    invalid_psbt_sign_type:
+      key_path: "This transaction can be signed with the parent wallet"
+      script_path: "This transaction can be signed with the child wallet"
 
 tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."

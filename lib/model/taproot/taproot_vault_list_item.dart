@@ -111,6 +111,7 @@ class TaprootVaultListItem extends VaultListItemBase {
   List<TaprootBeneficiaryParticipant> get beneficiaries => List.unmodifiable(_beneficiaries);
   bool get isParent => _keyPathSeedInfos.isNotEmpty;
   String get derivationPath => (coconutVault as TaprootVault).derivationPath;
+  String get coordinatorBsms => (coconutVault as TaprootVault).getCoordinatorBsms();
 
   @override
   String getWalletSyncString() {

@@ -11,7 +11,7 @@ import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart'
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
-import 'package:coconut_vault/providers/view_model/airgap/taproot_sign_view_model.dart';
+import 'package:coconut_vault/providers/view_model/airgap/taproot/taproot_sign_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
@@ -27,6 +27,7 @@ import 'package:coconut_vault/widgets/button/assignable_pill_button.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
+import 'package:coconut_vault/widgets/tooltip/error_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -55,7 +56,6 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
   void initState() {
     super.initState();
     _currentUnit = context.read<VisibilityProvider>().currentUnit;
-    // TAPROOT: TaprootSignViewModel 생성
     _viewModel = TaprootSignViewModel(
       Provider.of<WalletProvider>(context, listen: false),
       Provider.of<SignProvider>(context, listen: false),
@@ -63,7 +63,18 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _viewModel.initPsbtSignState();
+      try {
+        _viewModel.initPsbtSignState();
+      } catch (e) {
+        if (!mounted) return;
+        showAlertDialog(
+          context: context,
+          content: e.toString(),
+          onConfirmPressed: () {
+            Navigator.pop(context);
+          },
+        );
+      }
     });
   }
 
@@ -75,12 +86,23 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
 
   /// PassphraseCheckScreen 내부에서 인증까지 완료함
   Future<Seed?> _authenticateWithPassphrase({required BuildContext context, required int index}) async {
+    // Taproot 서명 시 특정 서명자의 seed가 필요하므로 targetXpub 전달
+    final signers = _viewModel.signers;
+    final String? targetXpub = index < signers.length ? signers[index].extendedPublicKey : null;
+    if (targetXpub?.isNotEmpty != true) {
+      throw StateError('targetXpub is empty');
+    }
+
     return await MyBottomSheet.showBottomSheet_ratio(
       ratio: 0.5,
       context: context,
       // TAPROOT: Taproot는 signer별 innerVaultId가 없으므로 지갑 id를 사용.
       //   participant 단위 passphrase 인증이 필요한 경우 PassphraseCheckScreen의 Taproot 대응 필요.
-      child: PassphraseCheckScreen(id: _viewModel.vaultId, context: PassphraseCheckContext.sign),
+      child: PassphraseCheckScreen(
+        id: _viewModel.vaultId,
+        context: PassphraseCheckContext.sign,
+        targetXpub: targetXpub,
+      ),
     );
   }
 
@@ -254,7 +276,7 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
 
                   await Future.delayed(const Duration(milliseconds: 300));
                   if (!mounted) return;
-                  _showPsbtScannerBottomSheet(hwwType, signerIndex: signerIndex);
+                  _showPsbtScannerBottomSheet(signerIndex: signerIndex);
                 },
       ),
     );
@@ -262,14 +284,14 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
 
   /// signerIndex == null : 화면 하단 'QR 스캔하기' 버튼을 누른 경우
   /// signerIndex != null : SignerList 중 하나를 눌러 서명하기 진행하는 경우
-  void _showPsbtScannerBottomSheet(HardwareWalletType hwwType, {int? signerIndex}) {
+  void _showPsbtScannerBottomSheet({int? signerIndex}) {
     MyBottomSheet.showBottomSheet_95(
       context: context,
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         child: PsbtScannerScreen(
           id: _viewModel.vaultId,
-          hardwareWalletType: hwwType,
+          hardwareWalletType: HardwareWalletType.coconutVault,
           onMultisigPsbtScanned: (String scannedData) async {
             try {
               bool isRawTxHexString = isRawTransactionHexString(scannedData);
@@ -308,6 +330,7 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
                 );
               }
             } on FormatException catch (e) {
+              if (!mounted) return;
               await showInfoPopup(
                 context,
                 signerIndex != null
@@ -387,7 +410,7 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
           rightButtonColor: CoconutColors.warningText,
           onTapLeft: () => Navigator.pop(context),
           onTapRight: () {
-            _viewModel.reset();
+            _viewModel.clearSignedResultInSignProvider();
             Navigator.pop(context); // 1) close dialog
             Navigator.pop(context); // 2) go back
           },
@@ -467,25 +490,29 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             CoconutLayout.spacing_600h,
+                            if (viewModel.exceptionMessage?.isNotEmpty == true)
+                              SizedBox(
+                                width: MediaQuery.sizeOf(context).width * 0.9,
+                                child: ErrorTooltip(isShown: true, errorMessage: '${viewModel.exceptionMessage}'),
+                              ),
                             _buildSendInfo(),
                             CoconutLayout.spacing_1300h,
                             // TAPROOT: 서명 불가능한 지갑/PSBT 조합이면 안내 문구 노출 (요구사항 2-2, 2-4)
-                            Text(
-                              !viewModel.canSign
-                                  ? t.sign
-                                  : viewModel.isSignatureCompleted
-                                  ? t.sign_completed
-                                  : t.sign_required_amount(n: viewModel.remainingSignatures),
-                              style: CoconutTypography.body1_16_Bold,
-                              textAlign: TextAlign.center,
-                            ),
+                            if (viewModel.exceptionMessage?.isNotEmpty != true)
+                              Text(
+                                viewModel.isSignatureCompleted
+                                    ? t.sign_completed
+                                    : t.sign_required_amount(n: viewModel.remainingSignatures),
+                                style: CoconutTypography.body1_16_Bold,
+                                textAlign: TextAlign.center,
+                              ),
                             CoconutLayout.spacing_600h,
                             _buildSignerList(),
                             CoconutLayout.spacing_2500h,
                           ],
                         ),
                       ),
-                      _buildBottomButtons(),
+                      if (viewModel.isInitialized && viewModel.signType == TaprootSignType.musig2KeyPath) _buildBottomButtons(),
                       Visibility(
                         visible: _showLoading,
                         child: Container(
@@ -668,12 +695,13 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
                 text: buttonText,
                 activeColor: const Color(0xFF88C125),
                 onPressed: () async {
+                  if (_viewModel.exceptionMessage?.isNotEmpty == true) return;
                   if (isSignerApproved) {
                     return;
                   }
 
                   // TAPROOT: 서명 불가능한 지갑/PSBT 조합이면 서명 진행 차단 (요구사항 2-2, 2-4)
-                  if (!_viewModel.canSign) {
+                  if (_viewModel.canSign != true) {
                     return;
                   }
 
@@ -725,7 +753,7 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
           rightButtonClicked: () async {
             final hwwType = await _showHardwareSelectionBottomSheet(isFromBottomButton: true);
             if (hwwType != null) {
-              _showPsbtScannerBottomSheet(hwwType);
+              _showPsbtScannerBottomSheet();
             }
           },
           leftText: t.export_qr,

@@ -237,17 +237,16 @@ class WalletIsolates {
         savedMfp = vault.keyStore.masterFingerprint;
         extendedPublicKey = vault.keyStore.extendedPublicKey.serialize();
       } else if (vaultListItem is TaprootVaultListItem) {
+        final String? targetXpub = args['targetXpub'];
+        if (targetXpub == null) {
+          throw StateError('[vefify passphrase] targetXpub is required for TaprootVaultListItem');
+        }
+
+        extendedPublicKey = targetXpub;
+
         final vault = vaultListItem.coconutVault as TaprootVault;
         keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
-        extendedPublicKey = keyStore.extendedPublicKey.serialize();
-
-        final String? explicitTargetXpub = args['targetXpub'];
-
-        if (explicitTargetXpub != null) {
-          savedMfp = _findMfpByXpub(vault, explicitTargetXpub);
-        } else {
-          savedMfp = _findMfpByXpub(vault, extendedPublicKey);
-        }
+        savedMfp = _findMfpByXpub(vault, targetXpub);
       }
 
       final recoveredMfp = keyStore?.masterFingerprint ?? '';
