@@ -12,7 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class SignedTransactionQrScreen extends StatefulWidget {
-  const SignedTransactionQrScreen({super.key});
+  final List<TextSpan>? tooltipRichText;
+
+  const SignedTransactionQrScreen({super.key, this.tooltipRichText});
 
   @override
   State<SignedTransactionQrScreen> createState() => _SignedTransactionQrScreenState();
@@ -104,6 +106,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
   }
 
   List<TextSpan> _getTooltipRichText() {
+    if (widget.tooltipRichText != null) return widget.tooltipRichText!;
     String text = '';
     switch (_signProvider.vaultType!) {
       case WalletType.singleSignature:
