@@ -127,7 +127,7 @@ watch_only_options:
   nunchuk: "Nunchuk"
   bluewallet: "BlueWallet"
 
-# 연결 상태
+# 接続状態
 connectivity_state: 
   connected: "接続済み"
   disconnected: "切断"
@@ -556,8 +556,8 @@ taproot:
     taproot_single_sig_wallet: "Taprootシングルシグウォレット"
     mfp: "MFP"
   sync_qr_screen:
-    title: "다른 볼트와 공유"
-    description: "다른 볼트에서 이 지갑을 사용할 수 있도록 공유합니다."
+    title: "他のボルトと共有"
+    description: "他のボルトでこのウォレットを使用できるように共有します。"
   taproot_creation_option:
     parent_creation_title: "私は親です"
     parent_creation_description: "自分のウォレットに相続条件を設定します"
@@ -701,7 +701,7 @@ taproot:
       title2: "相続ウォレットと一致しません"
     step7:
       title1: "Taproot相続ウォレットの"
-      title2: "準備가できました"
+      title2: "準備ができました"
       timeline:
         created_wallet: "ウォレットを作成しました"
         exported_to_parent: "親ウォレットにエクスポートしました"
