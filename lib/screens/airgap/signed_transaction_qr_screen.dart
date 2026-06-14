@@ -23,15 +23,22 @@ class SignedTransactionQrScreen extends StatefulWidget {
 class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
   late SignProvider _signProvider;
   late bool isRawTransaction;
+  late String? _signedPsbtBase64;
+  late String? _signedRawTxHexString;
+  late List<TextSpan> _tooltipRichText;
 
   @override
   void initState() {
     super.initState();
     _signProvider = Provider.of<SignProvider>(context, listen: false);
-    final signedPsbtBase64 = _signProvider.signedPsbtBase64;
-    final rawSignedTx = _signProvider.signedRawTxHexString;
-    assert((signedPsbtBase64 == null && rawSignedTx != null) || (signedPsbtBase64 != null && rawSignedTx == null));
-    isRawTransaction = rawSignedTx != null;
+    _signedPsbtBase64 = _signProvider.signedPsbtBase64;
+    _signedRawTxHexString = _signProvider.signedRawTxHexString;
+    assert(
+      (_signedPsbtBase64 == null && _signedRawTxHexString != null) ||
+          (_signedPsbtBase64 != null && _signedRawTxHexString == null),
+    );
+    isRawTransaction = _signedRawTxHexString != null;
+    _tooltipRichText = _getTooltipRichText();
   }
 
   @override
@@ -54,17 +61,15 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                 children: <Widget>[
                   CustomTooltip.buildInfoTooltip(
                     context,
-                    richText: RichText(
-                      text: TextSpan(style: CoconutTypography.body3_12, children: _getTooltipRichText()),
-                    ),
+                    richText: RichText(text: TextSpan(style: CoconutTypography.body3_12, children: _tooltipRichText)),
                   ),
                   const SizedBox(height: 40),
                   AdaptiveQrImage(
                     qrViewDataHandler:
                         !isRawTransaction
-                            ? BcUrQrViewHandler(_signProvider.signedPsbtBase64!, UrType.cryptoPsbt, maxFragmentLen: 40)
+                            ? BcUrQrViewHandler(_signedPsbtBase64!, UrType.cryptoPsbt, maxFragmentLen: 40)
                             : null,
-                    qrData: isRawTransaction ? _signProvider.signedRawTxHexString! : null,
+                    qrData: isRawTransaction ? _signedRawTxHexString! : null,
                   ),
                   CoconutLayout.spacing_2500h,
                 ],
