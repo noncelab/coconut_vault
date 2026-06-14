@@ -42,9 +42,9 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
   late BitcoinUnit _currentUnit;
   bool _showLoading = false;
   bool _showFullAddress = false;
-  // MuSig2 First Signer 흐름에서 nonce 생성 시 획득한 Seed를 BottomSheet 닫힌 후 localSign 단계까지 보유.
-  // ViewModel보다 생명주기가 짧은 State에 두어 화면 종료 시 dispose()에서 wipe() 보장.
-  // step == localNonceCreated(재진입) 시에는 _getSeed() 재호출 없이 이 값을 재사용.
+  // MuSig2 First Signer 흐름에서 nonce 생성 시 획득한 Seed를 BottomSheet가 열린 동안 보유.
+  // 사용자가 QR bottom sheet를 닫고 localNonceCreated 단계에 재진입하면 이 값은 이미 정리되므로,
+  // finalize 시점에 같은 signer seed를 다시 조회한다.
   Seed? _pendingSeed;
   bool _isCupertinoLoadingShown = false;
   String _cupertinoLoadingMessage = '';
@@ -618,26 +618,33 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
       ),
     );
   }
-  
+
   /// 두 번째 Signer의 PSBT 스캔 콜백 핸들러
   Future<void> _handleSecondSignerPsbtScanned(String scannedData) async {
-    assert(_pendingSeed != null, '_pendingSeed must be set in _runSignFlowAsFirstSigner');
+    final signerIndex = _viewModel.musig2SignSession?.mySignerIndex;
+    if (signerIndex == null || signerIndex < 0) {
+      throw StateError('MuSig2 signer index is not available');
+    }
+
+    Seed? seedForFinalize = _pendingSeed;
+    final shouldWipeSeedAfterFinalize = seedForFinalize == null;
 
     try {
+      seedForFinalize ??= await _getSeed(signerIndex);
+      if (seedForFinalize == null) return;
+
       setState(() => _showLoading = true);
-      await _viewModel.musig2FirstSignerFinalize(scannedData, _pendingSeed!);
+      await _viewModel.musig2FirstSignerFinalize(scannedData, seedForFinalize);
       if (mounted) Navigator.pop(context);
     } catch (e) {
       setState(() => _showLoading = false);
-      final title = e is FormatException
-          ? t.taproot_sign_screen.exceptions.update_sign_fail
-          : t.errors.sign_failed;
+      final title = e is FormatException ? t.taproot_sign_screen.exceptions.update_sign_fail : t.errors.sign_failed;
       if (mounted) {
-        await showAlertDialog(
-          context: context,
-          title: title,
-          content: e is FormatException ? e.message : e.toString(),
-        );
+        await showAlertDialog(context: context, title: title, content: e is FormatException ? e.message : e.toString());
+      }
+    } finally {
+      if (shouldWipeSeedAfterFinalize) {
+        seedForFinalize?.wipe();
       }
     }
   }
@@ -688,11 +695,7 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
         appBarTitle: t.taproot_sign_screen.musig2_sign.appbar_title.sign_with_other_signer,
         buttonText: t.next,
         onButtonPressed: (navigator) {
-          navigator.push(
-            MaterialPageRoute(
-              builder: (_) => _buildSecondSignerScanner(),
-            ),
-          );
+          navigator.push(MaterialPageRoute(builder: (_) => _buildSecondSignerScanner()));
         },
       );
       _pendingSeed?.wipe();
@@ -733,7 +736,6 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
       if (mounted) setState(() => _showLoading = false);
     }
   }
-
 
   List<TextSpan> _getMusig2GuideTextSpan() {
     final session = _viewModel.musig2SignSession;
