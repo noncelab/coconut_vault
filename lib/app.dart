@@ -557,7 +557,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                         AppRoutes.signedTransaction:
                             (context) => buildScreenWithArguments(
                               context,
-                              (args) => SignedTransactionQrScreen(tooltipRichText: args['tooltipRichText']),
+                              (args) => SignedTransactionQrScreen(tooltipText: args['tooltipText']),
                             ),
                         AppRoutes.syncToWallet:
                             (context) => buildScreenWithArguments(

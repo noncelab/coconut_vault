@@ -21,6 +21,7 @@ class TaprootSyncQrViewModel extends ChangeNotifier {
       final vault = _walletProvider.getVaultById(_id);
       if (vault is TaprootVaultListItem) {
         _qrData = vault.getWalletSyncString();
+        //Logger.log('--> $_qrData');
       } else {
         _hasError = true;
       }

@@ -1,7 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
-import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
@@ -16,15 +15,13 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
-import 'package:coconut_vault/screens/common/select_external_wallet_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_check_screen.dart';
-import 'package:coconut_vault/screens/airgap/multisig_psbt_qr_code_screen.dart';
+import 'package:coconut_vault/screens/airgap/psbt_qr_code_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
-import 'package:coconut_vault/utils/coconut/transaction_util.dart';
-import 'package:coconut_vault/utils/popup_util.dart';
+import 'package:coconut_vault/providers/view_model/airgap/taproot/taproot_musig2_sign_session.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/assignable_pill_button.dart';
-import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
+import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
 import 'package:coconut_vault/widgets/tooltip/error_tooltip.dart';
@@ -32,10 +29,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-// TAPROOT: MultisigSignScreen을 복사하여 Taproot(P2TR) 서명에 맞게 수정.
-//   - 멀티시그 BSMS QR 가져오기 흐름(_showDialogForImportMultisig 등)은 Taproot에 해당 없음 → 제거
-//   - 서명자(signer) 모델이 MultisigSigner -> TaprootParticipant 로 변경됨
-//   - canSign(서명 가능/불가능) 상태에 따라 서명 버튼 노출/비활성화 처리 추가
 class TaprootSignScreen extends StatefulWidget {
   const TaprootSignScreen({super.key});
 
@@ -49,6 +42,10 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
   late BitcoinUnit _currentUnit;
   bool _showLoading = false;
   bool _showFullAddress = false;
+  // MuSig2 First Signer 흐름에서 nonce 생성 시 획득한 Seed를 BottomSheet 닫힌 후 localSign 단계까지 보유.
+  // ViewModel보다 생명주기가 짧은 State에 두어 화면 종료 시 dispose()에서 wipe() 보장.
+  // step == localNonceCreated(재진입) 시에는 _getSeed() 재호출 없이 이 값을 재사용.
+  Seed? _pendingSeed;
   bool _isCupertinoLoadingShown = false;
   String _cupertinoLoadingMessage = '';
 
@@ -78,353 +75,11 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
     });
   }
 
-  void _toggleUnit() {
-    setState(() {
-      _currentUnit = _currentUnit == BitcoinUnit.btc ? BitcoinUnit.sats : BitcoinUnit.btc;
-    });
-  }
-
-  /// PassphraseCheckScreen 내부에서 인증까지 완료함
-  Future<Seed?> _authenticateWithPassphrase({required BuildContext context, required int index}) async {
-    // Taproot 서명 시 특정 서명자의 seed가 필요하므로 targetXpub 전달
-    final signers = _viewModel.signers;
-    final String? targetXpub = index < signers.length ? signers[index].extendedPublicKey : null;
-    if (targetXpub?.isNotEmpty != true) {
-      throw StateError('targetXpub is empty');
-    }
-
-    return await MyBottomSheet.showBottomSheet_ratio(
-      ratio: 0.5,
-      context: context,
-      // TAPROOT: Taproot는 signer별 innerVaultId가 없으므로 지갑 id를 사용.
-      //   participant 단위 passphrase 인증이 필요한 경우 PassphraseCheckScreen의 Taproot 대응 필요.
-      child: PassphraseCheckScreen(
-        id: _viewModel.vaultId,
-        context: PassphraseCheckContext.sign,
-        targetXpub: targetXpub,
-      ),
-    );
-  }
-
-  Future<bool?> _authenticateWithoutPassphrase() async {
-    final authProvider = context.read<AuthProvider>();
-    if (await authProvider.isBiometricsAuthValidToAvoidDoubleAuth()) {
-      return true;
-    }
-    if (mounted) {
-      return await MyBottomSheet.showBottomSheet_90<bool>(
-        context: context,
-        child: CustomLoadingOverlay(
-          child: PinCheckScreen(
-            pinCheckContext: PinCheckContextEnum.sensitiveAction,
-            onSuccess: () {
-              Navigator.pop(context, true);
-              return true;
-            },
-          ),
-        ),
-      );
-    }
-
-    return false;
-  }
-
-  Future<void> _signByInnerWallet(int index) async {
-    if (!_viewModel.isSigningOnlyMode) {
-      // 안전 저장 모드
-      await _addSignatureToPsbtInStorageMode(index);
-    } else {
-      // 서명 전용 모드
-      await _addSignatureToPsbtInSigningOnlyMode(index);
-    }
-  }
-
-  Future<void> _addSignatureToPsbtInStorageMode(int index) async {
-    Seed? seed;
-    if (_viewModel.getHasPassphrase(index)) {
-      seed = await _authenticateWithPassphrase(context: context, index: index);
-
-      if (seed == null) {
-        return;
-      }
-    } else {
-      final authenticateResult = await _authenticateWithoutPassphrase();
-      if (authenticateResult != true) {
-        return;
-      }
-      try {
-        // TAPROOT: participant의 seed를 secure storage(extendedPublicKey 키)에서 조회
-        seed = Seed.fromMnemonic(await _viewModel.getSecret(index));
-      } on UserCanceledAuthException catch (_) {
-        return;
-      } catch (e) {
-        if (!mounted) return;
-        showAlertDialog(context: context, content: t.errors.sign_error(error: e));
-        return;
-      }
-    }
-
-    await _addSignatureToPsbt(index, seed);
-    seed.wipe();
-  }
-
-  /// @param index: signer index
-  Future<void> _addSignatureToPsbt(int index, Seed seed) async {
-    try {
-      setState(() {
-        _showLoading = true;
-      });
-
-      await _viewModel.sign(index, seed);
-      await _checkCompletedAndGoNext();
-    } catch (error) {
-      if (mounted) {
-        showAlertDialog(context: context, content: t.errors.sign_error(error: error));
-      }
-    } finally {
-      setState(() {
-        _showLoading = false;
-      });
-    }
-  }
-
-  Future<void> _addSignatureToPsbtInSigningOnlyMode(int index) async {
-    try {
-      setState(() {
-        _showLoading = true;
-      });
-
-      await _viewModel.signPsbtInSigningOnlyMode(index);
-      await _checkCompletedAndGoNext();
-    } on UserCanceledAuthException catch (_) {
-      return;
-    } on SeedInvalidatedException catch (e) {
-      if (!mounted) return;
-      showDialog(
-        context: context,
-        builder:
-            (context) => CoconutPopup(
-              languageCode: context.read<VisibilityProvider>().language,
-              title: t.exceptions.seed_invalidated.title,
-              description: e.message,
-              onTapRight: () {
-                Navigator.pop(context);
-              },
-            ),
-      );
-    } catch (error) {
-      if (mounted) {
-        showAlertDialog(context: context, content: t.errors.sign_error(error: error));
-      }
-    } finally {
-      setState(() {
-        _showLoading = false;
-      });
-    }
-  }
-
-  Future<bool> _checkCompletedAndGoNext({bool shouldPopBeforeNavigate = false}) async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    if (!_viewModel.isSignatureCompleted) return false;
-
-    if (shouldPopBeforeNavigate) {
-      if (mounted) {
-        Navigator.pop(context);
-      } else {
-        return false;
-      }
-    }
-
-    setState(() {
-      _cupertinoLoadingMessage = t.multisig_sign_screen.creating_qr_code;
-      _isCupertinoLoadingShown = true;
-    });
-
-    await Future.delayed(const Duration(seconds: 2));
-
-    setState(() {
-      _isCupertinoLoadingShown = false;
-    });
-    _viewModel.saveSignedResult();
-
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, AppRoutes.signedTransaction);
-      return true;
-    }
-    return false;
-  }
-
-  // TAPROOT: 멀티시그 BSMS(다중서명 지갑 정보) QR 가져오기 흐름은 Taproot에 해당 없음.
-  //   기존 _showDialogForImportMultisig / _showMultisigBsmsQrCodeBottomSheet 제거.
-
-  void _showPsbtQrCodeBottomSheet(HardwareWalletType hwwType, {int? signerIndex}) {
-    // TAPROOT: signer 모델이 TaprootParticipant 이므로 keyStore 대신 masterFingerprint 직접 사용
-    final masterFingerprint = signerIndex != null ? _viewModel.signers[signerIndex].masterFingerprint : null;
-    MyBottomSheet.showBottomSheet_95(
-      context: context,
-      child: PsbtQrCodeViewScreen(
-        multisigName: _viewModel.walletName,
-        index: signerIndex,
-        signedRawTx: _viewModel.psbtForSigning,
-        hardwareWalletType: hwwType,
-        masterFingerprint: masterFingerprint,
-        onNextPressed:
-            signerIndex == null
-                ? null
-                : () async {
-                  Navigator.pop(context); // 현재 다이얼로그 닫기
-
-                  await Future.delayed(const Duration(milliseconds: 300));
-                  if (!mounted) return;
-                  _showPsbtScannerBottomSheet(signerIndex: signerIndex);
-                },
-      ),
-    );
-  }
-
-  /// signerIndex == null : 화면 하단 'QR 스캔하기' 버튼을 누른 경우
-  /// signerIndex != null : SignerList 중 하나를 눌러 서명하기 진행하는 경우
-  void _showPsbtScannerBottomSheet({int? signerIndex}) {
-    MyBottomSheet.showBottomSheet_95(
-      context: context,
-      child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        child: PsbtScannerScreen(
-          id: _viewModel.vaultId,
-          hardwareWalletType: HardwareWalletType.coconutVault,
-          onMultisigPsbtScanned: (String scannedData) async {
-            try {
-              bool isRawTxHexString = isRawTransactionHexString(scannedData);
-              if (isRawTxHexString) {
-                _viewModel.validateRawSignedTransaction(scannedData);
-                _viewModel.saveSignedRawTxHex(scannedData);
-              } else {
-                _viewModel.onScannedPsbt(scannedData, isOverwrite: signerIndex == null);
-              }
-
-              bool navigated = false;
-              navigated = await _checkCompletedAndGoNext(shouldPopBeforeNavigate: true);
-
-              // 서명이 모두 완료되어 화면 전환이 일어난 경우에는 추가 pop을 하지 않는다.
-              if (navigated) {
-                return;
-              }
-
-              if (!mounted) return;
-              Navigator.pop(context);
-
-              // 바텀시트가 닫힌 후 서명 정보 업데이트 완료 안내
-              if (signerIndex == null && mounted) {
-                await showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return CoconutPopup(
-                      languageCode: context.read<VisibilityProvider>().language,
-                      title: t.multisig_sign_screen.dialog.signature_update.title,
-                      description: t.multisig_sign_screen.dialog.signature_update.description,
-                      onTapRight: () {
-                        Navigator.pop(context);
-                      },
-                    );
-                  },
-                );
-              }
-            } on FormatException catch (e) {
-              if (!mounted) return;
-              await showInfoPopup(
-                context,
-                signerIndex != null
-                    ? t.multisig_sign_screen.dialog.signature_failed.title
-                    : t.multisig_sign_screen.dialog.signature_update_failed.title,
-                e.message,
-              );
-              if (mounted) {
-                Navigator.of(context).pop(); // close this bottom sheet
-              }
-              return;
-            }
-          },
-        ),
-      ),
-    );
-  }
-
-  Future<HardwareWalletType?> _showHardwareSelectionBottomSheet({int? index, bool isFromBottomButton = false}) async {
-    // 하단의 'QR 스캔하기'로 들어온 경우 index는 null
-
-    HardwareWalletType? hwwType;
-
-    final iconSourceList = [
-      kCoconutVaultIconPath,
-      kKeystoneIconPath,
-      kSeedSignerIconPath,
-      kJadeIconPath,
-      kColdCardIconPath,
-      kKruxIconPath,
-    ];
-
-    final externalWalletButtonList = [
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.coconut_vault, iconSource: iconSourceList[0]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.keystone3pro, iconSource: iconSourceList[1]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.seed_signer, iconSource: iconSourceList[2]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.jade, iconSource: iconSourceList[3]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.cold_card, iconSource: iconSourceList[4]),
-      ExternalWalletButton(name: t.multi_sig_setting_screen.add_signer.krux, iconSource: iconSourceList[5]),
-    ];
-    await MyBottomSheet.showDraggableBottomSheet<HardwareWalletType?>(
-      context: context,
-      showDragHandle: false,
-      maxChildSize: 0.45,
-      minChildSize: 0.2,
-      initialChildSize: 0.45,
-      childBuilder:
-          (context) => SelectExternalWalletBottomSheet(
-            title:
-                index == null
-                    ? t.multisig_sign_screen.select_signer_hardware_wallet
-                    : t.multi_sig_setting_screen.add_signer.title,
-            externalWalletButtonList: externalWalletButtonList,
-            showConfirmDialog: !isFromBottomButton,
-            selectedIndex: null,
-            onSelected: (selectedIndex) {
-              hwwType = HardwareWalletTypeExtension.getHardwareWalletTypeByIconPath(iconSourceList[selectedIndex]);
-            },
-          ),
-    );
-    return hwwType;
-  }
-
-  void _askIfSureToGoBack() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
-          insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
-          title: t.alert.stop_sign.title,
-          description: t.alert.stop_sign.description,
-          backgroundColor: CoconutColors.white,
-          leftButtonText: t.no,
-          leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
-          rightButtonText: t.yes,
-          rightButtonColor: CoconutColors.warningText,
-          onTapLeft: () => Navigator.pop(context),
-          onTapRight: () {
-            _viewModel.clearSignedResultInSignProvider();
-            Navigator.pop(context); // 1) close dialog
-            Navigator.pop(context); // 2) go back
-          },
-        );
-      },
-    );
-  }
-
-  void _onBackPressed() {
-    if (_viewModel.signersApproved.where((bool isApproved) => isApproved).isNotEmpty) {
-      _askIfSureToGoBack();
-    } else {
-      Navigator.pop(context);
-    }
+  @override
+  void dispose() {
+    _pendingSeed?.wipe();
+    _pendingSeed = null;
+    super.dispose();
   }
 
   @override
@@ -496,9 +151,27 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
                                 child: ErrorTooltip(isShown: true, errorMessage: '${viewModel.exceptionMessage}'),
                               ),
                             _buildSendInfo(),
-                            CoconutLayout.spacing_1300h,
-                            // TAPROOT: 서명 불가능한 지갑/PSBT 조합이면 안내 문구 노출 (요구사항 2-2, 2-4)
-                            if (viewModel.exceptionMessage?.isNotEmpty != true)
+                            // MuSig2 가이드 문구
+                            if (viewModel.isInitialized &&
+                                viewModel.signType == TaprootSignType.musig2KeyPath &&
+                                !viewModel.isMusig2Completed()) ...[
+                              CoconutLayout.spacing_100h,
+                              CustomTooltip.buildInfoTooltip(
+                                context,
+                                richText: RichText(
+                                  text: TextSpan(
+                                    style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
+                                    children: _getMusig2GuideTextSpan(),
+                                  ),
+                                ),
+                                backgroundColor: CoconutColors.white,
+                                borderColor: CoconutColors.black,
+                              ),
+                            ] else
+                              CoconutLayout.spacing_1300h,
+
+                            if (viewModel.exceptionMessage?.isNotEmpty != true &&
+                                !(viewModel.isInitialized && viewModel.signType == TaprootSignType.musig2KeyPath))
                               Text(
                                 viewModel.isSignatureCompleted
                                     ? t.sign_completed
@@ -512,7 +185,6 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
                           ],
                         ),
                       ),
-                      if (viewModel.isInitialized && viewModel.signType == TaprootSignType.musig2KeyPath) _buildBottomButtons(),
                       Visibility(
                         visible: _showLoading,
                         child: Container(
@@ -542,11 +214,6 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   Widget _buildSendInfo() {
@@ -681,12 +348,7 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
                 ),
               );
 
-              final buttonText =
-                  '$mfp - ${isSignerApproved
-                      ? t.sign_completion
-                      : isInnerWallet
-                      ? t.sign
-                      : t.add_sign}';
+              final buttonText = '$mfp - ${_viewModel.getSignerButtonText(index, isSignerApproved, isInnerWallet)}';
 
               return AssignablePillButton(
                 width: MediaQuery.sizeOf(context).width * 0.9,
@@ -694,6 +356,7 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
                 iconWidget: iconWidget,
                 text: buttonText,
                 activeColor: const Color(0xFF88C125),
+                isDisabled: (!isInnerWallet && !isSignerApproved),
                 onPressed: () async {
                   if (_viewModel.exceptionMessage?.isNotEmpty == true) return;
                   if (isSignerApproved) {
@@ -705,29 +368,14 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
                     return;
                   }
 
-                  // TAPROOT: seed가 저장되어 있으면 내부 지갑으로 바로 서명
                   if (isInnerWallet) {
-                    _signByInnerWallet(index);
+                    if (_viewModel.signType == TaprootSignType.musig2KeyPath) {
+                      _runMusig2SignFlow(index);
+                    } else {
+                      _signByInnerWallet(index);
+                    }
                     return;
                   }
-
-                  // TAPROOT: seed가 저장되어 있지 않은 participant는 외부 하드웨어 QR 흐름으로 처리
-                  //   (멀티시그 BSMS 가져오기 흐름은 제거하고 PSBT QR 내보내기/스캔만 사용)
-                  final hwwType = await _showHardwareSelectionBottomSheet(index: index);
-                  if (hwwType == null) return;
-
-                  setState(() {
-                    _cupertinoLoadingMessage = t.multisig_sign_screen.loading_overlay;
-                    _isCupertinoLoadingShown = true;
-                  });
-
-                  await Future.delayed(const Duration(seconds: 2));
-                  if (mounted) {
-                    setState(() {
-                      _isCupertinoLoadingShown = false;
-                    });
-                  }
-                  _showPsbtQrCodeBottomSheet(hwwType, signerIndex: index);
                 },
               );
             },
@@ -738,36 +386,373 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
     );
   }
 
-  Widget _buildBottomButtons() {
-    // TAPROOT: Selector 타입을 TaprootSignViewModel로 변경
-    return Selector<TaprootSignViewModel, bool>(
-      selector: (_, viewModel) => viewModel.isSignatureCompleted,
-      builder: (context, isSignatureComplete, child) {
-        return FixedBottomTweenButton(
-          leftButtonClicked: () async {
-            final hwwType = await _showHardwareSelectionBottomSheet(isFromBottomButton: true);
-            if (hwwType != null) {
-              _showPsbtQrCodeBottomSheet(hwwType);
-            }
+  // MARK - getSeed
+
+  /// PassphraseCheckScreen 내부에서 인증까지 완료함
+  Future<Seed?> _authenticateWithPassphrase({required BuildContext context, required int index}) async {
+    // Taproot 서명 시 특정 서명자의 seed가 필요하므로 targetXpub 전달
+    final signers = _viewModel.signers;
+    final String? targetXpub = index < signers.length ? signers[index].extendedPublicKey : null;
+    if (targetXpub?.isNotEmpty != true) {
+      throw StateError('targetXpub is empty');
+    }
+
+    return await MyBottomSheet.showBottomSheet_ratio(
+      ratio: 0.5,
+      context: context,
+      child: PassphraseCheckScreen(
+        id: _viewModel.vaultId,
+        context: PassphraseCheckContext.sign,
+        targetXpub: targetXpub,
+      ),
+    );
+  }
+
+  Future<bool?> _authenticateWithoutPassphrase() async {
+    final authProvider = context.read<AuthProvider>();
+    if (await authProvider.isBiometricsAuthValidToAvoidDoubleAuth()) {
+      return true;
+    }
+    if (mounted) {
+      return await MyBottomSheet.showBottomSheet_90<bool>(
+        context: context,
+        child: CustomLoadingOverlay(
+          child: PinCheckScreen(
+            pinCheckContext: PinCheckContextEnum.sensitiveAction,
+            onSuccess: () {
+              Navigator.pop(context, true);
+              return true;
+            },
+          ),
+        ),
+      );
+    }
+
+    return false;
+  }
+
+  void _askIfSureToGoBack() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return CoconutPopup(
+          languageCode: context.read<VisibilityProvider>().language,
+          insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
+          title: t.alert.stop_sign.title,
+          description: t.alert.stop_sign.description,
+          backgroundColor: CoconutColors.white,
+          leftButtonText: t.no,
+          leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
+          rightButtonText: t.yes,
+          rightButtonColor: CoconutColors.warningText,
+          onTapLeft: () => Navigator.pop(context),
+          onTapRight: () {
+            _viewModel.clearSignedResultInSignProvider();
+            Navigator.pop(context); // 1) close dialog
+            Navigator.pop(context); // 2) go back
           },
-          rightButtonClicked: () async {
-            final hwwType = await _showHardwareSelectionBottomSheet(isFromBottomButton: true);
-            if (hwwType != null) {
-              _showPsbtScannerBottomSheet();
-            }
-          },
-          leftText: t.export_qr,
-          rightText: t.scan_qr,
-          leftButtonBackgroundColor: CoconutColors.white,
-          rightButtonBackgroundColor: CoconutColors.white,
-          leftButtonTextColor: CoconutColors.black,
-          rightButtonTextColor: CoconutColors.black,
-          leftButtonBorderColor: CoconutColors.gray400,
-          rightButtonBorderColor: CoconutColors.gray400,
-          leftButtonPressedBackgroundColor: CoconutColors.gray200,
-          rightButtonPressedBackgroundColor: CoconutColors.gray200,
         );
       },
     );
+  }
+
+  Future<Seed?> _getSeedInSigningOnlyMode(int index) async {
+    return await _viewModel.getSeedInSigningOnlyMode(index);
+  }
+
+  Future<Seed?> _getSeedInStorageMode(int index) async {
+    if (_viewModel.getHasPassphrase(index)) {
+      return await _authenticateWithPassphrase(context: context, index: index);
+    } else {
+      final authenticateResult = await _authenticateWithoutPassphrase();
+      if (authenticateResult != true) return null;
+      return Seed.fromMnemonic(await _viewModel.getSecret(index));
+    }
+  }
+
+  Future<Seed?> _getSeed(int index) async {
+    try {
+      if (_viewModel.isSigningOnlyMode) {
+        return await _getSeedInSigningOnlyMode(index);
+      } else {
+        return await _getSeedInStorageMode(index);
+      }
+    } on UserCanceledAuthException catch (_) {
+      return null;
+    } on SeedInvalidatedException catch (e) {
+      if (!mounted) return null;
+      showDialog(
+        context: context,
+        builder:
+            (context) => CoconutPopup(
+              languageCode: context.read<VisibilityProvider>().language,
+              title: t.exceptions.seed_invalidated.title,
+              description: e.message,
+              onTapRight: () => Navigator.pop(context),
+            ),
+      );
+      return null;
+    }
+  }
+
+  // MARK - common
+
+  void _onBackPressed() {
+    if (_viewModel.signersApproved.where((bool isApproved) => isApproved).isNotEmpty) {
+      _askIfSureToGoBack();
+    } else {
+      Navigator.pop(context);
+    }
+  }
+
+  Future<bool> _checkCompletedAndGoNext({
+    bool shouldPopBeforeNavigate = false,
+    bool isMusig2SecondSigner = false,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 100));
+    if (!_viewModel.isSignatureCompleted) return false;
+
+    if (shouldPopBeforeNavigate) {
+      if (mounted) {
+        Navigator.pop(context);
+      } else {
+        return false;
+      }
+    }
+
+    setState(() {
+      _cupertinoLoadingMessage = t.multisig_sign_screen.creating_qr_code;
+      _isCupertinoLoadingShown = true;
+    });
+
+    await Future.delayed(const Duration(seconds: 2));
+
+    setState(() {
+      _isCupertinoLoadingShown = false;
+    });
+    _viewModel.saveSignedResult();
+
+    if (mounted) {
+      Navigator.pushReplacementNamed(
+        context,
+        AppRoutes.signedTransaction,
+        arguments:
+            isMusig2SecondSigner ? {'tooltipText': t.taproot_sign_screen.musig2_sign.guide.first_sign_completed} : null,
+      );
+      return true;
+    }
+    return false;
+  }
+
+  // MARK - TaprootSignType singleKeyPath & scriptPath
+
+  Future<void> _signByInnerWallet(int index) async {
+    assert(_viewModel.signType != TaprootSignType.musig2KeyPath);
+
+    final seed = await _getSeed(index);
+    if (seed == null) return;
+
+    try {
+      setState(() => _showLoading = true);
+      await _viewModel.sign(index, seed);
+      await _checkCompletedAndGoNext();
+    } catch (error) {
+      if (mounted) {
+        showAlertDialog(context: context, content: t.errors.sign_error(error: error));
+      }
+    } finally {
+      setState(() => _showLoading = false);
+      seed.wipe();
+    }
+  }
+
+  /// MARK - TaprootSignType musig2
+  Future<void> _runMusig2SignFlow(int index) async {
+    assert(_viewModel.signType == TaprootSignType.musig2KeyPath);
+
+    if (_viewModel.isMusig2FirstSigner(index)) {
+      // First Signer 흐름: nonce 생성 → QR 공유 → remote nonce 수신 → partial sig → QR 공유 → aggregation
+      await _runSignFlowAsFirstSigner(index);
+    } else {
+      // Second Signer 흐름: 첫 번째 폰 PSBT 수신 → nonce + partial sig 한 번에 → QR 공유
+      await _runSignFlowAsSecondSigner(index);
+    }
+  }
+
+  Future<void> _showMusig2PsbtQrCodeBottomSheet({
+    required String qrData,
+    required List<TextSpan> guideRichText,
+    String? appBarTitle,
+    required String buttonText,
+    required void Function(NavigatorState navigator) onButtonPressed,
+  }) async {
+    final innerNavKey = GlobalKey<NavigatorState>();
+    await MyBottomSheet.showBottomSheet_95(
+      context: context,
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) {
+          if (didPop) return;
+          if (innerNavKey.currentState?.canPop() == true) {
+            innerNavKey.currentState!.pop();
+          } else {
+            Navigator.of(context).pop();
+          }
+        },
+        child: Navigator(
+          key: innerNavKey,
+          onGenerateRoute:
+              (settings) => MaterialPageRoute(
+                builder:
+                    (innerContext) => PsbtQrCodeScreen(
+                      qrData: qrData,
+                      guideRichText: guideRichText,
+                      appBarTitle: appBarTitle,
+                      buttonText: buttonText,
+                      onButtonPressed: () {
+                        onButtonPressed(Navigator.of(innerContext));
+                      },
+                    ),
+              ),
+        ),
+      ),
+    );
+  }
+  
+  /// 두 번째 Signer의 PSBT 스캔 콜백 핸들러
+  Future<void> _handleSecondSignerPsbtScanned(String scannedData) async {
+    assert(_pendingSeed != null, '_pendingSeed must be set in _runSignFlowAsFirstSigner');
+
+    try {
+      setState(() => _showLoading = true);
+      await _viewModel.musig2FirstSignerFinalize(scannedData, _pendingSeed!);
+      if (mounted) Navigator.pop(context);
+    } catch (e) {
+      setState(() => _showLoading = false);
+      final title = e is FormatException
+          ? t.taproot_sign_screen.exceptions.update_sign_fail
+          : t.errors.sign_failed;
+      if (mounted) {
+        await showAlertDialog(
+          context: context,
+          title: title,
+          content: e is FormatException ? e.message : e.toString(),
+        );
+      }
+    }
+  }
+
+  /// 두 번째 Signer의 PSBT 스캔 화면 생성
+  /// INFO: 닫을 필요가 없는 화면에어서 왼상단에 닫기 버튼 안보임
+  Widget _buildSecondSignerScanner() {
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+      child: PsbtScannerScreen(
+        id: _viewModel.vaultId,
+        hardwareWalletType: HardwareWalletType.coconutVault,
+        appBarTitle: t.taproot_sign_screen.musig2_sign.appbar_title.update_sign,
+        tooltipRichText: [
+          TextSpan(
+            text: t.taproot_sign_screen.musig2_sign.guide.scan_other_signer_qr,
+            style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
+          ),
+        ],
+        onMultisigPsbtScanned: _handleSecondSignerPsbtScanned,
+      ),
+    );
+  }
+
+  /// MuSig2 First Signer: nonce 생성 → QR 공유 → 두 번째 폰 QR 스캔 → aggregation 완성
+  Future<void> _runSignFlowAsFirstSigner(int index) async {
+    final step = _viewModel.musig2SignSession!.firstSignerStep;
+    assert(step == TaprootMusig2FirstSignerStep.none || step == TaprootMusig2FirstSignerStep.localNonceCreated);
+
+    String? nonceAddedPsbt;
+    try {
+      // 2. nonce 생성 (PSBT에 자신의 nonce만 추가됨)
+      if (step == TaprootMusig2FirstSignerStep.none) {
+        final seed = await _getSeed(index);
+        if (seed == null) return;
+        _pendingSeed = seed;
+
+        setState(() => _showLoading = true);
+        nonceAddedPsbt = await _viewModel.musig2FirstSignerCreateNonce(index, seed);
+        setState(() => _showLoading = false);
+      } else {
+        nonceAddedPsbt = _viewModel.musig2SignSession!.currentPsbt;
+      }
+
+      await _showMusig2PsbtQrCodeBottomSheet(
+        qrData: nonceAddedPsbt,
+        guideRichText: [TextSpan(text: t.taproot_sign_screen.musig2_sign.guide.scan_with_other_signer)],
+        appBarTitle: t.taproot_sign_screen.musig2_sign.appbar_title.sign_with_other_signer,
+        buttonText: t.next,
+        onButtonPressed: (navigator) {
+          navigator.push(
+            MaterialPageRoute(
+              builder: (_) => _buildSecondSignerScanner(),
+            ),
+          );
+        },
+      );
+      _pendingSeed?.wipe();
+      _pendingSeed = null;
+      await _checkCompletedAndGoNext();
+    } catch (error) {
+      if (mounted) {
+        showAlertDialog(context: context, content: t.errors.sign_error(error: error));
+      }
+    } finally {
+      _pendingSeed?.wipe();
+      _pendingSeed = null;
+      if (mounted) setState(() => _showLoading = false);
+    }
+  }
+
+  /// MuSig2 Second Signer: 첫 번째 폰 QR(PSBT) 스캔 → nonce + partial sig 생성 → QR(PSBT) 공유 → 완성된 PSBT 수신
+  Future<void> _runSignFlowAsSecondSigner(int index) async {
+    final step = _viewModel.musig2SignSession!.secondSignerStep;
+    assert(step == TaprootMusig2SecondSignerStep.remoteNonceCreated);
+    Seed? seed;
+    try {
+      seed = await _getSeed(index);
+      if (seed == null) return;
+
+      setState(() => _showLoading = true);
+      await _viewModel.musig2SecondSignerSign(seed);
+      seed.wipe();
+      seed = null;
+      setState(() => _showLoading = false);
+      await _checkCompletedAndGoNext(isMusig2SecondSigner: true);
+    } catch (error) {
+      if (mounted) {
+        showAlertDialog(context: context, content: t.errors.sign_error(error: error));
+      }
+    } finally {
+      seed?.wipe();
+      if (mounted) setState(() => _showLoading = false);
+    }
+  }
+
+
+  List<TextSpan> _getMusig2GuideTextSpan() {
+    final session = _viewModel.musig2SignSession;
+    if (session == null) return [];
+
+    if (session.isFirstSigner) {
+      if (session.firstSignerStep == TaprootMusig2FirstSignerStep.none) {
+        return [TextSpan(text: t.taproot_sign_screen.musig2_sign.guide.please_bring_key)];
+      } else {
+        return [TextSpan(text: t.taproot_sign_screen.musig2_sign.guide.please_do_next)];
+      }
+    } else {
+      return [TextSpan(text: t.taproot_sign_screen.musig2_sign.guide.please_sign)];
+    }
+  }
+
+  void _toggleUnit() {
+    setState(() {
+      _currentUnit = _currentUnit == BitcoinUnit.btc ? BitcoinUnit.sats : BitcoinUnit.btc;
+    });
   }
 }

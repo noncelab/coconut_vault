@@ -412,7 +412,7 @@ class MultisigSignViewModel extends ChangeNotifier {
       final currentTx = Psbt.parse(_psbtForSigning).unsignedTransaction!;
       final scannedTx = Transaction.parse(rawSignedTransaction);
 
-      if (!_isTransactionBodySame(currentTx, scannedTx)) {
+      if (!isSameTransactionBody(currentTx, scannedTx)) {
         throw FormatException(exceptionMessages.invalid_sign_error);
       }
 
@@ -436,27 +436,6 @@ class MultisigSignViewModel extends ChangeNotifier {
     }
   }
 
-  bool _isTransactionBodySame(Transaction tx1, Transaction tx2) {
-    if (tx1.transactionHash != tx2.transactionHash) {
-      return false;
-    }
-    if (tx1.outputs.length != tx2.outputs.length || tx1.inputs.length != tx2.inputs.length) {
-      return false;
-    }
-    for (int i = 0; i < tx1.outputs.length; i++) {
-      if (tx1.outputs[i].serialize() != tx2.outputs[i].serialize()) {
-        return false;
-      }
-    }
-    for (int i = 0; i < tx1.inputs.length; i++) {
-      if (tx1.inputs[i].serialize() != tx2.inputs[i].serialize()) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   void onScannedPsbt(String scannedData, {bool isOverwrite = false}) {
     final exceptionMessages = t.multisig_sign_screen.exception;
     try {
@@ -466,7 +445,7 @@ class MultisigSignViewModel extends ChangeNotifier {
       final scannedPsbt = Psbt.parse(scannedData);
       final scannedTx = scannedPsbt.unsignedTransaction!;
 
-      if (!_isTransactionBodySame(currentTx, scannedTx)) {
+      if (!isSameTransactionBody(currentTx, scannedTx)) {
         throw FormatException(exceptionMessages.invalid_sign_error);
       }
 
@@ -561,7 +540,7 @@ class MultisigSignViewModel extends ChangeNotifier {
     try {
       final currentTx = Psbt.parse(_psbtForSigning).unsignedTransaction!;
       final scannedTx = Psbt.parse(scannedData).unsignedTransaction!;
-      return _isTransactionBodySame(currentTx, scannedTx);
+      return isSameTransactionBody(currentTx, scannedTx);
     } catch (e) {
       debugPrint('canUpdatePsbt error: $e');
       return false;

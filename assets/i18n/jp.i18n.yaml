@@ -1156,6 +1156,31 @@ multisig_signer_bsms_export_screen:
 taproot_sign_screen:
   exceptions:
     mixed_path_psbt_error: "サポートされていないTaproot PSBTです。\nkey pathとscript pathの署名が混在したPSBTはサポートされていません。"
+    update_sign_fail: "署名の更新に失敗しました"
+    format_exception:
+      invalid_psbt_format: "PSBTの形式が正しくありません。"
+      transaction_mismatch: "トランザクション情報が一致しません。"
+      different_wallet: "別のウォレットのトランザクションです。"
+      participant_mismatch: "MuSig2の参加者情報が一致しません。"
+      no_signature: "署名情報がありません。もう一方の親ウォレットで署名が完了しているか確認してください。"
+      no_other_signer_sig: "もう一方の親ウォレットの署名情報がありません。"
+      nonce_missing: "自分のnonce情報がありません。"
+      nonce_tampered: "自分のnonce情報が改ざんされています。"
+  musig2_sign:
+    appbar_title:
+      sign_with_other_signer: "他の親ウォレットで署名する"
+      update_sign: "署名を更新"
+    guide:
+      please_bring_key: "下のボタンをタップして、署名に必要な鍵情報を取得してください。"
+      please_do_next: "下のボタンをタップして、次のステップに進んでください。"
+      scan_with_other_signer: "もう一方の親ウォレットで下のQRコードをスキャンしてから、署名を進めてください。署名が完了したら、生成されたQRコードを再度スキャンしてください。"
+      first_sign_completed: "最初の署名が完了しました。もう一方の親ウォレットで下のQRコードをスキャンして署名を完了してください。"
+      scan_other_signer_qr: "もう一方の親ウォレットで署名完了後に生成されたQRコードをスキャンしてください。"
+      please_sign: "下のボタンをタップして署名を進めてください。"
+      scan_with_first_signer: "下のQRコードを、署名を開始したウォレットでスキャンしてください。"
+    button:
+      prepare_sign: "署名の準備"
+      ready: "準備完了"
 
 bottom_sheet:
   view_mit_license: "完全なMITライセンスを表示"
@@ -1317,6 +1342,7 @@ errors:
   extended_public_key_not_found_error: "直接使用したいウォレットを選択してマルチシグ機能を使用してください"
   user_cancelled_auth: "ユーザーがデバイス認証をキャンセルしました。"
   unexpected_error_title: "エラーが発生しました"
+  sign_failed: "署名に失敗しました"
   
 exceptions:
   seed_invalidated: 
@@ -1329,6 +1355,11 @@ exceptions:
     invalid_psbt_sign_type:
       key_path: "親ウォレットで署名可能なトランザクションです"
       script_path: "子ウォレットで署名可能なトランザクションです"
+  transaction:
+    already_has_sign: "このトランザクションには既に署名情報が含まれています。"
+    already_signed: "このトランザクションは既に完全に署名されています。"
+    muSig2:
+      already_has_nonce_with_this: "このウォレットではすでにノンスが追加されています。"
 
 tooltip:
   mfp: "ウォレットの固有値。\nマスターフィンガープリント(MFP)とも呼ばれます。"

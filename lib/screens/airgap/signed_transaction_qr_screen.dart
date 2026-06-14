@@ -12,9 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class SignedTransactionQrScreen extends StatefulWidget {
-  final List<TextSpan>? tooltipRichText;
+  final String? tooltipText;
 
-  const SignedTransactionQrScreen({super.key, this.tooltipRichText});
+  const SignedTransactionQrScreen({super.key, this.tooltipText});
 
   @override
   State<SignedTransactionQrScreen> createState() => _SignedTransactionQrScreenState();
@@ -106,14 +106,19 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
   }
 
   List<TextSpan> _getTooltipRichText() {
-    if (widget.tooltipRichText != null) return widget.tooltipRichText!;
-    String text = '';
-    switch (_signProvider.vaultType!) {
-      case WalletType.singleSignature:
-      case WalletType.taproot:
-        text = t.signed_transaction_qr_screen.guide_single_sig(name: _signProvider.walletName!);
-      case WalletType.multiSignature:
-        text = t.signed_transaction_qr_screen.guide_multisig;
+    final String text;
+    if (widget.tooltipText != null) {
+      text = widget.tooltipText!;
+    } else {
+      switch (_signProvider.vaultType) {
+        case WalletType.singleSignature:
+        case WalletType.taproot:
+          text = t.signed_transaction_qr_screen.guide_single_sig(name: _signProvider.walletName!);
+        case WalletType.multiSignature:
+          text = t.signed_transaction_qr_screen.guide_multisig;
+        default:
+          text = '';
+      }
     }
     return [TextSpan(text: text, style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black))];
   }

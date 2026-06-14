@@ -24,13 +24,17 @@ class PsbtScannerScreen extends StatefulWidget {
   final int? id;
   final HardwareWalletType? hardwareWalletType;
   final bool isFromBottomButton;
-  final void Function(String psbtBase64)? onMultisigPsbtScanned;
+  final Future<void> Function(String psbtBase64)? onMultisigPsbtScanned;
+  final String? appBarTitle;
+  final List<TextSpan>? tooltipRichText;
   const PsbtScannerScreen({
     super.key,
     this.id,
     this.hardwareWalletType,
     this.isFromBottomButton = false,
     this.onMultisigPsbtScanned,
+    this.appBarTitle,
+    this.tooltipRichText,
   });
 
   @override
@@ -147,7 +151,11 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     vibrateLight();
 
     if (widget.hardwareWalletType != null) {
-      widget.onMultisigPsbtScanned!(isRawTxHexString ? scannedData : psbtBase64);
+      await widget.onMultisigPsbtScanned!(isRawTxHexString ? scannedData : psbtBase64);
+      if (mounted) {
+        _scanDataHandler.reset();
+        _isProcessing = false;
+      }
       return;
     }
 
@@ -342,12 +350,15 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tooltipTextSpan = TextSpan(style: CoconutTypography.body2_14, children: _getGuideTextSpan());
+    final tooltipTextSpan = TextSpan(
+      style: CoconutTypography.body2_14,
+      children: widget.tooltipRichText ?? _getGuideTextSpan(),
+    );
 
     return CustomLoadingOverlay(
       child: Scaffold(
         appBar: CoconutAppBar.build(
-          title: widget.hardwareWalletType?.displayName ?? t.sign,
+          title: widget.appBarTitle ?? widget.hardwareWalletType?.displayName ?? t.sign,
           context: context,
           backgroundColor: CoconutColors.white,
           actionButtonList: [

@@ -80,6 +80,7 @@ class TaprootSignViewModel extends ChangeNotifier {
     _ensureInitialized();
     return _signType!;
   }
+
   TaprootMusig2SignSession? get musig2SignSession => _musig2SignSession;
 
   String get firstRecipientAddress =>
@@ -156,7 +157,15 @@ class TaprootSignViewModel extends ChangeNotifier {
 
   int get remainingSignatures => requiredSignatureCount - _signerApproved.where((bool isApproved) => isApproved).length;
 
-  bool get isSignatureCompleted => _signType != null && (remainingSignatures <= 0 || _signedRawTxHex != null);
+  bool get isSignatureCompleted {
+    if (_signType == null) return false;
+    if (_signType == TaprootSignType.musig2KeyPath &&
+        _musig2SignSession != null &&
+        !_musig2SignSession!.isFirstSigner) {
+      return _musig2SignSession!.secondSignerStep == TaprootMusig2SecondSignerStep.signed;
+    }
+    return remainingSignatures <= 0;
+  }
 
   /// index번째 서명자의 seed가 이 지갑에 저장되어 있는지(내부 서명 가능 여부).
   bool isSeedStored(int index) => signers[index].isSeedStored;
@@ -166,7 +175,70 @@ class TaprootSignViewModel extends ChangeNotifier {
   /// index번째 서명자의 seed를 secure storage에서 찾기 위한 키 식별자.
   TaprootSeedKeyIdentifier getSeedIdentifier(int index) => signers[index].seedKeyIdentifier;
 
+  /// 서명자 버튼에 표시할 텍스트를 반환한다.
+  /// - [isSignerApproved]: 이미 서명 완료된 서명자인지
+  /// - [isInnerWallet]: 이 지갑에 seed가 저장된 내부 서명자인지
+  String getSignerButtonText(int index, bool isSignerApproved, bool isInnerWallet) {
+    if (isSignerApproved) {
+      return t.sign_completion;
+    }
+    if (!isInnerWallet) {
+      return t.add_sign;
+    }
+
+    // MuSig2 특수 처리
+    if (_signType == TaprootSignType.musig2KeyPath && _musig2SignSession != null) {
+      if (_musig2SignSession!.isFirstSigner) {
+        return _getFirstSignerButtonText(_musig2SignSession!.firstSignerStep!);
+      } else {
+        return _getSecondSignerButtonText(_musig2SignSession!.secondSignerStep!);
+      }
+    }
+
+    return t.sign;
+  }
+
+  String _getFirstSignerButtonText(TaprootMusig2FirstSignerStep step) {
+    switch (step) {
+      case TaprootMusig2FirstSignerStep.none:
+        return t.taproot_sign_screen.musig2_sign.button.prepare_sign;
+      case TaprootMusig2FirstSignerStep.localNonceCreated:
+        return t.taproot_sign_screen.musig2_sign.button.ready;
+      case TaprootMusig2FirstSignerStep.readyToLocalSign:
+        return t.sign;
+      case TaprootMusig2FirstSignerStep.completed:
+        return t.sign_completion;
+    }
+  }
+
+  String _getSecondSignerButtonText(TaprootMusig2SecondSignerStep step) {
+    switch (step) {
+      case TaprootMusig2SecondSignerStep.remoteNonceCreated:
+        return t.taproot_sign_screen.musig2_sign.button.prepare_sign;
+      case TaprootMusig2SecondSignerStep.signed:
+        return t.sign_completion;
+    }
+  }
+
   // MARK: - 초기화
+
+  /// PSBT에 이미 서명이 존재하는지 확인 (Taproot 전용)
+  /// - keyPath: tapKeySig 존재 여부
+  /// - scriptPath: tapScriptSig 존재 여부
+  /// - MuSig2: muSig2PartialSigs 존재 여부
+  bool _hasSignature(Psbt psbt) {
+    for (final input in psbt.inputs) {
+      // Key-path spending 서명 (P2TR key-path, single sig)
+      if (input.tapKeySig != null) return true;
+
+      // Script-path spending 서명 (P2TR script-path)
+      if (input.tapScriptSig != null && input.tapScriptSig!.isNotEmpty) return true;
+
+      // MuSig2 partial signatures
+      if (input.muSig2PartialSigs != null && input.muSig2PartialSigs!.isNotEmpty) return true;
+    }
+    return false;
+  }
 
   /// 화면 진입 직후 1회 호출.
   /// PSBT input의 tapLeafScript 여부로 서명 종류를 결정하고,
@@ -199,14 +271,12 @@ class TaprootSignViewModel extends ChangeNotifier {
 
     // 3) MuSig2 서명 세션 초기화
     if (_signType == TaprootSignType.musig2KeyPath) {
-      _musig2SignSession = TaprootMusig2SignSession(coconutVault: _coconutVault, initialPsbt: _psbtForSigning);
+      _musig2SignSession = TaprootMusig2SignSession(vault: _vaultListItem, initialPsbt: psbt);
+    } else {
+      if (_hasSignature(psbt)) {
+        throw ArgumentError(t.exceptions.transaction.already_has_sign);
+      }
     }
-
-    // TODO: 이미 서명된 input이 있는 경우 해당 서명자를 승인 상태로 반영.
-    //   - keyPath(단일/ MuSig2): tapKeySig 또는 MuSig2 partial sig 보유 여부 확인
-    //   - scriptPath: tapScriptSig 보유 여부 확인
-    //   (multisig의 _updateSignerApproved처럼 input0의 서명-publicKey 매핑 필요)
-    _syncAlreadySignedState(psbt);
 
     notifyListeners();
   }
@@ -228,7 +298,20 @@ class TaprootSignViewModel extends ChangeNotifier {
       return TaprootSignType.scriptPath;
     }
 
-    return _vaultListItem.owners.length == 1 ? TaprootSignType.singleKeyPath : TaprootSignType.musig2KeyPath;
+    bool hasMusig2Property = psbt.inputs[0].muSig2AggregatedPublicKey?.isNotEmpty == true;
+    if (hasMusig2Property) {
+      if (_vaultListItem.owners.length != 2) {
+        throw StateError('서명할 수 없는 Musig2 지갑의 PSBT가 서명 대상이 되었음');
+      }
+
+      return TaprootSignType.musig2KeyPath;
+    } else {
+      if (_vaultListItem.owners.length != 1) {
+        throw StateError('서명할 수 없는 단일 서명자 지갑의 PSBT가 서명 대상이 되었음');
+      }
+
+      return TaprootSignType.singleKeyPath;
+    }
   }
 
   /// 초기화 완료 여부를 검증하는 방어적 헬퍼.
@@ -242,12 +325,6 @@ class TaprootSignViewModel extends ChangeNotifier {
     }
   }
 
-  /// TODO: 스캔 진입 시점에 이미 일부 서명이 포함된 PSBT일 수 있으므로
-  /// 서명자별 승인 상태를 동기화하는 로직 구현 필요.
-  void _syncAlreadySignedState(Psbt psbt) {
-    // 구현 예정 (coconut_lib의 tapKeySig / tapScriptSig / muSig2PartialSig 조회 활용)
-  }
-
   void updateSignState(int? index) {
     if (index != null) {
       _signerApproved[index] = true;
@@ -259,41 +336,34 @@ class TaprootSignViewModel extends ChangeNotifier {
 
   /// 안전 저장 모드에서 index번째 서명자의 secret(mnemonic) 조회.
   Future<Uint8List> getSecret(int index) async {
+    assert(!_isSigningOnlyMode);
     return await _walletProvider.getTaprootSecret(vaultId, getSeedIdentifier(index));
+  }
+
+  Future<Seed> getSeedInSigningOnlyMode(int index) async {
+    assert(_isSigningOnlyMode);
+    return await _walletProvider.getTaprootSeedInSigningOnlyMode(vaultId, getSeedIdentifier(index));
   }
 
   // MARK: - 서명 액션
 
-  /// 안전 저장 모드 서명.
-  ///
-  /// TODO: Taproot 서명 isolate 구현 필요. multisig의 SignIsolates.addSignatureToPsbtWithMultisigVault에 대응.
-  ///   keyPath/scriptPath 및 단일키/ MuSig2 여부에 따라 처리가 달라진다.
   ///   - scriptPath: beneficiary keyStore로 tapLeafScript sighash 서명 (addSignatureToPsbt 1회)
   ///   - keyPath(단일키): internal key 서명 (addSignatureToPsbt 1회)
-  ///   - keyPath(MuSig2 2키): public nonce 라운드(addPublicNonce) 후 partial 서명 → 두 서명자 nonce 교환 필요
   Future<void> sign(int index, Seed seed) async {
-    if (_isSigningOnlyMode) {
-      throw StateError('Cannot sign in signing-only mode. Use signPsbtInSigningOnlyMode() instead.');
-    }
+    assert(_signType != TaprootSignType.musig2KeyPath, 'sign() should not be called for MuSig2.');
     _ensureInitialized();
     try {
       switch (signType) {
         case TaprootSignType.singleKeyPath:
-          _psbtForSigning = await compute(SignIsolates.signWithSingleKeyPath, [
-            seed,
-            _psbtForSigning,
-          ]);
+          final signedPsbtBase64 = await compute(SignIsolates.signWithSingleKeyPath, [seed, _psbtForSigning]);
           Logger.log('--> singleKeyPath signed:');
-          printLongString(_psbtForSigning);
+          printLongString(signedPsbtBase64);
 
-          // 서명 후 PSBT 정보 로깅
-          // TODO: 이 코드 중 일부는 musig2 서명 시 필요하려나? 아니면 PSBT 내부의 탭루트 전용 필드를 참조하면 충분하려나??
-          Psbt signedPsbt = Psbt.parse(_psbtForSigning);
+          final signedPsbt = Psbt.parse(signedPsbtBase64);
           Logger.log('--> Signed PSBT inputs count: ${signedPsbt.inputs.length}');
           for (int i = 0; i < signedPsbt.inputs.length; i++) {
             Logger.log('--> Signed Input[$i] tapKeySig?: ${signedPsbt.inputs[i].tapKeySig != null}');
             Logger.log('--> Signed Input[$i] partialSig?: ${signedPsbt.inputs[i].partialSig?.isNotEmpty ?? false}');
-            // PSBT의 derivation path 정보 로깅
             final derivationPathList = signedPsbt.inputs[i].derivationPathList;
             if (derivationPathList.isNotEmpty) {
               Logger.log('--> Signed Input[$i] derivationPath: ${derivationPathList.first}');
@@ -301,11 +371,11 @@ class TaprootSignViewModel extends ChangeNotifier {
           }
 
           try {
-            Transaction signedTx = signedPsbt.getSignedTransaction(AddressType.p2tr);
+            final signedTx = signedPsbt.getSignedTransaction(AddressType.p2tr);
             Logger.log('--> getSignedTransaction 성공: ${signedTx.transactionHash}');
+            _psbtForSigning = signedPsbtBase64;
           } catch (e) {
             Logger.error('--> getSignedTransaction 실패: $e');
-            // 서명된 PSBT의 상세 정보 출력
             Logger.error('--> Signed PSBT 상세 정보:');
             Logger.error('--> Descriptor: ${_coconutVault.descriptor}');
             for (int i = 0; i < signedPsbt.inputs.length; i++) {
@@ -320,11 +390,15 @@ class TaprootSignViewModel extends ChangeNotifier {
           }
         case TaprootSignType.scriptPath:
           // 현재 앱에서 InheritancePolicy만 지원함
-          _psbtForSigning = await compute(SignIsolates.signWithBeneficiary, [
+          final signedPsbtBase64 = await compute(SignIsolates.signWithBeneficiary, [
             seed,
             _psbtForSigning,
             _vaultListItem.coordinatorBsms,
           ]);
+          // 서명 검증 후 할당
+          final signedPsbt = Psbt.parse(signedPsbtBase64);
+          signedPsbt.getSignedTransaction(AddressType.p2tr);
+          _psbtForSigning = signedPsbtBase64;
         case TaprootSignType.musig2KeyPath:
           throw StateError('MuSig2 keyPath signing is not supported in sign()');
       }
@@ -335,20 +409,82 @@ class TaprootSignViewModel extends ChangeNotifier {
     }
   }
 
-  /// 서명 전용 모드 서명.
-  ///
-  /// TODO: getTaprootSeedInSigningOnlyMode로 seed를 얻어 sign()과 동일 로직으로 서명.
-  Future<void> signPsbtInSigningOnlyMode(int index) async {
-    assert(_isSigningOnlyMode);
-    _ensureInitialized();
-    Seed? seed;
-    try {
-      seed = await _walletProvider.getTaprootSeedInSigningOnlyMode(vaultId, getSeedIdentifier(index));
-      // TODO: Taproot 서명 isolate 호출 후 updateSignState(index)
-      throw UnimplementedError('Taproot signing(signPsbtInSigningOnlyMode) is not implemented yet');
-    } finally {
-      seed?.wipe();
+  // MARK: - MuSig2 서명
+
+  /// MuSig2: 현재 signer가 first signer인지 확인
+  bool isMusig2FirstSigner(int index) {
+    if (_signType != TaprootSignType.musig2KeyPath || _musig2SignSession == null) {
+      return false;
     }
+    return _musig2SignSession!.isFirstSigner;
+  }
+
+  /// MuSig2 서명 완료 여부 확인
+  bool isMusig2Completed() {
+    if (_musig2SignSession == null) return true;
+    if (_musig2SignSession!.isFirstSigner) {
+      return _musig2SignSession!.firstSignerStep == TaprootMusig2FirstSignerStep.completed;
+    } else {
+      return _musig2SignSession!.secondSignerStep == TaprootMusig2SecondSignerStep.signed;
+    }
+  }
+
+  /// MuSig2 First Signer: Step 1 - nonce 생성
+  /// [seed]로 public nonce를 생성하고 세션 상태를 업데이트
+  Future<String> musig2FirstSignerCreateNonce(int index, Seed seed) async {
+    assert(_signType == TaprootSignType.musig2KeyPath);
+    assert(_musig2SignSession != null);
+    assert(_musig2SignSession!.isFirstSigner);
+
+    _psbtForSigning = await _musig2SignSession!.addNonceForFirstSigner(seed);
+    return _psbtForSigning;
+  }
+
+  void _updateAllSignState() {
+    for (int i = 0; i < _signerApproved.length; i++) {
+      _signerApproved[i] = true;
+    }
+    notifyListeners();
+  }
+
+  /// MuSig2 First Signer: 두 번째 폰의 QR(PSBT) 스캔 후 aggregation으로 최종 서명 완성
+  /// [secondSignerPsbt]: 두 번째 폰이 QR로 공유한 PSBT (이미 nonce + partial sig 포함)
+  /// [seed]: 첫 번째 폰의 seed (자신의 partial sig 생성용)
+  Future<String> musig2FirstSignerFinalize(String secondSignerPsbt, Seed seed) async {
+    assert(_signType == TaprootSignType.musig2KeyPath);
+    assert(_musig2SignSession != null);
+    assert(_musig2SignSession!.isFirstSigner);
+
+    final finalizedPsbt = await _musig2SignSession!.finalizeByScanningSecondSignerPsbt(secondSignerPsbt, seed);
+    _psbtForSigning = finalizedPsbt;
+    _updateAllSignState();
+    return finalizedPsbt;
+  }
+
+  /// MuSig2 Second Signer: 첫 번째 폰 PSBT 스캔 후 nonce + partial signature 생성하여 PSBT에 추가
+  /// [seed]: 두 번째 폰의 seed
+  /// 반환: nonce와 partial signature가 추가된 PSBT (이 PSBT를 QR로 공유)
+  Future<String> musig2SecondSignerSign(Seed seed) async {
+    assert(_signType == TaprootSignType.musig2KeyPath);
+    assert(_musig2SignSession != null);
+    assert(!_musig2SignSession!.isFirstSigner);
+
+    final signedPsbt = await _musig2SignSession!.signAsSecondSigner(seed);
+    _psbtForSigning = signedPsbt;
+    updateSignState(_musig2SignSession!.mySignerIndex);
+    return signedPsbt;
+  }
+
+  /// MuSig2: First Signer의 local nonce 반환 (QR로 공유하기 위함)
+  String? getMusig2LocalNonce() {
+    return _musig2SignSession?.localPublicNonce;
+  }
+
+  /// MuSig2: 서명 완료된 PSBT 반환 (QR로 공유하기 위함)
+  /// - Second Signer: 자신의 nonce + partial sig가 추가된 PSBT
+  /// - First Signer: aggregation 완료된 최종 PSBT
+  String? getMusig2SignedPsbtForQr() {
+    return _musig2SignSession?.signedPsbtForQr;
   }
 
   // MARK: - 외부(QR) 서명 결과 반영
@@ -357,82 +493,9 @@ class TaprootSignViewModel extends ChangeNotifier {
     _signedRawTxHex = hexString;
   }
 
-  /// 스캔된 외부 서명 PSBT를 현재 PSBT에 병합.
-  ///
-  /// TODO: multisig의 onScannedPsbt를 참고하되 Taproot 서명 필드(tapKeySig/tapScriptSig/muSig2)에 맞게 구현.
-  void onScannedPsbt(String scannedData, {bool isOverwrite = false}) {
-    final exceptionMessages = t.multisig_sign_screen.exception;
-    try {
-      // 1) unsignedTransaction 동일성 검증
-      // 2) Taproot 서명 정보 병합 및 서명자 승인 상태 업데이트
-      // 3) _psbtForSigning 갱신
-      throw UnimplementedError('Taproot onScannedPsbt is not implemented yet');
-    } on FormatException {
-      rethrow;
-    } catch (e) {
-      Logger.error('onScannedPsbt error: $e');
-      throw FormatException(exceptionMessages.invalid_sign_error);
-    }
-  }
-
-  /// Raw signed transaction(hex)이 스캔된 경우는 서명이 완료된 상태.
-  ///
-  /// TODO: multisig의 validateRawSignedTransaction을 참고하여 Taproot witness 구조에 맞게 검증.
-  void validateRawSignedTransaction(String rawSignedTransaction) {
-    final exceptionMessages = t.multisig_sign_screen.exception;
-    try {
-      if (!rawSignedTransaction.substring(8).startsWith(rawTxSegwitField)) {
-        throw FormatException(exceptionMessages.not_segwit);
-      }
-      // TODO: Taproot witness(서명) 개수/유효성 검증 로직 구현
-      throw UnimplementedError('Taproot validateRawSignedTransaction is not implemented yet');
-    } on FormatException {
-      rethrow;
-    } catch (e) {
-      Logger.error('validateRawSignedTransaction error: $e');
-      throw FormatException(exceptionMessages.invalid_sign_error);
-    }
-  }
-
-  /// 스캔된 PSBT/RawTx의 트랜잭션 본문이 현재 서명중인 PSBT와 동일한지 확인.
-  bool hasSameTransactionBody(String scannedData) {
-    try {
-      final currentTx = Psbt.parse(_psbtForSigning).unsignedTransaction!;
-      final scannedTx = Psbt.parse(scannedData).unsignedTransaction!;
-      return _isTransactionBodySame(currentTx, scannedTx);
-    } catch (e) {
-      Logger.error('hasSameTransactionBody error: $e');
-      return false;
-    }
-  }
-
-  bool _isTransactionBodySame(Transaction tx1, Transaction tx2) {
-    if (tx1.transactionHash != tx2.transactionHash) {
-      return false;
-    }
-    if (tx1.outputs.length != tx2.outputs.length || tx1.inputs.length != tx2.inputs.length) {
-      return false;
-    }
-    for (int i = 0; i < tx1.outputs.length; i++) {
-      if (tx1.outputs[i].serialize() != tx2.outputs[i].serialize()) {
-        return false;
-      }
-    }
-    for (int i = 0; i < tx1.inputs.length; i++) {
-      if (tx1.inputs[i].serialize() != tx2.inputs[i].serialize()) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   // MARK: - 저장 / 리셋
 
   void saveSignedResult() {
-    if (_signedRawTxHex != null) {
-      _signProvider.saveSignedRawTxHexString(_signedRawTxHex!);
-      return;
-    }
     _signProvider.saveSignedPsbt(_psbtForSigning);
   }
 
