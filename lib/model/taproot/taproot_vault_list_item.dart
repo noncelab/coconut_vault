@@ -111,9 +111,7 @@ class TaprootVaultListItem extends VaultListItemBase {
   List<TaprootBeneficiaryParticipant> get beneficiaries => List.unmodifiable(_beneficiaries);
   bool get isParent => _keyPathSeedInfos.isNotEmpty;
   String get derivationPath => (coconutVault as TaprootVault).derivationPath;
-
-  @override
-  Future<bool> canSign(String psbt) async => false;
+  String get coordinatorBsms => (coconutVault as TaprootVault).getCoordinatorBsms();
 
   @override
   String getWalletSyncString() {
@@ -125,16 +123,20 @@ class TaprootVaultListItem extends VaultListItemBase {
       fieldKeyPathSeedInfos: _keyPathSeedInfos.map((seedInfo) => seedInfo.extendedPublicKey).toList(),
       fieldScriptPathSeedInfos:
           _scriptPathSeedInfos
-              .map(
-                (seedInfo) => {
-                  'miniscript':
-                      (coconutVault as TaprootVault).policyList
-                          .firstWhereOrNull((p) => ScriptPathSeedInfo.generateKey(p) == seedInfo.key)
-                          ?.toMiniscript(),
+              .map((seedInfo) {
+                final miniscript =
+                    (coconutVault as TaprootVault).policyList
+                        .firstWhereOrNull((p) => ScriptPathSeedInfo.generateKey(p) == seedInfo.key)
+                        ?.toMiniscript();
+                if (miniscript == null) return null;
+                return <String, dynamic>{
+                  'miniscript': miniscript,
                   'extendedPublicKeys': seedInfo.seedInfos.map((s) => s.extendedPublicKey).toList(),
-                },
-              )
+                };
+              })
+              .whereType<Map<String, dynamic>>()
               .toList(),
+      VaultListItemBase.fieldCreatedAt: createdAt.toIso8601String(),
     });
   }
 

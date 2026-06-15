@@ -3,13 +3,22 @@ import 'package:flutter/material.dart';
 
 class ScannerOverlay extends StatelessWidget {
   final TextSpan? tooltipTextSpan;
-  const ScannerOverlay({super.key, this.tooltipTextSpan});
+  final Rect? scanWindow;
+
+  const ScannerOverlay({super.key, this.tooltipTextSpan, this.scanWindow});
 
   @override
   Widget build(BuildContext context) {
-    final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context, tooltipTextSpan: tooltipTextSpan);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final size = constraints.biggest;
+        final scanAreaSize = ScannerOverlay.calculateScanAreaSize(context, tooltipTextSpan: tooltipTextSpan);
+        final rect =
+            scanWindow ?? Rect.fromCenter(center: size.center(Offset.zero), width: scanAreaSize, height: scanAreaSize);
 
-    return CustomPaint(size: MediaQuery.of(context).size, painter: _ScannerOverlayPainter(scanAreaSize));
+        return CustomPaint(size: size, painter: _ScannerOverlayPainter(rect));
+      },
+    );
   }
 
   static double calculateScanAreaSize(BuildContext context, {TextSpan? tooltipTextSpan}) {
@@ -49,17 +58,16 @@ class ScannerOverlay extends StatelessWidget {
 }
 
 class _ScannerOverlayPainter extends CustomPainter {
-  final double scanSize;
+  final Rect scanRect;
 
-  _ScannerOverlayPainter(this.scanSize);
+  _ScannerOverlayPainter(this.scanRect);
 
   @override
   void paint(Canvas canvas, Size size) {
     final layerRect = Offset.zero & size;
     canvas.saveLayer(layerRect, Paint());
 
-    final rect = Rect.fromCenter(center: Offset(size.width / 2, size.height / 2), width: scanSize, height: scanSize);
-    final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(8));
+    final rrect = RRect.fromRectAndRadius(scanRect, const Radius.circular(8));
     final paint = Paint()..color = Colors.black.withValues(alpha: 0.25);
     canvas.drawRect(layerRect, paint);
 

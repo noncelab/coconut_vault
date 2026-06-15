@@ -11,7 +11,7 @@ import 'package:coconut_vault/screens/wallet_info/passphrase_check_bottom_sheet.
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/button/copy_text_container.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/tooltip_description.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

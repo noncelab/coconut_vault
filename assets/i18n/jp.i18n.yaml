@@ -17,6 +17,9 @@ unit: "単位"
 hour: "時間"
 minute: "分"
 second: "秒"
+am: "午前"
+pm: "午後"
+locale_datetime: "${year}年${month}月${day}日 ${dayPeriod} ${hour}:${minute}"
 settings: "設定"
 OK: "OK"
 confirm: "確認"
@@ -115,6 +118,8 @@ precautions: "注意事項"
 wallet_type: "ウォレットの種類"
 mfp: "MFP"
 
+rescan: "再スキャンする"
+
 watch_only_options:
   title: "ウォッチオンリーウォレット選択"
   coconut_wallet: "ココナッツウォレット"
@@ -154,8 +159,8 @@ vault_list_screen:
     primary_wallet_abled_description: "他のウォレットをプライマリに設定すると、この設定は自動的に無効になります。"
   edit:
     wallet_list: "ウォレットリスト編集"
-    star_description: "ホーム画面に表示するウォレットを最大5個まで選択できます。"
-    order_description: "タップしてウォレットの順序を変更できます。"
+    star_description: "を最大5つ選択して、ホーム画面に表示するウォレットを選べます。"
+    order_description: "を長押しして、ウォレットの表示順を変更できます。"
     delete_description: "ウォレットを左にスワイプして削除できます。"
     finish: "編集完了"
     unsaved_changes_confirm_exit: "未保存の変更があります。\n本当に終了しますか？"  
@@ -322,6 +327,8 @@ single_sig_sign_screen:
   creating_qr_code: "QRコードを生成します"
 signer_qr_bottom_sheet:
   title: "$nameにトランザクションをエクスポート"
+  at_hww: "$hwwTypeで"
+  scan_the_qr: "下記のQRコードをスキャンしてください。"
   vault_text1: "番鍵が保管されているボルトから"
   vault_text2: "マルチシグ"
   vault_text3: " 下記のQRコードをスキャンしてください。"
@@ -467,6 +474,7 @@ settings_screen:
     need_biometrics_setting_title: "生体認証を使用"
     need_biometrics_setting_desc: "生体認証を設定してください。"
     btn_move_to_setting: "設定に移動"
+    use_passphrase_title: "パスフレーズを使用"
     use_passphrase_description: "パスフレーズの使用は\n新しいウォレットを\n作成するのと同じです。\n誤って使用すると\nビットコインを\n永久に失う可能性があります。"
     use_passphrase_btn: "理解しました"
     change_account_title: "アカウント番号の変更"
@@ -528,6 +536,8 @@ welcome_screen:
 # lib/screens/vault_creation
 taproot:
   taproot_inheritance_wallet: "Taproot相続ウォレット"
+  parent_wallet: "親ウォレット"
+  child_wallet: "子ウォレット"
   common:
     create_new_wallet_title: "ウォレットをどのように作成しますか？"
     existing_mnemonic_title: "既存のニーモニックを使用しますか？"
@@ -542,6 +552,12 @@ taproot:
     existing_option1_toast: "取り込めるシングルシグウォレットがありません"
     existing_option2: "ニーモニック入力"
     existing_option3: "シードQRスキャン"
+    wallet_type: "ウォレット種類"
+    taproot_single_sig_wallet: "Taprootシングルシグウォレット"
+    mfp: "MFP"
+  sync_qr_screen:
+    title: "다른 볼트와 공유"
+    description: "다른 볼트에서 이 지갑을 사용할 수 있도록 공유합니다."
   taproot_creation_option:
     parent_creation_title: "私は親です"
     parent_creation_description: "自分のウォレットに相続条件を設定します"
@@ -575,14 +591,21 @@ taproot:
       multisig_how_to_prepare_key_title_2: "キーをどう準備しますか？"
       multisig_qr_title_1: "別のVaultで使えるように"
       multisig_qr_title_2: "準備済みの親ウォレット情報を表示します"
+      multisig_list_title_1: "下の親ウォレットボタンを押して"
+      multisig_list_title_2: "追加の親ウォレットをスキャンしてください"
+      multisig_list_description_1: "自分のウォレットを押すと"
+      multisig_list_description_2: "QRコードを確認できます"
+      parent_wallet: "親ウォレット $index$masterFingerprintSuffix"
       device_auth_dialog_title: "デバイス認証"
       device_auth_dialog_description: "セキュア領域に保存されたニーモニックにアクセスするため、デバイス認証を行います。"
+      same_parent_wallet_dialog_title: "すでに追加された親ウォレット"
+      same_parent_wallet_dialog_description: "親ウォレット1と同じウォレットです。もう一度スキャンしますか？"
       multisig_scanner_title_1: "別のVaultで作成した親ウォレットをスキャンしてください"
       multisig_scanner_title_2: "準備済みの親ウォレットを順番に接続します"
       multisig_internal_key_prepared_title_1: "マルチシグ親ウォレットの"
       multisig_internal_key_prepared_title_2: "準備ができました"
     step_2:
-      return_dialog_title: "前のステップに戻る"
+      return_dialog_title: "親ウォレットを初期化"
       return_dialog_description: "作成したばかりの親ウォレットがリセットされます。本当に続けますか？"
       creation_script_path_intro_title_1: "相続に使う"
       creation_script_path_intro_title_2: "子ウォレットを追加してください"
@@ -593,11 +616,20 @@ taproot:
       import_scanner_title_1: "別のVaultで準備した"
       import_scanner_title_2: "子ウォレット情報をスキャンしてください"
       imported_script_path_title: "子ウォレットを取り込みました"
-      imported_script_path_description: "決められた時点以降\n使用するウォレットとして接続されます"
+      created_script_path_title: "子ウォレットを作成しました"
+      imported_script_path_description_1: "決められた時点以降"
+      imported_script_path_description_2: "使用するウォレットとして接続されます"
       create_dialog_title: "このVaultで作成しますか？"
       create_dialog_description: "生成されたニーモニックは安全に渡す必要があり、他の用途に使わないことをおすすめします"
       create_script_path_how_to_prepare_title_1: "子ウォレットを"
       create_script_path_how_to_prepare_title_2: "どう準備しますか？"
+      import_again: "再インポート"
+      same_child_wallet_as_parent_dialog_title: "親ウォレットと同じウォレット"
+      same_child_wallet_as_parent_dialog_description_scan: "子ウォレットとして使用できません。別のウォレットをスキャンしてください。"
+      same_child_wallet_as_parent_dialog_description_select: "子ウォレットとして使用できません。別のウォレットを選択してください。"
+      same_child_wallet_as_parent_dialog_description_enter: "子ウォレットとして使用できません。別のウォレットを入力してください。"
+      child_wallet_reset_dialog_title: "子ウォレットを初期化"
+      child_wallet_reset_dialog_description: "追加した子ウォレットが初期化されます。本当に続けますか？"
     step_3:
       set_timelock_title_1: "子ウォレットはいつから"
       set_timelock_title_2: "使えるようにしますか？"
@@ -640,12 +672,19 @@ taproot:
     step3:
       title_new: "ウォレットをどのように作成しますか？"
       title_existing: "どの既存のニーモニックを使用しますか？"
+      single_sig_select_from_vault_title_1: "現在ボルトに保管されている"
+      single_sig_select_from_vault_title_2: "ニーモニックを選択してください"
+      single_sig_select_from_vault_dialog_title: "このニーモニックで\nTaproot子ウォレットを作成しますか？"
+      single_sig_select_from_vault_dialog_description: "既存のウォレットはそのまま維持され、同じニーモニックから新しいTaproot子ウォレットを作成します。"
+      single_sig_select_from_vault_dialog_action: "続ける"
       new_option1: "コイン投げ"
       new_option2: "サイコロ振り"
       new_option3: "自動生成"
       existing_option1: "現在のボルトから\n選択"
       existing_option2: "ニーモニック入力"
       existing_option3: "シードQRスキャン"
+      device_auth_dialog_title: "デバイス認証"
+      device_auth_dialog_description: "セキュア領域に保存されたニーモニックにアクセスするため、デバイス認証を行います。"
     step4:
       taproot_single_sig_wallet: "Taprootシングルシグウォレット"
       taproot_multisig_wallet: "Taprootマルチシグウォレット"
@@ -659,6 +698,21 @@ taproot:
       title2: "スキャンしてインポートしてください"
     step6:
       title1: "相続条件のウォレットと一致します"
+      title2: "相続ウォレットと一致しません"
+    step7:
+      title1: "Taproot相続ウォレットの"
+      title2: "準備가できました"
+      timeline:
+        created_wallet: "ウォレットを作成しました"
+        exported_to_parent: "親ウォレットにエクスポートしました"
+        imported_inheritance_info: "相続ウォレットの情報をインポートしました"
+        active_inheritance_wallet: "相続ウォレットが有効になります"
+        singlesig_description: "単一署名ウォレット | MFP: $mfp"
+        taproot_description: "タップルートウォレット | MFP: $mfp"
+        single_sig_wallet: "単一親ウォレット"
+        multisig_wallet: "マルチシグ親ウォレット"
+        time_after: "$date 以降"
+
   setup_summary_card:
     signer_configuration: "署名者構成"
     inheritance_condition: "相続条件"
@@ -668,6 +722,53 @@ taproot:
     co_signer: "共同署名者"
     beneficiary: "条件付き署名者"
     locktime_after: "${dateTime}以降"
+  taproot_import_screen:
+    title: "相続ウォレットをインポート"
+    step1:
+      title1: "準備された相続ウォレット情報を"
+      title2: "取り込みます"
+    step2:
+      title1: "相続ウォレットをスキャンしてください"
+      invalid_wallet_sync_data: "有効な相続ウォレット情報ではありません"
+    step3:
+      title1: "相続ウォレットを取り込みました"
+    step4:
+      title1: "このウォレットでの"
+      title2: "自分の役割を選択してください"
+      description: "自分の役割に合ったウォレットを接続すると使用できます"
+      signer: "署名者"
+      beneficiary: "相続者"
+    step6:
+      title_match_inheritance_wallet: "相続ウォレットと一致しています"
+      description_signer: "親ウォレットキーを追加で登録するにはカードを選択してください"
+      description_beneficiary: "子ウォレットキーを追加で登録するにはカードを選択してください"
+      title_doesnt_match_inheritance_wallet: "相続ウォレットと一致していません"
+      enter_again: "再入力"
+      return_dialog_title: "前の画面に戻る"
+      return_dialog_parent_role: "親"
+      return_dialog_child_role: "子"
+      return_dialog_description: "$roleウォレット情報が削除されます。本当に戻りますか？"
+      parent_wallet: "親ウォレット"
+    step7:
+      title1: "Taproot相続ウォレットの"
+      title2: "準備ができました"
+    timeline:
+      inheritance_wallet_imported: "相続ウォレットを取り込みました"
+      set_child_wallet: "子ウォレットが設定されました"
+      set_child_wallet_timelock: "子ウォレットの使用開始時期が設定されました"
+      active_child_wallet: "子ウォレットが有効になります"
+      time_after: "$date以降"
+      maybe_later: "あとで行う"
+      export_wallet_info: "ウォレット情報を書き出す"
+      single_parent_wallet_with_name: "$name | 単一親ウォレット"
+      multi_parent_wallet_with_name: "$name | 複数親ウォレット"
+      signer_wallet_added: "署名者ウォレットを追加しました"
+      taproot_wallet_with_mfp: "Taprootウォレット | MFP: $mfp"
+      inheritance_wallet_added: "相続人ウォレットを追加しました"
+      inheritance_wallet_restored: "相続ウォレットを復元しました"
+      inheritance_wallet_activation: "相続ウォレットが有効になります"
+      inheritance_wallet_activated: "相続ウォレットが有効になりました"
+      active_after: "${dateTime}以降"
 mnemonic_coin_flip_screen:
   title: "ニーモニック作成"
   guide: "コインを投げて出た面を選択してください"
@@ -861,6 +962,7 @@ bsms_scanner_screen:
   import_bsms: "BSMSインポート"
   import_multisig_wallet: "マルチシグウォレットインポート"
   select: "選択"
+  press_button: "ボタンを押す"
   guide1_1: "他のボルトで作成されたマルチシグウォレットをインポートできます。"
   guide1_2: "別のボールトのホーム画面で、"
   guide1_3: "マルチシグウォレット"
@@ -928,6 +1030,8 @@ coordinator_bsms_qr_screen:
   guide:
     text1: "他のボルトにこのウォレットを共有します。"
     text2: "すべてのキーはボルトに保存されています。"
+    text3: "署名に必要なすべてのキーはこのボルトに安全に保管されています。"
+    text4: "このマルチシグウォレットに必要な **$gen** キーは現在、別のボルトに保管されています。"
 multi_sig_memo_bottom_sheet:
   imported_wallet_memo: "外部ウォレットメモ"
   placeholder: "メモを書いてください。"
@@ -1049,6 +1153,35 @@ passphrase_check_screen:
 multisig_signer_bsms_export_screen:
   fail_bsms: "BSMSの読み込みに失敗しました"
 
+taproot_sign_screen:
+  exceptions:
+    mixed_path_psbt_error: "サポートされていないTaproot PSBTです。\nkey pathとscript pathの署名が混在したPSBTはサポートされていません。"
+    update_sign_fail: "署名の更新に失敗しました"
+    format_exception:
+      invalid_psbt_format: "PSBTの形式が正しくありません。"
+      transaction_mismatch: "トランザクション情報が一致しません。"
+      different_wallet: "別のウォレットのトランザクションです。"
+      participant_mismatch: "MuSig2の参加者情報が一致しません。"
+      no_signature: "署名情報がありません。もう一方の親ウォレットで署名が完了しているか確認してください。"
+      no_other_signer_sig: "もう一方の親ウォレットの署名情報がありません。"
+      nonce_missing: "自分のnonce情報がありません。"
+      nonce_tampered: "自分のnonce情報が改ざんされています。"
+  musig2_sign:
+    appbar_title:
+      sign_with_other_signer: "他の親ウォレットで署名する"
+      update_sign: "署名を更新"
+    guide:
+      please_bring_key: "下のボタンをタップして、署名に必要な鍵情報を取得してください。"
+      please_do_next: "下のボタンをタップして、次のステップに進んでください。"
+      scan_with_other_signer: "もう一方の親ウォレットで下のQRコードをスキャンしてから、署名を進めてください。署名が完了したら、生成されたQRコードを再度スキャンしてください。"
+      first_sign_completed: "最初の署名が完了しました。もう一方の親ウォレットで下のQRコードをスキャンして署名を完了してください。"
+      scan_other_signer_qr: "もう一方の親ウォレットで署名完了後に生成されたQRコードをスキャンしてください。"
+      please_sign: "下のボタンをタップして署名を進めてください。"
+      scan_with_first_signer: "下のQRコードを、署名を開始したウォレットでスキャンしてください。"
+    button:
+      prepare_sign: "署名の準備"
+      ready: "準備完了"
+
 bottom_sheet:
   view_mit_license: "完全なMITライセンスを表示"
   contact_by_email: "メールで連絡"
@@ -1060,6 +1193,15 @@ bottom_sheet:
     description: "必ずアカウント番号を覚えておいてください"
     placeholder: "アカウント番号を入力してください"
     account_error_message: "0〜2,147,483,647の範囲の値を入力してください。"
+  verify_passphrase:
+    title: "パスフレーズ確認"
+    description: "アカウント番号を変更するためにパスフレーズを確認します"
+    placeholder: "パスフレーズを入力してください"
+    passphrase_error_message: "パスフレーズが一致しません。もう一度入力してください。"
+  date_picker:
+    select_date: "日付を選択"
+    time: "時間"
+    placeholder: "日時を指定してください"
 
 permission:
   biometric: 
@@ -1164,6 +1306,7 @@ toast:
   no_wallet_to_delete: "削除するウォレットがありません"
 
 errors:
+  invalid_qr_title: "形式が正しくありません"
   invalid_qr: "無効なQR。再度お試しください。"
   invalid_single_sig_qr_error: "無効なQR。再度お試しください。"
   invalid_network_type_error: "拡張公開鍵のネットワークタイプが一致しません"
@@ -1198,6 +1341,8 @@ errors:
   vault_not_found_error: "署名できるウォレットがありません"
   extended_public_key_not_found_error: "直接使用したいウォレットを選択してマルチシグ機能を使用してください"
   user_cancelled_auth: "ユーザーがデバイス認証をキャンセルしました。"
+  unexpected_error_title: "エラーが発生しました"
+  sign_failed: "署名に失敗しました"
   
 exceptions:
   seed_invalidated: 
@@ -1206,6 +1351,15 @@ exceptions:
   needs_multisig_setup: "$name で署名するには、まずマルチシグウォレットを追加してください。"
   account_change_failed:
     title: "アカウント変更失敗"
+  taproot:
+    invalid_psbt_sign_type:
+      key_path: "親ウォレットで署名可能なトランザクションです"
+      script_path: "子ウォレットで署名可能なトランザクションです"
+  transaction:
+    already_has_sign: "このトランザクションには既に署名情報が含まれています。"
+    already_signed: "このトランザクションは既に完全に署名されています。"
+    muSig2:
+      already_has_nonce_with_this: "このウォレットではすでにノンスが追加されています。"
 
 tooltip:
   mfp: "ウォレットの固有値。\nマスターフィンガープリント(MFP)とも呼ばれます。"

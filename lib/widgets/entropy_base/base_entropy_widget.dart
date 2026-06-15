@@ -11,6 +11,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
 import 'package:coconut_vault/utils/conversion_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/utils/passphrase_warning_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
@@ -65,14 +66,6 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
   bool isPassphraseConfirmVisible = false;
 
   Uint8List? get mnemonic => _mnemonic;
-
-  static final Set<String> validCharSet = {
-    ...List.generate(26, (i) => String.fromCharCode('a'.codeUnitAt(0) + i)), // a-z
-    ...List.generate(26, (i) => String.fromCharCode('A'.codeUnitAt(0) + i)), // A-Z
-    ...List.generate(10, (i) => i.toString()), // 0-9
-    '[', ']', '{', '}', '#', '%', '^', '*', '+', '=', '_', '\\', '|', '~',
-    '<', '>', '-', '/', ':', ';', '(', ')', r'$', '&', '"', '`', '.', ',', '?', '!', '\'', '@',
-  };
 
   String passphraseErrorMessage = '';
 
@@ -175,19 +168,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
   }
 
   String _getWarningMessage(String passphrase) {
-    String warningMessage = '';
-    if (passphrase.contains(' ')) {
-      warningMessage = t.mnemonic_generate_screen.passphrase_warning_space;
-    }
-
-    var invalidList = passphrase.characters.where((char) => !validCharSet.contains(char)).toSet().toList();
-    invalidList.remove(' ');
-    if (invalidList.isNotEmpty) {
-      warningMessage +=
-          "${warningMessage.isEmpty ? '' : '\n'}${t.mnemonic_generate_screen.passphrase_warning(words: invalidList.join(", "))}";
-    }
-
-    return warningMessage;
+    return PassphraseWarningUtil.warningMessage(passphrase);
   }
 
   // 공통 메서드

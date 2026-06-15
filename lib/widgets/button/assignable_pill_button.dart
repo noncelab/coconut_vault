@@ -11,7 +11,8 @@ class AssignablePillButton extends StatefulWidget {
   final Color activeColor;
   final double? width;
   final double? height;
-  final bool useAnimation;
+  final bool useAssigningAnimation;
+  final bool isDisabled;
 
   const AssignablePillButton({
     super.key,
@@ -22,7 +23,8 @@ class AssignablePillButton extends StatefulWidget {
     required this.activeColor,
     this.width,
     this.height = 72,
-    this.useAnimation = true,
+    this.useAssigningAnimation = true,
+    this.isDisabled = false,
   });
 
   @override
@@ -36,11 +38,13 @@ class _AssignablePillButtonState extends State<AssignablePillButton> with Single
 
   static const int _bgActiveAlpha = 16;
   static const int _pressedActiveAlpha = 40;
+  static const Color _disabledBackgroundColor = CoconutColors.gray150;
+  static const Color _disabledTextColor = CoconutColors.gray350;
 
   @override
   void initState() {
     super.initState();
-    if (widget.useAnimation) {
+    if (widget.useAssigningAnimation) {
       _initAnimation();
     }
   }
@@ -67,8 +71,8 @@ class _AssignablePillButtonState extends State<AssignablePillButton> with Single
   void didUpdateWidget(covariant AssignablePillButton oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.useAnimation != oldWidget.useAnimation) {
-      if (widget.useAnimation) {
+    if (widget.useAssigningAnimation != oldWidget.useAssigningAnimation) {
+      if (widget.useAssigningAnimation) {
         _initAnimation();
       } else {
         _controller?.dispose();
@@ -76,7 +80,7 @@ class _AssignablePillButtonState extends State<AssignablePillButton> with Single
       }
     }
 
-    if (widget.useAnimation && _controller != null) {
+    if (widget.useAssigningAnimation && _controller != null) {
       if (widget.isAssigned != oldWidget.isAssigned) {
         if (widget.isAssigned) {
           _controller!.forward();
@@ -95,6 +99,7 @@ class _AssignablePillButtonState extends State<AssignablePillButton> with Single
 
   @override
   Widget build(BuildContext context) {
+    final isInteractive = !widget.isDisabled && widget.onPressed != null;
     final innerChild = Container(
       width: widget.width,
       height: widget.height,
@@ -108,7 +113,7 @@ class _AssignablePillButtonState extends State<AssignablePillButton> with Single
             child: MediaQuery(
               data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
               child:
-                  widget.useAnimation && _fadeAnimation != null
+                  widget.useAssigningAnimation && _fadeAnimation != null
                       ? AnimatedBuilder(
                         animation: _fadeAnimation!,
                         builder: (context, _) {
@@ -117,7 +122,10 @@ class _AssignablePillButtonState extends State<AssignablePillButton> with Single
                           return Text(
                             widget.text,
                             style: CoconutTypography.body1_16.copyWith(
-                              color: Color.lerp(CoconutColors.gray900, targetTextColor, _fadeAnimation!.value),
+                              color:
+                                  widget.isDisabled
+                                      ? _disabledTextColor
+                                      : Color.lerp(CoconutColors.gray900, targetTextColor, _fadeAnimation!.value),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -127,7 +135,10 @@ class _AssignablePillButtonState extends State<AssignablePillButton> with Single
                       )
                       : Text(
                         widget.text,
-                        style: CoconutTypography.body1_16,
+                        style:
+                            widget.isDisabled
+                                ? CoconutTypography.body1_16.setColor(_disabledTextColor)
+                                : CoconutTypography.body1_16,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
@@ -138,24 +149,36 @@ class _AssignablePillButtonState extends State<AssignablePillButton> with Single
       ),
     );
 
-    if (!widget.useAnimation) {
+    if (!widget.useAssigningAnimation) {
+      final backgroundColor =
+          widget.isDisabled
+              ? _disabledBackgroundColor
+              : widget.isAssigned
+              ? widget.activeColor.withAlpha(_bgActiveAlpha)
+              : CoconutColors.white;
+      final borderColor =
+          widget.isDisabled
+              ? CoconutColors.gray300
+              : widget.isAssigned
+              ? widget.activeColor
+              : CoconutColors.gray300;
       final buttonDecoration = BoxDecoration(
-        color: widget.isAssigned ? widget.activeColor.withAlpha(_bgActiveAlpha) : CoconutColors.white,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: widget.isAssigned ? widget.activeColor : CoconutColors.gray200, width: 1),
+        border: Border.all(color: borderColor, width: 1),
       );
 
-      if (widget.onPressed == null) {
+      if (!isInteractive) {
         return Container(decoration: buttonDecoration, child: innerChild);
       }
 
       return ShrinkAnimationButton(
         onPressed: widget.onPressed!,
-        defaultColor: widget.isAssigned ? widget.activeColor.withAlpha(_bgActiveAlpha) : CoconutColors.white,
+        defaultColor: backgroundColor,
         pressedColor: widget.isAssigned ? widget.activeColor.withAlpha(70) : CoconutColors.gray150,
         borderRadius: 100,
         borderWidth: 1,
-        border: Border.all(color: widget.isAssigned ? widget.activeColor : CoconutColors.gray200, width: 1),
+        border: Border.all(color: borderColor, width: 1),
         child: innerChild,
       );
     }
@@ -164,14 +187,20 @@ class _AssignablePillButtonState extends State<AssignablePillButton> with Single
       animation: _controller!,
       builder: (context, child) {
         final backgroundColor =
-            Color.lerp(CoconutColors.white, widget.activeColor.withAlpha(_bgActiveAlpha), _fadeAnimation!.value) ??
-            CoconutColors.white;
+            widget.isDisabled
+                ? _disabledBackgroundColor
+                : Color.lerp(
+                      CoconutColors.white,
+                      widget.activeColor.withAlpha(_bgActiveAlpha),
+                      _fadeAnimation!.value,
+                    ) ??
+                    CoconutColors.white;
 
         final buttonBody = CustomPaint(
           painter: PillBorderPainter(
-            progress: _borderAnimation!.value,
-            activeColor: widget.activeColor,
-            defaultColor: CoconutColors.gray200,
+            progress: widget.isDisabled ? 0 : _borderAnimation!.value,
+            activeColor: widget.isDisabled ? CoconutColors.gray300 : widget.activeColor,
+            defaultColor: CoconutColors.gray300,
           ),
           child: Container(
             decoration: BoxDecoration(color: backgroundColor, borderRadius: BorderRadius.circular(100)),
@@ -179,7 +208,7 @@ class _AssignablePillButtonState extends State<AssignablePillButton> with Single
           ),
         );
 
-        if (widget.onPressed == null) {
+        if (!isInteractive) {
           return buttonBody;
         }
 

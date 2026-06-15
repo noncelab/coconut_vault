@@ -18,6 +18,7 @@ import 'package:coconut_vault/screens/airgap/psbt_confirmation_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_scanner_screen.dart';
 import 'package:coconut_vault/screens/airgap/signed_transaction_qr_screen.dart';
 import 'package:coconut_vault/screens/airgap/single_sig_sign_screen.dart';
+import 'package:coconut_vault/screens/airgap/taproot_sign_screen.dart';
 import 'package:coconut_vault/screens/common/app_unavailable_notification_screen.dart';
 import 'package:coconut_vault/screens/common/vault_mode_selection_screen.dart';
 import 'package:coconut_vault/screens/home/vault_home_screen.dart';
@@ -64,7 +65,9 @@ import 'package:coconut_vault/screens/wallet_info/multisig_wallet_info_screen.da
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_verification_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/signer_bsms_qr_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/sync_to_wallet_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/taproot_sync_qr_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_wallet_info_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/taproot_wallet_info_screen.dart';
 import 'package:coconut_vault/widgets/overlays/signing_mode_edge_panel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -466,7 +469,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               (args) => MnemonicImportScreen(
                                 externalSigner: args['externalSigner'],
                                 multisigVaultIdOfExternalSigner: args['multisigVaultIdOfExternalSigner'],
-                                isTaproot: args['isTaproot'] ?? false,
+                                isTaprootCreationChild: args['isTaproot'] ?? false,
                               ),
                             ),
                         AppRoutes.seedQrImport:
@@ -516,6 +519,14 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               context,
                               (args) => MultisigWalletInfoScreen(id: args['id'], entryPoint: args['entryPoint']),
                             ),
+                        AppRoutes.taprootSetupInfo:
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => TaprootWalletInfoScreen(id: args['id'], entryPoint: args['entryPoint']),
+                            ),
+                        AppRoutes.taprootSyncView:
+                            (context) =>
+                                buildScreenWithArguments(context, (args) => TaprootSyncQrScreen(id: args['id'])),
                         AppRoutes.multisigBsmsView:
                             (context) =>
                                 buildScreenWithArguments(context, (args) => CoordinatorBsmsQrScreen(id: args['id'])),
@@ -543,7 +554,11 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                   PsbtScannerScreen(id: args['id'], hardwareWalletType: args['hardwareWalletType']),
                             ),
                         AppRoutes.psbtConfirmation: (context) => const PsbtConfirmationScreen(),
-                        AppRoutes.signedTransaction: (context) => const SignedTransactionQrScreen(),
+                        AppRoutes.signedTransaction:
+                            (context) => buildScreenWithArguments(
+                              context,
+                              (args) => SignedTransactionQrScreen(tooltipText: args['tooltipText']),
+                            ),
                         AppRoutes.syncToWallet:
                             (context) => buildScreenWithArguments(
                               context,
@@ -562,6 +577,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                 buildScreenWithArguments(context, (args) => BackupWalletDataScreen(id: args['id'])),
                         AppRoutes.multisigSign: (context) => const MultisigSignScreen(),
                         AppRoutes.singleSigSign: (context) => const SingleSigSignScreen(),
+                        AppRoutes.taprootSign: (context) => const TaprootSignScreen(),
                         AppRoutes.securitySelfCheck: (context) {
                           final VoidCallback? onNextPressed =
                               ModalRoute.of(context)?.settings.arguments as VoidCallback?;

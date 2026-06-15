@@ -1,5 +1,4 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -7,7 +6,7 @@ import 'package:coconut_vault/providers/view_model/airgap/psbt_confirmation_view
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/card/send_transaction_flow_card.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/send_amount_header.dart';
 import 'package:coconut_vault/widgets/send_output_detail_card.dart';
 import 'package:flutter/material.dart';
@@ -134,10 +133,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                     text: t.next,
                     isActive: !_showLoading && viewModel.totalAmount != null,
                     onButtonClicked: () {
-                      Navigator.pushNamed(
-                        context,
-                        viewModel.isMultisig ? AppRoutes.multisigSign : AppRoutes.singleSigSign,
-                      );
+                      Navigator.pushNamed(context, viewModel.nextScreen);
                     },
                   ),
                   Visibility(

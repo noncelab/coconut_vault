@@ -177,9 +177,11 @@ class _AddressListScreenState extends State<AddressListScreen> {
     _viewModel = AddressListViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id);
     _viewModel.initializeAddress().then((_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          _isFirstLoadRunning = false;
-        });
+        if (mounted) {
+          setState(() {
+            _isFirstLoadRunning = false;
+          });
+        }
       });
     });
     _controller = ScrollController()..addListener(_nextLoad);
@@ -201,9 +203,11 @@ class _AddressListScreenState extends State<AddressListScreen> {
         Logger.log(e.toString());
       } finally {
         Timer(const Duration(seconds: 1), () {
-          setState(() {
-            _isLoadMoreRunning = false;
-          });
+          if (mounted) {
+            setState(() {
+              _isLoadMoreRunning = false;
+            });
+          }
         });
       }
     }

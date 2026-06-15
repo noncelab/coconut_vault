@@ -11,6 +11,7 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
+import 'package:coconut_vault/utils/passphrase_warning_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/cupertino.dart';
@@ -29,16 +30,22 @@ class MnemonicImportScreen extends StatefulWidget {
   final MultisigSigner? externalSigner;
   final int? multisigVaultIdOfExternalSigner;
   final bool isEmbedded;
-  final bool isTaproot;
+  final bool isTaprootCreationChild;
+  final bool requirePassphraseConfirmation;
+  final bool showPassphraseWarningSubWidget;
   final VoidCallback? onCompleted;
+  final void Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
 
   const MnemonicImportScreen({
     super.key,
     this.externalSigner,
     this.multisigVaultIdOfExternalSigner,
     this.isEmbedded = false,
-    this.isTaproot = false,
+    this.isTaprootCreationChild = false,
+    this.requirePassphraseConfirmation = false,
+    this.showPassphraseWarningSubWidget = false,
     this.onCompleted,
+    this.onMnemonicConfirmationRequested,
   });
 
   @override
@@ -63,6 +70,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   // State variables
   bool _usePassphrase = false;
   String _passphrase = '';
+  String _passphraseConfirm = '';
   bool _passphraseObscured = false;
   bool? _isMnemonicValid;
   bool _isSuggestionWordsVisible = false;
@@ -82,7 +90,9 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   // 포커스를 잃었다가 다시 돌아온 완성 단어 필드에서만 다음 입력 초기화 로직을 적용
   final Set<int> _resetOnNextEditAfterRefocus = <int>{};
   final TextEditingController _passphraseController = TextEditingController();
+  final TextEditingController _passphraseConfirmController = TextEditingController();
   final FocusNode _passphraseFocusNode = FocusNode();
+  final FocusNode _passphraseConfirmFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   final ScrollController _suggestionScrollController = ScrollController();
 
@@ -239,6 +249,12 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         _scrollToBottom();
       }
     });
+    _passphraseConfirmFocusNode.addListener(() async {
+      if (_passphraseConfirmFocusNode.hasFocus) {
+        await Future.delayed(_passphraseScrollDelay);
+        _scrollToBottom();
+      }
+    });
   }
 
   void _scrollToBottom() {
@@ -317,11 +333,17 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         _passphrase = _passphraseController.text;
       });
     });
+    _passphraseConfirmController.addListener(() {
+      setState(() {
+        _passphraseConfirm = _passphraseConfirmController.text;
+      });
+    });
   }
 
   @override
   void dispose() {
     _passphrase = '';
+    _passphraseConfirm = '';
     _passphraseObscured = false;
     _isMnemonicValid = null;
     _isSuggestionWordsVisible = false;
@@ -335,7 +357,9 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
 
     _disposeTextFields();
     _passphraseController.dispose();
+    _passphraseConfirmController.dispose();
     _passphraseFocusNode.dispose();
+    _passphraseConfirmFocusNode.dispose();
     _suggestionScrollController.dispose();
     super.dispose();
   }
@@ -591,7 +615,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   }
 
   bool _canPopWithoutDialog() {
-    return _controllers.every((controller) => controller.text.isEmpty) && _passphrase.isEmpty && mounted;
+    return _controllers.every((controller) => controller.text.isEmpty) &&
+        _passphrase.isEmpty &&
+        _passphraseConfirm.isEmpty &&
+        mounted;
   }
 
   Future<void> _handleNextButton() async {
@@ -600,7 +627,13 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
       final externalSigner = widget.externalSigner;
 
-      if (widget.isTaproot) {
+      if (widget.isTaprootCreationChild) {
+        final onMnemonicConfirmationRequested = widget.onMnemonicConfirmationRequested;
+        if (onMnemonicConfirmationRequested != null) {
+          onMnemonicConfirmationRequested(secret, passphrase);
+          return;
+        }
+
         final taprootWalletCreationProvider = context.read<TaprootWalletCreationProvider>();
 
         taprootWalletCreationProvider.setSecretAndPassphrase(secret, passphrase);
@@ -782,6 +815,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   Widget build(BuildContext context) {
     return CustomLoadingOverlay(
       child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
         onTap: _handleGlobalTap,
         child: PopScope(
           canPop: false,
@@ -1039,7 +1073,19 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   bool _isNextButtonActive() {
     return _controllers.any((controller) => controller.text.isNotEmpty) &&
         _isMnemonicValid == true &&
-        (_usePassphrase ? _passphrase.isNotEmpty : true);
+        (_usePassphrase ? _isPassphraseInputValid : true);
+  }
+
+  bool get _isPassphraseInputValid {
+    if (_passphrase.isEmpty || _passphrase.length > 100) {
+      return false;
+    }
+
+    if (!widget.requirePassphraseConfirmation) {
+      return true;
+    }
+
+    return _passphraseConfirm.isNotEmpty && _passphrase == _passphraseConfirm;
   }
 
   Widget? _buildErrorSubWidget() {
@@ -1050,7 +1096,26 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         style: CoconutTypography.body2_14.setColor(CoconutColors.hotPink),
       );
     }
+    if (widget.showPassphraseWarningSubWidget) {
+      final warningMessage = _passphraseWarningMessage;
+      if (_usePassphrase && warningMessage.isNotEmpty) {
+        return FittedBox(
+          child: Text(
+            warningMessage,
+            style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
+            textAlign: TextAlign.center,
+          ),
+        );
+      }
+    }
     return null;
+  }
+
+  String get _passphraseWarningMessage {
+    return PassphraseWarningUtil.warningMessages([
+      _passphrase,
+      if (widget.requirePassphraseConfirmation) _passphraseConfirm,
+    ]).join('\n');
   }
 
   Widget _buildMnemonicTextFieldLine(int line) {
@@ -1214,6 +1279,10 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
           onChanged: (value) {
             setState(() {
               _usePassphrase = value;
+              if (!value) {
+                _passphraseController.clear();
+                _passphraseConfirmController.clear();
+              }
             });
           },
         ),
@@ -1261,25 +1330,49 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   Widget _buildPassphraseTextField() {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 12),
-          child: SizedBox(
-            child: CoconutTextField(
-              focusNode: _passphraseFocusNode,
-              controller: _passphraseController,
-              placeholderText: t.mnemonic_import_screen.enter_passphrase,
-              onChanged: (_) {},
-              isError: _passphrase.length > 100,
-              maxLines: 1,
-              isLengthVisible: false,
-              obscureText: _passphraseObscured,
-              suffix: _buildPassphraseVisibilityToggle(),
-              maxLength: 100,
-            ),
-          ),
+        _buildPassphraseInputField(
+          focusNode: _passphraseFocusNode,
+          controller: _passphraseController,
+          placeholderText: t.mnemonic_import_screen.enter_passphrase,
+          isError: _passphrase.length > 100,
         ),
+        if (widget.requirePassphraseConfirmation)
+          _buildPassphraseInputField(
+            focusNode: _passphraseConfirmFocusNode,
+            controller: _passphraseConfirmController,
+            placeholderText: t.mnemonic_generate_screen.passphrase_confirm_guide,
+            isError: _passphraseConfirm.isNotEmpty && _passphrase != _passphraseConfirm,
+            errorText: t.mnemonic_generate_screen.passphrase_not_matched,
+          ),
         _buildPassphraseLengthIndicator(),
       ],
+    );
+  }
+
+  Widget _buildPassphraseInputField({
+    required FocusNode focusNode,
+    required TextEditingController controller,
+    required String placeholderText,
+    required bool isError,
+    String? errorText,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: SizedBox(
+        child: CoconutTextField(
+          focusNode: focusNode,
+          controller: controller,
+          placeholderText: placeholderText,
+          onChanged: (_) {},
+          isError: isError,
+          errorText: errorText,
+          maxLines: 1,
+          isLengthVisible: false,
+          obscureText: _passphraseObscured,
+          suffix: _buildPassphraseVisibilityToggle(),
+          maxLength: 100,
+        ),
+      ),
     );
   }
 

@@ -85,6 +85,14 @@ class WalletProvider extends ChangeNotifier {
     return _vaultList.firstWhere((element) => element.id == id);
   }
 
+  VaultListItemBase? getVaultByIdOrNull(int id) {
+    try {
+      return _vaultList.firstWhere((element) => element.id == id);
+    } catch (_) {
+      return null;
+    }
+  }
+
   VaultListItemBase getVaultByName(String name) {
     return _vaultList.firstWhere((element) => element.name == name);
   }

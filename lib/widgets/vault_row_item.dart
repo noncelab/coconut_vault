@@ -4,6 +4,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -120,47 +121,53 @@ class VaultRowItem extends StatefulWidget {
 }
 
 class _VaultRowItemState extends State<VaultRowItem> {
-  bool _isMultiSig = false;
-  String _subtitleText = '';
-  bool _isUsedToMultiSig = false;
-  List<MultisigSigner>? _multiSigners;
-
-  void _updateVault() {
-    _isMultiSig = false;
-    _subtitleText = '';
-    _isUsedToMultiSig = false;
-    _multiSigners = null;
-
-    if (widget.vault.vaultType == WalletType.multiSignature) {
-      _isMultiSig = true;
-      final multi = widget.vault as MultisigVaultListItem;
-      _subtitleText = '${multi.requiredSignatureCount}/${multi.signers.length}';
-      _multiSigners = multi.signers;
-    } else {
-      final single = widget.vault as SingleSigVaultListItem;
-      if (single.linkedMultisigInfo != null) {
-        final multisigKey = single.linkedMultisigInfo!;
-        if (multisigKey.keys.isNotEmpty) {
-          final model = Provider.of<WalletProvider>(context, listen: false);
-          try {
-            final multisig = model.getVaultById(multisigKey.keys.first);
-            _subtitleText = t.wallet_subtitle(
-              name: TextUtils.ellipsisIfLonger(multisig.name),
-              index: multisigKey.values.first + 1,
-            );
-            _isUsedToMultiSig = true;
-          } catch (_) {}
-        }
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    _updateVault();
+    final vault = widget.vault;
+    final walletProvider = context.read<WalletProvider>();
+
+    final bool isMultiSig = vault.vaultType == WalletType.multiSignature;
+    final bool isTaproot = vault.vaultType == WalletType.taproot;
+    String subtitleText = '';
+    bool isUsedToMultiSig = false;
+    List<MultisigSigner>? multiSigners;
+    List<Color>? taprootGradientColors;
+
+    if (isMultiSig) {
+      final multi = vault as MultisigVaultListItem;
+      subtitleText = '${multi.requiredSignatureCount}/${multi.signers.length}';
+      multiSigners = multi.signers;
+    } else if (vault.vaultType == WalletType.singleSignature) {
+      final single = vault as SingleSigVaultListItem;
+      if (single.linkedMultisigInfo != null && single.linkedMultisigInfo!.keys.isNotEmpty) {
+        final multisigKey = single.linkedMultisigInfo!;
+        try {
+          final multisig = walletProvider.getVaultById(multisigKey.keys.first);
+          subtitleText = t.wallet_subtitle(
+            name: TextUtils.ellipsisIfLonger(multisig.name),
+            index: multisigKey.values.first + 1,
+          );
+          isUsedToMultiSig = true;
+        } catch (_) {}
+      }
+    } else if (isTaproot) {
+      final taproot = vault as TaprootVaultListItem;
+      subtitleText = taproot.isParent ? t.taproot.parent_wallet : t.taproot.child_wallet;
+      final baseColors = [
+        CoconutColors.lightSky.withValues(alpha: 0.2),
+        CoconutColors.periwinkle.withValues(alpha: 0.2),
+      ];
+      taprootGradientColors = taproot.isParent ? baseColors.reversed.toList() : baseColors;
+    }
 
     if (widget.isEditMode) {
       return _buildVaultContainerWidget(
+        isTaproot: isTaproot,
+        isMultiSig: isMultiSig,
+        isUsedToMultiSig: isUsedToMultiSig,
+        subtitleText: subtitleText,
+        multiSigners: multiSigners,
+        taprootGradientColors: taprootGradientColors,
         onTapStar: (pair) {
           if (widget.isPrimaryWallet != null) {
             widget.onTapStar?.call(pair);
@@ -172,12 +179,12 @@ class _VaultRowItemState extends State<VaultRowItem> {
     return ShrinkAnimationButton(
       pressedColor: CoconutColors.gray150,
       borderGradientColors:
-          widget.isKeyBorderVisible
+          !isTaproot && widget.isKeyBorderVisible
               ? widget.isSelected
                   ? [CoconutColors.gray800, CoconutColors.gray800]
                   : [CoconutColors.black.withValues(alpha: 0.08), CoconutColors.black.withValues(alpha: 0.08)]
               : null,
-      borderWidth: 1,
+      borderWidth: isTaproot ? 0 : 1,
       borderRadius: 8,
       onPressed: () async {
         if (widget.onSelected != null) {
@@ -186,12 +193,21 @@ class _VaultRowItemState extends State<VaultRowItem> {
         }
         final walletProvider = context.read<WalletProvider>();
         final vaultType = walletProvider.getVaultById(widget.vault.id).vaultType;
-        if (vaultType != WalletType.singleSignature) {
+
+        if (vaultType == WalletType.multiSignature) {
           Navigator.pushNamed(
             context,
-            AppRoutes.multisigSetupInfo, // TODO: 탭루트 지갑 일 때는 경로 다르게
+            AppRoutes.multisigSetupInfo,
             arguments: {'id': widget.vault.id, 'entryPoint': widget.entryPoint},
           );
+          return;
+        } else if (vaultType == WalletType.taproot) {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.taprootSetupInfo,
+            arguments: {'id': widget.vault.id, 'entryPoint': widget.entryPoint},
+          );
+          return;
         }
 
         bool shouldShowPassphraseVerifyMenu =
@@ -210,7 +226,14 @@ class _VaultRowItemState extends State<VaultRowItem> {
       onLongPressed: () {
         widget.onLongPressed?.call();
       },
-      child: _buildVaultContainerWidget(),
+      child: _buildVaultContainerWidget(
+        isTaproot: isTaproot,
+        isMultiSig: isMultiSig,
+        isUsedToMultiSig: isUsedToMultiSig,
+        subtitleText: subtitleText,
+        multiSigners: multiSigners,
+        taprootGradientColors: taprootGradientColors,
+      ),
     );
   }
 
@@ -243,9 +266,33 @@ class _VaultRowItemState extends State<VaultRowItem> {
     return const SizedBox.shrink();
   }
 
-  Widget _buildVaultContainerWidget({ValueChanged<(bool, int)>? onTapStar, int? index}) {
+  Widget _buildVaultContainerWidget({
+    required bool isTaproot,
+    required bool isMultiSig,
+    required bool isUsedToMultiSig,
+    required String subtitleText,
+    List<MultisigSigner>? multiSigners,
+    List<Color>? taprootGradientColors,
+    ValueChanged<(bool, int)>? onTapStar,
+    int? index,
+  }) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: widget.isEditMode ? 8 : 20, vertical: 12),
+      decoration:
+          isTaproot
+              ? BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: CoconutColors.gray200, width: 1),
+                gradient:
+                    taprootGradientColors != null
+                        ? LinearGradient(
+                          colors: taprootGradientColors,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                        : null,
+              )
+              : null,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 37),
         child: Row(
@@ -272,11 +319,20 @@ class _VaultRowItemState extends State<VaultRowItem> {
                   ),
                 ),
               ),
-            VaultIconSmall(
-              iconIndex: widget.vault.iconIndex,
-              colorIndex: widget.vault.colorIndex,
-              gradientColors:
-                  _isMultiSig && _multiSigners != null ? CustomColorHelper.getGradientColors(_multiSigners!) : null,
+            Container(
+              decoration:
+                  isTaproot
+                      ? const BoxDecoration(
+                        color: CoconutColors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      )
+                      : null,
+              child: VaultIconSmall(
+                iconIndex: widget.vault.iconIndex,
+                colorIndex: widget.vault.colorIndex,
+                gradientColors:
+                    isMultiSig && multiSigners != null ? CustomColorHelper.getGradientColors(multiSigners) : null,
+              ),
             ),
             CoconutLayout.spacing_200w,
             Expanded(
@@ -296,14 +352,14 @@ class _VaultRowItemState extends State<VaultRowItem> {
                       alignment: Alignment.centerLeft,
                       child: Row(
                         children: [
-                          if (_isMultiSig || _isUsedToMultiSig) ...{
+                          if (isMultiSig || isUsedToMultiSig || isTaproot) ...{
                             Text(
-                              _subtitleText,
+                              subtitleText,
                               style: CoconutTypography.body2_14.copyWith(color: CoconutColors.gray600),
                             ),
                           },
                           if (widget.isPrimaryWallet == true) ...[
-                            if (_isMultiSig || _isUsedToMultiSig)
+                            if (isMultiSig || isUsedToMultiSig || isTaproot)
                               Text(
                                 ' • ${t.vault_list_screen.primary_wallet}',
                                 style: CoconutTypography.body2_14.setColor(CoconutColors.gray500),

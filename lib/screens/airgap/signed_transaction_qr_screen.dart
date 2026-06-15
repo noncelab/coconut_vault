@@ -1,4 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -6,12 +7,14 @@ import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class SignedTransactionQrScreen extends StatefulWidget {
-  const SignedTransactionQrScreen({super.key});
+  final String? tooltipText;
+
+  const SignedTransactionQrScreen({super.key, this.tooltipText});
 
   @override
   State<SignedTransactionQrScreen> createState() => _SignedTransactionQrScreenState();
@@ -20,15 +23,22 @@ class SignedTransactionQrScreen extends StatefulWidget {
 class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
   late SignProvider _signProvider;
   late bool isRawTransaction;
+  late String? _signedPsbtBase64;
+  late String? _signedRawTxHexString;
+  late List<TextSpan> _tooltipRichText;
 
   @override
   void initState() {
     super.initState();
     _signProvider = Provider.of<SignProvider>(context, listen: false);
-    final signedPsbtBase64 = _signProvider.signedPsbtBase64;
-    final rawSignedTx = _signProvider.signedRawTxHexString;
-    assert((signedPsbtBase64 == null && rawSignedTx != null) || (signedPsbtBase64 != null && rawSignedTx == null));
-    isRawTransaction = rawSignedTx != null;
+    _signedPsbtBase64 = _signProvider.signedPsbtBase64;
+    _signedRawTxHexString = _signProvider.signedRawTxHexString;
+    assert(
+      (_signedPsbtBase64 == null && _signedRawTxHexString != null) ||
+          (_signedPsbtBase64 != null && _signedRawTxHexString == null),
+    );
+    isRawTransaction = _signedRawTxHexString != null;
+    _tooltipRichText = _getTooltipRichText();
   }
 
   @override
@@ -51,17 +61,15 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
                 children: <Widget>[
                   CustomTooltip.buildInfoTooltip(
                     context,
-                    richText: RichText(
-                      text: TextSpan(style: CoconutTypography.body3_12, children: _getTooltipRichText()),
-                    ),
+                    richText: RichText(text: TextSpan(style: CoconutTypography.body3_12, children: _tooltipRichText)),
                   ),
                   const SizedBox(height: 40),
                   AdaptiveQrImage(
                     qrViewDataHandler:
                         !isRawTransaction
-                            ? BcUrQrViewHandler(_signProvider.signedPsbtBase64!, UrType.cryptoPsbt, maxFragmentLen: 40)
+                            ? BcUrQrViewHandler(_signedPsbtBase64!, UrType.cryptoPsbt, maxFragmentLen: 40)
                             : null,
-                    qrData: isRawTransaction ? _signProvider.signedRawTxHexString! : null,
+                    qrData: isRawTransaction ? _signedRawTxHexString! : null,
                   ),
                   CoconutLayout.spacing_2500h,
                 ],
@@ -103,14 +111,20 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
   }
 
   List<TextSpan> _getTooltipRichText() {
-    return [
-      TextSpan(
-        text:
-            _signProvider.isMultisig!
-                ? t.signed_transaction_qr_screen.guide_multisig
-                : t.signed_transaction_qr_screen.guide_single_sig(name: _signProvider.walletName!),
-        style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
-      ),
-    ];
+    final String text;
+    if (widget.tooltipText != null) {
+      text = widget.tooltipText!;
+    } else {
+      switch (_signProvider.vaultType) {
+        case WalletType.singleSignature:
+        case WalletType.taproot:
+          text = t.signed_transaction_qr_screen.guide_single_sig(name: _signProvider.walletName!);
+        case WalletType.multiSignature:
+          text = t.signed_transaction_qr_screen.guide_multisig;
+        default:
+          text = '';
+      }
+    }
+    return [TextSpan(text: text, style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black))];
   }
 }

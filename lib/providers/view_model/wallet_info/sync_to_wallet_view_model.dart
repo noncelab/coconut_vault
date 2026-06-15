@@ -5,6 +5,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/services/blockchain_commons/account_descriptor/legacy_account_descriptor.dart';
@@ -35,6 +36,13 @@ class WalletToSyncViewModel extends ChangeNotifier {
 
   void _initVaultData() {
     final vault = _walletProvider.getVaultById(_vaultId);
+
+    if (vault is TaprootVaultListItem) {
+      derivationPath = '';
+      _currentAccountIndex = 0;
+      qrDatas = [QrData(type: QrType.single, data: vault.getWalletSyncString())];
+      return;
+    }
 
     if (vault is SingleSigVaultListItem) {
       final singlesigVault = vault.coconutVault as SingleSignatureVault;
@@ -106,15 +114,21 @@ class WalletToSyncViewModel extends ChangeNotifier {
               );
             }).toList(),
       );
-    } else {
-      throw 'Wrong vault type: ${vault.vaultType}';
     }
+
+    return Uint8List(0);
   }
 
   QrData get qrData => qrDatas[_selectedOption];
   String get qrDataString => _convertQrDataToString(qrData.data);
 
   void setFormatOption(SyncOption syncOption) {
+    if (qrDatas.length == 1) {
+      _selectedOption = 0;
+      notifyListeners();
+      return;
+    }
+
     switch (syncOption.format) {
       case WalletExportFormatEnum.coconut:
         _selectedOption = 0;

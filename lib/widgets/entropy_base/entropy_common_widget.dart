@@ -4,7 +4,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -121,7 +121,7 @@ class EntropyPassphraseInput extends StatelessWidget {
       placeholderText: placeholder,
       onEditingComplete: onEditingComplete,
       height: 58,
-      padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+      padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
       onChanged: (_) {},
       maxLines: 1,
       obscureText: obscure,

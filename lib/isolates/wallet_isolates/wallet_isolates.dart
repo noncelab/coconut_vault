@@ -19,8 +19,6 @@ import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/repository/model/taproot_wallet_input.dart';
-import 'package:coconut_vault/utils/hash_util.dart';
-import 'package:coconut_vault/utils/logger.dart';
 
 typedef TaprootCreationResult =
     ({
@@ -223,22 +221,36 @@ class WalletIsolates {
   static Future<Map<String, dynamic>> verifyPassphrase(Map<String, dynamic> args) async {
     setNetworkType();
 
-    final vaultListItem = args['valutListItem'] as VaultListItemBase;
-    assert(vaultListItem.vaultType == WalletType.singleSignature);
-
-    final singleSigVaultListItem = vaultListItem.coconutVault as SingleSignatureVault;
-
+    final vaultListItem = args['vaultListItem'] as VaultListItemBase;
     Seed? seed;
     KeyStore? keyStore;
 
     try {
       seed = Seed.fromMnemonic(args['mnemonic'], passphrase: args['passphrase']);
-      keyStore = KeyStore.fromSeed(seed, AddressType.p2wpkh);
 
-      final savedMfp = singleSigVaultListItem.keyStore.masterFingerprint;
-      final recoveredMfp = keyStore.masterFingerprint;
-      final extendedPublicKey = singleSigVaultListItem.keyStore.extendedPublicKey.serialize();
-      final success = savedMfp == recoveredMfp;
+      String savedMfp = '';
+      String extendedPublicKey = '';
+
+      if (vaultListItem is SingleSigVaultListItem) {
+        final vault = vaultListItem.coconutVault as SingleSignatureVault;
+        keyStore = KeyStore.fromSeed(seed, vault.addressType);
+        savedMfp = vault.keyStore.masterFingerprint;
+        extendedPublicKey = vault.keyStore.extendedPublicKey.serialize();
+      } else if (vaultListItem is TaprootVaultListItem) {
+        final String? targetXpub = args['targetXpub'];
+        if (targetXpub == null) {
+          throw StateError('[vefify passphrase] targetXpub is required for TaprootVaultListItem');
+        }
+
+        extendedPublicKey = targetXpub;
+
+        final vault = vaultListItem.coconutVault as TaprootVault;
+        keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
+        savedMfp = _findMfpByXpub(vault, targetXpub);
+      }
+
+      final recoveredMfp = keyStore?.masterFingerprint ?? '';
+      final success = savedMfp.isNotEmpty && savedMfp == recoveredMfp;
 
       return {
         "success": success,
@@ -260,6 +272,28 @@ class WalletIsolates {
         (args['passphrase'] as Uint8List).wipe();
       }
     }
+  }
+
+  static String _findMfpByXpub(TaprootVault vault, String xpub) {
+    final target = _getRawXpub(xpub);
+
+    for (var ks in vault.keyStoreList) {
+      if (_getRawXpub(ks.extendedPublicKey.serialize()) == target) {
+        return ks.masterFingerprint;
+      }
+    }
+    for (var policy in vault.policyList) {
+      if (policy is InheritancePolicy &&
+          _getRawXpub(policy.beneficiaryKeyStore.extendedPublicKey.serialize()) == target) {
+        return policy.beneficiaryKeyStore.masterFingerprint;
+      }
+    }
+    return '';
+  }
+
+  static String _getRawXpub(String input) {
+    // [fingerprint/derivation]xpub... 형태에서 xpub 부분만 추출
+    return input.contains(']') ? input.split(']').last : input;
   }
 
   static Future<List<WalletAddress>> getAddressList(Map<String, dynamic> args) async {
@@ -302,6 +336,65 @@ class WalletIsolates {
       final success = expectedMfpToUpper == actualMfpToUpper;
 
       return {"success": success, "actualMfp": actualMfpToUpper};
+    } finally {
+      if (keyStore != null) {
+        keyStore.wipeSeed();
+      }
+      if (seed != null) {
+        seed.wipe();
+      }
+      mnemonic.wipe();
+      if (passphrase != null) {
+        passphrase.wipe();
+      }
+    }
+  }
+
+  static Future<Map<String, dynamic>> deriveTaprootImportSeed(Map<String, dynamic> args) async {
+    setNetworkType();
+
+    final Uint8List mnemonic = args['mnemonic'];
+    final Uint8List? passphrase = args['passphrase'];
+    final String descriptor = args['descriptor'];
+    final String selectedRoleName = args['selectedRoleName'];
+
+    KeyStore? keyStore;
+    Seed? seed;
+
+    try {
+      seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
+      keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
+
+      final extendedPublicKey = keyStore.extendedPublicKey.serialize();
+      final masterFingerprint = keyStore.masterFingerprint;
+      final importedSingleKeyVault = TaprootVault.fromKeyStoreList([keyStore], []);
+      final importedSingleKeyDescriptor = importedSingleKeyVault.descriptor;
+      final importedSignerBsms = importedSingleKeyVault.getSignerBsms('');
+      final scannedVault = TaprootVault.fromDescriptor(descriptor);
+
+      final isSignerMatch = scannedVault.keyStoreList.any(
+        (keyStore) => keyStore.extendedPublicKey.serialize() == extendedPublicKey,
+      );
+      final isBeneficiaryMatch = scannedVault.policyList.any((policy) {
+        if (policy is! InheritancePolicy) {
+          return false;
+        }
+        return policy.beneficiaryKeyStore.extendedPublicKey.serialize() == extendedPublicKey;
+      });
+
+      final isSelectedRoleMatch = switch (selectedRoleName) {
+        'signer' => isSignerMatch,
+        'beneficiary' => isBeneficiaryMatch,
+        _ => false,
+      };
+
+      return {
+        'extendedPublicKey': extendedPublicKey,
+        'masterFingerprint': masterFingerprint,
+        'isSelectedRoleMatch': isSelectedRoleMatch,
+        'importedSingleKeyDescriptor': importedSingleKeyDescriptor,
+        'importedSignerBsms': importedSignerBsms,
+      };
     } finally {
       if (keyStore != null) {
         keyStore.wipeSeed();

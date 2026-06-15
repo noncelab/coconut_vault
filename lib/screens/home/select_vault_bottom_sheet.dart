@@ -9,22 +9,24 @@ enum BalanceMode {
 }
 
 class SelectVaultBottomSheet extends StatefulWidget {
-  final Function(int) onVaultSelected;
-  final List<VaultListItemBase> vaultList;
+  final Function(int)? onVaultSelected;
+  final List<VaultListItemBase>? vaultList;
   final int? selectedId;
   final int? walletId;
   final ScrollController? scrollController;
   final String? subLabel;
   final bool isNextIconVisible;
+  final List<Widget>? children;
 
   const SelectVaultBottomSheet({
     super.key,
-    required this.onVaultSelected,
-    required this.vaultList,
+    this.onVaultSelected,
+    this.vaultList,
     this.selectedId,
     this.walletId,
     this.scrollController,
     this.subLabel,
+    this.children,
     this.isNextIconVisible = true,
   });
 
@@ -35,35 +37,38 @@ class SelectVaultBottomSheet extends StatefulWidget {
 class _SelectVaultBottomSheetState extends State<SelectVaultBottomSheet> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: CoconutColors.white,
-      body: Column(
+    return Material(
+      color: CoconutColors.white,
+      child: Column(
         children: [
           Expanded(
             child: SingleChildScrollView(
               controller: widget.scrollController,
-              child: Column(
-                children: List.generate(widget.vaultList.length, (index) {
-                  int walletId = widget.vaultList[index].id;
-                  return Container(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    margin: index == 0 ? const EdgeInsets.only(top: 8) : null,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: Sizes.size8),
-                      child: VaultRowItem(
-                        vault: widget.vaultList[index],
-                        isSelected: widget.selectedId == walletId,
-                        isSelectable: true,
-                        onSelected: () {
-                          if (walletId == widget.selectedId) return;
-                          widget.onVaultSelected(walletId);
-                        },
-                        isNextIconVisible: widget.isNextIconVisible,
+              child:
+                  widget.children != null
+                      ? Column(children: widget.children!)
+                      : Column(
+                        children: List.generate(widget.vaultList?.length ?? 0, (index) {
+                          int walletId = widget.vaultList![index].id;
+                          return Container(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            margin: index == 0 ? const EdgeInsets.only(top: 8) : null,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: Sizes.size8),
+                              child: VaultRowItem(
+                                vault: widget.vaultList![index],
+                                isSelected: widget.selectedId == walletId,
+                                isSelectable: true,
+                                onSelected: () {
+                                  if (walletId == widget.selectedId) return;
+                                  widget.onVaultSelected?.call(walletId);
+                                },
+                                isNextIconVisible: widget.isNextIconVisible,
+                              ),
+                            ),
+                          );
+                        }),
                       ),
-                    ),
-                  );
-                }),
-              ),
             ),
           ),
         ],

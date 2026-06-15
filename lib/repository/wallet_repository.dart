@@ -441,12 +441,12 @@ class WalletRepository {
       // 연결된 MultisigVaultListItem의 signers 객체도 UI 업데이트가 필요
       if (linkedMultisigInfo != null && linkedMultisigInfo.isNotEmpty) {
         for (var entry in linkedMultisigInfo.entries) {
-          if (getVaultById(id) != null) {
-            MultisigVaultListItem msv = getVaultById(entry.key) as MultisigVaultListItem;
-            msv.signers[entry.value].name = newName;
-            msv.signers[entry.value].colorIndex = colorIndex;
-            msv.signers[entry.value].iconIndex = iconIndex;
-          }
+          final linkedVault = getVaultById(entry.key);
+          if (linkedVault is! MultisigVaultListItem) continue;
+
+          linkedVault.signers[entry.value].name = newName;
+          linkedVault.signers[entry.value].colorIndex = colorIndex;
+          linkedVault.signers[entry.value].iconIndex = iconIndex;
         }
       }
 

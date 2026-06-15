@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
@@ -9,6 +10,7 @@ import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/utils/passphrase_warning_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
@@ -24,8 +26,10 @@ class SeedQrConfirmationScreen extends StatefulWidget {
   final MultisigSigner? externalSigner;
   final int? multisigVaultIdOfExternalSigner;
   final bool isTaproot;
+  final bool requirePassphraseConfirmation;
+  final bool showPassphraseWarningSubWidget;
   final VoidCallback? onCompleted;
-  final void Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
+  final FutureOr<void> Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
 
   const SeedQrConfirmationScreen({
     super.key,
@@ -33,6 +37,8 @@ class SeedQrConfirmationScreen extends StatefulWidget {
     this.externalSigner,
     this.multisigVaultIdOfExternalSigner,
     this.isTaproot = false,
+    this.requirePassphraseConfirmation = false,
+    this.showPassphraseWarningSubWidget = false,
     this.onCompleted,
     this.onMnemonicConfirmationRequested,
   });
@@ -44,13 +50,16 @@ class SeedQrConfirmationScreen extends StatefulWidget {
 class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _passphraseController = TextEditingController();
+  final TextEditingController _passphraseConfirmController = TextEditingController();
   final FocusNode _passphraseFocusNode = FocusNode();
+  final FocusNode _passphraseConfirmFocusNode = FocusNode();
 
   late WalletProvider _walletProvider;
   late WalletCreationProvider _walletCreationProvider;
 
   bool _usePassphrase = false;
   String _passphrase = '';
+  String _passphraseConfirm = '';
   bool _passphraseObscured = false;
   bool _isWarningVisible = true;
 
@@ -78,12 +87,15 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   void dispose() {
     _usePassphrase = false;
     _passphrase = '';
+    _passphraseConfirm = '';
 
     _passphraseController.removeListener(_passphraseListener);
     _passphraseController.text = '';
     _passphraseController.dispose();
+    _passphraseConfirmController.dispose();
 
     _passphraseFocusNode.dispose();
+    _passphraseConfirmFocusNode.dispose();
     super.dispose();
   }
 
@@ -97,12 +109,35 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
     };
 
     _passphraseController.addListener(_passphraseListener);
+    _passphraseConfirmController.addListener(() {
+      if (mounted) {
+        setState(() {
+          _passphraseConfirm = _passphraseConfirmController.text;
+        });
+      }
+    });
 
     _passphraseFocusNode.addListener(() {
       if (_passphraseFocusNode.hasFocus) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (_scrollController.hasClients) {
             const extraPadding = 250.0; // 추가 여백
+            final targetScroll = _scrollController.position.maxScrollExtent + extraPadding;
+
+            _scrollController.animateTo(
+              targetScroll,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
+      }
+    });
+    _passphraseConfirmFocusNode.addListener(() {
+      if (_passphraseConfirmFocusNode.hasFocus) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (_scrollController.hasClients) {
+            const extraPadding = 250.0;
             final targetScroll = _scrollController.position.maxScrollExtent + extraPadding;
 
             _scrollController.animateTo(
@@ -155,9 +190,10 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
                 ),
                 FixedBottomButton(
                   text: t.next,
-                  isActive: _usePassphrase ? _passphrase.isNotEmpty && !_isWarningVisible : true && !_isWarningVisible,
+                  isActive: _usePassphrase ? _isPassphraseInputValid && !_isWarningVisible : !_isWarningVisible,
                   backgroundColor: CoconutColors.black,
                   onButtonClicked: () => _handleNextButton(),
+                  subWidget: widget.showPassphraseWarningSubWidget ? _buildPassphraseWarningSubWidget() : null,
                 ),
                 WarningWidget(
                   visible: _isWarningVisible,
@@ -186,10 +222,11 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
 
         final onMnemonicConfirmationRequested = widget.onMnemonicConfirmationRequested;
         if (onMnemonicConfirmationRequested != null) {
+          context.loaderOverlay.show();
+          await onMnemonicConfirmationRequested(secret, passphrase);
+          if (!mounted) return;
+          context.loaderOverlay.hide();
           Navigator.pop(context);
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            onMnemonicConfirmationRequested(secret, passphrase);
-          });
           return;
         }
 
@@ -250,6 +287,40 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
     }
   }
 
+  bool get _isPassphraseInputValid {
+    if (_passphrase.isEmpty || _passphrase.length > 100) {
+      return false;
+    }
+
+    if (!widget.requirePassphraseConfirmation) {
+      return true;
+    }
+
+    return _passphraseConfirm.isNotEmpty && _passphrase == _passphraseConfirm;
+  }
+
+  Widget _buildPassphraseWarningSubWidget() {
+    final warningMessage = _passphraseWarningMessage;
+    if (!_usePassphrase || warningMessage.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return FittedBox(
+      child: Text(
+        warningMessage,
+        style: CoconutTypography.body3_12.setColor(CoconutColors.warningText),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  String get _passphraseWarningMessage {
+    return PassphraseWarningUtil.warningMessages([
+      _passphrase,
+      if (widget.requirePassphraseConfirmation) _passphraseConfirm,
+    ]).join('\n');
+  }
+
   Future<bool> _isSignerMfpMatched(MultisigSigner signer, Uint8List mnemonicBytes, Uint8List passphraseBytes) async {
     final passphrase = passphraseBytes.isEmpty ? null : passphraseBytes;
     final expectedMfp = signer.keyStore.masterFingerprint;
@@ -276,6 +347,10 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
           onChanged: (value) {
             setState(() {
               _usePassphrase = value;
+              if (!value) {
+                _passphraseController.clear();
+                _passphraseConfirmController.clear();
+              }
             });
           },
         ),
@@ -286,33 +361,63 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   Widget _buildPassphraseTextField() {
     return Padding(
       padding: const EdgeInsets.only(top: 12, bottom: 24),
-      child: SizedBox(
-        child: CoconutTextField(
-          focusNode: _passphraseFocusNode,
-          controller: _passphraseController,
-          placeholderText: t.seed_qr_confirmation_screen.passphrase_text_field_placeholder,
-          padding: const EdgeInsets.all(16.0),
-          onChanged: (_) {},
-          maxLines: 1,
-          isLengthVisible: false,
-          obscureText: _passphraseObscured,
-          suffix: SizedBox(
-            width: 44,
-            height: 44,
-            child: CupertinoButton(
-              padding: EdgeInsets.zero,
-              minSize: 0,
-              onPressed: () => setState(() => _passphraseObscured = !_passphraseObscured),
-              child: Icon(
-                _passphraseObscured ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
-                color: CoconutColors.gray800,
-                size: 18,
+      child: Column(
+        children: [
+          _buildPassphraseInputField(
+            focusNode: _passphraseFocusNode,
+            controller: _passphraseController,
+            placeholderText: t.seed_qr_confirmation_screen.passphrase_text_field_placeholder,
+          ),
+          if (widget.requirePassphraseConfirmation)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: _buildPassphraseInputField(
+                focusNode: _passphraseConfirmFocusNode,
+                controller: _passphraseConfirmController,
+                placeholderText: t.mnemonic_generate_screen.passphrase_confirm_guide,
+                isError: _passphraseConfirm.isNotEmpty && _passphrase != _passphraseConfirm,
+                errorText: t.mnemonic_generate_screen.passphrase_not_matched,
               ),
             ),
-          ),
+        ],
+      ),
+    );
+  }
 
-          maxLength: 100,
+  Widget _buildPassphraseInputField({
+    required FocusNode focusNode,
+    required TextEditingController controller,
+    required String placeholderText,
+    bool isError = false,
+    String? errorText,
+  }) {
+    return SizedBox(
+      child: CoconutTextField(
+        focusNode: focusNode,
+        controller: controller,
+        placeholderText: placeholderText,
+        padding: const EdgeInsets.all(16.0),
+        onChanged: (_) {},
+        maxLines: 1,
+        isLengthVisible: false,
+        obscureText: _passphraseObscured,
+        isError: isError,
+        errorText: errorText,
+        suffix: SizedBox(
+          width: 44,
+          height: 44,
+          child: CupertinoButton(
+            padding: EdgeInsets.zero,
+            minSize: 0,
+            onPressed: () => setState(() => _passphraseObscured = !_passphraseObscured),
+            child: Icon(
+              _passphraseObscured ? CupertinoIcons.eye_slash : CupertinoIcons.eye,
+              color: CoconutColors.gray800,
+              size: 18,
+            ),
+          ),
         ),
+        maxLength: 100,
       ),
     );
   }

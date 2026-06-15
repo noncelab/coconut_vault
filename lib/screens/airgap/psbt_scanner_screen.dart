@@ -2,10 +2,6 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/exception/extended_public_key_not_found_exception.dart';
-import 'package:coconut_vault/model/exception/needs_multisig_setup_exception.dart';
-import 'package:coconut_vault/model/exception/vault_can_not_sign_exception.dart';
-import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -15,7 +11,7 @@ import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bb_qr_scan_d
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
-import 'package:coconut_vault/widgets/custom_tooltip.dart';
+import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -28,13 +24,17 @@ class PsbtScannerScreen extends StatefulWidget {
   final int? id;
   final HardwareWalletType? hardwareWalletType;
   final bool isFromBottomButton;
-  final void Function(String psbtBase64)? onMultisigPsbtScanned;
+  final Future<void> Function(String psbtBase64)? onMultisigPsbtScanned;
+  final String? appBarTitle;
+  final List<TextSpan>? tooltipRichText;
   const PsbtScannerScreen({
     super.key,
     this.id,
     this.hardwareWalletType,
     this.isFromBottomButton = false,
     this.onMultisigPsbtScanned,
+    this.appBarTitle,
+    this.tooltipRichText,
   });
 
   @override
@@ -144,24 +144,18 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       vibrateExtraLightDouble();
       debugPrint('e: ${e.toString()}');
 
-      if (e is VaultNotFoundException) {
-        await _showErrorDialog(e.message);
-      } else if (e is VaultSigningNotAllowedException) {
-        await _showErrorDialog(e.message);
-      } else if (e is ExtendedPublicKeyNotFoundException) {
-        await _showErrorDialog(e.message);
-      } else if (e is NeedsMultisigSetupException) {
-        await _showErrorDialog(e.message);
-      } else {
-        await _showErrorDialog(t.errors.invalid_qr);
-      }
+      await _showErrorDialog(_viewModel.getScanErrorMessage(e));
       return;
     }
 
     vibrateLight();
 
     if (widget.hardwareWalletType != null) {
-      widget.onMultisigPsbtScanned!(isRawTxHexString ? scannedData : psbtBase64);
+      await widget.onMultisigPsbtScanned!(isRawTxHexString ? scannedData : psbtBase64);
+      if (mounted) {
+        _scanDataHandler.reset();
+        _isProcessing = false;
+      }
       return;
     }
 
@@ -356,12 +350,15 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final tooltipTextSpan = TextSpan(style: CoconutTypography.body2_14, children: _getGuideTextSpan());
+    final tooltipTextSpan = TextSpan(
+      style: CoconutTypography.body2_14,
+      children: widget.tooltipRichText ?? _getGuideTextSpan(),
+    );
 
     return CustomLoadingOverlay(
       child: Scaffold(
         appBar: CoconutAppBar.build(
-          title: widget.hardwareWalletType?.displayName ?? t.sign,
+          title: widget.appBarTitle ?? widget.hardwareWalletType?.displayName ?? t.sign,
           context: context,
           backgroundColor: CoconutColors.white,
           actionButtonList: [

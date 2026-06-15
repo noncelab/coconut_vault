@@ -72,7 +72,7 @@ dependencies:
   coconut_lib:
     git:
       url: https://github.com/noncelab/coconut_lib
-      ref: develop
+      ref: feat/p2tr
   cbor: ^6.3.5
   ur:
     path: lib/packages/bc-ur-dart
@@ -82,7 +82,7 @@ dependencies:
   coconut_design_system:
     git:
       url: https://github.com/noncelab/coconut_design_system.git
-      ref: feat/gradient-colors
+      ref: main
   flutter_keyboard_visibility: ^6.0.0
   base32: ^2.2.0
   archive: ^4.0.7
@@ -266,6 +266,8 @@ flutter:
     - assets/svg/krux.svg
     - assets/svg/leave.svg
     - assets/svg/arrow-reload.svg
+    - assets/svg/calendar-days.svg
+    - assets/svg/scan.svg
     - assets/png/single-key.png
     - assets/png/multi-keys.png
     - assets/png/load-wallet.png
@@ -280,6 +282,7 @@ flutter:
     - assets/png/word.png
     - assets/png/scan-qr.png
     - assets/png/scan-qr-big.png
+    - assets/png/bitcoin-on-hand.png
 
   fonts:
     - family: SpaceGrotesk

@@ -9,9 +9,17 @@ import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:flutter/material.dart';
 
+typedef TaprootVaultSaveHandler =
+    Future<VaultNameAndIconSetupSaveResult> Function({
+      required String name,
+      required int iconIndex,
+      required int colorIndex,
+    });
+
 class VaultNameAndIconSetupViewModel extends ChangeNotifier {
   final WalletProvider _walletProvider;
   final WalletCreationProvider _walletCreationProvider;
+  final TaprootVaultSaveHandler? _taprootVaultSaveHandler;
   final AuthProvider _authProvider;
   final bool _isImported;
 
@@ -25,6 +33,7 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
     this._walletProvider,
     this._walletCreationProvider,
     this._authProvider, {
+    TaprootVaultSaveHandler? taprootVaultSaveHandler,
     required String initialName,
     required int initialIconIndex,
     required int initialColorIndex,
@@ -32,7 +41,8 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
   }) : _inputText = initialName,
        _selectedIconIndex = initialIconIndex,
        _selectedColorIndex = initialColorIndex,
-       _isImported = isImported {
+       _isImported = isImported,
+       _taprootVaultSaveHandler = taprootVaultSaveHandler {
     _walletProvider.isVaultListLoadingNotifier.addListener(_onVaultListLoading);
   }
 
@@ -124,6 +134,15 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
     return VaultNameAndIconSetupSaveResult.navigateToHome(addedWalletId: vault.id);
   }
 
+  Future<VaultNameAndIconSetupSaveResult> _saveTaprootVault() async {
+    final taprootVaultSaveHandler = _taprootVaultSaveHandler;
+    if (taprootVaultSaveHandler == null) {
+      throw StateError('Taproot vault save handler is required to save a taproot vault');
+    }
+
+    return taprootVaultSaveHandler(name: _inputText, iconIndex: _selectedIconIndex, colorIndex: _selectedColorIndex);
+  }
+
   Future<VaultNameAndIconSetupSaveResult> saveNewVault() async {
     try {
       setShowLoading(true);
@@ -132,6 +151,10 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
       if (_walletProvider.isNameDuplicated(_inputText)) {
         setShowLoading(false);
         return const VaultNameAndIconSetupSaveResult.duplicateName();
+      }
+
+      if (_taprootVaultSaveHandler != null) {
+        return await _saveTaprootVault();
       }
 
       switch (_walletCreationProvider.walletType) {
@@ -173,14 +196,38 @@ class VaultNameAndIconSetupSaveResult {
   final VaultNameAndIconSetupSaveStatus status;
   final int? addedWalletId;
   final int? multisigVaultId;
+  final TaprootVaultCreationTimelineInfo? taprootTimelineInfo;
 
-  const VaultNameAndIconSetupSaveResult._({required this.status, this.addedWalletId, this.multisigVaultId});
+  const VaultNameAndIconSetupSaveResult._({
+    required this.status,
+    this.addedWalletId,
+    this.multisigVaultId,
+    this.taprootTimelineInfo,
+  });
 
   const VaultNameAndIconSetupSaveResult.duplicateName() : this._(status: VaultNameAndIconSetupSaveStatus.duplicateName);
 
-  const VaultNameAndIconSetupSaveResult.navigateToHome({required int addedWalletId})
-    : this._(status: VaultNameAndIconSetupSaveStatus.navigateHome, addedWalletId: addedWalletId);
+  const VaultNameAndIconSetupSaveResult.navigateToHome({
+    required int addedWalletId,
+    TaprootVaultCreationTimelineInfo? taprootTimelineInfo,
+  }) : this._(
+         status: VaultNameAndIconSetupSaveStatus.navigateHome,
+         addedWalletId: addedWalletId,
+         taprootTimelineInfo: taprootTimelineInfo,
+       );
 
   const VaultNameAndIconSetupSaveResult.navigateToMultisigSetupInfo({required int? multisigVaultId})
     : this._(status: VaultNameAndIconSetupSaveStatus.navigateMultisigSetupInfo, multisigVaultId: multisigVaultId);
+}
+
+class TaprootVaultCreationTimelineInfo {
+  final String? parentMasterFingerprint;
+  final String? externalParentMasterFingerprint;
+  final String? childMasterFingerprint;
+
+  const TaprootVaultCreationTimelineInfo({
+    required this.parentMasterFingerprint,
+    required this.externalParentMasterFingerprint,
+    required this.childMasterFingerprint,
+  });
 }

@@ -1,3 +1,12 @@
+import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/core/wallet/taproot_validator.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
+import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
+import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
+import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
+import 'package:coconut_vault/model/taproot/seed_source.dart';
+import 'package:coconut_vault/providers/view_model/vault_creation/vault_name_and_icon_setup_view_model.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:flutter/foundation.dart';
 
 enum ParentWalletType { none, singleSig, multisig }
@@ -12,18 +21,72 @@ enum ParentAddScriptPathType { none, create, import }
 
 enum ParentSelectionResetScope { walletType, keyPreparation, keyCreationOrImportOption }
 
+enum ChildWalletSetupType { none, import, create }
+
+enum ParentChildWalletSource { scanned, created }
+
+enum ParentChildWalletSetResult { success, sameAsParent }
+
+class ParentCreationSaveResult {
+  final int vaultId;
+  final TaprootVaultCreationTimelineInfo timelineInfo;
+
+  const ParentCreationSaveResult({required this.vaultId, required this.timelineInfo});
+}
+
 class ParentCreationViewModel extends ChangeNotifier {
+  static const int _walletTypeProgressStepCount = 1;
+  static const int _singleSigParentProgressStepCount = 2;
+  static const int _multisigParentProgressStepCount = 4;
+  static const int _currentVaultSelectionProgressStepCount = 1;
+  static const int _childWalletImportProgressStepCount = 4;
+  static const int _childKeyPreparationProgressStepCount = 1;
+  static const int _childKeyImportOptionProgressStepCount = 1;
+  static const int _childCurrentVaultSelectionProgressStepCount = 1;
+  static const int _childWalletCreateOptionProgressStepCount = 1;
+
+  final WalletProvider _walletProvider;
   ParentWalletType _selectedWalletType = ParentWalletType.none;
   ParentKeyPreparationType _selectedKeyPreparationType = ParentKeyPreparationType.none;
   ParentNewKeyCreationType _selectedNewKeyCreationType = ParentNewKeyCreationType.none;
   ParentExistingKeyImportType _selectedExistingKeyImportType = ParentExistingKeyImportType.none;
+  ChildWalletSetupType _selectedChildWalletSetupType = ChildWalletSetupType.none;
+  ParentKeyPreparationType _selectedChildKeyPreparationType = ParentKeyPreparationType.none;
+  ParentExistingKeyImportType _selectedChildExistingKeyImportType = ParentExistingKeyImportType.none;
+  ParentNewKeyCreationType _selectedChildNewKeyCreationType = ParentNewKeyCreationType.none;
   int? _selectedExistingVaultId;
+  int? _selectedChildExistingVaultId;
+  DateTime? _selectedTimelockDateTime;
+  Uint8List _parentSecret = Uint8List(0);
+  Uint8List _parentPassphrase = Uint8List(0);
+  Uint8List _childSecret = Uint8List(0);
+  Uint8List _childPassphrase = Uint8List(0);
+  String? _parentWalletQrData;
+  String? _parentMasterFingerprint;
+  String? _externalParentSignerBsms;
+  String? _externalParentMasterFingerprint;
+  String? _childWalletDescriptor;
+  String? _childWalletMasterFingerprint;
+
+  ParentCreationViewModel(this._walletProvider);
 
   ParentWalletType get selectedWalletType => _selectedWalletType;
   ParentKeyPreparationType get selectedKeyPreparationType => _selectedKeyPreparationType;
   ParentNewKeyCreationType get selectedNewKeyCreationType => _selectedNewKeyCreationType;
   ParentExistingKeyImportType get selectedExistingKeyImportType => _selectedExistingKeyImportType;
+  ChildWalletSetupType get selectedChildWalletSetupType => _selectedChildWalletSetupType;
+  ParentKeyPreparationType get selectedChildKeyPreparationType => _selectedChildKeyPreparationType;
+  ParentExistingKeyImportType get selectedChildExistingKeyImportType => _selectedChildExistingKeyImportType;
+  ParentNewKeyCreationType get selectedChildNewKeyCreationType => _selectedChildNewKeyCreationType;
   int? get selectedExistingVaultId => _selectedExistingVaultId;
+  int? get selectedChildExistingVaultId => _selectedChildExistingVaultId;
+  DateTime? get selectedTimelockDateTime => _selectedTimelockDateTime;
+  String? get parentWalletQrData => _parentWalletQrData;
+  String? get parentMasterFingerprint => _parentMasterFingerprint;
+  String? get externalParentSignerBsms => _externalParentSignerBsms;
+  String? get externalParentMasterFingerprint => _externalParentMasterFingerprint;
+  String? get childWalletMasterFingerprint => _childWalletMasterFingerprint;
+  bool get isSigningOnlyMode => _walletProvider.isSigningOnlyMode;
   bool get isSingleSigSelected => _selectedWalletType == ParentWalletType.singleSig;
   bool get isMultisigSelected => _selectedWalletType == ParentWalletType.multisig;
   bool get isCreateKeySelected => _selectedKeyPreparationType == ParentKeyPreparationType.create;
@@ -34,6 +97,41 @@ class ParentCreationViewModel extends ChangeNotifier {
   bool get isCurrentVaultSelected => _selectedExistingKeyImportType == ParentExistingKeyImportType.currentVault;
   bool get isMnemonicInputSelected => _selectedExistingKeyImportType == ParentExistingKeyImportType.mnemonicInput;
   bool get isSeedQrScanSelected => _selectedExistingKeyImportType == ParentExistingKeyImportType.seedQrScan;
+  int get progressTotalStep {
+    return _walletTypeProgressStepCount +
+        _parentWalletProgressStepCount +
+        (_usesCurrentVaultParentKey ? _currentVaultSelectionProgressStepCount : 0) +
+        _childWalletImportProgressStepCount +
+        (_usesCreatedChildWallet ? _childKeyPreparationProgressStepCount : 0) +
+        (_usesImportedChildWalletMnemonic ? _childKeyImportOptionProgressStepCount : 0) +
+        (_usesCurrentVaultChildKey ? _childCurrentVaultSelectionProgressStepCount : 0) +
+        (_usesNewChildWalletMnemonic ? _childWalletCreateOptionProgressStepCount : 0);
+  }
+
+  int get _parentWalletProgressStepCount {
+    return switch (_selectedWalletType) {
+      ParentWalletType.multisig => _multisigParentProgressStepCount,
+      ParentWalletType.none || ParentWalletType.singleSig => _singleSigParentProgressStepCount,
+    };
+  }
+
+  bool get _usesCurrentVaultParentKey {
+    return _selectedKeyPreparationType == ParentKeyPreparationType.import &&
+        _selectedExistingKeyImportType == ParentExistingKeyImportType.currentVault;
+  }
+
+  bool get _usesCreatedChildWallet => _selectedChildWalletSetupType == ChildWalletSetupType.create;
+
+  bool get _usesNewChildWalletMnemonic =>
+      _usesCreatedChildWallet && _selectedChildKeyPreparationType == ParentKeyPreparationType.create;
+
+  bool get _usesImportedChildWalletMnemonic =>
+      _usesCreatedChildWallet && _selectedChildKeyPreparationType == ParentKeyPreparationType.import;
+
+  bool get _usesCurrentVaultChildKey =>
+      _usesImportedChildWalletMnemonic &&
+      _selectedChildExistingKeyImportType == ParentExistingKeyImportType.currentVault;
+
   bool get hasSelectedKeyCreationOrImportOption {
     return switch (_selectedKeyPreparationType) {
       ParentKeyPreparationType.create => _selectedNewKeyCreationType != ParentNewKeyCreationType.none,
@@ -71,6 +169,24 @@ class ParentCreationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void setChildExistingKeyImportType(ParentExistingKeyImportType type) {
+    _selectedChildExistingKeyImportType =
+        _selectedChildExistingKeyImportType == type ? ParentExistingKeyImportType.none : type;
+    _selectedChildExistingVaultId = null;
+    notifyListeners();
+  }
+
+  void setSelectedChildExistingVaultId(int vaultId) {
+    _selectedChildExistingVaultId = _selectedChildExistingVaultId == vaultId ? null : vaultId;
+    notifyListeners();
+  }
+
+  void resetChildExistingKeyImportType() {
+    _selectedChildExistingKeyImportType = ParentExistingKeyImportType.none;
+    _selectedChildExistingVaultId = null;
+    notifyListeners();
+  }
+
   void resetSelection(ParentSelectionResetScope scope) {
     if (scope == ParentSelectionResetScope.walletType) {
       _selectedWalletType = ParentWalletType.none;
@@ -88,5 +204,286 @@ class ParentCreationViewModel extends ChangeNotifier {
     _selectedNewKeyCreationType = ParentNewKeyCreationType.none;
     _selectedExistingKeyImportType = ParentExistingKeyImportType.none;
     _selectedExistingVaultId = null;
+  }
+
+  void setChildWalletSetupType(ChildWalletSetupType type) {
+    if (_selectedChildWalletSetupType == type) {
+      return;
+    }
+
+    _selectedChildWalletSetupType = type;
+    _selectedChildKeyPreparationType = ParentKeyPreparationType.none;
+    _selectedChildExistingKeyImportType = ParentExistingKeyImportType.none;
+    _selectedChildExistingVaultId = null;
+    _selectedChildNewKeyCreationType = ParentNewKeyCreationType.none;
+    notifyListeners();
+  }
+
+  void setChildKeyPreparationType(ParentKeyPreparationType type) {
+    _selectedChildKeyPreparationType = _selectedChildKeyPreparationType == type ? ParentKeyPreparationType.none : type;
+    _selectedChildExistingKeyImportType = ParentExistingKeyImportType.none;
+    _selectedChildExistingVaultId = null;
+    _selectedChildNewKeyCreationType = ParentNewKeyCreationType.none;
+    notifyListeners();
+  }
+
+  void setChildNewKeyCreationType(ParentNewKeyCreationType type) {
+    _selectedChildNewKeyCreationType = _selectedChildNewKeyCreationType == type ? ParentNewKeyCreationType.none : type;
+    notifyListeners();
+  }
+
+  void resetChildNewKeyCreationType() {
+    _selectedChildNewKeyCreationType = ParentNewKeyCreationType.none;
+    notifyListeners();
+  }
+
+  void resetChildKeyPreparationType() {
+    _selectedChildKeyPreparationType = ParentKeyPreparationType.none;
+    _selectedChildExistingKeyImportType = ParentExistingKeyImportType.none;
+    _selectedChildExistingVaultId = null;
+    _selectedChildNewKeyCreationType = ParentNewKeyCreationType.none;
+    notifyListeners();
+  }
+
+  void setTimelockDateTime(DateTime dateTime) {
+    _selectedTimelockDateTime = dateTime;
+    notifyListeners();
+  }
+
+  void resetTimelockDateTime() {
+    _selectedTimelockDateTime = null;
+    notifyListeners();
+  }
+
+  void setParentWalletSecret(Uint8List secret, {Uint8List? passphrase}) {
+    _parentSecret.wipe();
+    _parentPassphrase.wipe();
+    _parentSecret = Uint8List.fromList(secret);
+    _parentPassphrase = _copyPassphrase(passphrase);
+    _updateParentWalletInfo();
+    notifyListeners();
+  }
+
+  void setExternalParent({required String signerBsms, required String masterFingerprint}) {
+    TaprootValidator.validateSignerBsms(signerBsms);
+
+    _externalParentSignerBsms = signerBsms;
+    _externalParentMasterFingerprint = masterFingerprint;
+    notifyListeners();
+  }
+
+  void setExternalParentVault(TaprootVault vault) {
+    final keyStore = vault.keyStoreList.first;
+    setExternalParent(
+      signerBsms: TaprootValidator.signerBsmsFromSingleKeyTaprootDescriptor(vault.descriptor),
+      masterFingerprint: keyStore.masterFingerprint,
+    );
+  }
+
+  void setChildWallet({
+    required String descriptor,
+    required String masterFingerprint,
+    required ParentChildWalletSource source,
+    Uint8List? secret,
+    Uint8List? passphrase,
+  }) {
+    _childWalletDescriptor = descriptor;
+    _childWalletMasterFingerprint = masterFingerprint;
+    _childSecret.wipe();
+    _childPassphrase.wipe();
+    _childSecret = secret == null ? Uint8List(0) : Uint8List.fromList(secret);
+    _childPassphrase = _copyPassphrase(passphrase);
+    notifyListeners();
+  }
+
+  ParentChildWalletSetResult trySetChildWallet({
+    required TaprootVault beneficiaryVault,
+    required ParentChildWalletSource source,
+    Uint8List? secret,
+    Uint8List? passphrase,
+  }) {
+    if (isSameAsParentWalletDescriptor(beneficiaryVault.descriptor)) {
+      return ParentChildWalletSetResult.sameAsParent;
+    }
+
+    setChildWallet(
+      descriptor: beneficiaryVault.descriptor,
+      masterFingerprint: beneficiaryVault.keyStoreList.first.masterFingerprint,
+      source: source,
+      secret: secret,
+      passphrase: passphrase,
+    );
+    return ParentChildWalletSetResult.success;
+  }
+
+  void resetChildWallet() {
+    _childWalletDescriptor = null;
+    _childWalletMasterFingerprint = null;
+    _childSecret.wipe();
+    _childPassphrase.wipe();
+    _childSecret = Uint8List(0);
+    _childPassphrase = Uint8List(0);
+    notifyListeners();
+  }
+
+  void resetParentWalletData() {
+    _parentSecret.wipe();
+    _parentPassphrase.wipe();
+    _parentSecret = Uint8List(0);
+    _parentPassphrase = Uint8List(0);
+    _parentWalletQrData = null;
+    _parentMasterFingerprint = null;
+    _externalParentSignerBsms = null;
+    _externalParentMasterFingerprint = null;
+    notifyListeners();
+  }
+
+  bool isSameAsParentWalletDescriptor(String childDescriptor) {
+    final parentDescriptor = _parentWalletQrData;
+    if (parentDescriptor != null &&
+        parentDescriptor.isNotEmpty &&
+        TaprootValidator.hasMatchingExtendedPublicKeyInDescriptors(parentDescriptor, childDescriptor)) {
+      return true;
+    }
+
+    final externalParentSignerBsms = _externalParentSignerBsms;
+    if (externalParentSignerBsms != null &&
+        TaprootValidator.hasMatchingExtendedPublicKeyWithSignerBsms(childDescriptor, externalParentSignerBsms)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  Future<ParentCreationSaveResult> saveVault({
+    required String name,
+    required int iconIndex,
+    required int colorIndex,
+  }) async {
+    TaprootWalletCreateDto? walletCreateDto;
+    try {
+      walletCreateDto = createWalletCreateDto(name: name, iconIndex: iconIndex, colorIndex: colorIndex);
+      final timelineInfo = TaprootVaultCreationTimelineInfo(
+        parentMasterFingerprint: _parentMasterFingerprint,
+        externalParentMasterFingerprint: _externalParentMasterFingerprint,
+        childMasterFingerprint: _childWalletMasterFingerprint,
+      );
+      final vault = await _walletProvider.addTaprootVault(walletCreateDto);
+      resetAllWalletData();
+      return ParentCreationSaveResult(vaultId: vault.id, timelineInfo: timelineInfo);
+    } finally {
+      walletCreateDto?.wipe();
+    }
+  }
+
+  String getWalletSyncString(int walletId) {
+    return _walletProvider.getVaultById(walletId).getWalletSyncString();
+  }
+
+  Future<String?> findSameWalletName() async {
+    final descriptor = await _buildPendingWalletDescriptor();
+    final wallet = _walletProvider.findWalletByDescriptor(descriptor);
+    return wallet?.name;
+  }
+
+  Future<String> _buildPendingWalletDescriptor() async {
+    TaprootWalletCreateDto? walletCreateDto;
+    try {
+      walletCreateDto = createWalletCreateDto(name: '', iconIndex: 0, colorIndex: 0)..id = 0;
+      final result = await compute(WalletIsolates.createTaprootVault, walletCreateDto.toJson());
+      return result.vault.descriptor;
+    } finally {
+      walletCreateDto?.wipe();
+    }
+  }
+
+  TaprootWalletCreateDto createWalletCreateDto({
+    required String name,
+    required int iconIndex,
+    required int colorIndex,
+  }) {
+    final keyPathSeeds = <SeedSource>[];
+    final keyPathSignerBsmses = <String>[];
+    if (_parentSecret.isNotEmpty) {
+      keyPathSeeds.add(
+        SeedSource(mnemonic: Uint8List.fromList(_parentSecret), passphrase: Uint8List.fromList(_parentPassphrase)),
+      );
+    }
+
+    final externalParentSignerBsms = _externalParentSignerBsms;
+    if (externalParentSignerBsms != null) {
+      keyPathSignerBsmses.add(externalParentSignerBsms);
+    }
+
+    if (keyPathSeeds.isEmpty && keyPathSignerBsmses.isEmpty) {
+      throw StateError('Taproot key-path parent wallet is missing');
+    }
+
+    final timelockDateTime = _selectedTimelockDateTime;
+    final childWalletDescriptor = _childWalletDescriptor;
+    if (timelockDateTime == null) {
+      throw StateError('Taproot timelock date is missing');
+    }
+    if (childWalletDescriptor == null) {
+      throw StateError('Taproot child wallet descriptor is missing');
+    }
+
+    final inheritanceLeaves = <InheritanceLeaf>[
+      if (_childSecret.isNotEmpty)
+        InheritanceLeaf(
+          secret: SeedSource(
+            mnemonic: Uint8List.fromList(_childSecret),
+            passphrase: Uint8List.fromList(_childPassphrase),
+          ),
+          lockTime: timelockDateTime.millisecondsSinceEpoch ~/ Duration.millisecondsPerSecond,
+        )
+      else
+        InheritanceLeaf(
+          descriptor: childWalletDescriptor,
+          lockTime: timelockDateTime.millisecondsSinceEpoch ~/ Duration.millisecondsPerSecond,
+        ),
+    ];
+
+    return TaprootWalletCreateDto(
+      null,
+      name,
+      iconIndex,
+      colorIndex,
+      keyPathSeeds.isEmpty ? null : keyPathSeeds,
+      keyPathSignerBsmses.isEmpty ? null : keyPathSignerBsmses,
+      inheritanceLeaves,
+    );
+  }
+
+  void resetAllWalletData() {
+    resetParentWalletData();
+    resetChildWallet();
+    _selectedTimelockDateTime = null;
+  }
+
+  @override
+  void dispose() {
+    _parentSecret.wipe();
+    _parentPassphrase.wipe();
+    _childSecret.wipe();
+    _childPassphrase.wipe();
+    super.dispose();
+  }
+
+  void _updateParentWalletInfo() {
+    if (_parentSecret.isEmpty) {
+      _parentMasterFingerprint = null;
+      _parentWalletQrData = null;
+      return;
+    }
+
+    final seed = Seed.fromMnemonic(_parentSecret, passphrase: _parentPassphrase.isNotEmpty ? _parentPassphrase : null);
+    final keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
+    _parentMasterFingerprint = keyStore.masterFingerprint;
+    _parentWalletQrData = TaprootVault.fromKeyStoreList([keyStore], []).descriptor;
+  }
+
+  Uint8List _copyPassphrase(Uint8List? passphrase) {
+    return passphrase == null ? Uint8List(0) : Uint8List.fromList(passphrase);
   }
 }

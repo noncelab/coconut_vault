@@ -1,6 +1,6 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/core/wallet/wallet_query_service.dart';
-import 'package:coconut_vault/core/wallet/wallet_validator.dart';
+import 'package:coconut_vault/core/wallet/multisig_validator.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/exception/not_related_multisig_wallet_exception.dart';
@@ -75,7 +75,7 @@ class WalletService {
     required int requiredSignatureCount,
     bool isImported = false,
   }) async {
-    WalletValidator.validateSigners(signers);
+    MultisigValidator.validateSigners(signers);
 
     final sanitizedSigners = _query.sanitizeSignerMfp(signers);
 

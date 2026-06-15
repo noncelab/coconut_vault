@@ -1,6 +1,5 @@
-import 'dart:typed_data';
-
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
+import 'dart:typed_data';
 
 enum TaprootCreationType { parent, child }
 
@@ -15,20 +14,22 @@ class TaprootWalletCreationProvider {
   Uint8List get secret => _creationType == TaprootCreationType.parent ? _parentKeyData.secret : _childKeyData.secret;
 
   Uint8List? get passphrase {
-    final pass = _creationType == TaprootCreationType.parent ? _parentKeyData.passphrase : _childKeyData.passphrase;
-    return pass != null && pass.isNotEmpty ? pass : null;
-  }
-
-  void setSecretAndPassphrase(Uint8List secret, Uint8List? passphrase) {
-    if (_creationType == TaprootCreationType.parent) {
-      _parentKeyData = (secret: secret, passphrase: passphrase ?? Uint8List(0));
-    } else {
-      _childKeyData = (secret: secret, passphrase: passphrase ?? Uint8List(0));
-    }
+    final passphrase =
+        _creationType == TaprootCreationType.parent ? _parentKeyData.passphrase : _childKeyData.passphrase;
+    return passphrase != null && passphrase.isNotEmpty ? passphrase : null;
   }
 
   void setCreationType(TaprootCreationType type) {
     _creationType = type;
+  }
+
+  void setSecretAndPassphrase(Uint8List secret, Uint8List? passphrase) {
+    final keyData = (secret: Uint8List.fromList(secret), passphrase: _copyPassphrase(passphrase));
+    if (_creationType == TaprootCreationType.parent) {
+      _parentKeyData = keyData;
+    } else {
+      _childKeyData = keyData;
+    }
   }
 
   void resetSecretAndPassphrase() {
@@ -51,5 +52,9 @@ class TaprootWalletCreationProvider {
     _childKeyData.secret.wipe();
     _childKeyData.passphrase?.wipe();
     _childKeyData = (secret: Uint8List(0), passphrase: Uint8List(0));
+  }
+
+  Uint8List _copyPassphrase(Uint8List? passphrase) {
+    return passphrase == null ? Uint8List(0) : Uint8List.fromList(passphrase);
   }
 }

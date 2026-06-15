@@ -1,5 +1,5 @@
 format:
-	fvm dart format . --line-length 120
+	find . -name "*.dart" -not -path "./coconut_lib/*" | xargs fvm dart format --line-length 120
 
 ready:
 	fvm dart pub run build_runner clean && fvm dart pub run build_runner build --delete-conflicting-outputs && fvm dart pub run slang

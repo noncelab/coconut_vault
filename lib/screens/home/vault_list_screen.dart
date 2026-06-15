@@ -186,7 +186,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       height: 16,
       colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
     );
-    debugPrint('_visibilityProvider.isEnglish: ${_visibilityProvider.isEnglish}');
+    bool isEnglishWordOrder = _visibilityProvider.isEnglishWordOrder;
     return Container(
       width: MediaQuery.sizeOf(context).width,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -198,22 +198,22 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       child: Column(
         children: [
           _buildEditModeHeaderLine([
-            if (_visibilityProvider.isEnglish) ...[
+            if (isEnglishWordOrder) ...[
               TextSpan(text: '${t.select} '),
               WidgetSpan(alignment: PlaceholderAlignment.top, child: starIcon),
               const TextSpan(text: ' '),
             ],
-            if (_visibilityProvider.isKorean) WidgetSpan(alignment: PlaceholderAlignment.top, child: starIcon),
+            if (!isEnglishWordOrder) WidgetSpan(alignment: PlaceholderAlignment.top, child: starIcon),
             TextSpan(text: t.vault_list_screen.edit.star_description),
           ]),
           CoconutLayout.spacing_100h,
           _buildEditModeHeaderLine([
-            if (_visibilityProvider.isEnglish) ...[
+            if (isEnglishWordOrder) ...[
               TextSpan(text: '${t.tap} '),
               WidgetSpan(alignment: PlaceholderAlignment.top, child: hamburgerIcon),
               const TextSpan(text: ' '),
             ],
-            if (_visibilityProvider.isKorean) WidgetSpan(alignment: PlaceholderAlignment.top, child: hamburgerIcon),
+            if (!isEnglishWordOrder) WidgetSpan(alignment: PlaceholderAlignment.top, child: hamburgerIcon),
             TextSpan(text: t.vault_list_screen.edit.order_description),
           ]),
           CoconutLayout.spacing_100h,

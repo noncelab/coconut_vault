@@ -1,14 +1,17 @@
+import 'dart:async';
+
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/extensions/widget_animation_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 
 class TaprootCreationBody extends StatefulWidget {
   static const Duration defaultBottomButtonFadeOutDelay = Duration(milliseconds: 100);
 
-  final VoidCallback? onBottomButtonPressed;
-  final VoidCallback? onBeforeBottomButtonFadeOut;
+  final FutureOr<void> Function()? onBottomButtonPressed;
+  final FutureOr<void> Function()? onBeforeBottomButtonFadeOut;
   final Widget child;
   final Widget? fixedBottomSubWidget;
   final String? bottomButtonText;
@@ -19,6 +22,9 @@ class TaprootCreationBody extends StatefulWidget {
   final bool ignoreChildHorizontalPadding;
   final bool showHeader;
   final bool scrollChild;
+  final bool runBottomButtonActionWithoutTransition;
+  final bool keepHeaderVisibleDuringTransition;
+  final bool animateHeader;
 
   const TaprootCreationBody({
     super.key,
@@ -34,6 +40,9 @@ class TaprootCreationBody extends StatefulWidget {
     this.ignoreChildHorizontalPadding = false,
     this.showHeader = true,
     this.scrollChild = true,
+    this.runBottomButtonActionWithoutTransition = false,
+    this.keepHeaderVisibleDuringTransition = false,
+    this.animateHeader = true,
   });
 
   @override
@@ -106,12 +115,33 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
       return;
     }
 
+    if (widget.runBottomButtonActionWithoutTransition) {
+      await onBottomButtonPressed();
+      return;
+    }
+
     setState(() {
       _isContentTransitioning = true;
     });
     final transitionGeneration = ++_transitionGeneration;
 
-    widget.onBeforeBottomButtonFadeOut?.call();
+    try {
+      await widget.onBeforeBottomButtonFadeOut?.call();
+    } on UserCanceledAuthException {
+      if (mounted && transitionGeneration == _transitionGeneration) {
+        setState(() {
+          _isContentTransitioning = false;
+        });
+      }
+      return;
+    } catch (_) {
+      if (mounted && transitionGeneration == _transitionGeneration) {
+        setState(() {
+          _isContentTransitioning = false;
+        });
+      }
+      rethrow;
+    }
 
     await Future<void>.delayed(widget.bottomButtonFadeOutDelay);
     if (!mounted || transitionGeneration != _transitionGeneration) {
@@ -120,7 +150,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
 
     setState(() {
       _isContentVisible = false;
-      _isHeaderFadingOut = true;
+      _isHeaderFadingOut = !widget.keepHeaderVisibleDuringTransition;
     });
 
     await Future<void>.delayed(_fadeOutWaitDuration);
@@ -130,7 +160,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
 
     _isApplyingBottomButtonAction = true;
     try {
-      onBottomButtonPressed();
+      await onBottomButtonPressed();
       await WidgetsBinding.instance.endOfFrame;
     } finally {
       _isApplyingBottomButtonAction = false;
@@ -158,12 +188,20 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   }
 
   Duration get _fadeOutWaitDuration {
+    if (widget.keepHeaderVisibleDuringTransition) {
+      return _contentFadeOutDuration;
+    }
+
     final lines = _displayedTitleLines.length;
     final headerDuration = _headerLineFadeOutDuration * lines;
     return headerDuration > _contentFadeOutDuration ? headerDuration : _contentFadeOutDuration;
   }
 
   Duration get _fadeInWaitDuration {
+    if (widget.keepHeaderVisibleDuringTransition) {
+      return _contentFadeInDuration;
+    }
+
     final lines = _displayedTitleLines.length;
     final headerDuration = _headerInitialDelay + (_headerLineFadeInDuration * lines);
     return headerDuration > _contentFadeInDuration ? headerDuration : _contentFadeInDuration;
@@ -278,6 +316,10 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   Widget _buildAnimatedErrorIcon(String text) {
     const icon = Icon(Icons.warning_amber_rounded, color: CoconutColors.warningText, size: 28);
 
+    if (!widget.animateHeader) {
+      return icon;
+    }
+
     if (_isHeaderFadingOut) {
       return icon.fadeOutAnimation(
         key: ValueKey('taproot-creation-header-icon-out-$text'),
@@ -309,6 +351,10 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
   Widget _buildAnimatedTitleLine(TextSpan line, int index, TextStyle defaultTextStyle, String titleKey) {
     final text = line.toPlainText();
     final textStyle = defaultTextStyle.merge(line.style);
+
+    if (!widget.animateHeader) {
+      return Text.rich(TextSpan(text: text, style: textStyle), textAlign: TextAlign.center);
+    }
 
     if (_isHeaderFadingOut) {
       return text.characterFadeOutAnimation(
