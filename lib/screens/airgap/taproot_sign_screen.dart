@@ -618,7 +618,7 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
       ),
     );
   }
-  
+
   /// 두 번째 Signer의 PSBT 스캔 콜백 핸들러
   Future<void> _handleSecondSignerPsbtScanned(String scannedData) async {
     assert(_pendingSeed != null, '_pendingSeed must be set in _runSignFlowAsFirstSigner');
@@ -629,15 +629,9 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
       if (mounted) Navigator.pop(context);
     } catch (e) {
       setState(() => _showLoading = false);
-      final title = e is FormatException
-          ? t.taproot_sign_screen.exceptions.update_sign_fail
-          : t.errors.sign_failed;
+      final title = e is FormatException ? t.taproot_sign_screen.exceptions.update_sign_fail : t.errors.sign_failed;
       if (mounted) {
-        await showAlertDialog(
-          context: context,
-          title: title,
-          content: e is FormatException ? e.message : e.toString(),
-        );
+        await showAlertDialog(context: context, title: title, content: e is FormatException ? e.message : e.toString());
       }
     }
   }
@@ -688,23 +682,19 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
         appBarTitle: t.taproot_sign_screen.musig2_sign.appbar_title.sign_with_other_signer,
         buttonText: t.next,
         onButtonPressed: (navigator) {
-          navigator.push(
-            MaterialPageRoute(
-              builder: (_) => _buildSecondSignerScanner(),
-            ),
-          );
+          navigator.push(MaterialPageRoute(builder: (_) => _buildSecondSignerScanner()));
         },
       );
-      _pendingSeed?.wipe();
-      _pendingSeed = null;
-      await _checkCompletedAndGoNext();
+      final isCompleted = await _checkCompletedAndGoNext();
+      if (isCompleted) {
+        _pendingSeed?.wipe();
+        _pendingSeed = null;
+      }
     } catch (error) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: error));
       }
     } finally {
-      _pendingSeed?.wipe();
-      _pendingSeed = null;
       if (mounted) setState(() => _showLoading = false);
     }
   }
@@ -733,7 +723,6 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
       if (mounted) setState(() => _showLoading = false);
     }
   }
-
 
   List<TextSpan> _getMusig2GuideTextSpan() {
     final session = _viewModel.musig2SignSession;
