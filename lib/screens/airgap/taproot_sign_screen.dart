@@ -509,7 +509,6 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
     bool shouldPopBeforeNavigate = false,
     bool isMusig2SecondSigner = false,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 100));
     if (!_viewModel.isSignatureCompleted) return false;
 
     if (shouldPopBeforeNavigate) {
