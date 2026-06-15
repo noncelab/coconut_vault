@@ -20,6 +20,7 @@ class TaprootParticipantCard extends StatelessWidget {
   final String mfp;
   final String derivationPath;
   final int? locktime;
+  final bool useNewline;
   final VoidCallback? onTap;
 
   const TaprootParticipantCard({
@@ -35,8 +36,42 @@ class TaprootParticipantCard extends StatelessWidget {
     required this.mfp,
     required this.derivationPath,
     this.locktime,
+    this.useNewline = false,
     this.onTap,
   });
+
+  TaprootParticipantCard copyWith({
+    TaprootParticipantRole? role,
+    bool? isMine,
+    bool? isValid,
+    bool? hasSingleParent,
+    bool? hasBackgroundColor,
+    bool? showRoleWidget,
+    bool? showLockStatusIcon,
+    String? walletName,
+    String? mfp,
+    String? derivationPath,
+    int? locktime,
+    bool? useNewline,
+    VoidCallback? onTap,
+  }) {
+    return TaprootParticipantCard(
+      key: key,
+      role: role ?? this.role,
+      isMine: isMine ?? this.isMine,
+      isValid: isValid ?? this.isValid,
+      hasSingleParent: hasSingleParent ?? this.hasSingleParent,
+      hasBackgroundColor: hasBackgroundColor ?? this.hasBackgroundColor,
+      showRoleWidget: showRoleWidget ?? this.showRoleWidget,
+      showLockStatusIcon: showLockStatusIcon ?? this.showLockStatusIcon,
+      walletName: walletName ?? this.walletName,
+      mfp: mfp ?? this.mfp,
+      derivationPath: derivationPath ?? this.derivationPath,
+      locktime: locktime ?? this.locktime,
+      useNewline: useNewline ?? this.useNewline,
+      onTap: onTap ?? this.onTap,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +239,8 @@ class TaprootParticipantCard extends StatelessWidget {
     }
 
     final dateTime = DateTime.fromMillisecondsSinceEpoch(_toMilliseconds(locktime));
-    final formattedDateTime = DateFormat('yyyy.MM.dd\nHH:mm').format(dateTime);
+    final pattern = useNewline ? 'yyyy.MM.dd\nHH:mm' : 'yyyy.MM.dd HH:mm';
+    final formattedDateTime = DateFormat(pattern).format(dateTime);
 
     return t.taproot.participant_card.locktime_after(dateTime: formattedDateTime);
   }
