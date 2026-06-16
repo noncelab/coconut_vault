@@ -15,6 +15,7 @@ import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/taproot/child_creation_overlays.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/parent_creation_completion_steps.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/parent_creation_overlays.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
@@ -1382,7 +1383,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return;
     }
 
-    final confirmed = await ParentCreationOverlays.showCurrentVaultConfirmDialog(context);
+    final confirmed = await ChildCreationOverlays.showCurrentVaultConfirmDialog(context);
     if (confirmed == true && mounted) {
       _proceedWithSelectedChildVault();
     }
