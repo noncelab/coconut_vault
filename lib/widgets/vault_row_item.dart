@@ -154,8 +154,8 @@ class _VaultRowItemState extends State<VaultRowItem> {
       final taproot = vault as TaprootVaultListItem;
       subtitleText = taproot.isParent ? t.taproot.parent_wallet : t.taproot.child_wallet;
       final baseColors = [
-        CoconutColors.lightSky.withValues(alpha: 0.2),
-        CoconutColors.periwinkle.withValues(alpha: 0.2),
+        CoconutColors.lightSky.withValues(alpha: 0.5),
+        CoconutColors.periwinkle.withValues(alpha: 0.5),
       ];
       taprootGradientColors = taproot.isParent ? baseColors.reversed.toList() : baseColors;
     }
