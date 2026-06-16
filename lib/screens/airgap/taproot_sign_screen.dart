@@ -47,6 +47,7 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
   // step == localNonceCreated(재진입) 시에는 _getSeed() 재호출 없이 이 값을 재사용.
   Seed? _pendingSeed;
   bool _isCupertinoLoadingShown = false;
+  bool _isFinalizeLoadingDialogShown = false;
   String _cupertinoLoadingMessage = '';
 
   @override
@@ -624,15 +625,42 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
 
     try {
       setState(() => _showLoading = true);
+      _showFinalizeLoadingDialog();
       await _viewModel.musig2FirstSignerFinalize(scannedData, _pendingSeed!);
+      _hideFinalizeLoadingDialog();
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      setState(() => _showLoading = false);
       final title = e is FormatException ? t.taproot_sign_screen.exceptions.update_sign_fail : t.errors.sign_failed;
       if (mounted) {
+        _hideFinalizeLoadingDialog();
+        setState(() => _showLoading = false);
         await showAlertDialog(context: context, title: title, content: e is FormatException ? e.message : e.toString());
       }
+    } finally {
+      _hideFinalizeLoadingDialog();
+      if (mounted) setState(() => _showLoading = false);
     }
+  }
+
+  void _showFinalizeLoadingDialog() {
+    if (!mounted || _isFinalizeLoadingDialogShown) return;
+    _isFinalizeLoadingDialogShown = true;
+
+    showDialog<void>(
+      context: context,
+      useRootNavigator: true,
+      barrierDismissible: false,
+      barrierColor: CoconutColors.black.withValues(alpha: 0.3),
+      builder: (_) => const PopScope(canPop: false, child: Center(child: CoconutCircularIndicator())),
+    ).then((_) {
+      _isFinalizeLoadingDialogShown = false;
+    });
+  }
+
+  void _hideFinalizeLoadingDialog() {
+    if (!mounted || !_isFinalizeLoadingDialogShown) return;
+    Navigator.of(context, rootNavigator: true).pop();
+    _isFinalizeLoadingDialogShown = false;
   }
 
   /// 두 번째 Signer의 PSBT 스캔 화면 생성
