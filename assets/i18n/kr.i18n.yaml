@@ -555,8 +555,13 @@ taproot:
     taproot_single_sig_wallet: "탭루트 단일 서명 지갑"
     mfp: "MFP"
   sync_qr_screen:
-    title: "다른 볼트와 공유하기"
+    title: "다른 볼트로 내보내기"
     description: "다른 볼트에서 이 지갑을 사용할 수 있도록 공유합니다."
+    coconut_vault: "코코넛 볼트 "
+    guide:
+      coconut: "홈 화면에서 지갑 추가 아이콘 "
+      inheritance: "탭루트 상속 지갑 → 준비된 상속 지갑이 있습니다"
+      common: "아래 QR 코드를 스캔해 주세요."
   taproot_creation_option:
     parent_creation_title: "저는 부모입니다"
     parent_creation_description: "사용하려는 지갑에 상속 조건을 함께 준비할게요"

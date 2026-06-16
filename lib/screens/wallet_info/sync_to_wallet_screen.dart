@@ -30,6 +30,7 @@ class SyncToWalletScreen extends StatefulWidget {
 class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   late String _name;
   late bool _isMultisig;
+  late bool _isTaproot;
   bool _isDerivationPathTapped = false;
 
   @override
@@ -38,6 +39,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
     final walletProvider = Provider.of<WalletProvider>(context, listen: false);
     final vaultListItem = walletProvider.getVaultById(widget.id);
     _isMultisig = vaultListItem.vaultType == WalletType.multiSignature;
+    _isTaproot = vaultListItem.vaultType == WalletType.taproot;
     _name = vaultListItem.name;
   }
 
@@ -205,6 +207,9 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
         const TextSpan(text: '\n1. '),
         TextSpan(text: t.select),
         em(t.sync_to_wallet_screen.guide.coconut),
+        const TextSpan(text: '\n2. '),
+        TextSpan(text: t.select),
+        em(t.taproot.sync_qr_screen.coconut_vault),
         const TextSpan(text: '\n'),
         TextSpan(text: t.sync_to_wallet_screen.guide.common),
       ];
@@ -213,6 +218,9 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
       em(t.watch_only_options.coconut_wallet),
       const TextSpan(text: '\n1. '),
       em(t.sync_to_wallet_screen.guide.coconut),
+      TextSpan(text: t.select),
+      const TextSpan(text: '\n2. '),
+      em(t.taproot.sync_qr_screen.coconut_vault),
       TextSpan(text: t.select),
       const TextSpan(text: '\n'),
       TextSpan(text: t.sync_to_wallet_screen.guide.common),

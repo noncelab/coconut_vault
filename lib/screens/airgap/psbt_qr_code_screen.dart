@@ -47,13 +47,10 @@ class _PsbtQrCodeScreenState extends State<PsbtQrCodeScreen> {
       borderRadius: CoconutBorder.defaultRadius,
       child: Scaffold(
         backgroundColor: CoconutColors.white,
-        appBar: widget.appBarTitle != null
-            ? CoconutAppBar.build(
-                context: context,
-                title: widget.appBarTitle!,
-                isBottom: true,
-              )
-            : null,
+        appBar:
+            widget.appBarTitle != null
+                ? CoconutAppBar.build(context: context, title: widget.appBarTitle!, isBottom: true)
+                : null,
         body: SafeArea(
           child: Stack(
             children: [
@@ -68,10 +65,7 @@ class _PsbtQrCodeScreenState extends State<PsbtQrCodeScreen> {
                         context,
                         richText: RichText(
                           text: TextSpan(
-                            style: CoconutTypography.body2_14.copyWith(
-                              height: 1.2,
-                              color: CoconutColors.black,
-                            ),
+                            style: CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black),
                             children: widget.guideRichText,
                           ),
                         ),
@@ -92,10 +86,7 @@ class _PsbtQrCodeScreenState extends State<PsbtQrCodeScreen> {
                   ),
                 ),
               ),
-              FixedBottomButton(
-                onButtonClicked: widget.onButtonPressed,
-                text: widget.buttonText,
-              ),
+              FixedBottomButton(onButtonClicked: widget.onButtonPressed, text: widget.buttonText),
             ],
           ),
         ),

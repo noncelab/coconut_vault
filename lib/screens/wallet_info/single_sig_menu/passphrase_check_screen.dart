@@ -258,7 +258,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
       }
       secret = await walletProvider.getTaprootSecret(
         widget.id,
-        TaprootSeedKeyIdentifier(extendedPublicKey: widget.targetXpub!)
+        TaprootSeedKeyIdentifier(extendedPublicKey: widget.targetXpub!),
       );
     } else {
       secret = await walletProvider.getSecret(widget.id);

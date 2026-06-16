@@ -554,8 +554,13 @@ taproot:
     taproot_single_sig_wallet: "Taproot Single Signature Wallet"
     mfp: "MFP"
   sync_qr_screen:
-    title: "Share with Other Vaults"
+    title: "Export to another vault"
     description: "Share this wallet so it can be used on other vaults."
+    coconut_vault: " Coconut Vault"
+    guide:
+      coconut: " the Add Wallet icon on the home screen"
+      inheritance: "Taproot Inheritance Wallet → An inheritance wallet is ready"
+      common: "Please scan the QR code below."
   taproot_creation_option:
     parent_creation_title: "I am a parent"
     parent_creation_description: "I'll set up inheritance conditions for my wallet"
