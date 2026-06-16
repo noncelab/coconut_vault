@@ -101,7 +101,7 @@ class _CopyTextContainerState extends State<CopyTextContainer> {
             Expanded(
               child:
                   widget.textRichText != null
-                      ? RichText(text: widget.textRichText!.text)
+                      ? RichText(text: _applyTextColor(widget.textRichText!.text, _textColor))
                       : Text(
                         widget.text,
                         textAlign: widget.textAlign ?? TextAlign.start,
@@ -125,6 +125,23 @@ class _CopyTextContainerState extends State<CopyTextContainer> {
           ],
         ),
       ),
+    );
+  }
+
+  InlineSpan _applyTextColor(InlineSpan span, Color color) {
+    if (span is! TextSpan) return span;
+
+    return TextSpan(
+      text: span.text,
+      children: span.children?.map((child) => _applyTextColor(child, color)).toList(),
+      style: (span.style ?? const TextStyle()).copyWith(color: color),
+      recognizer: span.recognizer,
+      mouseCursor: span.mouseCursor,
+      onEnter: span.onEnter,
+      onExit: span.onExit,
+      semanticsLabel: span.semanticsLabel,
+      locale: span.locale,
+      spellOut: span.spellOut,
     );
   }
 }

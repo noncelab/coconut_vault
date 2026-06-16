@@ -10,10 +10,11 @@ class CustomTooltip {
     bool isBackgroundWhite = true,
     double paddingTop = 4,
     Color? backgroundColor,
-    Color? borderColor
+    Color? borderColor,
+    EdgeInsets? padding,
   }) {
     return Padding(
-      padding: EdgeInsets.only(top: paddingTop, left: 16, right: 16),
+      padding: padding ?? EdgeInsets.only(top: paddingTop, left: 16, right: 16),
       child: CoconutToolTip(
         backgroundColor: backgroundColor ?? (isBackgroundWhite ? CoconutColors.gray150 : CoconutColors.gray100),
         borderColor: borderColor ?? (isBackgroundWhite ? Colors.transparent : CoconutColors.gray400),

@@ -28,11 +28,15 @@ class _SignerBsmsQrScreenState extends State<SignerBsmsQrScreen> {
         builder: (context, viewModel, child) {
           return Stack(
             children: [
-              QrWithCopyTextScreen(
-                title: viewModel.name,
-                qrData: viewModel.qrData,
-                tooltipDescription: _buildDescription(),
-                textRichText: _getCopyTextRichText(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                color: CoconutColors.white,
+                child: QrWithCopyTextScreen(
+                  title: viewModel.name,
+                  qrData: viewModel.qrData,
+                  tooltipDescription: _buildDescription(),
+                  textRichText: _getCopyTextRichText(),
+                ),
               ),
               Visibility(
                 visible: viewModel.isLoading,
@@ -59,6 +63,7 @@ class _SignerBsmsQrScreenState extends State<SignerBsmsQrScreen> {
           children: _getTooltipRichText(),
         ),
       ),
+      padding: const EdgeInsets.only(top: 4),
     );
   }
 

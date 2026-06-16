@@ -1,16 +1,20 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
+import 'package:coconut_vault/widgets/animated_qr/view_data_handler/i_qr_view_data_handler.dart';
 import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
 
 class QrWithCopyTextScreen extends StatefulWidget {
   final String title;
   final Widget? tooltipDescription;
-  final String qrData;
+  final String? qrData;
+  final IQrViewDataHandler? qrViewDataHandler;
+  final String? textData;
   final Map<String, String>? qrDataMap;
   final Map<String, String>? textDataMap;
   final RichText? textRichText;
+  final Widget? derivationPathSection;
   final Widget? footer;
   final bool showPulldownMenu;
 
@@ -19,9 +23,12 @@ class QrWithCopyTextScreen extends StatefulWidget {
     required this.title,
     this.tooltipDescription,
     required this.qrData,
+    this.qrViewDataHandler,
+    this.textData,
     this.qrDataMap,
     this.textDataMap,
     this.textRichText,
+    this.derivationPathSection,
     this.footer,
     this.showPulldownMenu = false,
   });
@@ -56,7 +63,7 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
     return MediaQuery.of(context).size.width * 0.76;
   }
 
-  String get _currentQrData {
+  String? get _currentQrData {
     if (!widget.showPulldownMenu) {
       return widget.qrData;
     }
@@ -70,7 +77,7 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
 
   String get _currentTextData {
     if (!widget.showPulldownMenu) {
-      return widget.qrData;
+      return widget.textData ?? widget.qrData ?? '';
     }
 
     if (widget.textDataMap != null && widget.textDataMap!.containsKey(_selectedKey)) {
@@ -81,7 +88,7 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
       return widget.qrDataMap![_selectedKey]!;
     }
 
-    return widget.qrData;
+    return widget.qrData ?? '';
   }
 
   void _showDropdownMenu() {
@@ -129,7 +136,7 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
 
                         backgroundColor: CoconutColors.white,
                         borderRadius: 8,
-                        shadowColor: CoconutColors.black.withOpacity(0.1),
+                        shadowColor: CoconutColors.black.withValues(alpha: 0.1),
                         isSelectedItemBold: true,
                         buttonPadding: const EdgeInsets.only(right: 16, left: 16),
                       ),
@@ -168,6 +175,7 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
           child: Column(
             children: [
               if (widget.tooltipDescription != null) ...[widget.tooltipDescription!],
+              if (widget.derivationPathSection != null) ...[CoconutLayout.spacing_500h, widget.derivationPathSection!],
               if (widget.showPulldownMenu)
                 Align(
                   alignment: Alignment.centerRight,
@@ -199,7 +207,7 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     CoconutLayout.spacing_300h,
-                    AdaptiveQrImage(qrData: displayQrData),
+                    AdaptiveQrImage(qrData: displayQrData, qrViewDataHandler: widget.qrViewDataHandler),
                     CoconutLayout.spacing_500h,
                     _buildCopyButton(displayTextData, qrWidth),
                     CoconutLayout.spacing_1500h,

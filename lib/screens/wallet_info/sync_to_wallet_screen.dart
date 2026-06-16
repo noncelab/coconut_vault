@@ -8,9 +8,8 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/account_number_settings_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/passphrase_check_bottom_sheet.dart';
-import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
-import 'package:coconut_vault/widgets/button/copy_text_container.dart';
+import 'package:coconut_vault/widgets/qr_with_copy_text.dart';
 import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/tooltip_description.dart';
 import 'package:flutter/foundation.dart';
@@ -44,8 +43,6 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final qrSize = MediaQuery.of(context).size.width * 0.8;
-
     return ChangeNotifierProvider<WalletToSyncViewModel>(
       create: (context) {
         final viewModel = WalletToSyncViewModel(widget.id, context.read<WalletProvider>());
@@ -54,33 +51,21 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
       },
       child: Builder(
         builder: (providerContext) {
-          final qrDataString = providerContext.watch<WalletToSyncViewModel>().qrDataString;
-          return Scaffold(
-            backgroundColor: CoconutColors.white,
-            appBar: CoconutAppBar.build(
+          final viewModel = providerContext.watch<WalletToSyncViewModel>();
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            color: CoconutColors.white,
+            child: QrWithCopyTextScreen(
               title: t.sync_to_wallet_screen.title(name: _name),
-              onBackPressed: () => Navigator.pop(context),
-              context: context,
-            ),
-            body: SafeArea(
-              child: SingleChildScrollView(
-                child: Container(
-                  width: double.infinity,
-                  color: CoconutColors.white,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      _buildGuideTooltip(),
-                      const SizedBox(height: 20),
-                      _buildDerivationPathSection(providerContext),
-                      const SizedBox(height: 20),
-                      _buildQrSection(),
-                      const SizedBox(height: 32),
-                      _buildCopyTextSection(qrDataString, qrSize),
-                    ],
-                  ),
-                ),
-              ),
+              tooltipDescription: _buildGuideTooltip(),
+              derivationPathSection:
+                  viewModel.derivationPath.isNotEmpty ? _buildDerivationPathSection(providerContext) : null,
+              qrData: viewModel.qrData.type == QrType.single ? viewModel.qrData.data : null,
+              qrViewDataHandler:
+                  viewModel.qrData.type != QrType.single
+                      ? BcUrQrViewHandler(viewModel.qrData.data, viewModel.urType)
+                      : null,
+              textData: viewModel.qrDataString,
             ),
           );
         },
@@ -99,6 +84,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
           children: _getGuideTextSpan(),
         ),
       ),
+      padding: const EdgeInsets.only(top: 4),
     );
   }
 
@@ -147,29 +133,6 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildQrSection() {
-    return Consumer<WalletToSyncViewModel>(
-      builder: (context, vm, child) {
-        return AdaptiveQrImage(
-          key: ValueKey(vm.qrData.data),
-          qrData: vm.qrData.type == QrType.single ? vm.qrData.data : null,
-          qrViewDataHandler: vm.qrData.type != QrType.single ? BcUrQrViewHandler(vm.qrData.data, vm.urType) : null,
-        );
-      },
-    );
-  }
-
-  Widget _buildCopyTextSection(String qrData, double qrWidth) {
-    return SizedBox(
-      width: qrWidth,
-      child: CopyTextContainer(
-        text: qrData,
-        textStyle: CoconutTypography.body2_14_Number,
-        toastMsg: t.toast.clipboard_copied,
-      ),
     );
   }
 
