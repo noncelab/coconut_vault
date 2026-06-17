@@ -1511,15 +1511,21 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       taprootWalletCreationProvider.secret,
       passphrase: taprootWalletCreationProvider.passphrase,
     );
-    final childKeyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
-    final childVault = TaprootVault.fromKeyStoreList([childKeyStore], []);
-    if (_onChildWalletImported(
-      childVault,
-      source: ParentChildWalletSource.created,
-      secret: taprootWalletCreationProvider.secret,
-      passphrase: taprootWalletCreationProvider.passphrase,
-    )) {
-      _isCreatingChildWallet = false;
+    KeyStore? childKeyStore;
+    try {
+      childKeyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
+      final childVault = TaprootVault.fromKeyStoreList([childKeyStore], []);
+      if (_onChildWalletImported(
+        childVault,
+        source: ParentChildWalletSource.created,
+        secret: taprootWalletCreationProvider.secret,
+        passphrase: taprootWalletCreationProvider.passphrase,
+      )) {
+        _isCreatingChildWallet = false;
+      }
+    } finally {
+      childKeyStore?.wipeSeed();
+      seed.wipe();
     }
   }
 
