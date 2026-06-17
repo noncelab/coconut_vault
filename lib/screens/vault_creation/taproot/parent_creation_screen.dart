@@ -1736,7 +1736,9 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
     try {
       _viewModel.setExternalParentVault(importedParent);
-      setState(() {});
+      await _waitForBottomSheetDismissAnimation();
+      if (!mounted) return;
+      _showMultisigParentExportBottomSheet();
     } on NetworkMismatchException catch (e) {
       await ParentCreationOverlays.showParentScanErrorDialog(
         context: context,
@@ -1750,6 +1752,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         description: t.errors.invalid_qr,
       );
     }
+  }
+
+  Future<void> _waitForBottomSheetDismissAnimation() {
+    return Future.delayed(const Duration(milliseconds: 250));
   }
 
   Future<bool?> _showSameParentWalletDialog() {

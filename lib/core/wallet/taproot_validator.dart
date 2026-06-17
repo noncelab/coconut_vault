@@ -119,21 +119,6 @@ class TaprootValidator {
     return TaprootVault.fromDescriptor(trimmedDescriptor);
   }
 
-  static String signerBsmsFromSingleKeyTaprootDescriptor(String descriptor) {
-    final vault = parseTaprootDescriptor(descriptor);
-    if (vault.keyStoreList.length != 1) {
-      throw FormatException('Single-key Taproot descriptor is required: ${vault.keyStoreList.length}');
-    }
-
-    final keyStore = vault.keyStoreList.first;
-    return Bsms.fromSigner(
-      keyStore.masterFingerprint,
-      vault.derivationPath.replaceAll('m/', ''),
-      keyStore.extendedPublicKey.serialize(),
-      '',
-    ).serializeSigner();
-  }
-
   static String _normalizeDerivationPath(String path) {
     return path.trim().replaceAll('h', "'").replaceFirst(RegExp(r'^m/'), '');
   }

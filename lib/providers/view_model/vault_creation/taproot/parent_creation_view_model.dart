@@ -267,15 +267,31 @@ class ParentCreationViewModel extends ChangeNotifier {
   void setExternalParent({required String signerBsms, required String masterFingerprint}) {
     TaprootValidator.validateSignerBsms(signerBsms);
 
+    _setExternalParent(signerBsms: signerBsms, masterFingerprint: masterFingerprint);
+  }
+
+  void _setExternalParent({required String signerBsms, required String masterFingerprint}) {
     _externalParentSignerBsms = signerBsms;
     _externalParentMasterFingerprint = masterFingerprint;
     notifyListeners();
   }
 
   void setExternalParentVault(TaprootVault vault) {
+    if (vault.keyStoreList.length != 1) {
+      throw FormatException('Single-key Taproot descriptor is required: ${vault.keyStoreList.length}');
+    }
+
     final keyStore = vault.keyStoreList.first;
-    setExternalParent(
-      signerBsms: TaprootValidator.signerBsmsFromSingleKeyTaprootDescriptor(vault.descriptor),
+    TaprootValidator.validateSignerDerivationPath(vault.derivationPath);
+
+    _setExternalParent(
+      signerBsms:
+          Bsms.fromSigner(
+            keyStore.masterFingerprint,
+            vault.derivationPath.replaceAll('m/', ''),
+            keyStore.extendedPublicKey.serialize(),
+            '',
+          ).serializeSigner(),
       masterFingerprint: keyStore.masterFingerprint,
     );
   }
