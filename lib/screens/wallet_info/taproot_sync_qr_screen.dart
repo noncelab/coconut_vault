@@ -17,7 +17,7 @@ class TaprootSyncQrScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => TaprootSyncQrViewModel(Provider.of<WalletProvider>(context, listen: false), id),
+      create: (context) => TaprootSyncQrViewModel(context.read<WalletProvider>(), id),
       child: Consumer<TaprootSyncQrViewModel>(
         builder: (context, viewModel, child) {
           return Container(
@@ -69,7 +69,7 @@ class TaprootSyncQrScreen extends StatelessWidget {
       const TextSpan(text: '\n2. '),
       TextSpan(text: t.taproot.sync_qr_screen.guide.inheritance),
       const TextSpan(text: '\n'),
-      TextSpan(text: t.sync_to_wallet_screen.guide.common),
+      TextSpan(text: t.taproot.sync_qr_screen.guide.common),
     ];
   }
 }

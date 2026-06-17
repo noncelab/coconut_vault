@@ -30,7 +30,6 @@ class SyncToWalletScreen extends StatefulWidget {
 class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   late String _name;
   late bool _isMultisig;
-  late bool _isTaproot;
   bool _isDerivationPathTapped = false;
 
   @override
@@ -39,7 +38,6 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
     final walletProvider = Provider.of<WalletProvider>(context, listen: false);
     final vaultListItem = walletProvider.getVaultById(widget.id);
     _isMultisig = vaultListItem.vaultType == WalletType.multiSignature;
-    _isTaproot = vaultListItem.vaultType == WalletType.taproot;
     _name = vaultListItem.name;
   }
 
