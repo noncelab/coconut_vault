@@ -345,7 +345,7 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
               final bool isMine = beneficiary.isSeedStored;
               final locktime = beneficiary.lockTime;
               final bool isLocktimeNotPassed = DateTime.now().isBefore(
-                DateTime.fromMillisecondsSinceEpoch(locktime >= 1000000000000 ? locktime : locktime * 1000),
+                DateTime.fromMillisecondsSinceEpoch(locktime * 1000),
               );
 
               return TaprootParticipantCard(
@@ -355,7 +355,8 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
                 walletName: beneficiary.isSeedStored ? vault.name : null,
                 locktime: beneficiary.lockTime,
                 isMine: isMine && !hasStoredOwnerSeed,
-                hasBackgroundColor: isMine || isLocktimeNotPassed,
+                hasBackgroundColor: isMine,
+                showLockStatusIcon: isLocktimeNotPassed,
               );
             }),
           ];

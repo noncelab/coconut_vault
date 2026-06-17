@@ -208,6 +208,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   }
 
   bool _shouldScrollChild(TaprootImportStep step) {
+    print('--> _shouldScrollChild: $step');
     return switch (step) {
       TaprootImportStep.scanner || TaprootImportStep.importWallet => false,
       _ => true,
@@ -926,7 +927,12 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
                       child:
                           _isProgressPaused
                               ? _getBodyList(_currentStepType).first
-                              : Column(children: _getBodyList(_currentStepType)),
+                              : Column(
+                                children: [
+                                  ..._getBodyList(_currentStepType),
+                                  const SizedBox(height: FixedBottomTweenButton.fixedBottomButtonDefaultHeight),
+                                ],
+                              ),
                     ),
                     TopProgressBar(
                       visible: !_isProgressPaused,

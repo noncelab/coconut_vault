@@ -246,9 +246,6 @@ class TaprootParticipantCard extends StatelessWidget {
   }
 
   int _toMilliseconds(int locktime) {
-    if (locktime >= 1000000000000) {
-      return locktime;
-    }
     return locktime * 1000;
   }
 }
