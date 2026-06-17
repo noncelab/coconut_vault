@@ -1785,9 +1785,17 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return;
     }
 
-    if (_currentStep == _multisigParentImportStep || _currentStep == _multisigParentListStep) {
+    if (_currentStep == _multisigParentImportStep) {
       _showParentWalletResetDialog();
       return;
+    }
+
+    if (_currentStep == _multisigParentListStep) {
+      final externalParentMasterFingerprint = _viewModel.externalParentMasterFingerprint;
+      if (externalParentMasterFingerprint != null) {
+        _showParentWalletResetDialog();
+        return;
+      }
     }
 
     _returnToPreviousStep();
