@@ -1103,6 +1103,7 @@ sync_to_wallet_screen:
       guide3_1: "Scan or import a file"
     common: "Scan the QR code below."
 taproot_vault_detail_screen:
+  signer: "I am the signer of this wallet. I can use this wallet regularly."
   cosigner: "I am a cosigner of this wallet. I must sign along with other cosigners to spend the assets."
   heir: "I am the heir to this wallet. I can access the assets after the preset timelock expires."
 

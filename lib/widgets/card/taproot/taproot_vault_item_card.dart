@@ -20,10 +20,19 @@ class _TaprootVaultItemCardState extends State<TaprootVaultItemCard> {
   @override
   Widget build(BuildContext context) {
     assert(widget.vaultItem is TaprootVaultListItem, 'vaultItem must be of type TaprootVaultListItem');
-    final bool isParent = (widget.vaultItem as TaprootVaultListItem).isParent;
+    final TaprootVaultListItem taprootVault = widget.vaultItem as TaprootVaultListItem;
+    final bool isParent = taprootVault.isParent;
 
-    //TODO: 지갑 종류에 따라 텍스트가 더 추가될 수 있음.
-    String descriptionText = isParent ? t.taproot_vault_detail_screen.cosigner : t.taproot_vault_detail_screen.heir;
+    String descriptionText;
+    if (isParent) {
+      if (taprootVault.owners.length == 1) {
+        descriptionText = t.taproot_vault_detail_screen.signer;
+      } else {
+        descriptionText = t.taproot_vault_detail_screen.cosigner;
+      }
+    } else {
+      descriptionText = t.taproot_vault_detail_screen.heir;
+    }
 
     List<Color> baseGradientColors = [
       CoconutColors.lightSky.withValues(alpha: 0.2),
@@ -109,7 +118,7 @@ class _TaprootVaultItemCardState extends State<TaprootVaultItemCard> {
   }
 
   Widget _buildDescriptionText(String text) {
-    final pattern = RegExp(r'共同署名者|공동 서명자|cosigner|상속자|相続人|heir', caseSensitive: false);
+    final pattern = RegExp(r'共同署名者|공동 서명자|cosigner|署名者|서명자|signer|상속자|相続人|heir', caseSensitive: false);
     final match = pattern.firstMatch(text);
 
     if (match == null) {
