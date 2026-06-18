@@ -429,7 +429,6 @@ coconut_qr_scanner:
 app_info_screen:
   powered_by_noncelab: "powered by NonceLab."
   category1_ask: "質問がありますか？"
-  go_to_pow: "POWコミュニティへ"
   ask_to_discord: "Discordで質問"
   ask_to_x: "Xで質問"
   ask_to_email: "メールで質問"

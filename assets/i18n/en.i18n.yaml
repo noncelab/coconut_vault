@@ -427,7 +427,6 @@ coconut_qr_scanner:
 app_info_screen:
   powered_by_noncelab: "powered by NonceLab."
   category1_ask: "Have questions?"
-  go_to_pow: "Go to POW Community"
   ask_to_discord: "Ask via Discord"
   ask_to_x: "Ask via X"
   ask_to_email: "Ask via Email"

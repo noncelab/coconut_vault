@@ -207,6 +207,7 @@ const dependencies = <Package>[
   _cbor,
   _coconut_design_system,
   _coconut_lib,
+  _collection,
   _connectivity_plus,
   _convert,
   _crypto,
@@ -1422,7 +1423,7 @@ const _clock = Package(
   dependencies: [],
 );
 
-/// coconut_design_system 0.9.14
+/// coconut_design_system 0.10.0
 const _coconut_design_system = Package(
   name: 'coconut_design_system',
   description:
@@ -1430,7 +1431,7 @@ const _coconut_design_system = Package(
   homepage: 'https://www.noncelab.com',
   repository: 'https://github.com/noncelab/coconut_design_system',
   authors: [],
-  version: '0.9.14',
+  version: '0.10.0',
   license: '''MIT License
 
 Copyright 2025 Nonce Lab
@@ -1505,7 +1506,6 @@ Licensor: Nonce Lab''',
     PackageRef('pointycastle'),
     PackageRef('convert'),
     PackageRef('bech32'),
-    PackageRef('http'),
     PackageRef('json_annotation'),
     PackageRef('bech32m_i'),
     PackageRef('decimal'),

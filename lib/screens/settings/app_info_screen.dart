@@ -251,21 +251,6 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
             buttons: [
               SingleButton(
                 enableShrinkAnim: true,
-                buttonPosition: SingleButtonPosition.top,
-                title: t.app_info_screen.go_to_pow,
-                leftElement: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Image.asset('assets/jpg/pow-full-logo.jpg', width: 24, height: 24, fit: BoxFit.cover),
-                ),
-                onPressed: () {
-                  MyBottomSheet.showBottomSheet_90(
-                    context: context,
-                    child: QrcodeBottomSheet(qrData: POW_URL, title: t.app_info_screen.go_to_pow, fromAppInfo: true),
-                  );
-                },
-              ),
-              SingleButton(
-                enableShrinkAnim: true,
                 buttonPosition: SingleButtonPosition.middle,
                 title: t.app_info_screen.ask_to_discord,
                 leftElement: ClipRRect(
