@@ -427,7 +427,6 @@ coconut_qr_scanner:
 app_info_screen:
   powered_by_noncelab: "powered by NonceLab."
   category1_ask: "Have questions?"
-  go_to_pow: "Go to POW Community"
   ask_to_discord: "Ask via Discord"
   ask_to_x: "Ask via X"
   ask_to_email: "Ask via Email"
@@ -554,8 +553,13 @@ taproot:
     taproot_single_sig_wallet: "Taproot Single Signature Wallet"
     mfp: "MFP"
   sync_qr_screen:
-    title: "Share with Other Vaults"
+    title: "Export to another vault"
     description: "Share this wallet so it can be used on other vaults."
+    coconut_vault: " Coconut Vault"
+    guide:
+      coconut: " the Add Wallet icon on the home screen"
+      inheritance: "Taproot Inheritance Wallet → An inheritance wallet is ready"
+      common: "Please scan the QR code below."
   taproot_creation_option:
     parent_creation_title: "I am a parent"
     parent_creation_description: "I'll set up inheritance conditions for my wallet"
@@ -765,6 +769,7 @@ taproot:
       inheritance_wallet_added: "Beneficiary wallet added"
       inheritance_wallet_restored: "Inheritance wallet restored"
       inheritance_wallet_activation: "Inheritance wallet will be activated"
+      inheritance_wallet_activated: "Inheritance wallet is active"
       active_after: "After ${dateTime}"
 mnemonic_coin_flip_screen:
   title: "Mnemonic Generation"
@@ -1080,7 +1085,6 @@ sync_to_wallet_screen:
       guide0_1: "From the menu"
       guide1_1: "Import Wallet"
       guide2_1: "Keystone"
-      guide1_2: "Keystone"
       guide3_1: "or click the xPub/Watch Only Wallet button and "
     nunchuk: 
       guide1_1: "Bottom Menu"
@@ -1098,6 +1102,7 @@ sync_to_wallet_screen:
       guide3_1: "Scan or import a file"
     common: "Scan the QR code below."
 taproot_vault_detail_screen:
+  signer: "I am the signer of this wallet. I can use this wallet regularly."
   cosigner: "I am a cosigner of this wallet. I must sign along with other cosigners to spend the assets."
   heir: "I am the heir to this wallet. I can access the assets after the preset timelock expires."
 
@@ -1151,6 +1156,35 @@ passphrase_check_screen:
 
 multisig_signer_bsms_export_screen:
   fail_bsms: "Failed to load BSMS"
+
+taproot_sign_screen:
+  exceptions:
+    mixed_path_psbt_error: "Unsupported Taproot PSBT.\nPSBTs with mixed key path and script path signatures are not supported."
+    update_sign_fail: "Signature Update Failed"
+    format_exception:
+      invalid_psbt_format: "Invalid PSBT format."
+      transaction_mismatch: "Transaction information does not match."
+      different_wallet: "This transaction is from a different wallet."
+      participant_mismatch: "MuSig2 participant information does not match."
+      no_signature: "No signature found. Please check if signing is complete on the other parent wallet."
+      no_other_signer_sig: "No signature from the other parent wallet found."
+      nonce_missing: "My nonce information is missing."
+      nonce_tampered: "My nonce information has been tampered."
+  musig2_sign:
+    appbar_title:
+      sign_with_other_signer: "Sign with Other Parent Wallet"
+      update_sign: "Update Signature"
+    guide:
+      please_bring_key: "Please tap the button below to retrieve the key information for signing."
+      please_do_next: "Please tap the button below to proceed to the next step."
+      scan_with_other_signer: "Please scan the QR code below with the other parent wallet, then proceed with signing. Once signing is complete, scan the generated QR code again."
+      first_sign_completed: "The first signing is complete. Please scan the QR code below with the other parent wallet to finish signing."
+      scan_other_signer_qr: "Please scan the QR code generated after signing is complete on the other parent wallet."
+      please_sign: "Please tap the button below to proceed with signing."
+      scan_with_first_signer: "Please scan the QR code below with the wallet that initiated signing."
+    button:
+      prepare_sign: "Prepare to Sign"
+      ready: "Ready"
 
 bottom_sheet:
   view_mit_license: "View Full MIT License"
@@ -1312,6 +1346,7 @@ errors:
   extended_public_key_not_found_error: "Please select the wallet you want to use directly and use the Multisig Signing feature"
   user_cancelled_auth: "User cancelled authentication."
   unexpected_error_title: "An Error Occurred"
+  sign_failed: "Signing Failed"
 
 exceptions:
   seed_invalidated: 
@@ -1320,6 +1355,15 @@ exceptions:
   needs_multisig_setup: "Please add a multisig wallet first in order to sign with $name."
   account_change_failed:
     title: "Failed to change account"
+  taproot:
+    invalid_psbt_sign_type:
+      key_path: "This transaction can be signed with the parent wallet"
+      script_path: "This transaction can be signed with the child wallet"
+  transaction:
+    already_has_sign: "This transaction already contains signature information."
+    already_signed: "This transaction is already fully signed."
+    muSig2:
+      already_has_nonce_with_this: "A nonce has already been added with this wallet."
 
 tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."

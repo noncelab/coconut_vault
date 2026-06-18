@@ -154,8 +154,8 @@ class _VaultRowItemState extends State<VaultRowItem> {
       final taproot = vault as TaprootVaultListItem;
       subtitleText = taproot.isParent ? t.taproot.parent_wallet : t.taproot.child_wallet;
       final baseColors = [
-        CoconutColors.lightSky.withValues(alpha: 0.2),
-        CoconutColors.periwinkle.withValues(alpha: 0.2),
+        CoconutColors.lightSky.withValues(alpha: 0.5),
+        CoconutColors.periwinkle.withValues(alpha: 0.5),
       ];
       taprootGradientColors = taproot.isParent ? baseColors.reversed.toList() : baseColors;
     }
@@ -278,21 +278,6 @@ class _VaultRowItemState extends State<VaultRowItem> {
   }) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: widget.isEditMode ? 8 : 20, vertical: 12),
-      decoration:
-          isTaproot
-              ? BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: CoconutColors.gray200, width: 1),
-                gradient:
-                    taprootGradientColors != null
-                        ? LinearGradient(
-                          colors: taprootGradientColors,
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        )
-                        : null,
-              )
-              : null,
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 37),
         child: Row(
@@ -319,20 +304,15 @@ class _VaultRowItemState extends State<VaultRowItem> {
                   ),
                 ),
               ),
-            Container(
-              decoration:
+            VaultIconSmall(
+              iconIndex: widget.vault.iconIndex,
+              colorIndex: widget.vault.colorIndex,
+              gradientColors:
                   isTaproot
-                      ? const BoxDecoration(
-                        color: CoconutColors.white,
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      )
+                      ? taprootGradientColors
+                      : isMultiSig && multiSigners != null
+                      ? CustomColorHelper.getGradientColors(multiSigners)
                       : null,
-              child: VaultIconSmall(
-                iconIndex: widget.vault.iconIndex,
-                colorIndex: widget.vault.colorIndex,
-                gradientColors:
-                    isMultiSig && multiSigners != null ? CustomColorHelper.getGradientColors(multiSigners) : null,
-              ),
             ),
             CoconutLayout.spacing_200w,
             Expanded(

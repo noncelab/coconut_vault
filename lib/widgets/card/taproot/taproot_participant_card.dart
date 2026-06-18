@@ -20,6 +20,7 @@ class TaprootParticipantCard extends StatelessWidget {
   final String mfp;
   final String derivationPath;
   final int? locktime;
+  final bool useNewline;
   final VoidCallback? onTap;
 
   const TaprootParticipantCard({
@@ -35,8 +36,42 @@ class TaprootParticipantCard extends StatelessWidget {
     required this.mfp,
     required this.derivationPath,
     this.locktime,
+    this.useNewline = false,
     this.onTap,
   });
+
+  TaprootParticipantCard copyWith({
+    TaprootParticipantRole? role,
+    bool? isMine,
+    bool? isValid,
+    bool? hasSingleParent,
+    bool? hasBackgroundColor,
+    bool? showRoleWidget,
+    bool? showLockStatusIcon,
+    String? walletName,
+    String? mfp,
+    String? derivationPath,
+    int? locktime,
+    bool? useNewline,
+    VoidCallback? onTap,
+  }) {
+    return TaprootParticipantCard(
+      key: key,
+      role: role ?? this.role,
+      isMine: isMine ?? this.isMine,
+      isValid: isValid ?? this.isValid,
+      hasSingleParent: hasSingleParent ?? this.hasSingleParent,
+      hasBackgroundColor: hasBackgroundColor ?? this.hasBackgroundColor,
+      showRoleWidget: showRoleWidget ?? this.showRoleWidget,
+      showLockStatusIcon: showLockStatusIcon ?? this.showLockStatusIcon,
+      walletName: walletName ?? this.walletName,
+      mfp: mfp ?? this.mfp,
+      derivationPath: derivationPath ?? this.derivationPath,
+      locktime: locktime ?? this.locktime,
+      useNewline: useNewline ?? this.useNewline,
+      onTap: onTap ?? this.onTap,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,14 +112,7 @@ class TaprootParticipantCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     if (locktime != null) ...[
-                      Flexible(
-                        child: Text(
-                          _formattedLocktime,
-                          style: CoconutTypography.body3_12,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
+                      Flexible(child: Text(_formattedLocktime, style: CoconutTypography.body3_12)),
                     ] else ...[
                       Flexible(
                         child: Text(
@@ -95,8 +123,7 @@ class TaprootParticipantCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                    CoconutLayout.spacing_100w,
-                    if (_lockStatusIcon != null) _lockStatusIcon!,
+                    if (_lockStatusIcon != null) ...[CoconutLayout.spacing_200w, _lockStatusIcon!],
                   ],
                 ),
                 Text('$mfp · $derivationPath', style: CoconutTypography.caption_10.setColor(CoconutColors.gray600)),
@@ -212,15 +239,13 @@ class TaprootParticipantCard extends StatelessWidget {
     }
 
     final dateTime = DateTime.fromMillisecondsSinceEpoch(_toMilliseconds(locktime));
-    final formattedDateTime = DateFormat('yyyy.MM.dd HH:mm').format(dateTime);
+    final pattern = useNewline ? 'yyyy.MM.dd\nHH:mm' : 'yyyy.MM.dd HH:mm';
+    final formattedDateTime = DateFormat(pattern).format(dateTime);
 
     return t.taproot.participant_card.locktime_after(dateTime: formattedDateTime);
   }
 
   int _toMilliseconds(int locktime) {
-    if (locktime >= 1000000000000) {
-      return locktime;
-    }
     return locktime * 1000;
   }
 }

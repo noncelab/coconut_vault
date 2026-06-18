@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
@@ -69,7 +70,7 @@ class MultisigSignViewModel extends ChangeNotifier {
 
   void initPsbtSignState() {
     assert(!_signStateInitialized); // 오직 한번만 호출
-    assert(_signProvider.isMultisig == true);
+    assert(_signProvider.vaultType == WalletType.multiSignature);
     _signStateInitialized = true;
 
     final psbt = _signProvider.psbt!;
@@ -79,7 +80,7 @@ class MultisigSignViewModel extends ChangeNotifier {
       }
     }
 
-    if (_signProvider.isMultisig == true) {
+    if (_signProvider.vaultType == WalletType.multiSignature) {
       Map<String, String> input0PubkeyMap = {};
       final unsignedPsbt = Psbt.parse(unsignedPsbtBase64);
       final keystoreList = (_vaultListItem.coconutVault as MultisignatureVault).keyStoreList;
@@ -411,7 +412,7 @@ class MultisigSignViewModel extends ChangeNotifier {
       final currentTx = Psbt.parse(_psbtForSigning).unsignedTransaction!;
       final scannedTx = Transaction.parse(rawSignedTransaction);
 
-      if (!_isTransactionBodySame(currentTx, scannedTx)) {
+      if (!isSameTransactionBody(currentTx, scannedTx)) {
         throw FormatException(exceptionMessages.invalid_sign_error);
       }
 
@@ -435,27 +436,6 @@ class MultisigSignViewModel extends ChangeNotifier {
     }
   }
 
-  bool _isTransactionBodySame(Transaction tx1, Transaction tx2) {
-    if (tx1.transactionHash != tx2.transactionHash) {
-      return false;
-    }
-    if (tx1.outputs.length != tx2.outputs.length || tx1.inputs.length != tx2.inputs.length) {
-      return false;
-    }
-    for (int i = 0; i < tx1.outputs.length; i++) {
-      if (tx1.outputs[i].serialize() != tx2.outputs[i].serialize()) {
-        return false;
-      }
-    }
-    for (int i = 0; i < tx1.inputs.length; i++) {
-      if (tx1.inputs[i].serialize() != tx2.inputs[i].serialize()) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   void onScannedPsbt(String scannedData, {bool isOverwrite = false}) {
     final exceptionMessages = t.multisig_sign_screen.exception;
     try {
@@ -465,7 +445,7 @@ class MultisigSignViewModel extends ChangeNotifier {
       final scannedPsbt = Psbt.parse(scannedData);
       final scannedTx = scannedPsbt.unsignedTransaction!;
 
-      if (!_isTransactionBodySame(currentTx, scannedTx)) {
+      if (!isSameTransactionBody(currentTx, scannedTx)) {
         throw FormatException(exceptionMessages.invalid_sign_error);
       }
 
@@ -560,7 +540,7 @@ class MultisigSignViewModel extends ChangeNotifier {
     try {
       final currentTx = Psbt.parse(_psbtForSigning).unsignedTransaction!;
       final scannedTx = Psbt.parse(scannedData).unsignedTransaction!;
-      return _isTransactionBodySame(currentTx, scannedTx);
+      return isSameTransactionBody(currentTx, scannedTx);
     } catch (e) {
       debugPrint('canUpdatePsbt error: $e');
       return false;

@@ -21,8 +21,11 @@ class TaprootSetupSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final signerItems = itemList.where((item) => item.locktime == null).toList();
-    final inheritanceItems = itemList.where((item) => item.locktime != null).toList();
+    final isCardType = taprootSetupSummaryCardType == TaprootSetupSummaryCardType.card;
+    final processedList = isCardType ? itemList.map((item) => item.copyWith(useNewline: true)).toList() : itemList;
+
+    final signerItems = processedList.where((item) => item.locktime == null).toList();
+    final inheritanceItems = processedList.where((item) => item.locktime != null).toList();
 
     if (taprootSetupSummaryCardType == TaprootSetupSummaryCardType.card) {
       return _buildCardTypeLayout(signerItems, inheritanceItems);

@@ -252,14 +252,16 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
     final vaultListItem = walletProvider.getVaultById(widget.id);
     Uint8List secret;
 
-    if (vaultListItem is TaprootVaultListItem && widget.targetXpub != null) {
+    if (vaultListItem is TaprootVaultListItem) {
+      if (widget.targetXpub == null) {
+        throw StateError('targetXpub is required for TaprootVaultListItem');
+      }
       secret = await walletProvider.getTaprootSecret(
         widget.id,
         TaprootSeedKeyIdentifier(extendedPublicKey: widget.targetXpub!),
-        autoAuth: false,
       );
     } else {
-      secret = await walletProvider.getSecret(widget.id, autoAuth: false);
+      secret = await walletProvider.getSecret(widget.id);
     }
 
     final result = await compute(WalletIsolates.verifyPassphrase, {

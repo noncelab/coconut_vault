@@ -186,15 +186,16 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
         final vaultListItem = walletProvider.getVaultById(widget.id);
         final argsFromRoute = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
         final String? targetXpub = widget.targetXpub ?? argsFromRoute?['targetXpub'];
-
-        if (vaultListItem is TaprootVaultListItem && targetXpub != null) {
+        if (vaultListItem is TaprootVaultListItem) {
+          if (targetXpub == null) {
+            throw StateError('targetXpub is required for TaprootVaultListItem');
+          }
           mnemonic = await walletProvider.getTaprootSecret(
             widget.id,
             TaprootSeedKeyIdentifier(extendedPublicKey: targetXpub),
-            autoAuth: false,
           );
         } else {
-          mnemonic = await walletProvider.getSecret(widget.id, autoAuth: false);
+          mnemonic = await walletProvider.getSecret(widget.id);
         }
 
         passphrase = utf8.encode(_inputController.text);

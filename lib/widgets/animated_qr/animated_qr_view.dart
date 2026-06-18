@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/screens/airgap/multisig_psbt_qr_code_screen.dart';
+import 'package:coconut_vault/widgets/animated_qr/qr_scan_density.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/i_qr_view_data_handler.dart';
 import 'package:coconut_vault/widgets/coconut_loading_overlay.dart';
 import 'package:flutter/cupertino.dart';

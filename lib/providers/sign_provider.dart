@@ -24,7 +24,7 @@ class SignProvider {
   String? get unsignedPsbtBase64 => _unsignedPsbtBase64;
   VaultListItemBase? get vaultListItem => _vaultListItem;
   String? get walletName => _vaultListItem?.name;
-  bool? get isMultisig => _vaultListItem?.vaultType == WalletType.multiSignature;
+  WalletType? get vaultType => _vaultListItem?.vaultType;
 
   Psbt? get psbt => _psbt;
   String? get recipientAddress => _recipientAddress;

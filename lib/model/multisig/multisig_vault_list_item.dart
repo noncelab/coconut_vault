@@ -1,11 +1,9 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
-import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'multisig_vault_list_item.g.dart'; // 생성될 파일 이름 $ dart run build_runner build
@@ -45,11 +43,6 @@ class MultisigVaultListItem extends VaultListItemBase {
   // 필요 서명 개수
   @JsonKey(name: "requiredSignatureCount")
   late final int requiredSignatureCount;
-
-  @override
-  Future<bool> canSign(String psbt) async {
-    return await compute(SignIsolates.canSignToPsbt, [coconutVault, psbt]);
-  }
 
   @override
   String getWalletSyncString() {

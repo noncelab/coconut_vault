@@ -428,7 +428,6 @@ coconut_qr_scanner:
 app_info_screen:
   powered_by_noncelab: "논스랩이 만듭니다."
   category1_ask: "궁금한 점이 있으신가요?"
-  go_to_pow: "POW 커뮤니티 바로가기"
   ask_to_discord: "디스코드 채널로 문의하기"
   ask_to_x: "X로 문의하기"
   ask_to_email: "이메일로 문의하기"
@@ -555,8 +554,13 @@ taproot:
     taproot_single_sig_wallet: "탭루트 단일 서명 지갑"
     mfp: "MFP"
   sync_qr_screen:
-    title: "다른 볼트와 공유하기"
+    title: "다른 볼트로 내보내기"
     description: "다른 볼트에서 이 지갑을 사용할 수 있도록 공유합니다."
+    coconut_vault: "코코넛 볼트 "
+    guide:
+      coconut: "홈 화면에서 지갑 추가 아이콘 "
+      inheritance: "탭루트 상속 지갑 → 준비된 상속 지갑이 있습니다"
+      common: "아래 QR 코드를 스캔해 주세요."
   taproot_creation_option:
     parent_creation_title: "저는 부모입니다"
     parent_creation_description: "사용하려는 지갑에 상속 조건을 함께 준비할게요"
@@ -766,6 +770,7 @@ taproot:
       inheritance_wallet_added: "상속자 지갑을 추가했어요"
       inheritance_wallet_restored: "상속 지갑을 복구했어요"
       inheritance_wallet_activation: "상속 지갑이 활성화 돼요"
+      inheritance_wallet_activated: "상속 지갑이 활성화 됐어요"
       active_after: "${dateTime} 이후"
 mnemonic_coin_flip_screen:
   title: "니모닉 문구 만들기"
@@ -1097,6 +1102,7 @@ sync_to_wallet_screen:
       guide3_1: "Scan or import a file"
     common: "아래 QR 코드를 스캔해 주세요."
 taproot_vault_detail_screen:
+  signer: "나는 이 지갑의 서명자예요. 평소에 이 지갑을 사용할 수 있어요."
   cosigner: "나는 이 지갑의 공동 서명자예요. 다른 공동 서명자와 함께 서명해야 자산을 사용할 수 있어요."
   heir: "나는 이 지갑의 상속자예요. 정해진 시점이 지나면 자산을 사용할 수 있어요."
 
@@ -1150,6 +1156,35 @@ passphrase_check_screen:
 
 multisig_signer_bsms_export_screen:
   fail_bsms: "BSMS 로드 실패"
+
+taproot_sign_screen:
+  exceptions:
+    mixed_path_psbt_error: "지원하지 않는 Taproot PSBT예요.\nKey path와 script path 서명이 섞인 PSBT는 지원하지 않아요."
+    update_sign_fail: "서명 업데이트 실패"
+    format_exception:
+      invalid_psbt_format: "잘못된 PSBT 형식이에요."
+      transaction_mismatch: "트랜잭션 정보가 일치하지 않아요."
+      different_wallet: "다른 지갑의 트랜잭션이에요."
+      participant_mismatch: "MuSig2 참여자 정보가 일치하지 않아요."
+      no_signature: "서명 정보가 없어요. 다른 부모 지갑에서 서명을 완료했는지 확인해 주세요."
+      no_other_signer_sig: "다른 부모 지갑의 서명 정보가 없어요."
+      nonce_missing: "내 nonce 정보가 없어요."
+      nonce_tampered: "내 nonce 정보가 변조되었어요."
+  musig2_sign:
+    appbar_title:
+      sign_with_other_signer: "다른 부모 지갑으로 서명하기"
+      update_sign: "서명 업데이트"
+    guide:
+      please_bring_key: "아래 버튼을 눌러 서명을 위한 키 정보를 가져와 주세요."
+      please_do_next: "아래 버튼을 눌러 다음 단계를 진행해 주세요."
+      scan_with_other_signer: "다른 부모 지갑에서 아래 QR을 스캔한 후 서명을 진행해 주세요. 서명이 완료되면 생성된 QR을 다시 스캔해 주세요."
+      scan_other_signer_qr: "다른 부모 지갑에서 서명 완료 후 생성된 QR을 스캔해 주세요."
+      please_sign: "아래 버튼을 눌러 서명을 진행해 주세요."
+      scan_with_first_signer: "아래 QR을 서명을 시작한 부모 지갑에서 스캔해 주세요."
+      first_sign_completed: "첫번째 서명이 완료되었어요. 다른 부모 지갑에서 아래 QR을 스캔한 후 서명을 완료해 주세요."
+    button:
+      prepare_sign: "서명 준비하기"
+      ready: "준비 완료"
 
 bottom_sheet:
   view_mit_license: "MIT 라이선스 전문 보기"
@@ -1312,6 +1347,7 @@ errors:
   extended_public_key_not_found_error: "직접 사용하려는 지갑을 선택해 다중 서명하기 기능을 사용해주세요"
   user_cancelled_auth: "사용자가 기기 인증을 취소했습니다."
   unexpected_error_title: "오류 발생"
+  sign_failed: "서명 실패"
 
 exceptions:
   seed_invalidated: 
@@ -1320,6 +1356,16 @@ exceptions:
   needs_multisig_setup: "$name 지갑으로 서명하려면 다중 서명 지갑을 먼저 추가해 주세요."
   account_change_failed:
     title: "계정 변경 실패"
+  taproot:
+    invalid_psbt_sign_type:
+      key_path: "부모 지갑으로 서명 가능한 트랜잭션이에요"
+      script_path: "자식 지갑으로 서명 가능한 트랜잭션이에요"
+  transaction:
+    already_has_sign: "이미 서명 정보가 있는 트랜잭션이에요."
+    already_signed: "이미 서명이 완료된 트랜잭션이에요."
+    muSig2:
+      already_has_nonce_with_this: "이미 이 지갑으로 논스를 추가한 트랜잭션이에요."
+  unsupported_psbt_state: "지원하지 않는 PSBT 상태에요."
 
 tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."

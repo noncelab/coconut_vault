@@ -20,6 +20,7 @@ class ParentCreationCompletionSteps {
     required ParentWalletType parentWalletType,
     required TaprootVaultCreationTimelineInfo? timelineInfo,
     required String timelockDateTimeText,
+    required int timelockEpochTime,
     required VoidCallback onCompleted,
   }) {
     final timeline = t.taproot.parent_creation_screen.step_4.timeline;
@@ -47,6 +48,8 @@ class ParentCreationCompletionSteps {
           title: timeline.active_child_wallet,
           description: timeline.time_after(date: timelockDateTimeText),
           status: TimelineStepStatus.future,
+          futureEpochTime: timelockEpochTime,
+          pastFutureTitle: t.taproot.taproot_import_screen.timeline.inheritance_wallet_activated,
         ),
       ],
     );

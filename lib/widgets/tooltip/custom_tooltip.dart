@@ -9,12 +9,15 @@ class CustomTooltip {
     required RichText richText,
     bool isBackgroundWhite = true,
     double paddingTop = 4,
+    Color? backgroundColor,
+    Color? borderColor,
+    EdgeInsets? padding,
   }) {
     return Padding(
-      padding: EdgeInsets.only(top: paddingTop, left: 16, right: 16),
+      padding: padding ?? EdgeInsets.only(top: paddingTop, left: 16, right: 16),
       child: CoconutToolTip(
-        backgroundColor: isBackgroundWhite ? CoconutColors.gray150 : CoconutColors.gray100,
-        borderColor: isBackgroundWhite ? Colors.transparent : CoconutColors.gray400,
+        backgroundColor: backgroundColor ?? (isBackgroundWhite ? CoconutColors.gray150 : CoconutColors.gray100),
+        borderColor: borderColor ?? (isBackgroundWhite ? Colors.transparent : CoconutColors.gray400),
         icon: SvgPicture.asset(
           'assets/svg/circle-info.svg',
           width: 20,

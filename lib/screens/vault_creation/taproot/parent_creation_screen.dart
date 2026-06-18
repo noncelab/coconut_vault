@@ -15,6 +15,7 @@ import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/taproot/child_creation_overlays.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/parent_creation_completion_steps.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/parent_creation_overlays.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
@@ -553,15 +554,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     if (!_currentVaultMnemonicAuthRequested) {
       _currentVaultMnemonicAuthRequested = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || _currentStepType != ParentCreationStep.currentVaultMnemonicView) {
-          return;
-        }
-        TaprootMnemonicViewFlowAdapter.showDeviceAuthDialog(
-          context: context,
-          mnemonicViewKey: mnemonicViewKey,
-          showDeviceAuthDialog: ParentCreationOverlays.showDeviceAuthDialog,
-          authenticateWithBiometricOrPin: ParentCreationOverlays.authenticateWithBiometricOrPin,
-        );
+        _loadCurrentVaultMnemonic(mnemonicViewKey, ParentCreationStep.currentVaultMnemonicView);
       });
     }
 
@@ -608,15 +601,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     if (!_currentVaultMnemonicAuthRequested) {
       _currentVaultMnemonicAuthRequested = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || _currentStepType != ParentCreationStep.childMnemonicEntry) {
-          return;
-        }
-        TaprootMnemonicViewFlowAdapter.showDeviceAuthDialog(
-          context: context,
-          mnemonicViewKey: mnemonicViewKey,
-          showDeviceAuthDialog: ParentCreationOverlays.showDeviceAuthDialog,
-          authenticateWithBiometricOrPin: ParentCreationOverlays.authenticateWithBiometricOrPin,
-        );
+        _loadCurrentVaultMnemonic(mnemonicViewKey, ParentCreationStep.childMnemonicEntry);
       });
     }
 
@@ -628,6 +613,24 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       showPassphraseWarningSubWidget: true,
       onAuthCanceled: _returnToPreviousStep,
       onMnemonicReady: _onCurrentVaultChildMnemonicReady,
+    );
+  }
+
+  void _loadCurrentVaultMnemonic(GlobalKey<MnemonicViewScreenState> mnemonicViewKey, ParentCreationStep expectedStep) {
+    if (!mounted || _currentStepType != expectedStep) {
+      return;
+    }
+
+    if (_viewModel.isSigningOnlyMode) {
+      mnemonicViewKey.currentState?.setMnemonic();
+      return;
+    }
+
+    TaprootMnemonicViewFlowAdapter.showDeviceAuthDialog(
+      context: context,
+      mnemonicViewKey: mnemonicViewKey,
+      showDeviceAuthDialog: ParentCreationOverlays.showDeviceAuthDialog,
+      authenticateWithBiometricOrPin: ParentCreationOverlays.authenticateWithBiometricOrPin,
     );
   }
 
@@ -821,6 +824,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       parentWalletType: _viewModel.selectedWalletType,
       timelineInfo: _timelineInfo,
       timelockDateTimeText: DateFormatUtil.formatLocalizedDateTime(_timelineTimelockDateTime!, _language),
+      timelockEpochTime: _timelineTimelockDateTime!.millisecondsSinceEpoch ~/ Duration.millisecondsPerSecond,
       onCompleted: _handleTimelineAnimationCompleted,
     );
   }
@@ -1379,7 +1383,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return;
     }
 
-    final confirmed = await ParentCreationOverlays.showCurrentVaultConfirmDialog(context);
+    final confirmed = await ChildCreationOverlays.showCurrentVaultConfirmDialog(context);
     if (confirmed == true && mounted) {
       _proceedWithSelectedChildVault();
     }
@@ -1507,15 +1511,21 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       taprootWalletCreationProvider.secret,
       passphrase: taprootWalletCreationProvider.passphrase,
     );
-    final childKeyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
-    final childVault = TaprootVault.fromKeyStoreList([childKeyStore], []);
-    if (_onChildWalletImported(
-      childVault,
-      source: ParentChildWalletSource.created,
-      secret: taprootWalletCreationProvider.secret,
-      passphrase: taprootWalletCreationProvider.passphrase,
-    )) {
-      _isCreatingChildWallet = false;
+    KeyStore? childKeyStore;
+    try {
+      childKeyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
+      final childVault = TaprootVault.fromKeyStoreList([childKeyStore], []);
+      if (_onChildWalletImported(
+        childVault,
+        source: ParentChildWalletSource.created,
+        secret: taprootWalletCreationProvider.secret,
+        passphrase: taprootWalletCreationProvider.passphrase,
+      )) {
+        _isCreatingChildWallet = false;
+      }
+    } finally {
+      childKeyStore?.wipeSeed();
+      seed.wipe();
     }
   }
 
@@ -1732,7 +1742,9 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
     try {
       _viewModel.setExternalParentVault(importedParent);
-      setState(() {});
+      await _waitForBottomSheetDismissAnimation();
+      if (!mounted) return;
+      _showMultisigParentExportBottomSheet();
     } on NetworkMismatchException catch (e) {
       await ParentCreationOverlays.showParentScanErrorDialog(
         context: context,
@@ -1746,6 +1758,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         description: t.errors.invalid_qr,
       );
     }
+  }
+
+  Future<void> _waitForBottomSheetDismissAnimation() {
+    return Future.delayed(const Duration(milliseconds: 250));
   }
 
   Future<bool?> _showSameParentWalletDialog() {
@@ -1781,9 +1797,17 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       return;
     }
 
-    if (_currentStep == _multisigParentImportStep || _currentStep == _multisigParentListStep) {
+    if (_currentStep == _multisigParentImportStep) {
       _showParentWalletResetDialog();
       return;
+    }
+
+    if (_currentStep == _multisigParentListStep) {
+      final externalParentMasterFingerprint = _viewModel.externalParentMasterFingerprint;
+      if (externalParentMasterFingerprint != null) {
+        _showParentWalletResetDialog();
+        return;
+      }
     }
 
     _returnToPreviousStep();

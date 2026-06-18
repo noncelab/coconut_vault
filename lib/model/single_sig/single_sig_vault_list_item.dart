@@ -1,10 +1,8 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
-import 'package:flutter/foundation.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -63,11 +61,6 @@ class SingleSigVaultListItem extends VaultListItemBase {
 
   @JsonKey(name: "linkedMultisigInfo")
   Map<int, int>? linkedMultisigInfo;
-
-  @override
-  Future<bool> canSign(String psbt) async {
-    return await compute(SignIsolates.canSignToPsbt, [coconutVault, psbt]);
-  }
 
   @override
   String getWalletSyncString() {

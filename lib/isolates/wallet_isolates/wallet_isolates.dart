@@ -39,28 +39,32 @@ class WalletIsolates {
 
     List<SingleSigVaultListItem> vaultList = [];
 
-    var wallet = SingleSigWalletCreateDto.fromJson(data);
-    final keyStore = KeyStore.fromSeed(
-      Seed.fromMnemonic(wallet.mnemonic!, passphrase: wallet.passphrase ?? Uint8List(0)),
-      AddressType.p2wpkh,
-    );
-    final derivationPath = NetworkType.currentNetworkType.isTestnet ? "84'/1'/0'" : "84'/0'/0'";
-    final descriptor = Descriptor.forSingleSignature(AddressType.p2wpkh, keyStore, derivationPath);
-    final signerBsms = SingleSignatureVault.fromKeyStore(keyStore).getSignerBsms(AddressType.p2wsh, '');
-    SingleSigVaultListItem newItem = SingleSigVaultListItem(
-      id: wallet.id!,
-      name: wallet.name!,
-      colorIndex: wallet.color!,
-      iconIndex: wallet.icon!,
-      descriptor: descriptor.serialize(),
-      signerBsmsByAddressType: {AddressType.p2wsh: signerBsms},
-      createdAt: DateTime.now(),
-    );
+    final wallet = SingleSigWalletCreateDto.fromJson(data);
+    KeyStore? keyStore;
+    try {
+      keyStore = KeyStore.fromSeed(
+        Seed.fromMnemonic(wallet.mnemonic!, passphrase: wallet.passphrase ?? Uint8List(0)),
+        AddressType.p2wpkh,
+      );
+      final derivationPath = NetworkType.currentNetworkType.isTestnet ? "84'/1'/0'" : "84'/0'/0'";
+      final descriptor = Descriptor.forSingleSignature(AddressType.p2wpkh, keyStore, derivationPath);
+      final signerBsms = SingleSignatureVault.fromKeyStore(keyStore).getSignerBsms(AddressType.p2wsh, '');
+      SingleSigVaultListItem newItem = SingleSigVaultListItem(
+        id: wallet.id!,
+        name: wallet.name!,
+        colorIndex: wallet.color!,
+        iconIndex: wallet.icon!,
+        descriptor: descriptor.serialize(),
+        signerBsmsByAddressType: {AddressType.p2wsh: signerBsms},
+        createdAt: DateTime.now(),
+      );
 
-    vaultList.insert(0, newItem);
+      vaultList.insert(0, newItem);
+    } finally {
+      wallet.wipe();
+      keyStore?.wipeSeed();
+    }
 
-    wallet.wipe();
-    // TODO: keyStore.wipe(); 누락인지 확인
     return vaultList;
   }
 
@@ -112,17 +116,22 @@ class WalletIsolates {
     final saves = <TaprootSeedInfoForSave>[];
 
     if (seeds != null) {
-      for (final seed in seeds) {
-        final (seedInfo, keyStore) = createSeedInfo(seed);
-        seedInfos.add(seedInfo);
-        saves.add(createSeedInfoForSave(seed, seedInfo.extendedPublicKey));
-        final keyPathVault = TaprootVault.fromKeyStoreList([keyStore], []);
+      try {
+        for (final seed in seeds) {
+          final (seedInfo, keyStore) = createSeedInfo(seed);
+          seedInfos.add(seedInfo);
+          saves.add(createSeedInfoForSave(seed, seedInfo.extendedPublicKey));
+          final keyPathVault = TaprootVault.fromKeyStoreList([keyStore], []);
 
-        /// seed가 제거된 keystore를 얻기 위해
-        keyStores.add(KeyStore.fromSignerBsms(keyPathVault.getSignerBsms("")));
+          keyStores.add(KeyStore.fromSignerBsms(keyPathVault.getSignerBsms("")));
 
-        keyStore.wipeSeed();
-        seed.wipe();
+          keyStore.wipeSeed();
+          seed.wipe();
+        }
+      } finally {
+        for (var s in seeds) {
+          s.wipe();
+        }
       }
     }
 
@@ -237,17 +246,16 @@ class WalletIsolates {
         savedMfp = vault.keyStore.masterFingerprint;
         extendedPublicKey = vault.keyStore.extendedPublicKey.serialize();
       } else if (vaultListItem is TaprootVaultListItem) {
+        final String? targetXpub = args['targetXpub'];
+        if (targetXpub == null) {
+          throw StateError('[vefify passphrase] targetXpub is required for TaprootVaultListItem');
+        }
+
+        extendedPublicKey = targetXpub;
+
         final vault = vaultListItem.coconutVault as TaprootVault;
         keyStore = KeyStore.fromSeed(seed, AddressType.p2tr);
-        extendedPublicKey = keyStore.extendedPublicKey.serialize();
-
-        final String? explicitTargetXpub = args['targetXpub'];
-
-        if (explicitTargetXpub != null) {
-          savedMfp = _findMfpByXpub(vault, explicitTargetXpub);
-        } else {
-          savedMfp = _findMfpByXpub(vault, extendedPublicKey);
-        }
+        savedMfp = _findMfpByXpub(vault, targetXpub);
       }
 
       final recoveredMfp = keyStore?.masterFingerprint ?? '';
@@ -423,25 +431,33 @@ class WalletIsolates {
     final AddressType addressType = AddressType.getAddressTypeFromName(addressTypeName);
 
     try {
-      final derivedVault = SingleSignatureVault.fromMnemonic(
+      final SingleSignatureVault derivedVault = SingleSignatureVault.fromMnemonic(
         mnemonic,
         addressType: addressType,
         passphrase: passphrase,
         accountIndex: currentAccountIndex,
       );
 
-      if (derivedVault.keyStore.masterFingerprint.toUpperCase() != expectedMfp.toUpperCase()) {
+      final String derivedMfp = derivedVault.keyStore.masterFingerprint;
+      derivedVault.keyStore.wipeSeed();
+
+      if (derivedMfp.toUpperCase() != expectedMfp.toUpperCase()) {
         throw Exception('Invalid passphrase');
       }
 
-      final updatedCoconutVault = SingleSignatureVault.fromMnemonic(
+      final SingleSignatureVault updatedCoconutVault = SingleSignatureVault.fromMnemonic(
         mnemonic,
         addressType: addressType,
         passphrase: passphrase,
         accountIndex: newAccountIndex,
       );
 
-      return {'descriptor': updatedCoconutVault.descriptor, 'derivationPath': updatedCoconutVault.derivationPath};
+      final result = {
+        'descriptor': updatedCoconutVault.descriptor,
+        'derivationPath': updatedCoconutVault.derivationPath,
+      };
+      updatedCoconutVault.keyStore.wipeSeed();
+      return result;
     } finally {
       mnemonic.wipe();
       if (passphrase != null) {

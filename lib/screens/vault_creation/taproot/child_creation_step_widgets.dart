@@ -223,6 +223,7 @@ class ChildCreationTimelineStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final lang = context.read<VisibilityProvider>().language;
     final dateString = viewModel.getFormattedLockTime(lang);
+    final activationEpochTime = _activationEpochTime;
 
     return TimelineStepIndicator(
       onCompleted: onCompleted,
@@ -252,9 +253,22 @@ class ChildCreationTimelineStep extends StatelessWidget {
           title: t.taproot.child_creation_screen.step7.timeline.active_inheritance_wallet,
           description: t.taproot.child_creation_screen.step7.timeline.time_after(date: dateString),
           status: TimelineStepStatus.future,
+          futureEpochTime: activationEpochTime,
+          pastFutureTitle: t.taproot.taproot_import_screen.timeline.inheritance_wallet_activated,
         ),
       ],
     );
+  }
+
+  int? get _activationEpochTime {
+    final scannedVaultItem = viewModel.scannedVaultItem;
+    final masterFingerprint = viewModel.masterFingerprint;
+    if (scannedVaultItem == null || masterFingerprint == null) {
+      return null;
+    }
+
+    final matching = scannedVaultItem.beneficiaries.where((b) => b.masterFingerprint == masterFingerprint);
+    return matching.isEmpty ? null : matching.first.lockTime;
   }
 }
 
