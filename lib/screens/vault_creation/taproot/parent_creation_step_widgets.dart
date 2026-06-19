@@ -305,17 +305,23 @@ class ParentTimelockSetupBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CharacterFadeInText(
-          text: t.taproot.parent_creation_screen.step_3.set_timelock_description_1,
-          animationKey: 'taproot-parent-creation-body-timelock-description-1',
-          duration: const Duration(milliseconds: 400),
-          delay: const Duration(milliseconds: 1700),
+        MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: CharacterFadeInText(
+            text: t.taproot.parent_creation_screen.step_3.set_timelock_description_1,
+            animationKey: 'taproot-parent-creation-body-timelock-description-1',
+            duration: const Duration(milliseconds: 400),
+            delay: const Duration(milliseconds: 1700),
+          ),
         ),
-        CharacterFadeInText(
-          text: t.taproot.parent_creation_screen.step_3.set_timelock_description_2,
-          animationKey: 'taproot-parent-creation-body-timelock-description-2',
-          duration: const Duration(milliseconds: 700),
-          delay: const Duration(milliseconds: 2400),
+        MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: CharacterFadeInText(
+            text: t.taproot.parent_creation_screen.step_3.set_timelock_description_2,
+            animationKey: 'taproot-parent-creation-body-timelock-description-2',
+            duration: const Duration(milliseconds: 700),
+            delay: const Duration(milliseconds: 2400),
+          ),
         ),
         CoconutLayout.spacing_600h,
         ParentTimelockDateButton(
