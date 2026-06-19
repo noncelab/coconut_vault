@@ -2089,6 +2089,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
             title: t.taproot.parent_creation_screen.title,
             context: context,
             isBottom: _isTimelineStep || _isExportQrStep,
+            height: 56,
             backgroundColor: CoconutColors.white,
             onBackPressed: _handleBackPressed,
             actionButtonList: [
