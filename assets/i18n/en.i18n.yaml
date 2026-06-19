@@ -1203,7 +1203,7 @@ bottom_sheet:
     placeholder: "Please enter your passphrase"
     passphrase_error_message: "Passphrase does not match. Please enter it again."
   date_picker:
-    select_date: "Select date"
+    select_date: "Select Date"
     time: "Time"
     placeholder: "Select date and time"
 
