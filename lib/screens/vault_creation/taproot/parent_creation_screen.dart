@@ -90,6 +90,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   late final ParentCreationViewModel _viewModel;
   final List<ParentCreationStep> _stepHistory = [ParentCreationStep.intro, ParentCreationStep.selectWalletType];
   int _currentStep = 1;
+  int? _progressTotalStepSnapshot;
+  int? _progressTotalStepSnapshotAtStep;
   int? _keyPreparationStep;
   int? _keyCreationOrImportOptionStep;
   int? _parentKeyImportStep;
@@ -918,6 +920,14 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
   bool get _isProgressPaused => _shouldPauseProgress(_currentStepType);
 
+  int get _progressTotalStep {
+    if (_progressTotalStepSnapshot == null || _progressTotalStepSnapshotAtStep != _currentStep) {
+      _progressTotalStepSnapshot = _viewModel.progressTotalStep;
+      _progressTotalStepSnapshotAtStep = _currentStep;
+    }
+    return _progressTotalStepSnapshot!;
+  }
+
   bool get _showHeader {
     return !_isProgressPaused || _isExportQrStep;
   }
@@ -925,7 +935,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   int get _progressCurrentStep {
     return (_stepHistory.take(_currentStep).where((step) => !_shouldPauseProgress(step)).length -
             _progressInitialStepCount)
-        .clamp(0, _viewModel.progressTotalStep);
+        .clamp(0, _progressTotalStep);
   }
 
   Duration get _titleAnimationDuration {
@@ -2116,11 +2126,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
                           ? _getBodyList(_currentStepType).first
                           : Column(children: _getBodyList(_currentStepType)),
                 ),
-                TopProgressBar(
-                  visible: !_isProgressPaused,
-                  total: _viewModel.progressTotalStep,
-                  current: _progressCurrentStep,
-                ),
+                TopProgressBar(visible: !_isProgressPaused, total: _progressTotalStep, current: _progressCurrentStep),
                 if (_isCheckingDuplicateWallet)
                   const Positioned.fill(child: CoconutLoadingOverlay(applyFullScreen: true)),
               ],
