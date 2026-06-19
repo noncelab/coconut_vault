@@ -620,8 +620,12 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     try {
       await viewModel.saveVault();
     } catch (e) {
-      // TODO: 에러 핸들링
-      _isProcessing = false;
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+          _isSavingVault = false;
+        });
+      }
       rethrow;
     }
 
@@ -712,6 +716,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       await _currentStepAction(viewModel)?.call();
     } catch (e) {
       Logger.error(e);
+      if (!mounted) return;
       TaprootCreationOverlays.showInfoDialog(
         context: context,
         title: t.errors.unexpected_error_title,
@@ -756,6 +761,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   void _handleBackPressed() {
+    if (_isProcessing || _isSavingVault) {
+      return;
+    }
+
     final viewModel = context.read<ChildCreationViewModel>();
 
     if (_isTimelineStep) {

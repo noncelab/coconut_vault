@@ -1793,6 +1793,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   void _handleBackPressed() {
+    if (_isCheckingDuplicateWallet) {
+      return;
+    }
+
     if (_isTimelineStep || _isExportQrStep) {
       _navigateToHome();
       return;
