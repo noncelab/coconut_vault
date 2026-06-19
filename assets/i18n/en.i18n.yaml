@@ -737,7 +737,7 @@ taproot:
     step4:
       title1: "Choose your role"
       title2: "in this wallet"
-      description: "Connect the wallet that matches your role to use it"
+      description: "Connect the wallet that matches your role"
       signer: "Signer"
       beneficiary: "Beneficiary"
     step6:

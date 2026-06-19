@@ -22,7 +22,9 @@ class InfoBox extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(infoList[index].key, style: CoconutTypography.body2_14),
-                Text(infoList[index].value, style: CoconutTypography.body2_14_Bold),
+                Expanded(
+                  child: Text(infoList[index].value, style: CoconutTypography.body2_14_Bold, textAlign: TextAlign.end),
+                ),
               ],
             ),
           ],

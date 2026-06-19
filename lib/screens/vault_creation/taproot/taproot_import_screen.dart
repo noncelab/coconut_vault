@@ -379,11 +379,15 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
 
   List<Widget> _buildRoleSelectionBody() {
     return [
-      CharacterFadeInText(
-        text: t.taproot.taproot_import_screen.step4.description,
-        animationKey: 'taproot-import-body-role-description',
-        duration: const Duration(milliseconds: 700),
-        delay: const Duration(milliseconds: 1700),
+      MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+        child: CharacterFadeInText(
+          text: t.taproot.taproot_import_screen.step4.description,
+          animationKey: 'taproot-import-body-role-description',
+          duration: const Duration(milliseconds: 700),
+          delay: const Duration(milliseconds: 1700),
+          textAlign: TextAlign.center,
+        ),
       ),
       CoconutLayout.spacing_800h,
       Consumer<TaprootImportViewModel>(
