@@ -1047,6 +1047,8 @@ multi_sig_setting_screen:
     share_bsms_description: "Let another Vault use this wallet"
     export_watch_only_wallet: "Export to Watch-Only Wallet"
     export_watch_only_wallet_description: "Export a watch-only wallet for viewing balances and addresses"
+    export_to_coconut_wallet: "Export to Coconut Wallet"
+    export_to_coconut_wallet_description: "Use this wallet in Coconut Wallet as a watch-only wallet"
     backup_wallet_data: "Backup Wallet Data"
     backup_wallet_data_description: "Back up the BSMS data needed to recover your wallet in case of loss or device change"
     guide:

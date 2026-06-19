@@ -1047,6 +1047,8 @@ multi_sig_setting_screen:
     share_bsms_description: "다른 볼트에서 이 지갑을 사용할 수 있도록 공유합니다."
     export_watch_only_wallet: "보기 전용 앱으로 내보내기"
     export_watch_only_wallet_description: "잔액/주소 조회만 가능한 앱으로 내보냅니다"
+    export_to_coconut_wallet: "코코넛 월렛으로 내보내기"
+    export_to_coconut_wallet_description: "보기 전용 지갑과 함께 사용할 수 있습니다"
     backup_wallet_data: "지갑 데이터 백업하기"
     backup_wallet_data_description: "분실이나 기기 변경에 대비하여, 지갑 복구에 필요한 BSMS 백업 데이터를 내보냅니다"
     guide:
