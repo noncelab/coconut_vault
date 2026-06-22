@@ -8,6 +8,8 @@ import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/screens/settings/settings_screen.dart';
+import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/passphrase_warning_util.dart';
@@ -336,6 +338,18 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   }
 
   Widget _buildPassphraseToggle() {
+    return Selector<VisibilityProvider, bool>(
+      selector: (context, provider) => provider.isPassphraseUseEnabled,
+      builder: (context, isPassphraseUseEnabled, child) {
+        if (isPassphraseUseEnabled) {
+          return _buildPassphraseToggleRow();
+        }
+        return _buildAdvancedModeNotice();
+      },
+    );
+  }
+
+  Widget _buildPassphraseToggleRow() {
     return Row(
       children: [
         CoconutLayout.spacing_200w,
@@ -355,6 +369,43 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildAdvancedModeNotice() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: CoconutColors.black.withValues(alpha: 0.06),
+      ),
+      child: Column(
+        children: [
+          Text(t.mnemonic_import_screen.need_advanced_mode),
+          GestureDetector(
+            onTap: () {
+              MyBottomSheet.showDraggableBottomSheet(
+                context: context,
+                showDragHandle: true,
+                initialChildSize: 0.9,
+                childBuilder: (scrollController) => SettingsScreen(scrollController: scrollController),
+              );
+            },
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                t.mnemonic_import_screen.open_settings,
+                style: const TextStyle(
+                  fontFamily: 'Pretendard',
+                  color: CoconutColors.black,
+                  decoration: TextDecoration.underline,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
