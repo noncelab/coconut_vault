@@ -421,8 +421,8 @@ class WalletIsolates {
   static Future<Map<String, dynamic>> deriveNewAccountVault(Map<String, dynamic> args) async {
     setNetworkType();
 
-    final Uint8List mnemonic = args['mnemonic'];
-    final Uint8List? passphrase = args['passphrase'];
+    final Uint8List originalMnemonic = args['mnemonic'];
+    final Uint8List? originalPassphrase = args['passphrase'];
     final String addressTypeName = args['addressTypeName'];
     final int currentAccountIndex = args['currentAccountIndex'];
     final int newAccountIndex = args['newAccountIndex'];
@@ -430,11 +430,19 @@ class WalletIsolates {
 
     final AddressType addressType = AddressType.getAddressTypeFromName(addressTypeName);
 
+    // Dual-copying to prevent data loss during memory erasure
+    final Uint8List mnemonicForVerify = Uint8List.fromList(originalMnemonic);
+    final Uint8List mnemonicForDerive = Uint8List.fromList(originalMnemonic);
+
+    final Uint8List? passphraseForVerify = originalPassphrase != null ? Uint8List.fromList(originalPassphrase) : null;
+    final Uint8List? passphraseForDerive = originalPassphrase != null ? Uint8List.fromList(originalPassphrase) : null;
+
     try {
+      // 1. Verify
       final SingleSignatureVault derivedVault = SingleSignatureVault.fromMnemonic(
-        mnemonic,
+        mnemonicForVerify,
         addressType: addressType,
-        passphrase: passphrase,
+        passphrase: passphraseForVerify,
         accountIndex: currentAccountIndex,
       );
 
@@ -445,10 +453,11 @@ class WalletIsolates {
         throw Exception('Invalid passphrase');
       }
 
+      // 2. New account
       final SingleSignatureVault updatedCoconutVault = SingleSignatureVault.fromMnemonic(
-        mnemonic,
+        mnemonicForDerive,
         addressType: addressType,
-        passphrase: passphrase,
+        passphrase: passphraseForDerive,
         accountIndex: newAccountIndex,
       );
 
@@ -459,10 +468,13 @@ class WalletIsolates {
       updatedCoconutVault.keyStore.wipeSeed();
       return result;
     } finally {
-      mnemonic.wipe();
-      if (passphrase != null) {
-        passphrase.wipe();
-      }
+      mnemonicForVerify.wipe();
+      mnemonicForDerive.wipe();
+      originalMnemonic.wipe();
+
+      passphraseForVerify?.wipe();
+      passphraseForDerive?.wipe();
+      originalPassphrase?.wipe();
     }
   }
 }
