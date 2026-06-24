@@ -421,8 +421,8 @@ class WalletIsolates {
   static Future<Map<String, dynamic>> deriveNewAccountVault(Map<String, dynamic> args) async {
     setNetworkType();
 
-    final Uint8List originalMnemonic = args['mnemonic'];
-    final Uint8List? originalPassphrase = args['passphrase'];
+    final Uint8List mnemonic = args['mnemonic'];
+    final Uint8List? passphrase = args['passphrase'];
     final String addressTypeName = args['addressTypeName'];
     final int currentAccountIndex = args['currentAccountIndex'];
     final int newAccountIndex = args['newAccountIndex'];
@@ -430,51 +430,38 @@ class WalletIsolates {
 
     final AddressType addressType = AddressType.getAddressTypeFromName(addressTypeName);
 
-    // Dual-copying to prevent data loss during memory erasure
-    final Uint8List mnemonicForVerify = Uint8List.fromList(originalMnemonic);
-    final Uint8List mnemonicForDerive = Uint8List.fromList(originalMnemonic);
-
-    final Uint8List? passphraseForVerify = originalPassphrase != null ? Uint8List.fromList(originalPassphrase) : null;
-    final Uint8List? passphraseForDerive = originalPassphrase != null ? Uint8List.fromList(originalPassphrase) : null;
-
     try {
-      // 1. Verify
-      final SingleSignatureVault derivedVault = SingleSignatureVault.fromMnemonic(
-        mnemonicForVerify,
+      final derivedVault = SingleSignatureVault.fromMnemonic(
+        mnemonic,
         addressType: addressType,
-        passphrase: passphraseForVerify,
+        passphrase: passphrase,
         accountIndex: currentAccountIndex,
       );
 
-      final String derivedMfp = derivedVault.keyStore.masterFingerprint;
-      derivedVault.keyStore.wipeSeed();
+      final updatedCoconutVault = SingleSignatureVault.fromMnemonic(
+        mnemonic,
+        addressType: addressType,
+        passphrase: passphrase,
+        accountIndex: newAccountIndex,
+      );
 
+      final String derivedMfp = derivedVault.keyStore.masterFingerprint;
       if (derivedMfp.toUpperCase() != expectedMfp.toUpperCase()) {
         throw Exception('Invalid passphrase');
       }
-
-      // 2. New account
-      final SingleSignatureVault updatedCoconutVault = SingleSignatureVault.fromMnemonic(
-        mnemonicForDerive,
-        addressType: addressType,
-        passphrase: passphraseForDerive,
-        accountIndex: newAccountIndex,
-      );
 
       final result = {
         'descriptor': updatedCoconutVault.descriptor,
         'derivationPath': updatedCoconutVault.derivationPath,
       };
+      derivedVault.keyStore.wipeSeed();
       updatedCoconutVault.keyStore.wipeSeed();
       return result;
     } finally {
-      mnemonicForVerify.wipe();
-      mnemonicForDerive.wipe();
-      originalMnemonic.wipe();
-
-      passphraseForVerify?.wipe();
-      passphraseForDerive?.wipe();
-      originalPassphrase?.wipe();
+      mnemonic.wipe();
+      if (passphrase != null) {
+        passphrase.wipe();
+      }
     }
   }
 }
