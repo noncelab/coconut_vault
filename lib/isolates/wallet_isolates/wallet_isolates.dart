@@ -430,19 +430,15 @@ class WalletIsolates {
 
     final AddressType addressType = AddressType.getAddressTypeFromName(addressTypeName);
 
-    try {
-      final derivedVault = SingleSignatureVault.fromMnemonic(
-        mnemonic,
-        addressType: addressType,
-        passphrase: passphrase,
-        accountIndex: currentAccountIndex,
-      );
+    SingleSignatureVault? derivedVault;
+    SingleSignatureVault? updatedCoconutVault;
 
-      final updatedCoconutVault = SingleSignatureVault.fromMnemonic(
-        mnemonic,
+    try {
+      derivedVault = SingleSignatureVault.fromMnemonic(
+        Uint8List.fromList(mnemonic),
         addressType: addressType,
-        passphrase: passphrase,
-        accountIndex: newAccountIndex,
+        passphrase: passphrase != null ? Uint8List.fromList(passphrase) : null,
+        accountIndex: currentAccountIndex,
       );
 
       final String derivedMfp = derivedVault.keyStore.masterFingerprint;
@@ -450,14 +446,21 @@ class WalletIsolates {
         throw Exception('Invalid passphrase');
       }
 
+      updatedCoconutVault = SingleSignatureVault.fromMnemonic(
+        Uint8List.fromList(mnemonic),
+        addressType: addressType,
+        passphrase: passphrase != null ? Uint8List.fromList(passphrase) : null,
+        accountIndex: newAccountIndex,
+      );
+
       final result = {
         'descriptor': updatedCoconutVault.descriptor,
         'derivationPath': updatedCoconutVault.derivationPath,
       };
-      derivedVault.keyStore.wipeSeed();
-      updatedCoconutVault.keyStore.wipeSeed();
       return result;
     } finally {
+      derivedVault?.keyStore.wipeSeed();
+      updatedCoconutVault?.keyStore.wipeSeed();
       mnemonic.wipe();
       if (passphrase != null) {
         passphrase.wipe();
