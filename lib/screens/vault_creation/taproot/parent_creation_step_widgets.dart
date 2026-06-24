@@ -260,11 +260,14 @@ class ParentWalletSyncQr extends StatelessWidget {
     return Column(
       children: [
         for (int index = 0; index < descriptionLines.length; index++)
-          CharacterFadeInText(
-            text: descriptionLines[index],
-            animationKey: 'taproot-parent-creation-body-export-qr-description-$index',
-            duration: index == 0 ? const Duration(milliseconds: 400) : const Duration(milliseconds: 700),
-            delay: index == 0 ? const Duration(milliseconds: 800) : const Duration(milliseconds: 1500),
+          MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+            child: CharacterFadeInText(
+              text: descriptionLines[index],
+              animationKey: 'taproot-parent-creation-body-export-qr-description-$index',
+              duration: index == 0 ? const Duration(milliseconds: 400) : const Duration(milliseconds: 700),
+              delay: index == 0 ? const Duration(milliseconds: 800) : const Duration(milliseconds: 1500),
+            ),
           ),
         CoconutLayout.spacing_600h,
         AdaptiveQrImage(qrData: qrData),
@@ -305,17 +308,23 @@ class ParentTimelockSetupBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CharacterFadeInText(
-          text: t.taproot.parent_creation_screen.step_3.set_timelock_description_1,
-          animationKey: 'taproot-parent-creation-body-timelock-description-1',
-          duration: const Duration(milliseconds: 400),
-          delay: const Duration(milliseconds: 1700),
+        MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: CharacterFadeInText(
+            text: t.taproot.parent_creation_screen.step_3.set_timelock_description_1,
+            animationKey: 'taproot-parent-creation-body-timelock-description-1',
+            duration: const Duration(milliseconds: 400),
+            delay: const Duration(milliseconds: 1700),
+          ),
         ),
-        CharacterFadeInText(
-          text: t.taproot.parent_creation_screen.step_3.set_timelock_description_2,
-          animationKey: 'taproot-parent-creation-body-timelock-description-2',
-          duration: const Duration(milliseconds: 700),
-          delay: const Duration(milliseconds: 2400),
+        MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+          child: CharacterFadeInText(
+            text: t.taproot.parent_creation_screen.step_3.set_timelock_description_2,
+            animationKey: 'taproot-parent-creation-body-timelock-description-2',
+            duration: const Duration(milliseconds: 700),
+            delay: const Duration(milliseconds: 2400),
+          ),
         ),
         CoconutLayout.spacing_600h,
         ParentTimelockDateButton(
@@ -353,14 +362,18 @@ class ParentTimelockDateButton extends StatelessWidget {
         child: Row(
           children: [
             SvgPicture.asset('assets/svg/calendar-days.svg'),
+            CoconutLayout.spacing_300w,
             Expanded(
-              child: Center(
-                child: Text(
-                  text,
-                  style:
-                      hasSelectedDateTime
-                          ? CoconutTypography.body2_14_Number.setColor(CoconutColors.black)
-                          : CoconutTypography.body2_14.setColor(CoconutColors.gray400),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Center(
+                  child: Text(
+                    text,
+                    style:
+                        hasSelectedDateTime
+                            ? CoconutTypography.body2_14_Number.setColor(CoconutColors.black)
+                            : CoconutTypography.body2_14.setColor(CoconutColors.gray400),
+                  ),
                 ),
               ),
             ),

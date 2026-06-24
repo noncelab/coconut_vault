@@ -1048,6 +1048,8 @@ multi_sig_setting_screen:
     share_bsms_description: "他のボルトにこのウォレットを共有します。"
     export_watch_only_wallet: "ウォッチオンリーウォレットにエクスポート"
     export_watch_only_wallet_description: "残高/アドレスの表示のみ可能なウォッチオンリーウォレットにエクスポートします。"
+    export_to_coconut_wallet: "Coconut Walletにエクスポート"
+    export_to_coconut_wallet_description: "ウォッチオンリーウォレットと一緒に使用できます。"
     backup_wallet_data: "ウォレットデータバックアップ"
     backup_wallet_data_description: "損失やデバイス変更に備えて、ウォレット復元に必要なBSMSデータをバックアップします。"
     guide:

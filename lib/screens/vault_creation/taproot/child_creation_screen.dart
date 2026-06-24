@@ -71,6 +71,8 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
   int _currentStep = 1;
   final List<ChildCreationStep> _stepHistory = [ChildCreationStep.intro, ChildCreationStep.childPreparation];
+  int? _progressTotalStepSnapshot;
+  int? _progressTotalStepSnapshotAtStep;
   int? _childWalletQrStep;
   int? _scannerStep;
   GlobalKey<MnemonicViewScreenState>? _currentVaultMnemonicViewKey;
@@ -221,6 +223,14 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
   bool get _isProgressPaused => _shouldPauseProgress(_currentStepType);
 
+  int _progressTotalStep(ChildCreationViewModel viewModel) {
+    if (_progressTotalStepSnapshot == null || _progressTotalStepSnapshotAtStep != _currentStep) {
+      _progressTotalStepSnapshot = viewModel.progressTotalStep;
+      _progressTotalStepSnapshotAtStep = _currentStep;
+    }
+    return _progressTotalStepSnapshot!;
+  }
+
   bool get _isSummaryStep => _currentStepType == ChildCreationStep.summary;
 
   bool get _isTimelineStep => _currentStepType == ChildCreationStep.timeline;
@@ -235,7 +245,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   int _progressCurrentStep(ChildCreationViewModel viewModel) {
     return (_stepHistory.take(_currentStep).where((step) => !_shouldPauseProgress(step)).length -
             _progressInitialStepCount)
-        .clamp(0, viewModel.progressTotalStep);
+        .clamp(0, _progressTotalStep(viewModel));
   }
 
   Duration get _titleAnimationDuration {
@@ -610,8 +620,12 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     try {
       await viewModel.saveVault();
     } catch (e) {
-      // TODO: 에러 핸들링
-      _isProcessing = false;
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+          _isSavingVault = false;
+        });
+      }
       rethrow;
     }
 
@@ -702,6 +716,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       await _currentStepAction(viewModel)?.call();
     } catch (e) {
       Logger.error(e);
+      if (!mounted) return;
       TaprootCreationOverlays.showInfoDialog(
         context: context,
         title: t.errors.unexpected_error_title,
@@ -746,6 +761,10 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   }
 
   void _handleBackPressed() {
+    if (_isProcessing || _isSavingVault) {
+      return;
+    }
+
     final viewModel = context.read<ChildCreationViewModel>();
 
     if (_isTimelineStep) {
@@ -956,7 +975,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
                       ),
                       TopProgressBar(
                         visible: !_isProgressPaused,
-                        total: viewModel.progressTotalStep,
+                        total: _progressTotalStep(viewModel),
                         current: _progressCurrentStep(viewModel),
                       ),
                       if (_isSavingVault)

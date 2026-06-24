@@ -37,7 +37,7 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
   late BitcoinUnit _currentUnit;
 
   bool _showLoading = false;
-  bool _showFullAddress = false;
+  bool _showFullAddress = true;
   bool _isNavigating = false;
   bool _isCupertinoLoadingShown = false;
   String _cupertinoLoadingMessage = '';

@@ -132,7 +132,7 @@ class MyBottomSheet {
         return AnimatedPadding(
           duration: const Duration(milliseconds: 220),
           curve: Curves.easeOutCubic,
-          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom + 20),
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
           child: Wrap(
             children: <Widget>[
               if (showDragHandle)

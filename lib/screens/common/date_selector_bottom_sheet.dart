@@ -64,7 +64,7 @@ class DateSelectorBottomSheet {
                                   selectedDate = date;
                                 },
                                 firstDate: today,
-                                lastDate: DateTime(today.year + 10, today.month, today.day),
+                                lastDate: DateTime(today.year + 100, today.month, today.day),
                                 showTimeSelector: true,
                                 selectedTime: selectedTime,
                                 onTimeChanged: (time) {

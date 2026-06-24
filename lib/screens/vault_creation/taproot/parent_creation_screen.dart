@@ -90,6 +90,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   late final ParentCreationViewModel _viewModel;
   final List<ParentCreationStep> _stepHistory = [ParentCreationStep.intro, ParentCreationStep.selectWalletType];
   int _currentStep = 1;
+  int? _progressTotalStepSnapshot;
+  int? _progressTotalStepSnapshotAtStep;
   int? _keyPreparationStep;
   int? _keyCreationOrImportOptionStep;
   int? _parentKeyImportStep;
@@ -412,15 +414,23 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
   List<Widget> _buildMultisigStartGuideBody() {
     return [
-      t.taproot.parent_creation_screen.step_1.multisig_start_with_another_vault_description_1.characterFadeInAnimation(
-        duration: const Duration(milliseconds: 700),
-        delay: const Duration(milliseconds: 1700),
-        textStyle: CoconutTypography.body1_16,
+      MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+        child: t.taproot.parent_creation_screen.step_1.multisig_start_with_another_vault_description_1
+            .characterFadeInAnimation(
+              duration: const Duration(milliseconds: 700),
+              delay: const Duration(milliseconds: 1700),
+              textStyle: CoconutTypography.body1_16,
+            ),
       ),
-      t.taproot.parent_creation_screen.step_1.multisig_start_with_another_vault_description_2.characterFadeInAnimation(
-        duration: const Duration(milliseconds: 700),
-        delay: const Duration(milliseconds: 2400),
-        textStyle: CoconutTypography.body1_16,
+      MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+        child: t.taproot.parent_creation_screen.step_1.multisig_start_with_another_vault_description_2
+            .characterFadeInAnimation(
+              duration: const Duration(milliseconds: 700),
+              delay: const Duration(milliseconds: 2400),
+              textStyle: CoconutTypography.body1_16,
+            ),
       ),
       CoconutLayout.spacing_900h,
       Padding(padding: const EdgeInsets.symmetric(horizontal: 64), child: Image.asset('assets/png/hanging-phone.png')),
@@ -774,17 +784,23 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   List<Widget> _buildChildWalletImportedBody() {
     final childWalletMasterFingerprint = _viewModel.childWalletMasterFingerprint ?? '';
     return [
-      CharacterFadeInText(
-        text: t.taproot.parent_creation_screen.step_2.imported_script_path_description_1,
-        animationKey: 'taproot-parent-creation-body-imported-script-path-description-1',
-        duration: const Duration(milliseconds: 400),
-        delay: const Duration(milliseconds: 1700),
+      MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+        child: CharacterFadeInText(
+          text: t.taproot.parent_creation_screen.step_2.imported_script_path_description_1,
+          animationKey: 'taproot-parent-creation-body-imported-script-path-description-1',
+          duration: const Duration(milliseconds: 400),
+          delay: const Duration(milliseconds: 1700),
+        ),
       ),
-      CharacterFadeInText(
-        text: t.taproot.parent_creation_screen.step_2.imported_script_path_description_2,
-        animationKey: 'taproot-parent-creation-body-imported-script-path-description-2',
-        duration: const Duration(milliseconds: 700),
-        delay: const Duration(milliseconds: 2400),
+      MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+        child: CharacterFadeInText(
+          text: t.taproot.parent_creation_screen.step_2.imported_script_path_description_2,
+          animationKey: 'taproot-parent-creation-body-imported-script-path-description-2',
+          duration: const Duration(milliseconds: 700),
+          delay: const Duration(milliseconds: 2400),
+        ),
       ),
       CoconutLayout.spacing_600h,
       InfoBox(
@@ -904,6 +920,14 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
   bool get _isProgressPaused => _shouldPauseProgress(_currentStepType);
 
+  int get _progressTotalStep {
+    if (_progressTotalStepSnapshot == null || _progressTotalStepSnapshotAtStep != _currentStep) {
+      _progressTotalStepSnapshot = _viewModel.progressTotalStep;
+      _progressTotalStepSnapshotAtStep = _currentStep;
+    }
+    return _progressTotalStepSnapshot!;
+  }
+
   bool get _showHeader {
     return !_isProgressPaused || _isExportQrStep;
   }
@@ -911,7 +935,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   int get _progressCurrentStep {
     return (_stepHistory.take(_currentStep).where((step) => !_shouldPauseProgress(step)).length -
             _progressInitialStepCount)
-        .clamp(0, _viewModel.progressTotalStep);
+        .clamp(0, _progressTotalStep);
   }
 
   Duration get _titleAnimationDuration {
@@ -1769,6 +1793,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   void _handleBackPressed() {
+    if (_isCheckingDuplicateWallet) {
+      return;
+    }
+
     if (_isTimelineStep || _isExportQrStep) {
       _navigateToHome();
       return;
@@ -2061,6 +2089,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
             title: t.taproot.parent_creation_screen.title,
             context: context,
             isBottom: _isTimelineStep || _isExportQrStep,
+            height: 56,
             backgroundColor: CoconutColors.white,
             onBackPressed: _handleBackPressed,
             actionButtonList: [
@@ -2102,11 +2131,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
                           ? _getBodyList(_currentStepType).first
                           : Column(children: _getBodyList(_currentStepType)),
                 ),
-                TopProgressBar(
-                  visible: !_isProgressPaused,
-                  total: _viewModel.progressTotalStep,
-                  current: _progressCurrentStep,
-                ),
+                TopProgressBar(visible: !_isProgressPaused, total: _progressTotalStep, current: _progressCurrentStep),
                 if (_isCheckingDuplicateWallet)
                   const Positioned.fill(child: CoconutLoadingOverlay(applyFullScreen: true)),
               ],

@@ -121,10 +121,14 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
                     ),
                   ],
                   CoconutLayout.spacing_300h,
-                  // 보기 전용 앱으로 내보내기 (공용)
+                  // 보기 전용 앱으로 내보내기 / 코코넛 월렛으로 내보내기(탭루트)
                   _buildOption(
-                    t.multi_sig_setting_screen.export_menu.export_watch_only_wallet,
-                    t.multi_sig_setting_screen.export_menu.export_watch_only_wallet_description,
+                    widget.walletType == WalletType.taproot
+                        ? t.multi_sig_setting_screen.export_menu.export_to_coconut_wallet
+                        : t.multi_sig_setting_screen.export_menu.export_watch_only_wallet,
+                    widget.walletType == WalletType.taproot
+                        ? t.multi_sig_setting_screen.export_menu.export_to_coconut_wallet_description
+                        : t.multi_sig_setting_screen.export_menu.export_watch_only_wallet_description,
                     onTapExportWatchOnlyWallet,
                     true,
                   ),

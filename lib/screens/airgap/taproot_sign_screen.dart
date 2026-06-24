@@ -41,7 +41,7 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
   late TaprootSignViewModel _viewModel;
   late BitcoinUnit _currentUnit;
   bool _showLoading = false;
-  bool _showFullAddress = false;
+  bool _showFullAddress = true;
   // MuSig2 First Signer 흐름에서 nonce 생성 시 획득한 Seed를 BottomSheet 닫힌 후 localSign 단계까지 보유.
   // ViewModel보다 생명주기가 짧은 State에 두어 화면 종료 시 dispose()에서 wipe() 보장.
   // step == localNonceCreated(재진입) 시에는 _getSeed() 재호출 없이 이 값을 재사용.

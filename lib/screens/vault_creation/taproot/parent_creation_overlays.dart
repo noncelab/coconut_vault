@@ -121,11 +121,14 @@ class ParentCreationOverlays {
         child: Column(
           children: [
             CoconutLayout.spacing_700h,
-            Text(
-              '${t.taproot.parent_creation_screen.step_1.multisig_qr_title_1}\n'
-              '${t.taproot.parent_creation_screen.step_1.multisig_qr_title_2}',
-              style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.black),
-              textAlign: TextAlign.center,
+            MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+              child: Text(
+                '${t.taproot.parent_creation_screen.step_1.multisig_qr_title_1}\n'
+                '${t.taproot.parent_creation_screen.step_1.multisig_qr_title_2}',
+                style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.black),
+                textAlign: TextAlign.center,
+              ),
             ),
             CoconutLayout.spacing_2100h,
             ParentMultisigParentExportQr(qrData: qrData),
@@ -136,11 +139,14 @@ class ParentCreationOverlays {
   }
 
   static Future<TaprootVault?> showMultisigParentScannerBottomSheet(BuildContext context) {
-    final guideText = Text(
-      '${t.taproot.parent_creation_screen.step_1.multisig_scanner_title_1}\n'
-      '${t.taproot.parent_creation_screen.step_1.multisig_scanner_title_2}',
-      style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.white),
-      textAlign: TextAlign.center,
+    final guideText = MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+      child: Text(
+        '${t.taproot.parent_creation_screen.step_1.multisig_scanner_title_1}\n'
+        '${t.taproot.parent_creation_screen.step_1.multisig_scanner_title_2}',
+        style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.white),
+        textAlign: TextAlign.center,
+      ),
     );
 
     return MyBottomSheet.showDraggableScrollableSheet<TaprootVault>(

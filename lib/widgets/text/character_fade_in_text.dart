@@ -8,6 +8,7 @@ class CharacterFadeInText extends StatelessWidget {
   final Duration duration;
   final Duration delay;
   final TextStyle textStyle;
+  final TextAlign? textAlign;
 
   const CharacterFadeInText({
     super.key,
@@ -16,6 +17,7 @@ class CharacterFadeInText extends StatelessWidget {
     required this.duration,
     required this.delay,
     this.textStyle = CoconutTypography.body1_16,
+    this.textAlign,
   });
 
   @override
@@ -25,6 +27,7 @@ class CharacterFadeInText extends StatelessWidget {
       duration: duration,
       delay: delay,
       textStyle: textStyle,
+      textAlign: textAlign,
     );
   }
 }
