@@ -181,9 +181,13 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
                         CoconutLayout.spacing_600h,
                         Padding(padding: const EdgeInsets.symmetric(horizontal: 16.0), child: _buildPassphraseToggle()),
                         if (_usePassphrase)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                            child: _buildPassphraseTextField(),
+                          Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                child: _buildPassphraseTextField(),
+                              ),
+                            ],
                           ),
                         CoconutLayout.spacing_2500h,
                       ],
