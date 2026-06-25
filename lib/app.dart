@@ -480,6 +480,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                                 externalSigner: args['externalSigner'],
                                 multisigVaultIdOfExternalSigner: args['multisigVaultIdOfExternalSigner'],
                                 isTaproot: args['isTaproot'] ?? false,
+                                requirePassphraseConfirmation: args['requirePassphraseConfirmation'] ?? true,
                               ),
                             ),
                         AppRoutes.mnemonicConfirmation:
