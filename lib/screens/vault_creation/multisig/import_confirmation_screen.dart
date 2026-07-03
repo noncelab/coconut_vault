@@ -203,8 +203,9 @@ class _ImportConfirmationScreenState extends State<ImportConfirmationScreen> {
             ? t.import_confirmation_screen.other_vault
             : widget.hwwType.displayName;
     final visibilityProvider = Provider.of<VisibilityProvider>(context, listen: false);
+    final isEnglishWordOrder = visibilityProvider.isEnglishWordOrder;
     return [
-      if (visibilityProvider.isEnglishWordOrder) ...[
+      if (isEnglishWordOrder) ...[
         TextSpan(
           text: t.import_confirmation_screen.guide1(hwwType: ''),
           style: CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black),

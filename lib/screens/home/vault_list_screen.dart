@@ -186,7 +186,8 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       height: 16,
       colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
     );
-    bool isEnglishWordOrder = _visibilityProvider.isEnglishWordOrder;
+    final isEnglishWordOrder = _visibilityProvider.isEnglishWordOrder;
+
     return Container(
       width: MediaQuery.sizeOf(context).width,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -223,7 +224,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildEditModeHeaderLine(List<InlineSpan> inlineSpan) {
+  Widget _buildEditModeHeaderLine(List<InlineSpan> inlineSpans) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -235,7 +236,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
         ),
         Expanded(
           child: RichText(
-            text: TextSpan(style: CoconutTypography.body2_14.setColor(CoconutColors.gray800), children: inlineSpan),
+            text: TextSpan(style: CoconutTypography.body2_14.setColor(CoconutColors.gray800), children: inlineSpans),
             overflow: TextOverflow.visible,
             softWrap: true,
           ),
