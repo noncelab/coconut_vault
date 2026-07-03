@@ -20,7 +20,6 @@ class VisibilityProvider extends ChangeNotifier {
   bool get hasSeenGuide => _hasSeenGuide;
   bool get isPassphraseUseEnabled => _isPassphraseUseEnabled;
   bool get isAccountEditEnabled => _isAccountEditEnabled;
-  String get language => _language.code;
   AppLanguage get appLanguage => _language;
   bool get isEnglishWordOrder => _language.hasEnglishWordOrder;
 

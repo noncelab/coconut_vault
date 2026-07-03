@@ -55,7 +55,7 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
   void initState() {
     super.initState();
     _visibilityProvider = Provider.of<VisibilityProvider>(context, listen: false);
-    _isEnglish = _visibilityProvider.language == 'en';
+    _isEnglish = _visibilityProvider.isEnglishWordOrder;
     _isBbqrType = widget.hardwareWalletType == HardwareWalletType.coldCard;
     _keyIndex = widget.index != null ? '${widget.index! + 1}' : ''; // 다중서명 화면 하단의 QR 내보내기를 통해 들어온 경우 index가 null
 

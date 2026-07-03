@@ -392,7 +392,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
               context: context,
               builder: (BuildContext context) {
                 return CoconutPopup(
-                  languageCode: context.read<VisibilityProvider>().language,
+                  languageCode: context.read<VisibilityProvider>().appLanguage.code,
                   title: t.vault_list_screen.edit.finish,
                   description: t.vault_list_screen.edit.unsaved_changes_confirm_exit,
                   leftButtonText: t.no,

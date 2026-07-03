@@ -94,7 +94,7 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
                   barrierDismissible: true,
                   builder: (BuildContext context) {
                     return CoconutPopup(
-                      languageCode: context.read<VisibilityProvider>().language,
+                      languageCode: context.read<VisibilityProvider>().appLanguage.code,
                       insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
                       title: t.multi_sig_setting_screen.popup.title(name: hwwName),
                       description: t.multi_sig_setting_screen.popup.description(name: hwwName),

@@ -1,5 +1,3 @@
-import 'dart:math' as Math;
-
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -45,7 +43,7 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
   void initState() {
     super.initState();
     _visibilityProvider = Provider.of<VisibilityProvider>(context, listen: false);
-    _isEnglish = _visibilityProvider.language == 'en';
+    _isEnglish = _visibilityProvider.isEnglishWordOrder;
   }
 
   @override

@@ -10,7 +10,7 @@ class TestnetLabelWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Selector<VisibilityProvider, String>(
-      selector: (_, provider) => provider.language,
+      selector: (_, provider) => provider.appLanguage.code,
       builder: (context, language, child) {
         return Container(
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(4), color: CoconutColors.cyanBlue),

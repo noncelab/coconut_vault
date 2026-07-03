@@ -282,7 +282,7 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
         context: context,
         builder:
             (context) => CoconutPopup(
-              languageCode: context.read<VisibilityProvider>().language,
+              languageCode: context.read<VisibilityProvider>().appLanguage.code,
               title: t.errors.creation_error,
               description: e.toString(),
               onTapRight: () {

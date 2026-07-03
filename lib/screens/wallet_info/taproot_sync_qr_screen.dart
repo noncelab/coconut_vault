@@ -35,7 +35,7 @@ class TaprootSyncQrScreen extends StatelessWidget {
   }
 
   Widget _buildQrDescription(BuildContext context) {
-    final language = Provider.of<VisibilityProvider>(context, listen: false).language;
+    final language = Provider.of<VisibilityProvider>(context, listen: false).appLanguage.code;
 
     return CustomTooltip.buildInfoTooltip(
       context,

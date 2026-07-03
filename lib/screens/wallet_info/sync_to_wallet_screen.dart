@@ -183,7 +183,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   // MARK: - Guide Text Builders
 
   List<TextSpan> _getGuideTextSpan() {
-    final language = Provider.of<VisibilityProvider>(context, listen: false).language;
+    final language = Provider.of<VisibilityProvider>(context, listen: false).appLanguage.code;
     final title = widget.syncOption.title;
 
     if (title == t.watch_only_options.coconut_wallet) {

@@ -97,7 +97,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       context: context,
       builder: (BuildContext context) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.errors.scan_error_title,
           description: message,
@@ -199,7 +199,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     final hwwType = widget.hardwareWalletType ?? HardwareWalletType.coconutVault;
 
     final visibilityProvider = Provider.of<VisibilityProvider>(context, listen: false);
-    final isEnglish = visibilityProvider.language == 'en';
+    final isEnglish = visibilityProvider.isEnglishWordOrder;
 
     switch (hwwType) {
       case HardwareWalletType.coconutVault:

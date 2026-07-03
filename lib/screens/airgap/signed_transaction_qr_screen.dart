@@ -92,7 +92,7 @@ class _SignedTransactionQrScreenState extends State<SignedTransactionQrScreen> {
       context: context,
       builder: (BuildContext context) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           titlePadding: const EdgeInsets.only(top: 24, bottom: 12, left: 16, right: 16),
           title: t.alert.finish_signing.title,
           description: t.alert.finish_signing.description,

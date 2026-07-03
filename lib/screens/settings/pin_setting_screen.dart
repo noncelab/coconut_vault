@@ -184,7 +184,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       context: context,
       builder: (BuildContext context) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.alert.secure_module_use_biometrics.title,
           description: t.alert.secure_module_use_biometrics.description,

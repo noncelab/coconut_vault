@@ -161,7 +161,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
   Widget _browserImage() {
     return Consumer<VisibilityProvider>(
       builder: (context, visibilityProvider, child) {
-        String languageSuffix = visibilityProvider.language == 'kr' ? 'ko' : 'en';
+        String languageSuffix = visibilityProvider.appLanguage.code == 'kr' ? 'ko' : 'en';
         return Image.asset('assets/png/browser_$languageSuffix.png', width: 222, fit: BoxFit.fitWidth);
       },
     );
