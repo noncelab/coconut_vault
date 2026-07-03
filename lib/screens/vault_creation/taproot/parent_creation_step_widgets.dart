@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/constants/app_language.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/parent_creation_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -287,7 +288,7 @@ class ParentTimelockSetupBody extends StatelessWidget {
   final DateTime? selectedDateTime;
   final VoidCallback onDatePressed;
 
-  final String language;
+  final AppLanguage language;
 
   static List<TextSpan> titleList() {
     return [
