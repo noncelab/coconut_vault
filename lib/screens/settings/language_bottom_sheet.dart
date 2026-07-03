@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/constants/app_language.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,8 +16,8 @@ class LanguageBottomSheet extends StatefulWidget {
 class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
   @override
   Widget build(BuildContext context) {
-    return Selector<VisibilityProvider, String>(
-      selector: (_, viewModel) => viewModel.language,
+    return Selector<VisibilityProvider, AppLanguage>(
+      selector: (_, viewModel) => viewModel.appLanguage,
       builder: (context, language, child) {
         return Scaffold(
           backgroundColor: CoconutColors.white,
@@ -30,35 +31,32 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
             padding: const EdgeInsets.only(left: Sizes.size16, right: Sizes.size16),
             child: Column(
               children: [
-                _buildUnitItem(t.language.korean, t.language.korean, language == 'kr', () async {
+                _buildUnitItem(t.language.korean, t.language.korean, language == AppLanguage.ko, () async {
                   // 언어 변경 전에 BottomSheet를 먼저 닫기
                   if (context.mounted) {
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();
                   }
 
-                  // 언어 변경은 BottomSheet가 닫힌 후에 실행
-                  final provider = context.read<VisibilityProvider>();
-                  await provider.changeLanguage('kr');
+                  // 언어 변경은 BottomSheet가 닫힌 후에 실행 (UI 블락 방지)
+                  await context.read<VisibilityProvider>().changeLanguage(AppLanguage.ko);
                 }),
                 Divider(color: CoconutColors.black.withValues(alpha: 0.12), height: 1),
-                _buildUnitItem(t.language.english, t.language.english, language == 'en', () async {
+                _buildUnitItem(t.language.english, t.language.english, language == AppLanguage.en, () async {
                   if (context.mounted) {
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();
                   }
                   // 언어 변경은 BottomSheet가 닫힌 후에 실행
-                  final provider = context.read<VisibilityProvider>();
-                  await provider.changeLanguage('en');
+                  await context.read<VisibilityProvider>().changeLanguage(AppLanguage.en);
                 }),
                 Divider(color: CoconutColors.black.withValues(alpha: 0.12), height: 1),
-                _buildUnitItem(t.language.japanese, t.language.japanese, language == 'jp', () async {
+                _buildUnitItem(t.language.japanese, t.language.japanese, language == AppLanguage.ja, () async {
                   if (context.mounted) {
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();
                   }
-                  final provider = context.read<VisibilityProvider>();
-                  await provider.changeLanguage('jp');
+                  await context.read<VisibilityProvider>().changeLanguage(AppLanguage.ja);
                 }),
               ],
             ),
