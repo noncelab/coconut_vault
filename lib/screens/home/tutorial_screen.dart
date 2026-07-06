@@ -1,7 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/constants/external_links.dart';
-import 'package:coconut_vault/constants/app_language.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -162,7 +161,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
   Widget _browserImage() {
     return Consumer<VisibilityProvider>(
       builder: (context, visibilityProvider, child) {
-        final languageSuffix = visibilityProvider.appLanguage == AppLanguage.ko ? 'ko' : 'en';
+        final languageSuffix = visibilityProvider.appLanguage.imageSuffix;
         return Image.asset('assets/png/browser_$languageSuffix.png', width: 222, fit: BoxFit.fitWidth);
       },
     );
