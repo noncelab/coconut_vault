@@ -183,23 +183,23 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   // MARK: - Guide Text Builders
 
   List<TextSpan> _getGuideTextSpan() {
-    final language = Provider.of<VisibilityProvider>(context, listen: false).appLanguage.code;
+    final isEnglishWordOrder = Provider.of<VisibilityProvider>(context, listen: false).isEnglishWordOrder;
     final title = widget.syncOption.title;
 
     if (title == t.watch_only_options.coconut_wallet) {
-      return _getCoconutGuide(language);
+      return _getCoconutGuide(isEnglishWordOrder);
     } else if (title == t.watch_only_options.sparrow) {
-      return _getSparrowGuide(language);
+      return _getSparrowGuide(isEnglishWordOrder);
     } else if (title == t.watch_only_options.nunchuk) {
-      return _getNunchukGuide(language);
+      return _getNunchukGuide(isEnglishWordOrder);
     } else if (title == t.watch_only_options.bluewallet) {
-      return _getBlueWalletGuide(language);
+      return _getBlueWalletGuide(isEnglishWordOrder);
     }
     return [];
   }
 
-  List<TextSpan> _getCoconutGuide(String language) {
-    if (language == 'en') {
+  List<TextSpan> _getCoconutGuide(bool isEnglishWordOrder) {
+    if (isEnglishWordOrder) {
       return [
         em(t.watch_only_options.coconut_wallet),
         const TextSpan(text: '\n1. '),
@@ -225,8 +225,8 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
     ];
   }
 
-  List<TextSpan> _getSparrowGuide(String language) {
-    if (language == 'en') {
+  List<TextSpan> _getSparrowGuide(bool isEnglishWordOrder) {
+    if (isEnglishWordOrder) {
       return [
         em(t.watch_only_options.sparrow),
         const TextSpan(text: '\n'),
@@ -258,10 +258,10 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
     ];
   }
 
-  List<TextSpan> _getNunchukGuide(String language) {
+  List<TextSpan> _getNunchukGuide(bool isEnglishWordOrder) {
     final guide = t.sync_to_wallet_screen.guide.nunchuk;
 
-    if (language == 'en') {
+    if (isEnglishWordOrder) {
       return [
         em(t.watch_only_options.nunchuk),
         const TextSpan(text: '\n1. '),
@@ -296,10 +296,10 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
     ];
   }
 
-  List<TextSpan> _getBlueWalletGuide(String language) {
+  List<TextSpan> _getBlueWalletGuide(bool isEnglishWordOrder) {
     final guide = t.sync_to_wallet_screen.guide.bluewallet;
 
-    if (language == 'en') {
+    if (isEnglishWordOrder) {
       return [
         em(t.watch_only_options.bluewallet),
         const TextSpan(text: '\n1. '),

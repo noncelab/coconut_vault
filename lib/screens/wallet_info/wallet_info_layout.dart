@@ -544,7 +544,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                         text: TextSpan(
                           style: CoconutTypography.body2_14.setColor(const Color(0xFF4E83FF)),
                           children: [
-                            if (context.read<VisibilityProvider>().appLanguage.code == 'en') ...[
+                            if (context.read<VisibilityProvider>().isEnglishWordOrder) ...[
                               TextSpan(text: t.vault_settings.key),
                               TextSpan(
                                 text: '#${t.vault_settings.nth(index: idx + 1)}',
