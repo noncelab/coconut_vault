@@ -14,16 +14,7 @@ enum AppLanguage {
   String get code => name;
 
   /// slang 라이브러리에서 사용하는 AppLocale 객체로 변환합니다.
-  AppLocale get appLocale {
-    switch (this) {
-      case AppLanguage.ko:
-        return AppLocale.kr;
-      case AppLanguage.ja:
-        return AppLocale.jp;
-      default:
-        return AppLocale.en;
-    }
-  }
+  AppLocale get appLocale => AppLocale.values.firstWhere((e) => e.name == name, orElse: () => AppLocale.en);
 
   static AppLanguage fromCode(String code) => values.firstWhere((e) => e.code == code, orElse: () => en);
 

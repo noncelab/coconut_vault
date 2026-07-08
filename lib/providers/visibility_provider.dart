@@ -42,6 +42,7 @@ class VisibilityProvider extends ChangeNotifier {
 
     _isAccountEditEnabled = isSigningOnlyMode ? true : (prefs.getBool(SharedPrefsKeys.kChangeAccountEnabled) ?? false);
 
+    _migrateLanguageCodeIfNeeded(prefs);
     _language = _initializeLanguageFromOS(prefs);
     _isBtcUnit = prefs.getBool(SharedPrefsKeys.kIsBtcUnit) ?? true;
     _initializeLanguage();
@@ -71,6 +72,19 @@ class VisibilityProvider extends ChangeNotifier {
     _isAccountEditEnabled = value;
     await SharedPrefsRepository().setBool(SharedPrefsKeys.kChangeAccountEnabled, value);
     notifyListeners();
+  }
+
+  void _migrateLanguageCodeIfNeeded(SharedPrefsRepository prefs) {
+    if (prefs.isContainsKey(SharedPrefsKeys.kLanguage)) {
+      final savedLanguageCode = prefs.getString(SharedPrefsKeys.kLanguage);
+      if (savedLanguageCode == 'kr') {
+        prefs.setString(SharedPrefsKeys.kLanguage, 'ko');
+        Logger.log('Language code migrated from "kr" to "ko"');
+      } else if (savedLanguageCode == 'jp') {
+        prefs.setString(SharedPrefsKeys.kLanguage, 'ja');
+        Logger.log('Language code migrated from "jp" to "ja"');
+      }
+    }
   }
 
   AppLanguage _initializeLanguageFromOS(SharedPrefsRepository prefs) {
