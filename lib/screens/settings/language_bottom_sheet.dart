@@ -29,36 +29,23 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
           ),
           body: Padding(
             padding: const EdgeInsets.only(left: Sizes.size16, right: Sizes.size16),
-            child: Column(
-              children: [
-                _buildUnitItem(t.language.korean, t.language.korean, language == AppLanguage.ko, () async {
+            child: ListView.separated(
+              itemCount: AppLanguage.displayValues.length,
+              itemBuilder: (context, index) {
+                final lang = AppLanguage.displayValues[index];
+                return _buildUnitItem(lang.displayName, language == lang, () async {
                   // 언어 변경 전에 BottomSheet를 먼저 닫기
                   if (context.mounted) {
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();
                   }
-
                   // 언어 변경은 BottomSheet가 닫힌 후에 실행 (UI 블락 방지)
-                  await context.read<VisibilityProvider>().changeLanguage(AppLanguage.ko);
-                }),
-                Divider(color: CoconutColors.black.withValues(alpha: 0.12), height: 1),
-                _buildUnitItem(t.language.english, t.language.english, language == AppLanguage.en, () async {
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  }
-                  // 언어 변경은 BottomSheet가 닫힌 후에 실행
-                  await context.read<VisibilityProvider>().changeLanguage(AppLanguage.en);
-                }),
-                Divider(color: CoconutColors.black.withValues(alpha: 0.12), height: 1),
-                _buildUnitItem(t.language.japanese, t.language.japanese, language == AppLanguage.ja, () async {
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  }
-                  await context.read<VisibilityProvider>().changeLanguage(AppLanguage.ja);
-                }),
-              ],
+                  await context.read<VisibilityProvider>().changeLanguage(lang);
+                });
+              },
+              separatorBuilder: (context, index) {
+                return Divider(color: CoconutColors.black.withValues(alpha: 0.12), height: 1);
+              },
             ),
           ),
         );
@@ -66,7 +53,7 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
     );
   }
 
-  Widget _buildUnitItem(String title, String subtitle, bool isChecked, VoidCallback onPress) {
+  Widget _buildUnitItem(String title, bool isChecked, VoidCallback onPress) {
     return GestureDetector(
       onTap: onPress,
       child: Container(
