@@ -6,7 +6,7 @@ import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/bb_qr/bb_qr_encoder.dart';
 import 'package:flutter/material.dart';
-import 'package:coconut_vault/packages/bc-ur-dart/lib/cbor_lite.dart';
+import 'package:ur/cbor_lite.dart';
 import 'package:ur/ur.dart';
 import 'package:ur/ur_encoder.dart';
 

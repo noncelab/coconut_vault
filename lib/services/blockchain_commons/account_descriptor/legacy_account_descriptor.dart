@@ -1,6 +1,6 @@
 import 'dart:typed_data';
-import 'package:coconut_vault/packages/bc-ur-dart/lib/cbor_lite.dart';
 import 'package:coconut_vault/utils/conversion_util.dart';
+import 'package:ur/cbor_lite.dart';
 
 class Cosigner {
   final String label; // 예: "Alice Tapsigner"

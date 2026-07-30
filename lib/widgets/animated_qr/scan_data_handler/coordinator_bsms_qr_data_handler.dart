@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:coconut_vault/packages/bc-ur-dart/lib/ur_decoder.dart';
 import 'package:coconut_vault/utils/bb_qr/bb_qr_decoder.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/ur_bytes_converter.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
+import 'package:ur/ur_decoder.dart';
 
 /// Coordinator BSMS QR 데이터 처리 핸들러
 /// 허용: UR, BBQR, Json, Text

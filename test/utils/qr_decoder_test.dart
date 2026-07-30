@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:coconut_vault/packages/bc-ur-dart/lib/ur_decoder.dart';
 import 'package:coconut_vault/utils/bb_qr/bb_qr_decoder.dart';
 import 'package:coconut_vault/utils/ur_bytes_converter.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ur/ur_decoder.dart';
 
 void main() {
   group('Coordinator Decoder(sparrow export option)', () {
