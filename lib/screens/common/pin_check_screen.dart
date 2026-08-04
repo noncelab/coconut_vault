@@ -316,7 +316,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       context: context,
       builder: (context) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title:
               !_authProvider.isPermanentlyLocked

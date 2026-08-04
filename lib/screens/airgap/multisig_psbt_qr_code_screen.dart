@@ -44,7 +44,6 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
   late bool _isBbqrType;
   late String _keyIndex;
 
-  bool _isEnglish = true;
   int? _lastSnappedValue;
 
   int _currentBbqrIndex = 0;
@@ -55,7 +54,6 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
   void initState() {
     super.initState();
     _visibilityProvider = Provider.of<VisibilityProvider>(context, listen: false);
-    _isEnglish = _visibilityProvider.language == 'en';
     _isBbqrType = widget.hardwareWalletType == HardwareWalletType.coldCard;
     _keyIndex = widget.index != null ? '${widget.index! + 1}' : ''; // 다중서명 화면 하단의 QR 내보내기를 통해 들어온 경우 index가 null
 
@@ -177,8 +175,9 @@ class _PsbtQrCodeViewScreenState extends State<PsbtQrCodeViewScreen> {
   List<TextSpan> _getTooltipRichText() {
     final textStyle = CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black);
     final textStyleBold = CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black);
+    final isEnglishWordOrder = _visibilityProvider.isEnglishWordOrder;
 
-    if (_isEnglish) {
+    if (isEnglishWordOrder) {
       switch (widget.hardwareWalletType) {
         case HardwareWalletType.coconutVault:
           return [

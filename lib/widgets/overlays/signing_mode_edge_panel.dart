@@ -380,7 +380,7 @@ class _SigningModeEdgePanelState extends State<SigningModeEdgePanel> with Single
         context: navContext,
         builder:
             (dialogContext) => CoconutPopup(
-              languageCode: context.read<VisibilityProvider>().language,
+              languageCode: context.read<VisibilityProvider>().appLanguage.code,
               insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(navContext).size.width * 0.15),
               title: t.wallet_delete_failed,
               description: t.wallet_delete_failed_description,
@@ -400,7 +400,7 @@ class _SigningModeEdgePanelState extends State<SigningModeEdgePanel> with Single
       context: navContext,
       builder:
           (dialogContext) => CoconutPopup(
-            languageCode: context.read<VisibilityProvider>().language,
+            languageCode: context.read<VisibilityProvider>().appLanguage.code,
             insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(navContext).size.width * 0.15),
             title: t.delete_vault,
             description: t.delete_vault_description,

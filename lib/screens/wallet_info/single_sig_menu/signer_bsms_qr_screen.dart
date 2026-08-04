@@ -111,7 +111,7 @@ class _SignerBsmsQrScreenState extends State<SignerBsmsQrScreen> {
           context: context,
           builder: (context) {
             return CoconutPopup(
-              languageCode: context.read<VisibilityProvider>().language,
+              languageCode: context.read<VisibilityProvider>().appLanguage.code,
               title: t.multisig_signer_bsms_export_screen.fail_bsms,
               description: _viewModel.errorMessage,
               leftButtonText: t.cancel,

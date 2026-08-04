@@ -64,7 +64,7 @@ abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
       barrierDismissible: false,
       builder: (dialogContext) {
         return CoconutPopup(
-          languageCode: visibilityProvider.language,
+          languageCode: visibilityProvider.appLanguage.code,
           title: wrongFormatPromptTitle,
           description: message,
           rightButtonText: t.confirm,
@@ -264,7 +264,7 @@ abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
   Future<void> _showCameraPermissionDialog() async {
     await showConfirmDialog(
       context,
-      context.read<VisibilityProvider>().language,
+      context.read<VisibilityProvider>().appLanguage.code,
       t.coconut_qr_scanner.camera_error.title,
       t.coconut_qr_scanner.camera_error.need_camera_permission,
       rightButtonText: t.go_to_settings,

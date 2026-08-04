@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/app_language.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -53,7 +54,7 @@ void main() async {
   // flutter: Resolver for <lang = kr> not specified!
   // Please configure it via LocaleSettings.setPluralResolver. A fallback is used now.
   LocaleSettings.setPluralResolver(
-    language: AppLocale.kr.name,
+    language: AppLanguage.ko.name,
     cardinalResolver: (n, {zero, one, two, few, many, other}) {
       if (n == 0) return zero ?? other ?? '';
       if (n == 1) return one ?? other ?? '';
@@ -62,7 +63,7 @@ void main() async {
   );
 
   LocaleSettings.setPluralResolver(
-    language: AppLocale.en.name,
+    language: AppLanguage.en.name,
     cardinalResolver: (n, {zero, one, two, few, many, other}) {
       if (n == 0) return zero ?? other ?? '';
       if (n == 1) return one ?? other ?? '';

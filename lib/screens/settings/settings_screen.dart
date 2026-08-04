@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/app_language.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
@@ -162,7 +163,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     context: context,
                                     builder: (BuildContext context) {
                                       return CoconutPopup(
-                                        languageCode: context.read<VisibilityProvider>().language,
+                                        languageCode: context.read<VisibilityProvider>().appLanguage.code,
                                         insetPadding: EdgeInsets.symmetric(
                                           horizontal: MediaQuery.of(context).size.width * 0.15,
                                         ),
@@ -353,7 +354,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           context: context,
                           builder: (BuildContext context) {
                             return CoconutPopup(
-                              languageCode: context.read<VisibilityProvider>().language,
+                              languageCode: context.read<VisibilityProvider>().appLanguage.code,
                               insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
                               title: t.settings_screen.dialog.use_passphrase_title,
                               description: t.settings_screen.dialog.use_passphrase_description,
@@ -390,7 +391,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           context: context,
                           builder: (BuildContext context) {
                             return CoconutPopup(
-                              languageCode: context.read<VisibilityProvider>().language,
+                              languageCode: context.read<VisibilityProvider>().appLanguage.code,
                               insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
                               title:
                                   isOn
@@ -444,8 +445,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         Consumer<VisibilityProvider>(
           builder: (context, provider, child) {
-            return Selector<VisibilityProvider, String>(
-              selector: (_, provider) => provider.language,
+            return Selector<VisibilityProvider, AppLanguage>(
+              selector: (_, provider) => provider.appLanguage,
               builder: (context, language, child) {
                 return _buildAnimatedButton(
                   title: t.language.language,
@@ -467,16 +468,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  String _getCurrentLanguageDisplayName(String language) {
+  String _getCurrentLanguageDisplayName(AppLanguage language) {
     switch (language) {
-      case 'kr':
+      case AppLanguage.ko:
         return t.language.korean;
-      case 'en':
+      case AppLanguage.en:
         return t.language.english;
-      case 'jp':
+      case AppLanguage.ja:
         return t.language.japanese;
-      default:
-        return t.language.english;
+      default: // AppLanguage enum covers all supported cases, but a default is good practice.
+        return t.language.english; // Or handle other languages if added in the future.
     }
   }
 }

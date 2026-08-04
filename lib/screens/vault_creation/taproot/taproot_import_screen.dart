@@ -274,7 +274,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       context: context,
       builder: (dialogContext) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           title: t.alert.same_wallet.title,
           description: t.alert.same_wallet.description(name: sameWalletName),
           rightButtonText: t.confirm,
@@ -291,7 +291,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       context: context,
       builder: (dialogContext) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           title: t.errors.invalid_qr_title,
           description: step2.invalid_wallet_sync_data,
           rightButtonText: t.confirm,
@@ -746,7 +746,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
     }
 
     final dateTime = DateTime.fromMillisecondsSinceEpoch(lockTime * Duration.millisecondsPerSecond);
-    return DateFormatUtil.formatLocalizedDateTime(dateTime, context.read<VisibilityProvider>().language);
+    return DateFormatUtil.formatLocalizedDateTime(dateTime, context.read<VisibilityProvider>().appLanguage);
   }
 
   int? get _activationEpochTime {
@@ -796,7 +796,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       context: context,
       builder: (dialogContext) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           title: step6.return_dialog_title,
           description: step6.return_dialog_description(role: walletRole),
           leftButtonText: t.cancel,

@@ -182,7 +182,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
       context: context,
       builder: (BuildContext dialogContext) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.alert.delete_vault.title,
           description: t.alert.delete_vault.description,
@@ -544,7 +544,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                         text: TextSpan(
                           style: CoconutTypography.body2_14.setColor(const Color(0xFF4E83FF)),
                           children: [
-                            if (context.read<VisibilityProvider>().language == 'en') ...[
+                            if (context.read<VisibilityProvider>().isEnglishWordOrder) ...[
                               TextSpan(text: t.vault_settings.key),
                               TextSpan(
                                 text: '#${t.vault_settings.nth(index: idx + 1)}',

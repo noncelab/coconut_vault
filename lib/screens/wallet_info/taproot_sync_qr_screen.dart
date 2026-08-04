@@ -35,21 +35,21 @@ class TaprootSyncQrScreen extends StatelessWidget {
   }
 
   Widget _buildQrDescription(BuildContext context) {
-    final language = Provider.of<VisibilityProvider>(context, listen: false).language;
+    final isEnglishWordOrder = Provider.of<VisibilityProvider>(context, listen: false).isEnglishWordOrder;
 
     return CustomTooltip.buildInfoTooltip(
       context,
       richText: RichText(
         text: TextSpan(
           style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
-          children: _getCoconutGuide(language),
+          children: _getCoconutGuide(isEnglishWordOrder),
         ),
       ),
     );
   }
 
-  List<TextSpan> _getCoconutGuide(String language) {
-    if (language == 'en') {
+  List<TextSpan> _getCoconutGuide(bool isEnglishWordOrder) {
+    if (isEnglishWordOrder) {
       return [
         em(t.taproot.sync_qr_screen.coconut_vault),
         const TextSpan(text: '\n1. '),

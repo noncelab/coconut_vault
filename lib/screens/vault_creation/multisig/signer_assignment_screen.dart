@@ -801,18 +801,6 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           };
           break;
         }
-      default: // TODO: remove
-        {
-          title = t.alert.include_internal_key.title;
-          message = t.alert.include_internal_key.description;
-          cancelButtonText = '';
-          confirmButtonText = t.confirm;
-          confirmButtonColor = CoconutColors.black;
-          onConfirm = () {
-            Navigator.pop(context);
-          };
-          break;
-        }
     }
 
     showDialog(
@@ -820,7 +808,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       context: context,
       builder: (BuildContext context) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: title,
           description: message,

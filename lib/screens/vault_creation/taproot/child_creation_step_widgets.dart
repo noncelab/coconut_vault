@@ -221,8 +221,8 @@ class ChildCreationTimelineStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lang = context.read<VisibilityProvider>().language;
-    final dateString = viewModel.getFormattedLockTime(lang);
+    final language = context.read<VisibilityProvider>().appLanguage;
+    final dateString = viewModel.getFormattedLockTime(language);
     final activationEpochTime = _activationEpochTime;
 
     return TimelineStepIndicator(
