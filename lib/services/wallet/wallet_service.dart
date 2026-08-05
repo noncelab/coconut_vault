@@ -16,6 +16,7 @@ import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.d
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/repository/wallet_linker.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:flutter/foundation.dart';
 
@@ -87,23 +88,23 @@ class WalletService {
     return vault;
   }
 
-  /// [details]로부터 멀티시그 지갑을 생성하며, 내부 단일서명 지갑(MFP 일치)을 자동으로 연결.
+  /// [details]로부터 멀티시그 지갑을 생성하며, 내부 단일서명 지갑(MFP + derivation path + xpub 일치)을 자동으로 연결.
   /// [walletId]에 해당하는 내부 지갑이 연결되지 않으면 [NotRelatedMultisigWalletException] 발생.
   Future<MultisigVaultListItem> importMultisig(MultisigImportDetail details, int walletId) async {
     final multisigVault = MultisignatureVault.fromCoordinatorBsms(details.coordinatorBsms);
+    final parsedDescriptor = Descriptor.parse(multisigVault.descriptor);
 
-    // 내부 지갑 매칭 (MFP 기준)
+    // 내부 지갑 매칭 (MFP + derivation path + xpub)
     final linkedWalletList = List<SingleSigVaultListItem?>.filled(multisigVault.keyStoreList.length, null);
     bool isRelated = false;
 
     outerLoop:
     for (final wallet in vaultSnapshot) {
-      if (wallet.vaultType == WalletType.multiSignature) continue;
-
+      if (wallet.vaultType != WalletType.singleSignature) continue;
       final singleSig = wallet as SingleSigVaultListItem;
-      final walletMfp = (singleSig.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
       for (int i = 0; i < multisigVault.keyStoreList.length; i++) {
-        if (walletMfp == multisigVault.keyStoreList[i].masterFingerprint) {
+        final derivationPath = parsedDescriptor.getDerivationPath(i);
+        if (WalletLinker.isSinglesigKeyMatch(singleSig, multisigVault.keyStoreList[i], derivationPath)) {
           linkedWalletList[i] = wallet;
           if (singleSig.id == walletId) isRelated = true;
           continue outerLoop;

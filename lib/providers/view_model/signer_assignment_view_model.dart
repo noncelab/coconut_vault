@@ -213,7 +213,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
       _signerOptions.add(
         SignerOption(
           singlesigVaultList[i],
-          SignerBsms.parse(singlesigVaultList[i].signerBsmsByAddressType[AddressType.p2wsh]!),
+          SignerBsms.parse(singlesigVaultList[i].getSignerBsmsByAddressType(AddressType.p2wsh, withLabel: false)),
         ),
       );
     }
