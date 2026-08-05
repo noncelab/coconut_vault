@@ -4,6 +4,7 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/isolates/sign_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/exception/vault_can_not_sign_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
@@ -117,6 +118,7 @@ class MultisigSignViewModel extends ChangeNotifier {
 
   Future<void> sign(int index, Seed seed) async {
     try {
+      await _assertCanSignPsbt();
       _psbtForSigning = await compute(SignIsolates.addSignatureToPsbtWithMultisigVault, [seed, _psbtForSigning]);
       updateSignState(index);
     } finally {
@@ -128,6 +130,7 @@ class MultisigSignViewModel extends ChangeNotifier {
     assert(_isSigningOnlyMode);
     Seed? seed;
     try {
+      await _assertCanSignPsbt();
       seed = await _walletProvider.getSeedInSigningOnlyMode(_vaultListItem.signers[index].innerVaultId!);
       _psbtForSigning = await compute(SignIsolates.addSignatureToPsbtWithMultisigVault, [seed, _psbtForSigning]);
       updateSignState(index);
@@ -136,40 +139,14 @@ class MultisigSignViewModel extends ChangeNotifier {
     }
   }
 
-  /// [Krux, Keystone]외부 하드웨어 지갑에서 서명한 PSBT를 현재 PSBT에 추가합니다.
-  // void addSignSignature(String signedPsbtBase64) {
-  //   try {
-  //     final currentPsbt = Psbt.parse(_psbtForSigning);
-  //     final scannedPsbt = Psbt.parse(signedPsbtBase64);
-
-  //     // 각 input에 대해 스캔한 PSBT의 서명을 현재 PSBT에 추가
-  //     for (int i = 0; i < currentPsbt.inputs.length && i < scannedPsbt.inputs.length; i++) {
-  //       final scannedInput = scannedPsbt.inputs[i];
-  //       final currentInput = currentPsbt.inputs[i];
-
-  //       // 스캔한 input의 모든 partialSig를 현재 input에 추가
-  //       if (scannedInput.partialSig != null && scannedInput.partialSig!.isNotEmpty) {
-  //         for (var sig in scannedInput.partialSig!) {
-  //           // 이미 존재하는 서명인지 확인 (중복 방지)
-  //           bool alreadyExists =
-  //               currentInput.partialSig?.any((existingSig) => existingSig.publicKey == sig.publicKey) ?? false;
-
-  //           if (!alreadyExists) {
-  //             currentInput.addPartialSig(sig.signature, sig.publicKey);
-  //           }
-  //         }
-  //       }
-  //     }
-
-  //     // 서명을 추가한 후 PSBT를 base64로 변환하여 저장
-  //     _psbtForSigning = currentPsbt.serialize();
-  //   } catch (e) {
-  //     debugPrint('addSignSignature error: $e');
-  //     // 파싱 실패 시, 스캔한 PSBT를 그대로 사용
-  //     // TODO: 제거 !! 원복 !! ??????
-  //     _psbtForSigning = signedPsbtBase64;
-  //   }
-  // }
+  /// 서명 직전, PSBT의 모든 input이 이 vault의 정책(threshold, 참여자, witness script)과
+  /// 정확히 일치하는지 다시 한번 검증합니다. 화면 진입 시점의 검증을 우회해 이 메서드가
+  /// 호출되더라도, 정책에 맞지 않는 PSBT에는 서명하지 않도록 방어합니다.
+  Future<void> _assertCanSignPsbt() async {
+    if (!await _vaultListItem.canSign(_psbtForSigning)) {
+      throw VaultSigningNotAllowedException();
+    }
+  }
 
   void saveSignedResult() {
     if (_signedRawTxHex != null) {
@@ -308,25 +285,6 @@ class MultisigSignViewModel extends ChangeNotifier {
 
   String _getKeystoneMultisigInfoQrData() {
     final name = _vaultListItem.name;
-
-    // keystone일 때는 zpub 형식으로 변환
-    // final signerBsmsList =
-    //     _vaultListItem.signers.map((signer) {
-    //       final parsedBsms = SignerBsms.parse(signer.signerBsms!);
-    //       // extendedKey를 zpub 형식으로 변환
-    //       final extendedPublicKey = ExtendedPublicKey.parse(parsedBsms.extendedKey);
-    //       final zpub = extendedPublicKey.serialize(toXpub: true);
-
-    //       // zpub으로 변환된 extendedKey를 사용하여 새로운 SignerBsms 생성
-    //       final convertedBsms = SignerBsms(
-    //         fingerprint: parsedBsms.fingerprint,
-    //         derivationPath: parsedBsms.derivationPath,
-    //         extendedKey: zpub,
-    //         label: parsedBsms.label,
-    //       );
-
-    //       return convertedBsms.getSignerBsms(includesLabel: false);
-    //     }).toList();
 
     final config = NormalizedMultisigConfig(
       name: name,

@@ -82,13 +82,48 @@ class SignIsolates {
 
     if (!allKeyStoreCanSign) return false;
 
-    // quorum 확인
     Psbt psbtObj = Psbt.parse(psbtBase64);
     Logger.log(
       '--> [canSignToPsbtWithMultisignatureVault] psbtR: ${psbtObj.inputs[0].requiredSignature} psbtT: ${psbtObj.inputs[0].derivationPathList.length}',
     );
-    if (multisigWallet.requiredSignature != psbtObj.inputs[0].requiredSignature ||
-        multisigWallet.keyStoreList.length != psbtObj.inputs[0].derivationPathList.length) {
+
+    // INFO: 모든 input의 정책(threshold, 참여자 구성, witness script)이 이 vault와 정확히 일치하는지
+    // 검증합니다. input 0만 확인할 경우, 서로 다른 정책의 input이 섞인 PSBT에서 로컬 공개키가
+    // 우연히 포함된 다른 정책의 input에도 서명이 이루어질 수 있습니다(정책 우회).
+    // 하나라도 일치하지 않으면 PSBT 전체를 거부합니다.
+    for (int i = 0; i < psbtObj.inputs.length; i++) {
+      if (!_isMultisigInputConsistentWithVault(multisigWallet, psbtObj.inputs[i])) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /// 하나의 PSBT input이 [multisigWallet]에 등록된 정책과 정확히 일치하는지 검증합니다.
+  /// - threshold(요구 서명 수)와 참여자 수(서명자 수)가 동일한지
+  /// - 참여자의 masterFingerprint 집합이 정확히 일치하는지 (추가/누락 없이)
+  /// - 로컬에 등록된 xpub들로 동일한 derivation path에서 witness script를 재구성했을 때
+  ///   PSBT에 담긴 witness script와 바이트 단위로 동일한지
+  static bool _isMultisigInputConsistentWithVault(MultisignatureVault multisigWallet, PsbtInput input) {
+    if (input.witnessScript == null) {
+      return false;
+    }
+
+    if (multisigWallet.requiredSignature != input.requiredSignature ||
+        multisigWallet.keyStoreList.length != input.derivationPathList.length) {
+      return false;
+    }
+
+    final walletFingerprintSet = multisigWallet.keyStoreList.map((e) => e.masterFingerprint.toUpperCase()).toSet();
+    final inputFingerprintSet = input.derivationPathList.map((e) => e.masterFingerprint.toUpperCase()).toSet();
+    if (walletFingerprintSet.length != inputFingerprintSet.length ||
+        !walletFingerprintSet.containsAll(inputFingerprintSet)) {
+      return false;
+    }
+
+    final expectedWitnessScript = multisigWallet.getWitnessScript(input.derivationPathList.first.path);
+    if (expectedWitnessScript != input.witnessScript!.rawSerialize()) {
       return false;
     }
 
