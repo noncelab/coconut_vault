@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
@@ -449,13 +450,12 @@ class TaprootSignViewModel extends ChangeNotifier {
 
   /// MuSig2 First Signer: 두 번째 폰의 QR(PSBT) 스캔 후 aggregation으로 최종 서명 완성
   /// [secondSignerPsbt]: 두 번째 폰이 QR로 공유한 PSBT (이미 nonce + partial sig 포함)
-  /// [seed]: 첫 번째 폰의 seed (자신의 partial sig 생성용)
-  Future<String> musig2FirstSignerFinalize(String secondSignerPsbt, Seed seed) async {
+  Future<String> musig2FirstSignerFinalize(String secondSignerPsbt) async {
     assert(_signType == TaprootSignType.musig2KeyPath);
     assert(_musig2SignSession != null);
     assert(_musig2SignSession!.isFirstSigner);
 
-    final finalizedPsbt = await _musig2SignSession!.finalizeByScanningSecondSignerPsbt(secondSignerPsbt, seed);
+    final finalizedPsbt = await _musig2SignSession!.finalizeByScanningSecondSignerPsbt(secondSignerPsbt);
     _psbtForSigning = finalizedPsbt;
     _updateAllSignState();
     return finalizedPsbt;
@@ -502,5 +502,13 @@ class TaprootSignViewModel extends ChangeNotifier {
   void clearSignedResultInSignProvider() {
     _signProvider.resetSignedPsbt();
     _signProvider.resetSignedRawTxHexString();
+  }
+
+  @override
+  void dispose() {
+    // dispose()는 ChangeNotifier 규약상 void이므로 await할 수 없습니다.
+    // isolate 정리는 백그라운드에서 완료됩니다.
+    unawaited(_musig2SignSession?.dispose() ?? Future.value());
+    super.dispose();
   }
 }

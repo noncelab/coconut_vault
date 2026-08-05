@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/isolates/musig2_first_signer_isolate.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/taproot/taproot_participant.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
@@ -36,6 +37,9 @@ class TaprootMusig2SignSession {
 
   /// 생성된 local public nonce
   String? _localPublicNonce;
+
+  /// 첫 번째 서명자의 KeyStore를 유지하기 위한 long-running isolate
+  MuSig2FirstSignerIsolate? _firstSignerIsolate;
 
   String get _coordinatorBsms => vault.coordinatorBsms;
 
@@ -101,16 +105,15 @@ class TaprootMusig2SignSession {
 
   // MARK: - First Signer 메서드
 
-  static String _addNonceInIsolate(Map<String, dynamic> params) {
-    final vault = TaprootVault.fromCoordinatorBsms(params['bsms']);
-    vault.bindSeedToKeyStore(params['seed']);
-    return vault.addPublicNonce(params['psbt']);
-  }
-
   /// 첫 번째 폰: seed로 public nonce 생성 및 PSBT에 추가
   /// [seed]로 서명자의 secret nonce와 public nonce를 생성하고 PSBT에 public nonce를 기록
   Future<String> addNonceForFirstSigner(Seed seed) async {
-    final result = await compute(_addNonceInIsolate, {'bsms': _coordinatorBsms, 'psbt': _currentPsbt, 'seed': seed});
+    // 이전 isolate가 남아있으면 정리 후 새로 시작합니다.
+    await _firstSignerIsolate?.dispose();
+    _firstSignerIsolate = MuSig2FirstSignerIsolate();
+    await _firstSignerIsolate!.initialize();
+
+    final result = await _firstSignerIsolate!.addPublicNonce(_coordinatorBsms, _currentPsbt, seed);
 
     _currentPsbt = result;
     _localPublicNonce = _getMyNonceFromPsbtInput(Psbt.parse(_currentPsbt).inputs[0]);
@@ -224,22 +227,20 @@ class TaprootMusig2SignSession {
     }
   }
 
-  static String _addSignatureInIsolate(Map<String, dynamic> params) {
-    final vault = TaprootVault.fromCoordinatorBsms(params['bsms']);
-    vault.bindSeedToKeyStore(params['seed']);
-    return vault.addSignatureToPsbt(params['psbt']);
-  }
-
   /// 첫 번째 폰: 두 번째 폰의 QR을 스캔하여 PSBT에서 nonce와 partial sig 추출 후 aggregation
   /// [secondSignerPsbt]: 두 번째 폰이 QR로 공유한 PSBT (이미 nonce + partial sig 포함)
-  /// [seed]: 첫 번째 폰의 seed (자신의 partial sig 생성용)
-  Future<String> finalizeByScanningSecondSignerPsbt(String secondSignerPsbt, Seed seed) async {
+  ///
+  /// 첫 번째 서명자의 secret nonce는 [_firstSignerIsolate]가 유지하는 [KeyStore]에
+  /// 살아있으므로 추가 seed가 필요하지 않습니다.
+  Future<String> finalizeByScanningSecondSignerPsbt(String secondSignerPsbt) async {
     _validateSecondSignerPsbt(secondSignerPsbt);
-    final result = await compute(_addSignatureInIsolate, {
-      'bsms': _coordinatorBsms,
-      'psbt': secondSignerPsbt,
-      'seed': seed,
-    });
+    if (_firstSignerIsolate == null) {
+      throw StateError('First signer nonce was not created. Call addNonceForFirstSigner first.');
+    }
+
+    final result = await _firstSignerIsolate!.addSignature(secondSignerPsbt);
+    await _firstSignerIsolate!.dispose();
+    _firstSignerIsolate = null;
 
     _currentPsbt = result;
     // 검증
@@ -271,5 +272,12 @@ class TaprootMusig2SignSession {
     _currentPsbt = result;
     _secondSignerStep = TaprootMusig2SecondSignerStep.signed;
     return _currentPsbt; // 이 PSBT를 QR로 공유
+  }
+
+  /// 세션에서 사용 중인 isolate 및 민감 메모리를 정리합니다.
+  /// 화면이 종료되거나 서명 흐름이 취소될 때 호출해야 합니다.
+  Future<void> dispose() async {
+    await _firstSignerIsolate?.dispose();
+    _firstSignerIsolate = null;
   }
 }
