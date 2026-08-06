@@ -38,6 +38,14 @@ import 'package:coconut_vault/utils/print_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+class _ModeTransitionBackupEntry {
+  final int walletId;
+  final String originalKey;
+  final String backupKey;
+
+  const _ModeTransitionBackupEntry({required this.walletId, required this.originalKey, required this.backupKey});
+}
+
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletRepository {
   static const int currentDataSchemeVersion = 2;
@@ -517,6 +525,89 @@ class WalletRepository {
     _isSigningOnlyMode = isSigningOnlyMode;
   }
 
+  Future<List<String>> _secureStorageKeysForVault(VaultListItemBase vault) async {
+    final keys = <String>{};
+    if (vault is SingleSigVaultListItem) {
+      keys.add(WalletStorageKeys.walletKey(vault.id, WalletType.singleSignature));
+    } else if (vault is TaprootVaultListItem) {
+      keys.add(WalletStorageKeys.taprootSeedIndexKey(vault.id));
+      final indexKeys = await _readTaprootSeedIndex(vault.id);
+      keys.addAll(indexKeys);
+      for (final seedInfo in vault.keyPathSeedInfos) {
+        keys.add(WalletStorageKeys.taprootSeedKey(vault.id, seedInfo.extendedPublicKey));
+      }
+      for (final scriptPath in vault.scriptPathSeedInfos) {
+        for (final seedInfo in scriptPath.seedInfos) {
+          keys.add(WalletStorageKeys.taprootSeedKey(vault.id, seedInfo.extendedPublicKey));
+        }
+      }
+    }
+    return keys.toList();
+  }
+
+  Future<List<String>> _readTaprootSeedIndex(int walletId) async {
+    final indexJson = await _storageService.read(key: WalletStorageKeys.taprootSeedIndexKey(walletId));
+    if (indexJson == null) return [];
+    try {
+      return List<String>.from(jsonDecode(indexJson));
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> _cleanupModeTransitionMarkerAndBackups() async {
+    final allKeys = await _storageService.getAllKeys();
+    const backupPrefix = WalletStorageKeys.appModeTransitionBackupPrefix;
+    final backupKeys = allKeys.where((k) => k.startsWith(backupPrefix)).toList();
+    for (final key in backupKeys) {
+      await _storageService.delete(key: key);
+    }
+    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultModeTransitionMarker);
+  }
+
+  Future<void> _restoreVaultFromModeTransitionBackup(
+    VaultListItemBase vault,
+    List<_ModeTransitionBackupEntry> backupEntries,
+    SecureStorageStrategy secureStrategy,
+  ) async {
+    final walletBackupEntries = backupEntries.where((e) => e.walletId == vault.id).toList();
+
+    if (vault is SingleSigVaultListItem) {
+      final secretEntry = walletBackupEntries.firstWhere(
+        (e) => e.originalKey == WalletStorageKeys.walletKey(vault.id, WalletType.singleSignature),
+      );
+      final ciphertext = await _storageService.read(key: secretEntry.backupKey);
+      if (ciphertext != null) {
+        await secureStrategy.revertSinglesigModeTransition(id: vault.id, secretCiphertext: ciphertext);
+      }
+      return;
+    }
+
+    if (vault is TaprootVaultListItem) {
+      final seedCiphertexts = <String, String>{};
+      String? seedIndexJson;
+      for (final entry in walletBackupEntries) {
+        final value = await _storageService.read(key: entry.backupKey);
+        if (value == null) continue;
+        if (entry.originalKey == WalletStorageKeys.taprootSeedIndexKey(vault.id)) {
+          seedIndexJson = value;
+        } else {
+          seedCiphertexts[entry.originalKey] = value;
+        }
+      }
+      await secureStrategy.revertTaprootModeTransition(
+        id: vault.id,
+        seedCiphertexts: seedCiphertexts,
+        seedIndexJson: seedIndexJson ?? '[]',
+      );
+      return;
+    }
+
+    if (vault is MultisigVaultListItem) {
+      await secureStrategy.revertMultisigModeTransition(id: vault.id);
+    }
+  }
+
   Future<void> _changeToSecureStorageMode() async {
     assert(_isSigningOnlyMode);
     if (_vaultList == null || _vaultList!.isEmpty) {
@@ -527,17 +618,59 @@ class WalletRepository {
       storageService: _storageService,
       secureZoneRepository: _secureZoneRepository,
     );
-    await secureStrategy.mutate(
-      execute: (ops) async {
-        for (final vault in _vaultList!) {
-          if (vault is MultisigVaultListItem) {
-            await ops.persistMultisigAdd(id: vault.id, item: vault);
-            continue;
-          }
 
-          if (vault is TaprootVaultListItem) {
-            final seedInfosForAdd = <TaprootSeedInfoForSave>[];
-            for (final seedInfo in vault.keyPathSeedInfos) {
+    // 이전에 중단된 전환의 잔여물이 있으면 먼저 정리합니다.
+    await _cleanupModeTransitionMarkerAndBackups();
+
+    final backupEntries = <_ModeTransitionBackupEntry>[];
+
+    // 1. 모든 지갑의 기존 암호문을 백업 키에 복사합니다.
+    for (final vault in _vaultList!) {
+      final keys = await _secureStorageKeysForVault(vault);
+      for (final key in keys) {
+        final value = await _storageService.read(key: key);
+        if (value != null) {
+          final backupKey = WalletStorageKeys.appModeTransitionBackupKey(key);
+          await _storageService.write(key: backupKey, value: value);
+          backupEntries.add(_ModeTransitionBackupEntry(walletId: vault.id, originalKey: key, backupKey: backupKey));
+        }
+      }
+    }
+
+    // 2. 마커를 기록합니다.
+    await _sharedPrefs.setString(
+      SharedPrefsKeys.kVaultModeTransitionMarker,
+      jsonEncode({
+        'status': 'converting',
+        'direction': 'signingOnlyToSecureStorage',
+        'walletIds': _vaultList!.map((w) => w.id).toList(),
+      }),
+    );
+
+    final startedIds = <int>[];
+
+    try {
+      // 3. 순차적으로 복호화 → passphrase 제거 → 재암호화 → 덮어쓰기
+      for (final vault in _vaultList!) {
+        startedIds.add(vault.id);
+        if (vault is MultisigVaultListItem) {
+          await secureStrategy.convertMultisigForModeTransition(id: vault.id, item: vault);
+        } else if (vault is TaprootVaultListItem) {
+          final seedInfosForAdd = <TaprootSeedInfoForSave>[];
+          for (final seedInfo in vault.keyPathSeedInfos) {
+            final seed = await getTaprootSeedInSigningOnlyMode(
+              vault.id,
+              TaprootSeedKeyIdentifier(extendedPublicKey: seedInfo.extendedPublicKey),
+            );
+            seedInfosForAdd.add(
+              TaprootSeedInfoForSave(
+                secretPassphrasePair: (secret: seed.mnemonic, passphrase: null),
+                extendedPublicKey: seedInfo.extendedPublicKey,
+              ),
+            );
+          }
+          for (final scriptPathSeedInfo in vault.scriptPathSeedInfos) {
+            for (final seedInfo in scriptPathSeedInfo.seedInfos) {
               final seed = await getTaprootSeedInSigningOnlyMode(
                 vault.id,
                 TaprootSeedKeyIdentifier(extendedPublicKey: seedInfo.extendedPublicKey),
@@ -549,37 +682,36 @@ class WalletRepository {
                 ),
               );
             }
-            for (final scriptPathSeedInfo in vault.scriptPathSeedInfos) {
-              for (final seedInfo in scriptPathSeedInfo.seedInfos) {
-                final seed = await getTaprootSeedInSigningOnlyMode(
-                  vault.id,
-                  TaprootSeedKeyIdentifier(extendedPublicKey: seedInfo.extendedPublicKey),
-                );
-                seedInfosForAdd.add(
-                  TaprootSeedInfoForSave(
-                    secretPassphrasePair: (secret: seed.mnemonic, passphrase: null),
-                    extendedPublicKey: seedInfo.extendedPublicKey,
-                  ),
-                );
-              }
-            }
-
-            await ops.persistTaprootAdd(id: vault.id, item: vault, seedInfosForAdd: seedInfosForAdd);
-            continue;
           }
-
-          final singleSigWallet = vault as SingleSigVaultListItem;
+          await secureStrategy.convertTaprootForModeTransition(
+            id: vault.id,
+            item: vault,
+            seedInfosForAdd: seedInfosForAdd,
+          );
+        } else if (vault is SingleSigVaultListItem) {
           final Seed seed = await getSingleSigSeedInSigningOnlyMode(vault.id);
-          await ops.persistSinglesigAdd(
+          await secureStrategy.convertSinglesigForModeTransition(
             id: vault.id,
             secret: seed.mnemonic,
             passphrase: seed.passphrase.isEmpty ? null : seed.passphrase,
-            item: singleSigWallet,
+            item: vault,
           );
         }
-      },
-      snapshot: () => _vaultList!,
-    );
+      }
+
+      // 4. 공개 vault list 저장
+      await secureStrategy.savePublicVaultList(_vaultList!);
+    } catch (e) {
+      // 5. 하나라도 실패하면 즉시 전체 롤백 (시작한 모든 지갑을 원상복구)
+      for (final id in startedIds) {
+        final vault = _vaultList!.firstWhere((v) => v.id == id);
+        await _restoreVaultFromModeTransitionBackup(vault, backupEntries, secureStrategy);
+      }
+      rethrow;
+    } finally {
+      // 6. 백업 키 및 마커 삭제
+      await _cleanupModeTransitionMarkerAndBackups();
+    }
   }
 
   Future<void> updateSingleSigAccountVault(int id, int newAccountIndex, {Uint8List? inputPassphrase}) async {

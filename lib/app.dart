@@ -48,6 +48,7 @@ import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_verify_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/settings/app_info_screen.dart';
+import 'package:coconut_vault/screens/settings/developer_screen.dart';
 import 'package:coconut_vault/screens/settings/mnemonic_word_list_screen.dart';
 import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
 import 'package:coconut_vault/screens/home/tutorial_screen.dart';
@@ -626,6 +627,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                               (args) => PassphraseVerificationScreen(id: args['id']),
                             ),
                         AppRoutes.vaultModeSelection: (context) => const VaultModeSelectionScreen(),
+                        AppRoutes.developer: (context) => const DeveloperScreen(),
                       },
                     ),
                     if (_shouldShowPrivacyScreen)

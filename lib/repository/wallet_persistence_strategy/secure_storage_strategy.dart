@@ -85,9 +85,16 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
 
   // --- library-private granular ops (called only by the bundled methods above) ---
 
-  Future<void> _saveSinglesigSecret(int walletId, Uint8List secret, Uint8List? passphrase) async {
+  Future<void> _saveSinglesigSecret(
+    int walletId,
+    Uint8List secret,
+    Uint8List? passphrase, {
+    bool regenerateKey = true,
+  }) async {
     final keyString = WalletStorageKeys.walletKey(walletId, WalletType.singleSignature);
-    await _secureZoneRepository.generateKey(alias: keyString, userAuthRequired: true);
+    if (regenerateKey) {
+      await _secureZoneRepository.generateKey(alias: keyString, userAuthRequired: true);
+    }
     final plainText = SecureZonePayloadCodec.buildPlaintext(secret: secret, passphrase: null);
     final result = await _secureZoneRepository.encrypt(alias: keyString, plaintext: plainText);
     await _storageService.write(key: keyString, value: result.toCombinedBase64());
@@ -126,16 +133,27 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
     await writePrivacyInfo(id, WalletType.multiSignature, info);
   }
 
-  Future<void> _saveTaprootSecrets(int walletId, List<TaprootSeedInfoForSave> secrets) async {
+  Future<void> _saveTaprootSecrets(
+    int walletId,
+    List<TaprootSeedInfoForSave> secrets, {
+    bool regenerateKey = true,
+  }) async {
     for (final seedInfo in secrets) {
       final keyString = WalletStorageKeys.taprootSeedKey(walletId, seedInfo.extendedPublicKey);
-      await _saveTaprootSeed(walletId, keyString, seedInfo);
+      await _saveTaprootSeed(walletId, keyString, seedInfo, regenerateKey: regenerateKey);
     }
   }
 
-  Future<void> _saveTaprootSeed(int walletId, String keyString, TaprootSeedInfoForSave seedInfo) async {
+  Future<void> _saveTaprootSeed(
+    int walletId,
+    String keyString,
+    TaprootSeedInfoForSave seedInfo, {
+    bool regenerateKey = true,
+  }) async {
     Logger.log('--> taproot seed key: $keyString');
-    await _secureZoneRepository.generateKey(alias: keyString, userAuthRequired: true);
+    if (regenerateKey) {
+      await _secureZoneRepository.generateKey(alias: keyString, userAuthRequired: true);
+    }
     final pair = seedInfo.secretPassphrasePair;
     final plainText = SecureZonePayloadCodec.buildPlaintext(secret: pair.secret, passphrase: null);
     final result = await _secureZoneRepository.encrypt(alias: keyString, plaintext: plainText);
@@ -192,6 +210,61 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
 
   Future<void> _deletePrivacyInfo(int id, WalletType type) async {
     final walletKey = WalletStorageKeys.walletKey(id, type);
+    await _storageService.delete(key: WalletStorageKeys.privacyInfoKey(walletKey));
+  }
+
+  // --- mode transition helpers (signing-only -> secure-storage) ---
+
+  /// 기존 SecureZone 키를 재생성하지 않고 서명전용모드 형태의 암호문을
+  /// 보안저장모드 형태로 덮어씁니다. 롤백 시 원본 암호문을 복호화할 수 있도록
+  /// 키를 그대로 유지합니다.
+  Future<void> convertSinglesigForModeTransition({
+    required int id,
+    required Uint8List secret,
+    Uint8List? passphrase,
+    required SingleSigVaultListItem item,
+  }) async {
+    await _saveSinglesigSecret(id, secret, passphrase, regenerateKey: false);
+    await _saveSinglesigPrivacy(id, item);
+  }
+
+  Future<void> convertTaprootForModeTransition({
+    required int id,
+    required List<TaprootSeedInfoForSave> seedInfosForAdd,
+    required TaprootVaultListItem item,
+  }) async {
+    await _saveTaprootSecrets(id, seedInfosForAdd, regenerateKey: false);
+    await _saveTaprootPrivacy(id, item);
+  }
+
+  Future<void> convertMultisigForModeTransition({required int id, required MultisigVaultListItem item}) async {
+    await _saveMultisigPrivacy(id, item);
+  }
+
+  /// 보안저장모드 전환 중 생성된 항목을 제거하고 원본 서명전용모드 암호문을
+  /// 복원합니다.
+  Future<void> revertSinglesigModeTransition({required int id, required String secretCiphertext}) async {
+    final keyString = WalletStorageKeys.walletKey(id, WalletType.singleSignature);
+    await _storageService.write(key: keyString, value: secretCiphertext);
+    await _storageService.delete(key: WalletStorageKeys.passphraseEnabledKey(keyString));
+    await _storageService.delete(key: WalletStorageKeys.privacyInfoKey(keyString));
+  }
+
+  Future<void> revertTaprootModeTransition({
+    required int id,
+    required Map<String, String> seedCiphertexts,
+    required String seedIndexJson,
+  }) async {
+    for (final entry in seedCiphertexts.entries) {
+      await _storageService.write(key: entry.key, value: entry.value);
+    }
+    await _storageService.write(key: WalletStorageKeys.taprootSeedIndexKey(id), value: seedIndexJson);
+    final walletKey = WalletStorageKeys.walletKey(id, WalletType.taproot);
+    await _storageService.delete(key: WalletStorageKeys.privacyInfoKey(walletKey));
+  }
+
+  Future<void> revertMultisigModeTransition({required int id}) async {
+    final walletKey = WalletStorageKeys.walletKey(id, WalletType.multiSignature);
     await _storageService.delete(key: WalletStorageKeys.privacyInfoKey(walletKey));
   }
 }

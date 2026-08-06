@@ -7,6 +7,7 @@ import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
 import 'package:coconut_vault/model/taproot/script_path_seed_info.dart';
+import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
 import 'package:coconut_vault/model/taproot/taproot_participant.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
@@ -1181,8 +1182,109 @@ void main() {
           unorderedEquals([firstKeyPathSeedKey, firstBeneficiarySeedKey, secondKeyPathSeedKey]),
         );
         expect(storage.values.values.where((value) => value == 'true'), isEmpty);
+
+        // 백업 키와 전환 마커는 정리되어야 한다.
+        expect(storage.values.keys.where((k) => k.startsWith('appModeTransitionBackup_')), isEmpty);
+        expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultModeTransitionMarker), isEmpty);
       },
     );
+
+    test('SigningOnly -> SecureStorage / two taproot wallets / rolls back when privacy write fails', () async {
+      final storage = _FakeSecureStorageRepository();
+      final secureZone = _FakeSecureZoneRepository();
+      final repository = WalletRepository(
+        isSigningOnlyMode: true,
+        storageService: storage,
+        secureZoneRepository: secureZone,
+      );
+
+      final firstKeyPathSeed = _seedSource(
+        'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+        'first-key-passphrase',
+      );
+      final firstKeyPathPassphrase = Uint8List.fromList(firstKeyPathSeed.passphrase);
+      final firstBeneficiarySeed = _seedSource(
+        'letter advice cage absurd amount doctor acoustic avoid letter advice cage above',
+        'first-beneficiary-passphrase',
+      );
+      final firstBeneficiaryPassphrase = Uint8List.fromList(firstBeneficiarySeed.passphrase);
+      final firstExternalKeyPathSigner = _taprootSignerBsms(
+        'legal winner thank year wave sausage worth useful legal winner thank yellow',
+        'external-key-passphrase',
+      );
+      final secondKeyPathSeed = _seedSource(
+        'zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong',
+        'second-key-passphrase',
+      );
+      final secondKeyPathPassphrase = Uint8List.fromList(secondKeyPathSeed.passphrase);
+      final secondExternalBeneficiary = _externalInheritancePolicyDescriptor(
+        'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about',
+        'external-beneficiary-passphrase',
+        500000001,
+      );
+
+      final firstWallet = await repository.addTaprootWallet(
+        TaprootWalletCreateDto(
+          null,
+          'taproot with stored beneficiary',
+          1,
+          2,
+          [firstKeyPathSeed],
+          [firstExternalKeyPathSigner],
+          [InheritanceLeaf(secret: firstBeneficiarySeed, lockTime: 500000000)],
+        ),
+      );
+      final secondWallet = await repository.addTaprootWallet(
+        TaprootWalletCreateDto(
+          null,
+          'taproot with external beneficiary',
+          3,
+          4,
+          [secondKeyPathSeed],
+          null,
+          [InheritanceLeaf(descriptor: secondExternalBeneficiary, lockTime: 500000001)],
+        ),
+      );
+
+      // 두 번째 지갑의 privacy info 저장에서 실패하면 전환 전체가 롤백되어야 한다.
+      storage.setThrowOnPrivacyWrite(true);
+      await expectLater(repository.updateIsSigningOnlyMode(false), throwsStateError);
+
+      // 원본 암호문이 복원되어 passphrase를 포함한 seed를 다시 복호화할 수 있어야 한다.
+      final restoredFirstKeyPathSeed = await repository.getTaprootSeedInSigningOnlyMode(
+        firstWallet.id,
+        TaprootSeedKeyIdentifier(extendedPublicKey: firstWallet.keyPathSeedInfos.single.extendedPublicKey),
+      );
+      final restoredFirstBeneficiarySeed = await repository.getTaprootSeedInSigningOnlyMode(
+        firstWallet.id,
+        TaprootSeedKeyIdentifier(
+          extendedPublicKey: firstWallet.scriptPathSeedInfos.single.seedInfos.single.extendedPublicKey,
+        ),
+      );
+      final restoredSecondKeyPathSeed = await repository.getTaprootSeedInSigningOnlyMode(
+        secondWallet.id,
+        TaprootSeedKeyIdentifier(extendedPublicKey: secondWallet.keyPathSeedInfos.single.extendedPublicKey),
+      );
+      expect(restoredFirstKeyPathSeed.mnemonic, firstKeyPathSeed.mnemonic);
+      expect(restoredFirstKeyPathSeed.passphrase, firstKeyPathPassphrase);
+      expect(restoredFirstBeneficiarySeed.mnemonic, firstBeneficiarySeed.mnemonic);
+      expect(restoredFirstBeneficiarySeed.passphrase, firstBeneficiaryPassphrase);
+      expect(restoredSecondKeyPathSeed.mnemonic, secondKeyPathSeed.mnemonic);
+      expect(restoredSecondKeyPathSeed.passphrase, secondKeyPathPassphrase);
+
+      // 보안저장모드 전용 항목은 삭제되어야 한다.
+      final firstWalletKey = WalletStorageKeys.walletKey(firstWallet.id, WalletType.taproot);
+      final secondWalletKey = WalletStorageKeys.walletKey(secondWallet.id, WalletType.taproot);
+      expect(storage.values.keys, isNot(contains(WalletStorageKeys.privacyInfoKey(firstWalletKey))));
+      expect(storage.values.keys, isNot(contains(WalletStorageKeys.privacyInfoKey(secondWalletKey))));
+
+      // 백업 키와 전환 마커는 정리되어야 한다.
+      expect(storage.values.keys.where((k) => k.startsWith('appModeTransitionBackup_')), isEmpty);
+      expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultModeTransitionMarker), isEmpty);
+
+      // 공개 vault list는 여전히 비어 있어야 한다 (서명전용모드 상태 유지).
+      expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), isEmpty);
+    });
 
     test('SecureStorage -> SigningOnly / two taproot wallets / deletes all existing wallet data', () async {
       final storage = _FakeSecureStorageRepository();
@@ -1380,11 +1482,13 @@ String _taprootSignerBsms(String mnemonic, String passphrase) {
 }
 
 class _FakeSecureStorageRepository implements SecureStorageRepositoryContract {
-  final bool throwOnPrivacyWrite;
+  bool throwOnPrivacyWrite;
   final Map<String, String> values = {};
   final List<String> deletedKeys = [];
 
   _FakeSecureStorageRepository({this.throwOnPrivacyWrite = false});
+
+  void setThrowOnPrivacyWrite(bool value) => throwOnPrivacyWrite = value;
 
   @override
   Future<void> write({required String key, required String value}) async {
@@ -1428,6 +1532,7 @@ class _FakeSecureStorageRepository implements SecureStorageRepositoryContract {
 class _FakeSecureZoneRepository implements SecureZoneRepositoryContract {
   final List<String> generatedAliases = [];
   final Map<String, Uint8List> encryptedPlaintexts = {};
+  final Map<String, Uint8List> _ciphertextToPlaintext = {};
   final List<String> deletedAliases = [];
 
   @override
@@ -1452,7 +1557,9 @@ class _FakeSecureZoneRepository implements SecureZoneRepositoryContract {
   @override
   Future<EncryptResult> encrypt({required String alias, required Uint8List plaintext}) async {
     encryptedPlaintexts[alias] = plaintext;
-    return EncryptResult(ciphertext: Uint8List.fromList([1, 2, 3]), iv: Uint8List.fromList([4, 5, 6]), extra: null);
+    final ciphertext = Uint8List.fromList(base64Encode(plaintext).codeUnits);
+    _ciphertextToPlaintext[base64Encode(ciphertext)] = plaintext;
+    return EncryptResult(ciphertext: ciphertext, iv: Uint8List.fromList([4, 5, 6]), extra: null);
   }
 
   @override
@@ -1462,6 +1569,6 @@ class _FakeSecureZoneRepository implements SecureZoneRepositoryContract {
     required Uint8List iv,
     bool autoAuth = true,
   }) async {
-    return encryptedPlaintexts[alias];
+    return _ciphertextToPlaintext[base64Encode(ciphertext)];
   }
 }

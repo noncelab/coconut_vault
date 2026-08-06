@@ -18,6 +18,7 @@ class SharedPrefsKeys {
   static const String kLanguage = "LANGUAGE";
 
   static const String kVaultMode = "VAULT_MODE"; // 볼트 모드 (Secure Storage Mode, Signing-Only Mode)
+  static const String kVaultModeTransitionMarker = "VAULT_MODE_TRANSITION_MARKER"; // 모드 전환 중 마커
 
   // 부가 설정
   static const String kSigningModeEdgePanelPosX = "SIGNING_MODE_EDGE_PANEL_POS_X"; // 서명 모드 엣지 패널 위치 X
