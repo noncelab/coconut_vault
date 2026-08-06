@@ -23,6 +23,8 @@ class WalletStorageCleaner {
   /// [wallets]가 주어지면 SZR 삭제 대상으로 그대로 사용합니다.
   /// null이면 SharedPrefs의 공개 vault 목록(`kVaultListField`)에서 wallet key를 복구합니다.
   ///
+  /// 서명전용모드에서 `kVaultListField`가 비어 있어도 남은 SZR 키를 정리할 수 있습니다.
+  ///
   /// [storageService]와 [secureZoneRepository]는 테스트 또는 이미 초기화된 인스턴스를
   /// 재사용할 때 전달합니다. 생략하면 각각의 기본 구현체를 사용합니다.
   static Future<void> clearAll({
@@ -31,8 +33,9 @@ class WalletStorageCleaner {
     SecureZoneRepositoryContract? secureZoneRepository,
   }) async {
     final sharedPrefs = SharedPrefsRepository();
+    final storage = storageService ?? SecureStorageRepository();
 
-    final List<String> keys;
+    var keys = <String>[];
     if (wallets != null) {
       keys = await extractSecureZoneKeysFromWalletList(wallets, storageService: storageService);
       Logger.log('--> [WalletStorageCleaner] clearAll: wallets keys=$keys');
@@ -40,6 +43,13 @@ class WalletStorageCleaner {
       final jsonArrayString = sharedPrefs.getString(SharedPrefsKeys.kVaultListField);
       Logger.log('--> [WalletStorageCleaner] clearAll: jsonArrayString=$jsonArrayString');
       keys = await extractSecureZoneKeysFromPublicJson(jsonArrayString, storageService: storageService);
+    }
+
+    // wallet list를 복구할 수 없는 경우(서명전용모드 재시작 등), FSS에 남아있는
+    // 모든 키를 SZR alias로 추가 삭제 시도합니다.
+    if (wallets == null && keys.isEmpty) {
+      keys = await storage.getAllKeys();
+      Logger.log('--> [WalletStorageCleaner] clearAll: fallback to FSS keys=$keys');
     }
 
     await _deleteSecureZoneKeys(keys, secureZoneRepository);
