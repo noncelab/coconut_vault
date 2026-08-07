@@ -9,7 +9,7 @@ import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 import 'package:coconut_vault/utils/ur_bytes_converter.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ur/ur_decoder.dart';
+import 'package:coconut_vault/packages/bc-ur-dart/lib/ur_decoder.dart';
 
 Map<String, dynamic> _convertKeysToString(Map<dynamic, dynamic> map) {
   return map.map((key, value) {
@@ -54,9 +54,9 @@ A3B2EB70: tpubDFXHjN6AZbhZd5H6XhMWAKjoCn9r9Uj6sMtyXKTkN3HAaYEMEGKzU836gkxcF7PUT3
       expect(config.name, 'multisig2');
       expect(config.requiredCount, 2);
       expect(config.signerBsms, hasLength(3));
-      expect(config.signerBsms[0], contains('73C5DA0A'));
-      expect(config.signerBsms[1], contains('A0F6BA00'));
-      expect(config.signerBsms[2], contains('A3B2EB70'));
+      expect(config.signerBsms[0].toString(), contains('73C5DA0A'));
+      expect(config.signerBsms[1].toString(), contains('A0F6BA00'));
+      expect(config.signerBsms[2].toString(), contains('A3B2EB70'));
 
       print('--> config: ${config.signerBsms.join('\n')}');
     });
@@ -75,9 +75,9 @@ A3B2EB70: tpubDFXHjN6AZbhZd5H6XhMWAKjoCn9r9Uj6sMtyXKTkN3HAaYEMEGKzU836gkxcF7PUT3
       expect(config.name, 'multisig2');
       expect(config.requiredCount, 2);
       expect(config.signerBsms, hasLength(3));
-      expect(config.signerBsms[0], contains('73c5da0a'.toUpperCase()));
-      expect(config.signerBsms[1], contains('a0f6ba00'.toUpperCase()));
-      expect(config.signerBsms[2], contains('a3b2eb70'.toUpperCase()));
+      expect(config.signerBsms[0].toString(), contains('73c5da0a'.toUpperCase()));
+      expect(config.signerBsms[1].toString(), contains('a0f6ba00'.toUpperCase()));
+      expect(config.signerBsms[2].toString(), contains('a3b2eb70'.toUpperCase()));
 
       print('--> config: ${config.signerBsms.join('\n')}');
     });
@@ -95,12 +95,12 @@ bcrt1qe9kjcm3ydmwu90jqaj5tx257jq9gnvm2zxr2whu0ttreqgruj5mqvx499u}
       expect(config.name, '핳핳');
       expect(config.requiredCount, 2);
       expect(config.signerBsms, hasLength(2));
-      expect(config.signerBsms[0], contains('73C5DA0A'));
-      expect(config.signerBsms[1], contains('A3B2EB70'));
-      expect(config.signerBsms[0], contains("48'/1'/0'/2'"));
-      expect(config.signerBsms[1], contains("48'/1'/0'/2'"));
-      expect(config.signerBsms[0], contains("test1"));
-      expect(config.signerBsms[1], contains("test2"));
+      expect(config.signerBsms[0].toString(), contains('73C5DA0A'));
+      expect(config.signerBsms[1].toString(), contains('A3B2EB70'));
+      expect(config.signerBsms[0].toString(), contains("48'/1'/0'/2'"));
+      expect(config.signerBsms[1].toString(), contains("48'/1'/0'/2'"));
+      expect(config.signerBsms[0].toString(), contains("test1"));
+      expect(config.signerBsms[1].toString(), contains("test2"));
     });
 
     test('JSON String 형식을 정상 파싱한다 - no double quotes', () {
@@ -113,9 +113,9 @@ bcrt1qe9kjcm3ydmwu90jqaj5tx257jq9gnvm2zxr2whu0ttreqgruj5mqvx499u}
       expect(config.name, 'multisig2');
       expect(config.requiredCount, 2);
       expect(config.signerBsms, hasLength(3));
-      expect(config.signerBsms[0], contains('73c5da0a'.toUpperCase()));
-      expect(config.signerBsms[1], contains('a0f6ba00'.toUpperCase()));
-      expect(config.signerBsms[2], contains('a3b2eb70'.toUpperCase()));
+      expect(config.signerBsms[0].toString(), contains('73c5da0a'.toUpperCase()));
+      expect(config.signerBsms[1].toString(), contains('a0f6ba00'.toUpperCase()));
+      expect(config.signerBsms[2].toString(), contains('a3b2eb70'.toUpperCase()));
 
       print('--> config: ${config.signerBsms.join('\n')}');
     });
@@ -123,6 +123,8 @@ bcrt1qe9kjcm3ydmwu90jqaj5tx257jq9gnvm2zxr2whu0ttreqgruj5mqvx499u}
 
   group('NormalizedMultisigConfig.getMultisigConfigString', () {
     test('regtest: 생성된 문자열이 Keystone 포맷과 일치해야 한다', () {
+      // TODO: Regtest용 데이터로 업데이트 해야함
+      // 현재 FormatException: Invalid BSMS format 에러 발생
       // given
       const bsms1 = '''
 BSMS 1.0
@@ -164,8 +166,8 @@ father
               'A0F6BA00: xpub6Dtc8ee6APa87VBy7LoZo6RfdGY3k8gnPzT1TYvHygVPJhur24RgEk9FftpzcvPhQgk9j5WKr5jkxs1Lhew25ffN5tLQfkcdE6Lz5DosnsT',
             );
 
-      expect(result, expected.toString());
       print('--> result: \n$result');
+      expect(result, expected.toString());
     });
 
     test('mainnet: 생성된 문자열이 Keystone 포맷과 일치해야 한다', () {
@@ -281,18 +283,34 @@ father
       // 실제 UR 데이터가 필요하지만, 일단 구조만 테스트
       // 실제로는 mainnet용 UR을 사용해야 함
 
-      // Mock UR 결과 구조 생성
+      // Mock UR 결과 구조 생성 (CborValue 형태)
       final mockUrResult = <dynamic, dynamic>{
         2: [
           // accounts list
           <dynamic, dynamic>{
-            3: CborBytes(Uint8List.fromList([0x02] + List.filled(32, 0))), // pubkey (33 bytes)
-            4: CborBytes(Uint8List.fromList(List.filled(32, 0))), // chaincode (32 bytes)
+            3: CborBytes(
+              Uint8List.fromList(Codec.decodeHex('02531119d50c0c8d475610fe179c3504a5205eb0063c18e774cbbf354a53285ff5')),
+            ), // pubkey (33 bytes)
+            4: CborBytes(
+              Uint8List.fromList(Codec.decodeHex('3a1a6b47efa4eb65b66af82185df1ac467c167c9c8bcdb6ce779102c811e6524')),
+            ), // chaincode (32 bytes)
             6: <dynamic, dynamic>{
               // origin
-              1: [48, true, 0, true, 0, true, 2, true], // path: m/48'/0'/0'/2'
-              2: 0x73C5DA0A, // master fingerprint (decimal)
+              1: [
+                CborSmallInt(48),
+                CborBool(true),
+                CborSmallInt(0),
+                CborBool(true),
+                CborSmallInt(0),
+                CborBool(true),
+                CborSmallInt(2),
+                CborBool(true),
+              ], // path: m/48'/0'/0'/2'
+              2: CborSmallInt(0x73C5DA0A), // master fingerprint
             },
+            // TODO: 이 값이 키스톤 UR 결과에 없었음. 있어야만 현재 성공하는 상황
+            // TODO: 실제로 키스톤 데이터를 파싱해서 이 값이 있는지 여부를 확인해야함.
+            // 8: CborSmallInt(0x5464814A), // parent fingerprint
           },
         ],
       };
@@ -340,8 +358,15 @@ father
             3: CborBytes(Uint8List.fromList([0x02] + List.filled(32, 0))),
             4: CborBytes(Uint8List.fromList(List.filled(32, 0))),
             6: <dynamic, dynamic>{
-              1: [44, true, 0, true, 0, true], // 다른 derivation path (P2PKH)
-              2: 0x73C5DA0A,
+              1: [
+                CborSmallInt(44),
+                CborBool(true),
+                CborSmallInt(0),
+                CborBool(true),
+                CborSmallInt(0),
+                CborBool(true),
+              ], // 다른 derivation path (P2PKH)
+              2: CborSmallInt(0x73C5DA0A),
             },
           },
         ],
@@ -362,8 +387,17 @@ father
             3: CborBytes(Uint8List.fromList([0x02] + List.filled(32, 0))),
             4: CborBytes(Uint8List.fromList(List.filled(32, 0))),
             6: <dynamic, dynamic>{
-              1: [48, true, 1, true, 0, true, 2, true], // testnet coin type (1)
-              2: 0x73C5DA0A,
+              1: [
+                CborSmallInt(48),
+                CborBool(true),
+                CborSmallInt(1),
+                CborBool(true),
+                CborSmallInt(0),
+                CborBool(true),
+                CborSmallInt(2),
+                CborBool(true),
+              ], // testnet coin type (1)
+              2: CborSmallInt(0x73C5DA0A),
             },
           },
         ],
@@ -384,7 +418,16 @@ father
             3: CborBytes(Uint8List.fromList([0x02] + List.filled(32, 0))),
             4: CborBytes(Uint8List.fromList(List.filled(32, 0))),
             6: <dynamic, dynamic>{
-              1: [48, true, 0, true, 0, true, 2, true],
+              1: [
+                CborSmallInt(48),
+                CborBool(true),
+                CborSmallInt(0),
+                CborBool(true),
+                CborSmallInt(0),
+                CborBool(true),
+                CborSmallInt(2),
+                CborBool(true),
+              ],
               // '2' 키 (master fingerprint)가 없음
             },
           },
