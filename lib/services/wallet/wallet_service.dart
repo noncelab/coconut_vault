@@ -18,6 +18,7 @@ import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/repository/wallet_linker.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/foundation.dart';
 
 const int kMaxFavoriteWallets = 5;
@@ -191,10 +192,13 @@ class WalletService {
   // ---- delete ----
 
   /// [id] 지갑 삭제 후 preferences 의 순서/즐겨찾기 목록에서도 제거.
-  /// 실제 삭제 여부를 bool 로 반환.
+  /// 중복 호출 등으로 이미 삭제된 경우 false 를 반환하며 no-op.
   Future<bool> deleteWallet(int id) async {
     final existed = vaultSnapshot.indexWhere((e) => e.id == id) != -1;
-    if (!existed) return false;
+    if (!existed) {
+      Logger.log('WalletService.deleteWallet: id=$id not in snapshot');
+      return false;
+    }
 
     final deleted = await _repo.deleteWallet(id);
     if (!deleted) return false;
@@ -219,8 +223,49 @@ class WalletService {
   /// 지갑 리스트를 스트리밍으로 로드. 각 지갑이 복원될 때마다 [onWallet] 호출.
   Future<void> loadVaults(void Function(VaultListItemBase wallet) onWallet) async {
     final jsonList = await _repo.loadVaultListJsonArrayString();
-    if (jsonList != null) {
-      await _repo.loadAndEmitEachWallet(jsonList, onWallet);
+    if (jsonList == null) {
+      await _syncVaultPreferencesWithIds(const {});
+      await _visibility.saveWalletCount(0);
+      return;
+    }
+
+    // 비싼 isolate 초기화 전에 SharedPrefs의 vaultOrder/favoriteVaultIds를 먼저 정리
+    final actualIds = jsonList.map((raw) => (raw as Map<String, dynamic>)['id'] as int).toSet();
+    await _syncVaultPreferencesWithIds(actualIds);
+
+    var count = 0;
+    await _repo.loadAndEmitEachWallet(jsonList, (wallet) {
+      count++;
+      onWallet(wallet);
+    });
+    await _visibility.saveWalletCount(count);
+  }
+
+  /// [actualIds] 기준으로 SharedPrefs의 vaultOrder와 favoriteVaultIds를 정리합니다.
+  Future<void> _syncVaultPreferencesWithIds(Set<int> actualIds) async {
+    final currentOrder = _pref.vaultOrder;
+    final existingOrder = currentOrder.where((id) => actualIds.contains(id)).toList();
+    final missingIds = actualIds.where((id) => !currentOrder.contains(id)).toList();
+    final newOrder = [...existingOrder, ...missingIds];
+
+    bool orderChanged = newOrder.length != currentOrder.length;
+    if (!orderChanged) {
+      for (int i = 0; i < newOrder.length; i++) {
+        if (newOrder[i] != currentOrder[i]) {
+          orderChanged = true;
+          break;
+        }
+      }
+    }
+
+    if (orderChanged) {
+      await _pref.setVaultOrder(newOrder);
+    }
+
+    final currentFavorites = _pref.favoriteVaultIds;
+    final newFavorites = currentFavorites.where((id) => actualIds.contains(id)).toList();
+    if (newFavorites.length != currentFavorites.length) {
+      await _pref.setFavoriteVaultIds(newFavorites);
     }
   }
 

@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 abstract class SecureStorageRepositoryContract {
   Future<void> write({required String key, required String value});
   Future<String?> read({required String key});
+  Future<String?> readStrict({required String key});
   Future<void> writeBytes({required String key, required Uint8List value});
   Future<Uint8List?> readBytes({required String key});
   Future<void> delete({required String key});
@@ -54,6 +55,11 @@ class SecureStorageRepository implements SecureStorageRepositoryContract {
       Logger.error('--> read: error: $e');
       return null;
     }
+  }
+
+  @override
+  Future<String?> readStrict({required String key}) async {
+    return _storage.read(key: key);
   }
 
   @override

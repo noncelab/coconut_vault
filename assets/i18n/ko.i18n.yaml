@@ -163,6 +163,12 @@ vault_list_screen:
     delete_description: "지갑을 왼쪽으로 스와이프하면 삭제할 수 있어요."
     finish: "편집 종료"
     unsaved_changes_confirm_exit: "저장되지 않은 변경 사항이 있어요.\n그래도 나가시겠어요?"
+  alert:
+    save_failed:
+      title: "저장 실패"
+      timing_delete: "지갑 삭제 중 오류가 발생했어요."
+      timing_order: "지갑 순서 변경 중 오류가 발생했어요."
+      timing_favorite: "즐겨찾기 변경 중 오류가 발생했어요."
     
 select_vault_bottom_sheet:
   select_wallet: "지갑 선택"
@@ -1227,6 +1233,9 @@ alert:
   delete_vault: 
     title: "지갑 삭제"
     description: "니모닉 문구를 백업하지 않으면, 이 지갑의 비트코인은 영원히 복구할 수 없습니다. 정말 삭제하시겠습니까?"
+  delete_vault_failed:
+    title: "지갑 삭제 실패"
+    description: "지갑 삭제에 실패했어요. 다시 시도해 주세요."
   forgot_password:
     title: "비밀번호를 잊으셨나요?"
     description1: "비밀번호를 초기화하면 볼트도 초기화돼요. 그래도 초기화 하시겠어요?"

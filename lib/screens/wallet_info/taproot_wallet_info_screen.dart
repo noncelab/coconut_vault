@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/view_model/wallet_info/wallet_info_view_
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/wallet_info_layout.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -99,18 +100,21 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
   }
 
   Future<void> _deleteVault(BuildContext context, WalletInfoViewModel viewModel) async {
-    await viewModel.deleteVault();
-    if (!mounted) return;
-
-    vibrateLight();
-
-    if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
-      Navigator.popUntil(context, (route) {
-        return route.settings.name == AppRoutes.vaultList;
-      });
-    } else {
-      Navigator.popUntil(context, (route) => route.isFirst);
-    }
+    await WalletInfoLayout.deleteVault(
+      context: context,
+      viewModel: viewModel,
+      isMounted: mounted,
+      onSuccess: () {
+        vibrateLight();
+        if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
+          Navigator.popUntil(context, (route) {
+            return route.settings.name == AppRoutes.vaultList;
+          });
+        } else {
+          Navigator.popUntil(context, (route) => route.isFirst);
+        }
+      },
+    );
   }
 
   void _onVerifyPassphrasePressed(TaprootVaultListItem vault) {

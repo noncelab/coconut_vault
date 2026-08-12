@@ -22,9 +22,9 @@ import 'package:provider/provider.dart';
 import 'pin_input_screen.dart';
 
 class PinCheckScreen extends StatefulWidget {
-  final Function? onReset;
-  final Function? onSuccess;
-  final Function? onPermanentlyLocked;
+  final FutureOr<void> Function()? onReset;
+  final FutureOr<void> Function()? onSuccess;
+  final FutureOr<void> Function()? onPermanentlyLocked;
   final PinCheckContextEnum pinCheckContext;
   const PinCheckScreen({
     super.key,
@@ -120,7 +120,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
     final authenticated = await _authenticateWithBiometricsIfEligible();
     if (authenticated) {
-      _handleAuthenticationSuccess();
+      await _handleAuthenticationSuccess();
     } else if (_shouldDelayKeyboard) {
       _handleKeyboardFocus();
     }
@@ -194,8 +194,8 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     });
   }
 
-  void _handleAuthenticationSuccess() {
-    _authProvider.resetAuthenticationState();
+  Future<void> _handleAuthenticationSuccess() async {
+    await _authProvider.resetAuthenticationState();
 
     switch (widget.pinCheckContext) {
       case PinCheckContextEnum.pinChange:
@@ -204,7 +204,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         break;
       case PinCheckContextEnum.appLaunch:
       default: // vaultInfo
-        widget.onSuccess?.call();
+        await widget.onSuccess?.call();
     }
   }
 
@@ -219,7 +219,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       });
     }
     if (isAuthenticated) {
-      _handleAuthenticationSuccess();
+      await _handleAuthenticationSuccess();
       return;
     }
 

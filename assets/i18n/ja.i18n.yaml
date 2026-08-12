@@ -164,6 +164,12 @@ vault_list_screen:
     delete_description: "ウォレットを左にスワイプして削除できます。"
     finish: "編集完了"
     unsaved_changes_confirm_exit: "未保存の変更があります。\n本当に終了しますか？"  
+  alert:
+    save_failed:
+      title: "保存失敗"
+      timing_delete: "ウォレットの削除中にエラーが発生しました。"
+      timing_order: "ウォレットの順序変更中にエラーが発生しました。"
+      timing_favorite: "お気に入りの更新中にエラーが発生しました。"
 
 select_vault_bottom_sheet:
   select_wallet: "ウォレット選択"
@@ -1228,6 +1234,9 @@ alert:
   delete_vault: 
     title: "ウォレット削除"
     description: "ニーモニックフレーズをバックアップしていない場合、このウォレットのビットコインは永遠に復元できません。本当に削除しますか？"
+  delete_vault_failed:
+    title: "ウォレット削除失敗"
+    description: "ウォレットの削除に失敗しました。もう一度お試しください。"
   forgot_password:
     title: "パスワードを忘れましたか？"
     description1: "パスワードをリセットすると、保存されたすべてのウォレットが削除されます。それでもリセットしますか？"

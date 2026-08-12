@@ -4,7 +4,7 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-Future<void> showInfoPopup(BuildContext context, String title, String description) async {
+Future<void> showInfoPopup(BuildContext context, String title, String description, {String? buttonText}) async {
   if (!context.mounted) return;
   await showDialog(
     context: context,
@@ -14,7 +14,7 @@ Future<void> showInfoPopup(BuildContext context, String title, String descriptio
         insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
         title: title,
         description: description,
-        rightButtonText: t.confirm,
+        rightButtonText: buttonText ?? t.confirm,
         onTapRight: () {
           Navigator.pop(context);
         },

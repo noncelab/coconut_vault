@@ -86,7 +86,7 @@ class VaultHomeViewModel extends ChangeNotifier {
 
   void _onPreferenceProviderUpdated() {
     /// 지갑 즐겨찾기 변동 체크
-    if (favoriteVaultIds.toString() != _preferenceProvider.favoriteVaultIds.toString() && vaults.isNotEmpty) {
+    if (favoriteVaultIds.toString() != _preferenceProvider.favoriteVaultIds.toString()) {
       loadFavoriteVaults();
     }
 
@@ -94,8 +94,6 @@ class VaultHomeViewModel extends ChangeNotifier {
   }
 
   Future<void> loadFavoriteVaults() async {
-    if (_walletProvider.vaultList.isEmpty) return;
-
     final ids = _preferenceProvider.favoriteVaultIds;
 
     final vaults =

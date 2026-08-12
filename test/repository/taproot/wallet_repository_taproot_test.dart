@@ -1502,6 +1502,9 @@ class _FakeSecureStorageRepository implements SecureStorageRepositoryContract {
   Future<String?> read({required String key}) async => values[key];
 
   @override
+  Future<String?> readStrict({required String key}) async => values[key];
+
+  @override
   Future<void> writeBytes({required String key, required Uint8List value}) async {
     values[key] = utf8.decode(value);
   }

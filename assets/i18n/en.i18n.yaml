@@ -163,6 +163,12 @@ vault_list_screen:
       delete_description: "Swipe left on a wallet to delete it."
       finish: "Finish Editing"
       unsaved_changes_confirm_exit: "You have unsaved changes.\nAre you sure you want to exit?"  
+  alert:
+    save_failed:
+      title: "Save Failed"
+      timing_delete: "An error occurred while deleting wallets."
+      timing_order: "An error occurred while changing wallet order."
+      timing_favorite: "An error occurred while updating favorites."
 
 select_vault_bottom_sheet:
   select_wallet: "Select Wallet"
@@ -1227,6 +1233,9 @@ alert:
   delete_vault:
     title: "Delete Vault"
     description: "If you don't backup mnemonic, your bitcoins will be lost forever.\nReally delete?"
+  delete_vault_failed:
+    title: "Failed to Delete Vault"
+    description: "Failed to delete the wallet. Please try again."
   forgot_password:
     title: "Forgot password?"
     description1: "Resetting password will delete all stored wallets. Still want to reset?"

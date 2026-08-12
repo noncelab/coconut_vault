@@ -101,6 +101,13 @@ class TaprootMusig2SignSession {
       _secondSignerStep = TaprootMusig2SecondSignerStep.remoteNonceCreated;
       return;
     }
+
+    // 처리 가능한 조합(위 분기)에 해당하지 않는 비정상 상태는 명시적으로 거부합니다.
+    // 여기서 예외를 던지지 않고 넘어가면 _firstSignerStep/_secondSignerStep이 모두 null로 남아
+    // isFirstSigner가 false로 판정되고, 이후 secondSignerStep! 등 non-null 단언에서 크래시가 발생합니다.
+    throw UnsupportedTaprootPsbtException(
+      message: 'Unexpected MuSig2 PSBT state: nonceCount=$nonceCount, sigCount=$sigCount',
+    );
   }
 
   // MARK: - First Signer 메서드

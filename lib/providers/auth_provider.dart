@@ -7,8 +7,6 @@ import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
-import 'package:coconut_vault/providers/preference_provider.dart';
-import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
@@ -90,7 +88,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isPermanentlyLocked => _currentTurn == kMaxTurn;
   bool get isUnlockAvailable => unlockAvailableAt?.isBefore(DateTime.now()) ?? true;
 
-  VoidCallback? onAuthenticationSuccess;
+  FutureOr<void> Function()? onAuthenticationSuccess;
 
   AuthProvider() {
     updateDeviceBiometricAvailability();
@@ -231,7 +229,7 @@ class AuthProvider extends ChangeNotifier {
     bool isAuthenticated = await authenticateWithBiometrics(context: context);
     if (isAuthenticated) {
       if (onAuthenticationSuccess != null) {
-        onAuthenticationSuccess!();
+        await onAuthenticationSuccess!();
       }
       await resetAuthenticationState();
     }

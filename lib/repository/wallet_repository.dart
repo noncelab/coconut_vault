@@ -8,6 +8,7 @@ import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
+import 'package:coconut_vault/model/exception/wallet_data_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
@@ -111,7 +112,7 @@ class WalletRepository {
       await DataSchemaMigrationRunner.runDataSchemaMigrations(
         previousDataSchemeVersion,
         currentDataSchemeVersion,
-        jsonDecode(jsonArrayString),
+        _decodeWalletListJson(jsonArrayString),
         _sharedPrefs,
         migrationStrategy.writePrivacyInfo,
         _walletLoadCancelToken,
@@ -120,7 +121,70 @@ class WalletRepository {
       jsonArrayString = _sharedPrefs.getString(SharedPrefsKeys.kVaultListField);
     }
 
-    return jsonDecode(jsonArrayString);
+    final jsonList = _decodeWalletListJson(jsonArrayString);
+
+    return _repairPublicVaultList(jsonList);
+  }
+
+  List<dynamic> _decodeWalletListJson(String jsonString) {
+    try {
+      final decoded = jsonDecode(jsonString);
+      if (decoded is! List<dynamic>) {
+        throw const FormatException('Wallet list must be a JSON array.');
+      }
+      return decoded;
+    } on FormatException catch (e) {
+      throw InvalidWalletDataException('Invalid wallet list JSON.', cause: e);
+    } on TypeError catch (e) {
+      throw InvalidWalletDataException('Invalid wallet list structure.', cause: e);
+    }
+  }
+
+  /// public list의 각 지갑에 대응하는 privacy info를 확인합니다.
+  /// privacy info가 없는 항목만 orphan으로 판단해 public list에서 제거하고 저장합니다.
+  /// 저장소 접근 오류와 잘못된 데이터는 orphan으로 처리하지 않고 호출자에게 전파합니다.
+  Future<List<dynamic>> _repairPublicVaultList(List<dynamic> jsonList) async {
+    final cleanedList = <dynamic>[];
+    var hasOrphan = false;
+
+    for (final raw in jsonList) {
+      if (raw is! Map<String, dynamic>) {
+        throw InvalidWalletDataException('Wallet entry must be a JSON object.');
+      }
+
+      final map = raw;
+      final vaultTypeName = map[VaultListItemBase.vaultTypeField];
+      final walletId = map['id'];
+      if (vaultTypeName is! String || walletId is! int) {
+        throw InvalidWalletDataException('Wallet entry has invalid id or vault type.');
+      }
+
+      WalletType? walletType;
+      for (final type in WalletType.values) {
+        if (type.name == vaultTypeName) {
+          walletType = type;
+          break;
+        }
+      }
+      if (walletType == null) {
+        throw InvalidWalletDataException('Unknown wallet type: $vaultTypeName');
+      }
+
+      try {
+        await _getPrivacyInfo(walletId, walletType);
+        cleanedList.add(raw);
+      } on PrivacyInfoNotFoundException catch (e) {
+        hasOrphan = true;
+        Logger.log('Orphan wallet found in public list, removing: id=$walletId, reason=$e');
+      }
+    }
+
+    if (hasOrphan) {
+      final cleanedJsonString = jsonEncode(cleanedList);
+      await _sharedPrefs.setString(SharedPrefsKeys.kVaultListField, cleanedJsonString);
+    }
+
+    return cleanedList;
   }
 
   Future<void> loadAndEmitEachWallet(List<dynamic> jsonList, Function(VaultListItemBase wallet) emitOneItem) async {
@@ -311,18 +375,37 @@ class WalletRepository {
 
   Future<WalletPrivacyInfo> _getPrivacyInfo(int id, WalletType walletType) async {
     final key = WalletStorageKeys.privacyInfoKey(WalletStorageKeys.walletKey(id, walletType));
-    final String? privacyInfoString = await _storageService.read(key: key);
+    final String? privacyInfoString = await _storageService.readStrict(key: key);
     if (privacyInfoString == null) {
-      throw "Privacy data cannot be found";
+      throw PrivacyInfoNotFoundException(walletId: id, walletType: walletType);
     }
 
-    switch (walletType) {
-      case WalletType.singleSignature:
-        return SingleSigWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
-      case WalletType.multiSignature:
-        return MultisigWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
-      case WalletType.taproot:
-        return TaprootWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
+    try {
+      final json = jsonDecode(privacyInfoString);
+      if (json is! Map<String, dynamic>) {
+        throw const FormatException('Privacy info must be a JSON object.');
+      }
+
+      switch (walletType) {
+        case WalletType.singleSignature:
+          return SingleSigWalletPrivacyInfo.fromJson(json);
+        case WalletType.multiSignature:
+          return MultisigWalletPrivacyInfo.fromJson(json);
+        case WalletType.taproot:
+          return TaprootWalletPrivacyInfo.fromJson(json);
+      }
+    } on FormatException catch (e) {
+      throw InvalidWalletDataException('Invalid privacy info for wallet id=$id, type=${walletType.name}', cause: e);
+    } on TypeError catch (e) {
+      throw InvalidWalletDataException(
+        'Invalid privacy info structure for wallet id=$id, type=${walletType.name}',
+        cause: e,
+      );
+    } on ArgumentError catch (e) {
+      throw InvalidWalletDataException(
+        'Invalid privacy info values for wallet id=$id, type=${walletType.name}',
+        cause: e,
+      );
     }
   }
 
@@ -409,15 +492,33 @@ class WalletRepository {
 
     final index = vaults.indexWhere((item) => item.id == id);
     if (index == -1) {
-      // 이미 삭제되었거나 존재하지 않음
+      // 중복 호출 등으로 이미 삭제된 경우. no-op로 처리하되 로그로 추적 가능하게.
+      Logger.log('deleteWallet: id=$id not found (already deleted or duplicate call)');
       return false;
     }
     final vault = vaults[index];
     final vaultType = vault.vaultType;
-    WalletLinker(vaults).unlinkOnDelete(vault);
-    vaults.removeAt(index);
 
-    await _strategy.mutate(execute: (ops) => ops.deleteWalletData(id, vaultType), snapshot: () => vaults);
+    // 원본 _vaultList는 건드리지 않고, 새로운 상태를 별도로 준비한다.
+    final newVaults = List<VaultListItemBase>.from(vaults);
+    WalletLinker(newVaults).unlinkOnDelete(vault);
+    newVaults.removeAt(index);
+
+    try {
+      await _strategy.mutate(execute: (ops) => ops.deleteWalletData(id, vaultType), snapshot: () => newVaults);
+    } catch (e) {
+      // execute 단계에서는 secret/privacy 삭제가 이미 완료되었을 수 있다.
+      // public list에는 지갑이 여전히 남아있을 수 있으므로, public list 갱신만이라도 재시도한다.
+      try {
+        await _strategy.savePublicVaultList(newVaults);
+      } catch (_) {
+        // cleanup 실패 시 원래 예외를 던진다.
+      }
+      rethrow;
+    }
+
+    // 저장이 성공한 후에만 메모리 상태를 교체한다.
+    _vaultList = newVaults;
 
     return true;
   }
@@ -427,15 +528,17 @@ class WalletRepository {
     final vaults = _requireLoaded();
 
     final toDelete = List.of(vaults);
-    vaults.clear();
     await _strategy.mutate(
       execute: (ops) async {
         for (final vault in toDelete) {
           await ops.deleteWalletData(vault.id, vault.vaultType);
         }
       },
-      snapshot: () => vaults,
+      snapshot: () => const <VaultListItemBase>[],
     );
+
+    // 저장이 성공한 후에만 메모리 상태를 비운다.
+    _vaultList = [];
   }
 
   Future<bool> updateWallet(int id, String newName, int colorIndex, int iconIndex) async {

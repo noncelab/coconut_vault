@@ -111,12 +111,12 @@ class WalletInfoViewModel extends ChangeNotifier {
     return true;
   }
 
-  Future<void> deleteVault() async {
+  Future<bool> deleteVault() async {
     if (_vaultListItem == null) {
-      return;
+      return false;
     }
 
-    await _walletProvider.deleteWallet(_vaultListItem!.id);
+    return await _walletProvider.deleteWallet(_vaultListItem!.id);
   }
 
   /// SingleSigInfoScreen Only

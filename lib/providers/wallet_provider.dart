@@ -179,11 +179,13 @@ class WalletProvider extends ChangeNotifier {
     _vaultList[index] = await _service.updateExternalSignerSource(id, signerIndex, newSignerSource);
   }
 
-  Future<void> deleteWallet(int id) async {
+  Future<bool> deleteWallet(int id) async {
     final deleted = await _service.deleteWallet(id);
-    if (!deleted) return;
+    // 중복 호출 등으로 이미 삭제된 경우. 호출자는 no-op로 처리.
+    if (!deleted) return false;
     _setVaultList(_service.vaultSnapshot);
     notifyListeners();
+    return true;
   }
 
   /// 모든 wallet 데이터(인메모리 + 영속)를 정리합니다.
