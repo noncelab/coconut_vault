@@ -343,6 +343,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
           onPermanentlyLocked: () {
             lifecycleProvider.unregisterAllCallbacks();
           },
+          onPermanentLockReset: () => _updateEntryFlow(AppEntryFlow.vaultHome),
         );
       case AppEntryFlow.vaultHome:
         return VaultHomeScreen(

@@ -8,7 +8,6 @@ import 'package:coconut_vault/repository/secure_zone_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/repository/wallet_persistence_strategy/wallet_persistence_strategy.dart';
 import 'package:coconut_vault/utils/logger.dart';
-import 'package:flutter/services.dart';
 
 /// [WalletRepository]의 인스턴스 없이도 호출 가능한 정적 삭제 유틸.
 ///
@@ -136,20 +135,37 @@ class WalletStorageCleaner {
       Logger.log('--> ℹ️ SZR deleteKeys skip: 삭제할 키 없음');
       return;
     }
+
+    final secureZone = secureZoneRepository ?? SecureZoneRepository();
     Logger.log('--> 🧹 SZR deleteKeys 시도: ${walletKeys.length}개');
-    try {
-      await (secureZoneRepository ?? SecureZoneRepository()).deleteKeys(aliasList: walletKeys);
-      Logger.log('--> ✅ SZR deleteKeys 성공: ${walletKeys.length}개 삭제 완료');
-    } on PlatformException catch (e) {
-      Logger.error('--> ❌ SZR deleteKeys 실패 ${e.toString()} ');
+    for (var attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await secureZone.deleteKeys(aliasList: walletKeys);
+        Logger.log('--> ✅ SZR deleteKeys 성공: ${walletKeys.length}개 삭제 완료');
+        return;
+      } catch (e, stackTrace) {
+        if (attempt == 3) {
+          Logger.error('--> ❌ SZR deleteKeys 실패 after $attempt attempts: ${e.toString()}');
+          Error.throwWithStackTrace(e, stackTrace);
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
     }
   }
 
   static Future<void> _deleteSecureStorage([SecureStorageRepositoryContract? storageService]) async {
-    try {
-      await (storageService ?? SecureStorageRepository()).deleteAll();
-    } on PlatformException catch (e) {
-      Logger.error('--> ❌ FSS deleteAll 실패 ${e.toString()}');
+    final storage = storageService ?? SecureStorageRepository();
+    for (var attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await storage.deleteAll();
+        return;
+      } catch (e) {
+        if (attempt == 3) {
+          Logger.error('--> ❌ FSS deleteAll 실패 after $attempt attempts: ${e.toString()}');
+          return;
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
     }
   }
 
@@ -157,6 +173,8 @@ class WalletStorageCleaner {
     await sp.deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
     await sp.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultListField);
     await sp.deleteSharedPrefsWithKey(SharedPrefsKeys.kNextIdField);
+    await sp.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultOrder);
+    await sp.deleteSharedPrefsWithKey(SharedPrefsKeys.kFavoriteVaultIds);
     await sp.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultModeTransitionMarker);
   }
 }

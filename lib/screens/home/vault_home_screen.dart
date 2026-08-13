@@ -50,6 +50,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
 
   late ScrollController _scrollController;
   bool _isAndroidSecureZoneChecking = false;
+  bool _isResetting = false;
 
   @override
   void initState() {
@@ -189,6 +190,8 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                       SliverToBoxAdapter(child: Container(height: 100)),
                     ],
                   ),
+                  if (_isResetting)
+                    const Positioned.fill(child: AbsorbPointer(child: Center(child: CoconutCircularIndicator()))),
                   Visibility(
                     visible: _isAndroidSecureZoneChecking,
                     child: Container(
@@ -568,13 +571,33 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                                 },
                                 onTapRight: () async {
                                   assert(isSigningOnlyMode);
-                                  await ResetCredentialsAndWalletsUsecase.execute(
-                                    authProvider: context.read<AuthProvider>(),
-                                    walletProvider: context.read<WalletProvider>(),
-                                    preferenceProvider: context.read<PreferenceProvider>(),
-                                  );
+                                  Navigator.pop(dialogContext);
+                                  if (_isResetting) return;
+                                  setState(() => _isResetting = true);
+                                  final authProvider = context.read<AuthProvider>();
+                                  final walletProvider = context.read<WalletProvider>();
+                                  final preferenceProvider = context.read<PreferenceProvider>();
 
-                                  widget.onSigningModeReset.call();
+                                  while (context.mounted) {
+                                    try {
+                                      await ResetCredentialsAndWalletsUsecase.execute(
+                                        authProvider: authProvider,
+                                        walletProvider: walletProvider,
+                                        preferenceProvider: preferenceProvider,
+                                      );
+
+                                      if (!mounted) return;
+                                      setState(() => _isResetting = false);
+                                      widget.onSigningModeReset.call();
+                                      return;
+                                    } catch (e) {
+                                      if (!context.mounted) return;
+                                      final shouldRetry = await showResetFailureRetryPopup(context, e);
+                                      if (shouldRetry) continue;
+                                      if (mounted) setState(() => _isResetting = false);
+                                      return;
+                                    }
+                                  }
                                 },
                               );
                             },

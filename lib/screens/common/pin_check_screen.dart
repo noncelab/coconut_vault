@@ -10,6 +10,7 @@ import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/usecases/reset_credentials_and_wallets_usecase.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,6 +26,7 @@ class PinCheckScreen extends StatefulWidget {
   final FutureOr<void> Function()? onReset;
   final FutureOr<void> Function()? onSuccess;
   final FutureOr<void> Function()? onPermanentlyLocked;
+  final FutureOr<void> Function()? onPermanentLockReset;
   final PinCheckContextEnum pinCheckContext;
   const PinCheckScreen({
     super.key,
@@ -32,6 +34,7 @@ class PinCheckScreen extends StatefulWidget {
     this.onReset,
     this.onSuccess,
     this.onPermanentlyLocked,
+    this.onPermanentLockReset,
   });
 
   @override
@@ -52,6 +55,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   bool? _isPinInputLocked;
   bool _isLastChanceToTry = false;
   bool _isVerifyingPin = false;
+  bool _isResetting = false;
 
   final FocusNode _characterFocusNode = FocusNode();
 
@@ -330,39 +334,86 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           leftButtonColor: CoconutColors.black.withValues(alpha: 0.7),
           rightButtonText: t.yes,
           rightButtonColor: CoconutColors.warningText,
-          onTapRight: () => _reset(),
+          onTapRight: () {
+            Navigator.pop(context);
+            if (_isAppLaunched && _authProvider.isPermanentlyLocked) {
+              _clearPermanentLockAndGoHome();
+            } else {
+              _reset();
+            }
+          },
           onTapLeft: () => Navigator.pop(context),
         );
       },
     );
   }
 
-  Future<void> _reset() async {
-    // PinCheckScreen은 appLaunch 플로우에서 사용되어 WalletProvider가 아직 트리에 없으므로 walletProvider 전달하지 않음.
-    await ResetCredentialsAndWalletsUsecase.execute(
-      authProvider: _authProvider,
-      preferenceProvider: context.read<PreferenceProvider>(),
-    );
+  Future<void> _clearPermanentLockAndGoHome() async {
+    if (_isResetting) return;
+    setState(() => _isResetting = true);
+    await _authProvider.clearPermanentLock();
+    if (!mounted) return;
+    setState(() => _isResetting = false);
+    await widget.onPermanentLockReset?.call();
+  }
 
-    if (mounted) {
-      Navigator.of(context).pop();
+  Future<void> _reset() async {
+    if (_isResetting) return;
+    setState(() => _isResetting = true);
+    // PinCheckScreen은 appLaunch 플로우에서 사용되어 WalletProvider가 아직 트리에 없으므로 walletProvider 전달하지 않음.
+    final preferenceProvider = context.read<PreferenceProvider>();
+    while (mounted) {
+      try {
+        await ResetCredentialsAndWalletsUsecase.execute(
+          authProvider: _authProvider,
+          preferenceProvider: preferenceProvider,
+        );
+
+        if (!mounted) return;
+        setState(() => _isResetting = false);
+        Navigator.of(context).pop();
+        widget.onReset?.call();
+        return;
+      } catch (e) {
+        if (!mounted) return;
+        final shouldRetry = await showResetFailureRetryPopup(context, e);
+        if (shouldRetry) continue;
+        if (mounted) setState(() => _isResetting = false);
+        return;
+      }
     }
-    widget.onReset?.call();
   }
 
   Future<void> _handlePermanentLockout() async {
+    if (_isResetting) return;
     setState(() {
       _isLastChanceToTry = false;
       _errorMessage = t.errors.pin_max_attempts_exceeded_error;
       _isPinInputLocked = true;
+      _isResetting = true;
     });
     // PinCheckScreen은 appLaunch 플로우에서 사용되어 WalletProvider가 아직 트리에 없으므로 walletProvider 전달하지 않음.
-    await ResetCredentialsAndWalletsUsecase.execute(
-      authProvider: _authProvider,
-      preferenceProvider: context.read<PreferenceProvider>(),
-    );
+    final preferenceProvider = context.read<PreferenceProvider>();
+    while (mounted) {
+      try {
+        await ResetCredentialsAndWalletsUsecase.execute(
+          authProvider: _authProvider,
+          preferenceProvider: preferenceProvider,
+          preservePermanentLock: true,
+        );
 
-    widget.onPermanentlyLocked?.call();
+        if (!mounted) return;
+        setState(() => _isResetting = false);
+        widget.onPermanentlyLocked?.call();
+        return;
+      } catch (e) {
+        if (!mounted) return;
+        final shouldRetry = await showResetFailureRetryPopup(context, e);
+        if (shouldRetry) continue;
+        if (mounted) setState(() => _isResetting = false);
+        return;
+      }
+    }
   }
 
   @override
@@ -389,11 +440,17 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
             },
             child: Scaffold(
               backgroundColor: CoconutColors.white,
-              body: Stack(children: [Center(child: _pinInputScreen(isOnReset: true))]),
+              body: Stack(
+                children: [
+                  Center(child: _pinInputScreen(isOnReset: true)),
+                  if (_isResetting)
+                    const Positioned.fill(child: AbsorbPointer(child: Center(child: CoconutCircularIndicator()))),
+                ],
+              ),
             ),
           ),
         )
-        : _pinInputScreen();
+        : PopScope(canPop: !_isResetting, child: _pinInputScreen());
   }
 
   Widget _pinInputScreen({isOnReset = false}) {
@@ -428,7 +485,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           step: 0,
           lastChance: _isLastChanceToTry,
           lastChanceMessage: t.pin_check_screen.warning,
-          disabled: isPermanentlyLocked || _isPinInputLocked == true || _isVerifyingPin,
+          disabled: isPermanentlyLocked || _isPinInputLocked == true || _isVerifyingPin || _isResetting,
           characterFocusNode: _characterFocusNode,
           isLoading: _isVerifyingPin,
           shouldDelayKeyboard: _shouldDelayKeyboard,

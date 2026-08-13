@@ -288,7 +288,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> resetCredentials() async {
+  Future<void> resetCredentials({bool preservePermanentLock = false}) async {
     if (_isDisposed) return;
 
     await _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
@@ -296,7 +296,15 @@ class AuthProvider extends ChangeNotifier {
     await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
     _isPinSet = false;
     await _storageService.delete(key: SecureStorageKeys.kVaultPin);
-    await resetAuthenticationState();
+    await resetAuthenticationState(preservePermanentLock: preservePermanentLock);
+    notifyListeners();
+  }
+
+  Future<void> clearPermanentLock() async {
+    if (_isDisposed) return;
+
+    _currentTurn = 0;
+    await _sharedPrefs.deleteSharedPrefsWithKey(turnKey);
     notifyListeners();
   }
 
@@ -354,16 +362,20 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> resetAuthenticationState() async {
+  Future<void> resetAuthenticationState({bool preservePermanentLock = false}) async {
     if (_isDisposed) return;
 
     _currentAttemptInTurn = 0;
-    _currentTurn = 0;
+    if (!preservePermanentLock) {
+      _currentTurn = 0;
+    }
     _unlockAvailableAtInString = '';
 
     await _sharedPrefs.deleteSharedPrefsWithKey(unlockAvailableAtKey);
     await _sharedPrefs.deleteSharedPrefsWithKey(currentAttemptKey);
-    await _sharedPrefs.deleteSharedPrefsWithKey(turnKey);
+    if (!preservePermanentLock) {
+      await _sharedPrefs.deleteSharedPrefsWithKey(turnKey);
+    }
   }
 
   @override
