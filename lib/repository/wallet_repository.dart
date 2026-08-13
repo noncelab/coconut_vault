@@ -149,14 +149,14 @@ class WalletRepository {
 
     for (final raw in jsonList) {
       if (raw is! Map<String, dynamic>) {
-        throw InvalidWalletDataException('Wallet entry must be a JSON object.');
+        throw const InvalidWalletDataException('Wallet entry must be a JSON object.');
       }
 
       final map = raw;
       final vaultTypeName = map[VaultListItemBase.vaultTypeField];
       final walletId = map['id'];
       if (vaultTypeName is! String || walletId is! int) {
-        throw InvalidWalletDataException('Wallet entry has invalid id or vault type.');
+        throw const InvalidWalletDataException('Wallet entry has invalid id or vault type.');
       }
 
       WalletType? walletType;
@@ -504,18 +504,11 @@ class WalletRepository {
     WalletLinker(newVaults).unlinkOnDelete(vault);
     newVaults.removeAt(index);
 
-    try {
-      await _strategy.mutate(execute: (ops) => ops.deleteWalletData(id, vaultType), snapshot: () => newVaults);
-    } catch (e) {
-      // execute 단계에서는 secret/privacy 삭제가 이미 완료되었을 수 있다.
-      // public list에는 지갑이 여전히 남아있을 수 있으므로, public list 갱신만이라도 재시도한다.
-      try {
-        await _strategy.savePublicVaultList(newVaults);
-      } catch (_) {
-        // cleanup 실패 시 원래 예외를 던진다.
-      }
-      rethrow;
-    }
+    await _strategy.mutate(
+      execute: (ops) => ops.deleteWalletData(id, vaultType),
+      snapshot: () => newVaults,
+      ignorePublicListSaveFailure: true,
+    );
 
     // 저장이 성공한 후에만 메모리 상태를 교체한다.
     _vaultList = newVaults;
@@ -523,8 +516,8 @@ class WalletRepository {
     return true;
   }
 
-  /// 서명 전용 모드 - 모든 지갑 삭제
-  Future<void> deleteWallets() async {
+  /// 서명 전용 모드로 전환 시 모든 지갑 삭제
+  Future<void> _deleteWallets() async {
     final vaults = _requireLoaded();
 
     final toDelete = List.of(vaults);
@@ -537,7 +530,6 @@ class WalletRepository {
       snapshot: () => const <VaultListItemBase>[],
     );
 
-    // 저장이 성공한 후에만 메모리 상태를 비운다.
     _vaultList = [];
   }
 
@@ -622,7 +614,7 @@ class WalletRepository {
       await _changeToSecureStorageMode();
       _strategy = SecureStorageStrategy(storageService: _storageService, secureZoneRepository: _secureZoneRepository);
     } else {
-      await deleteWallets();
+      await _deleteWallets();
       _strategy = SigningOnlyStrategy(storageService: _storageService, secureZoneRepository: _secureZoneRepository);
     }
     _isSigningOnlyMode = isSigningOnlyMode;

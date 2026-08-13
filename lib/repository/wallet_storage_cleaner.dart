@@ -148,8 +148,8 @@ class WalletStorageCleaner {
   static Future<void> _deleteSecureStorage([SecureStorageRepositoryContract? storageService]) async {
     try {
       await (storageService ?? SecureStorageRepository()).deleteAll();
-    } on PlatformException catch (_) {
-      Logger.error('--> ❌ FSS deleteAll 실패');
+    } on PlatformException catch (e) {
+      Logger.error('--> ❌ FSS deleteAll 실패 ${e.toString()}');
     }
   }
 

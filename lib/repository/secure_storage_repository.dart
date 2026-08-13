@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:coconut_vault/utils/deletion_failure_injector.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -86,6 +87,10 @@ class SecureStorageRepository implements SecureStorageRepositoryContract {
 
   @override
   Future<void> delete({required String key}) async {
+    DeletionFailureInjector.throwIfConfigured('secure_storage', key);
+    if (key.startsWith('privacy_')) {
+      DeletionFailureInjector.throwIfConfigured('privacy_info', key);
+    }
     await _storage.delete(key: key);
   }
 

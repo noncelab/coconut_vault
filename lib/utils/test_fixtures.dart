@@ -12,7 +12,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 
 /// 개발/테스트 빌드 전용 테스트 지갑 픽스처 로더.
 /// 릴리즈 빌드에서는 kDebugMode 조건 때문에 호출되지 않아야 합니다.
-Future<void> loadTestWallets(WalletProvider walletProvider) async {
+Future<void> loadTestWallets(WalletProvider walletProvider, {bool includeStandalonePassphraseWallet = true}) async {
   assert(kDebugMode, 'loadTestWallets is only available in debug builds');
 
   const lockTime = 1786892400; // 2026-08-16 00:00:00 KST
@@ -33,20 +33,28 @@ Future<void> loadTestWallets(WalletProvider walletProvider) async {
     ),
   );
 
-  final singleWithPass = await walletProvider.addSingleSigVault(
-    SingleSigWalletCreateDto(
-      null,
-      'single_with_pass',
-      1,
-      2,
-      mnemonic('chair mechanic law black leopard arctic punch flock census shrug able oval'),
-      passphrase('1'),
-    ),
-  );
+  final singleWithPass =
+      includeStandalonePassphraseWallet
+          ? await walletProvider.addSingleSigVault(
+            SingleSigWalletCreateDto(
+              null,
+              'single_with_pass',
+              1,
+              2,
+              mnemonic('chair mechanic law black leopard arctic punch flock census shrug able oval'),
+              passphrase('1'),
+            ),
+          )
+          : null;
 
-  // --- Multisig 2-of-2 (singleNoPass + singleWithPass) ---
+  // --- Multisig 2-of-2 (singleNoPass + an external signer) ---
   final singleNoPassBsms = singleNoPass.getSignerBsmsByAddressType(AddressType.p2wsh, withLabel: false);
-  final singleWithPassBsms = singleWithPass.getSignerBsmsByAddressType(AddressType.p2wsh, withLabel: false);
+  final singleWithPassBsms =
+      singleWithPass?.getSignerBsmsByAddressType(AddressType.p2wsh, withLabel: false) ??
+      _p2wshSignerBsms(
+        mnemonic('satoshi maple river canvas galaxy album toward hamster blanket fossil orbit motion'),
+        passphrase('1'),
+      );
 
   await walletProvider.addMultisigVault(
     'multisig_2of2',
@@ -116,6 +124,16 @@ Future<void> loadTestWallets(WalletProvider walletProvider) async {
       ],
     ),
   );
+}
+
+String _p2wshSignerBsms(Uint8List mnemonicBytes, Uint8List passphraseBytes) {
+  final keyStore = KeyStore.fromSeed(Seed.fromMnemonic(mnemonicBytes, passphrase: passphraseBytes), AddressType.p2wsh);
+  return Bsms.fromSigner(
+    keyStore.masterFingerprint,
+    WalletUtility.getDerivationPath(AddressType.p2wsh, 0).replaceAll('m/', ''),
+    keyStore.extendedPublicKey.serialize(),
+    '',
+  ).serializeSigner();
 }
 
 String _taprootKeyPathSignerBsms(Uint8List mnemonicBytes, Uint8List passphraseBytes) {

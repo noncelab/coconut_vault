@@ -11,6 +11,7 @@ import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/secure_zone_repository.dart';
 import 'package:coconut_vault/repository/wallet_persistence_strategy/wallet_persistence_strategy.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_payload_codec.dart';
+import 'package:coconut_vault/utils/logger.dart';
 
 /// Persistence behavior used in signing-only mode.
 ///
@@ -43,6 +44,7 @@ class SigningOnlyStrategy implements WalletPersistenceStrategy {
   Future<T> mutate<T>({
     required Future<T> Function(WalletWriteOps ops) execute,
     required List<VaultListItemBase> Function() snapshot,
+    bool ignorePublicListSaveFailure = false,
   }) async {
     final result = await execute(_SigningOnlyOps(this));
     await savePublicVaultList(snapshot()); // no-op, kept for API symmetry
@@ -71,8 +73,38 @@ class SigningOnlyStrategy implements WalletPersistenceStrategy {
 
   Future<void> _deleteSinglesigSecret(int walletId) async {
     final keyString = WalletStorageKeys.walletKey(walletId, WalletType.singleSignature);
-    await _storageService.delete(key: keyString);
-    await _secureZoneRepository.deleteKey(alias: keyString);
+
+    await _deleteSecureZoneKeyWithRetry(keyString);
+    await _deleteStorageWithRetry(keyString);
+  }
+
+  Future<void> _deleteSecureZoneKeyWithRetry(String alias) async {
+    for (var attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await _secureZoneRepository.deleteKey(alias: alias);
+        return;
+      } catch (e, stackTrace) {
+        if (attempt == 3) {
+          Error.throwWithStackTrace(e, stackTrace);
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
+    }
+  }
+
+  Future<void> _deleteStorageWithRetry(String key) async {
+    for (var attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await _storageService.delete(key: key);
+        return;
+      } catch (e) {
+        if (attempt == 3) {
+          Logger.log('Secure storage cleanup failed after $attempt attempts: key=$key, error=$e');
+          return;
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
+    }
   }
 
   Future<void> _saveTaprootSecrets(int walletId, List<TaprootSeedInfoForSave> secrets) async {
@@ -93,22 +125,29 @@ class SigningOnlyStrategy implements WalletPersistenceStrategy {
 
   Future<void> _deleteTaprootSecrets(int walletId) async {
     final seedKeys = await _readTaprootSeedIndex(walletId);
-    for (final seedKey in seedKeys) {
-      await _deleteTaprootSeedByKey(seedKey);
+    for (var index = 0; index < seedKeys.length; index++) {
+      await _deleteTaprootSeedByKey(seedKeys[index], rethrowOnSecureZoneDeleteFailure: index == 0);
     }
-    await _storageService.delete(key: WalletStorageKeys.taprootSeedIndexKey(walletId));
+    await _deleteStorageWithRetry(WalletStorageKeys.taprootSeedIndexKey(walletId));
   }
 
   Future<void> _deleteTaprootSeeds(int walletId, List<String> seedKeys) async {
     for (final keyString in seedKeys) {
-      await _deleteTaprootSeedByKey(keyString);
+      await _deleteTaprootSeedByKey(keyString, rethrowOnSecureZoneDeleteFailure: false);
     }
-    await _storageService.delete(key: WalletStorageKeys.taprootSeedIndexKey(walletId));
+    await _deleteStorageWithRetry(WalletStorageKeys.taprootSeedIndexKey(walletId));
   }
 
-  Future<void> _deleteTaprootSeedByKey(String seedKey) async {
-    await _storageService.delete(key: seedKey);
-    await _secureZoneRepository.deleteKey(alias: seedKey);
+  Future<void> _deleteTaprootSeedByKey(String seedKey, {required bool rethrowOnSecureZoneDeleteFailure}) async {
+    try {
+      await _deleteSecureZoneKeyWithRetry(seedKey);
+    } catch (e, stackTrace) {
+      Logger.log('Taproot Secure Zone seed key cleanup failed: key=$seedKey, error=$e');
+      if (rethrowOnSecureZoneDeleteFailure) {
+        Error.throwWithStackTrace(e, stackTrace);
+      }
+    }
+    await _deleteStorageWithRetry(seedKey);
   }
 
   Future<List<String>> _readTaprootSeedIndex(int walletId) async {

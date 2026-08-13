@@ -49,8 +49,8 @@ class SharedPrefsRepository {
     return _sharedPrefs.getString(key) ?? '';
   }
 
-  Future setString(String key, String value) async {
-    await _sharedPrefs.setString(key, value);
+  Future<bool> setString(String key, String value) async {
+    return _sharedPrefs.setString(key, value);
   }
 
   double? getDouble(String key) {

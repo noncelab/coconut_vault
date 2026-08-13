@@ -53,6 +53,7 @@ abstract class WalletPersistenceStrategy {
   Future<T> mutate<T>({
     required Future<T> Function(WalletWriteOps ops) execute,
     required List<VaultListItemBase> Function() snapshot,
+    bool ignorePublicListSaveFailure = false,
   });
 
   /// Update privacy info for an existing singlesig wallet (e.g., after account derivation change).

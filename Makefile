@@ -28,3 +28,5 @@ fastlane-mainnet:
 
 fastlane-regtest:
 	cd android && caffeinate -dimsu fastlane release_android_regtest && cd .. && cd ios && caffeinate -dimsu fastlane release_ios_regtest skip_prep:true
+
+include Makefile.test

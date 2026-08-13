@@ -50,10 +50,29 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
   Future<T> mutate<T>({
     required Future<T> Function(WalletWriteOps ops) execute,
     required List<VaultListItemBase> Function() snapshot,
+    bool ignorePublicListSaveFailure = false,
   }) async {
     final result = await execute(_SecureStorageOps(this));
-    await savePublicVaultList(snapshot());
+    await _savePublicVaultListWithRetry(snapshot(), ignoreFailure: ignorePublicListSaveFailure);
     return result;
+  }
+
+  Future<void> _savePublicVaultListWithRetry(List<VaultListItemBase> items, {required bool ignoreFailure}) async {
+    for (var attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await savePublicVaultList(items);
+        return;
+      } catch (e, stackTrace) {
+        if (attempt == 3) {
+          if (ignoreFailure) {
+            Logger.log('Public vault list cleanup failed after $attempt attempts: error=$e');
+            return;
+          }
+          Error.throwWithStackTrace(e, stackTrace);
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
+    }
   }
 
   @override
@@ -72,7 +91,10 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
           !jsonString.contains(MultisigSigner.fieldSignerBsms) &&
           !jsonString.contains(MultisigSigner.fieldKeyStore),
     );
-    await _sharedPrefs.setString(SharedPrefsKeys.kVaultListField, jsonString);
+    final saved = await _sharedPrefs.setString(SharedPrefsKeys.kVaultListField, jsonString);
+    if (!saved) {
+      throw StateError('Failed to save public vault list');
+    }
   }
 
   /// Raw privacy-info write used by the data-schema migration runner.
@@ -106,9 +128,39 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
 
   Future<void> _deleteSinglesigSecret(int walletId) async {
     final keyString = WalletStorageKeys.walletKey(walletId, WalletType.singleSignature);
-    await _storageService.delete(key: keyString);
-    await _secureZoneRepository.deleteKey(alias: keyString);
-    await _storageService.delete(key: WalletStorageKeys.passphraseEnabledKey(keyString));
+
+    await _deleteSecureZoneKeyWithRetry(keyString);
+    await _deleteStorageWithRetry(keyString);
+    await _deleteStorageWithRetry(WalletStorageKeys.passphraseEnabledKey(keyString));
+  }
+
+  Future<void> _deleteSecureZoneKeyWithRetry(String alias) async {
+    for (var attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await _secureZoneRepository.deleteKey(alias: alias);
+        return;
+      } catch (e, stackTrace) {
+        if (attempt == 3) {
+          Error.throwWithStackTrace(e, stackTrace);
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
+    }
+  }
+
+  Future<void> _deleteStorageWithRetry(String key) async {
+    for (var attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await _storageService.delete(key: key);
+        return;
+      } catch (e) {
+        if (attempt == 3) {
+          Logger.log('Secure storage cleanup failed after $attempt attempts: key=$key, error=$e');
+          return;
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
+    }
   }
 
   Future<void> _saveSinglesigPrivacy(int id, SingleSigVaultListItem item) async {
@@ -164,22 +216,29 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
 
   Future<void> _deleteTaprootSecrets(int walletId) async {
     final seedKeys = await _readTaprootSeedIndex(walletId);
-    for (final seedKey in seedKeys) {
-      await _deleteTaprootSeedByKey(seedKey);
+    for (var index = 0; index < seedKeys.length; index++) {
+      await _deleteTaprootSeedByKey(seedKeys[index], rethrowOnSecureZoneDeleteFailure: index == 0);
     }
-    await _storageService.delete(key: WalletStorageKeys.taprootSeedIndexKey(walletId));
+    await _deleteStorageWithRetry(WalletStorageKeys.taprootSeedIndexKey(walletId));
   }
 
   Future<void> _deleteTaprootSeeds(int walletId, List<String> seedKeys) async {
     for (final keyString in seedKeys) {
-      await _deleteTaprootSeedByKey(keyString);
+      await _deleteTaprootSeedByKey(keyString, rethrowOnSecureZoneDeleteFailure: false);
     }
-    await _storageService.delete(key: WalletStorageKeys.taprootSeedIndexKey(walletId));
+    await _deleteStorageWithRetry(WalletStorageKeys.taprootSeedIndexKey(walletId));
   }
 
-  Future<void> _deleteTaprootSeedByKey(String seedKey) async {
-    await _storageService.delete(key: seedKey);
-    await _secureZoneRepository.deleteKey(alias: seedKey);
+  Future<void> _deleteTaprootSeedByKey(String seedKey, {required bool rethrowOnSecureZoneDeleteFailure}) async {
+    try {
+      await _deleteSecureZoneKeyWithRetry(seedKey);
+    } catch (e, stackTrace) {
+      Logger.log('Taproot Secure Zone seed key cleanup failed: key=$seedKey, error=$e');
+      if (rethrowOnSecureZoneDeleteFailure) {
+        Error.throwWithStackTrace(e, stackTrace);
+      }
+    }
+    await _deleteStorageWithRetry(seedKey);
   }
 
   Future<List<String>> _readTaprootSeedIndex(int walletId) async {
@@ -210,7 +269,7 @@ class SecureStorageStrategy implements WalletPersistenceStrategy {
 
   Future<void> _deletePrivacyInfo(int id, WalletType type) async {
     final walletKey = WalletStorageKeys.walletKey(id, type);
-    await _storageService.delete(key: WalletStorageKeys.privacyInfoKey(walletKey));
+    await _deleteStorageWithRetry(WalletStorageKeys.privacyInfoKey(walletKey));
   }
 
   // --- mode transition helpers (signing-only -> secure-storage) ---
@@ -319,6 +378,7 @@ class _SecureStorageOps implements WalletWriteOps {
     } else if (type == WalletType.taproot) {
       await _s._deleteTaprootSecrets(id);
     }
+    // Multisig has no Secure Zone key or secret ciphertext; only privacyInfo is cleaned up below.
     await _s._deletePrivacyInfo(id, type);
   }
 }
