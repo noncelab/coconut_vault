@@ -36,8 +36,11 @@ class WalletLinker {
     final expectedDerivationPath = bsms.signer!.path;
     final expectedXpub = bsms.signer!.extendedPublicKey.serialize(toXpub: true);
 
+    final normalizedDerivationPath = derivationPath.replaceFirst('m/', '');
+    final normalizedExpectedDerivationPath = expectedDerivationPath.replaceFirst('m/', '');
+
     return keyStore.masterFingerprint.toUpperCase() == expectedMfp.toUpperCase() &&
-        derivationPath == expectedDerivationPath &&
+        normalizedDerivationPath == normalizedExpectedDerivationPath &&
         keyStore.extendedPublicKey.serialize(toXpub: true) == expectedXpub;
   }
 
