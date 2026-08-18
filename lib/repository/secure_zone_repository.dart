@@ -72,7 +72,7 @@ class EncryptResult {
 abstract class SecureZoneRepositoryContract {
   Future<void> generateKey({required String alias, bool userAuthRequired = false, bool perUseAuth = false});
   Future<void> deleteKey({required String alias});
-  Future<void> deleteKeys({required List<String> aliasList});
+  Future<List<String>> deleteKeys({required List<String> aliasList});
   Future<EncryptResult> encrypt({required String alias, required Uint8List plaintext});
   Future<Uint8List?> decrypt({
     required String alias,
@@ -109,7 +109,7 @@ class SecureZoneRepository implements SecureZoneRepositoryContract {
   }
 
   @override
-  Future<void> deleteKeys({required List<String> aliasList}) async {
+  Future<List<String>> deleteKeys({required List<String> aliasList}) async {
     return await _secureZoneKeystore.deleteKeys(aliasList: aliasList);
   }
 

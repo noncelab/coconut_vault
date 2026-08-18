@@ -1550,11 +1550,12 @@ class _FakeSecureZoneRepository implements SecureZoneRepositoryContract {
   }
 
   @override
-  Future<void> deleteKeys({required List<String> aliasList}) async {
+  Future<List<String>> deleteKeys({required List<String> aliasList}) async {
     deletedAliases.addAll(aliasList);
     for (final alias in aliasList) {
       encryptedPlaintexts.remove(alias);
     }
+    return [];
   }
 
   @override

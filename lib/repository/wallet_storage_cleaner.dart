@@ -138,18 +138,11 @@ class WalletStorageCleaner {
 
     final secureZone = secureZoneRepository ?? SecureZoneRepository();
     Logger.log('--> 🧹 SZR deleteKeys 시도: ${walletKeys.length}개');
-    for (var attempt = 1; attempt <= 3; attempt++) {
-      try {
-        await secureZone.deleteKeys(aliasList: walletKeys);
-        Logger.log('--> ✅ SZR deleteKeys 성공: ${walletKeys.length}개 삭제 완료');
-        return;
-      } catch (e, stackTrace) {
-        if (attempt == 3) {
-          Logger.error('--> ❌ SZR deleteKeys 실패 after $attempt attempts: ${e.toString()}');
-          Error.throwWithStackTrace(e, stackTrace);
-        }
-        await Future<void>.delayed(const Duration(milliseconds: 100));
-      }
+    final failed = await secureZone.deleteKeys(aliasList: walletKeys);
+    if (failed.isEmpty) {
+      Logger.log('--> ✅ SZR deleteKeys 성공: ${walletKeys.length}개 삭제 완료');
+    } else {
+      Logger.error('--> ⚠️ SZR deleteKeys 일부 실패: ${failed.length}개 실패 $failed');
     }
   }
 
