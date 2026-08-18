@@ -91,6 +91,12 @@ class _CoordinatorBsmsConfigScannerScreenState extends QrScannerScreenBase<Coord
   }
 
   @override
+  Future<void> onFailedScanning(String message) async {
+    await super.onFailedScanning(message);
+    await _restartScanner();
+  }
+
+  @override
   List<TextSpan> buildTooltipRichText(BuildContext context, visibilityProvider) {
     return [
       TextSpan(
@@ -226,5 +232,21 @@ class _CoordinatorBsmsConfigScannerScreenState extends QrScannerScreenBase<Coord
   void _handleScanFailure(String message) {
     _reset();
     onFailedScanning(message);
+  }
+
+  Future<void> _restartScanner() async {
+    if (!mounted) {
+      return;
+    }
+
+    try {
+      await controller?.stop();
+      if (!mounted) {
+        return;
+      }
+      await controller?.start();
+    } catch (e) {
+      Logger.error('Coordinator BSMS scanner restart failed: $e');
+    }
   }
 }
