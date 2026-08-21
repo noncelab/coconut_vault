@@ -64,10 +64,10 @@ dependencies:
   screen_protector: 1.4.2
   url_launcher: ^6.2.6
   crypto: ^3.0.6
-  encrypt: ^5.0.3
+  encrypt_next: ^5.0.5
   slang: ^4.6.0
   slang_flutter: ^4.6.0
-  pointycastle: ^3.9.1
+  pointycastle: ^4.0.0
   tuple: ^2.0.2
   # 반드시 수정해야 함: coconut_lib 배포 완료 후 반드시 수정
   coconut_lib:

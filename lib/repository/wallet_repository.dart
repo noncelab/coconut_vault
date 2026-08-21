@@ -49,7 +49,7 @@ class _ModeTransitionBackupEntry {
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletRepository {
-  static const int currentDataSchemeVersion = 2;
+  static const int currentVaultDataSchemaVersion = 2;
   static String vaultTypeField = VaultListItemBase.vaultTypeField;
 
   final SecureStorageRepositoryContract _storageService;
@@ -78,46 +78,44 @@ class WalletRepository {
             : SecureStorageStrategy(storageService: _storageService, secureZoneRepository: _secureZoneRepository);
   }
 
-  int? _getSavedDataSchemeVersion() {
+  int? _getSavedVaultDataSchemaVersion() {
     return _sharedPrefs.getInt(SharedPrefsKeys.kDataSchemeVersion);
-  }
-
-  Future<void> updateDataSchemeVersion(int version) async {
-    await _sharedPrefs.setInt(SharedPrefsKeys.kDataSchemeVersion, version);
   }
 
   Future<List<dynamic>?> loadVaultListJsonArrayString() async {
     String? jsonArrayString;
 
     jsonArrayString = _sharedPrefs.getString(SharedPrefsKeys.kVaultListField);
-    int? savedDataSchemeVersion = _getSavedDataSchemeVersion();
+    int? savedVaultDataSchemaVersion = _getSavedVaultDataSchemaVersion();
 
     printLongString('--> $jsonArrayString');
     if (jsonArrayString.isEmpty || jsonArrayString == '[]') {
       _vaultList = [];
 
-      if (savedDataSchemeVersion == null || currentDataSchemeVersion > savedDataSchemeVersion) {
-        await updateDataSchemeVersion(currentDataSchemeVersion);
+      if (savedVaultDataSchemaVersion == null || currentVaultDataSchemaVersion > savedVaultDataSchemaVersion) {
+        await DataSchemaMigrationRunner.persistCurrentVaultDataSchemaVersion(
+          _sharedPrefs,
+          currentVaultDataSchemaVersion,
+        );
       }
       return null;
     }
 
-    int previousDataSchemeVersion = savedDataSchemeVersion ?? 1;
-    if (previousDataSchemeVersion < currentDataSchemeVersion) {
+    int previousVaultDataSchemaVersion = savedVaultDataSchemaVersion ?? 1;
+    if (previousVaultDataSchemaVersion < currentVaultDataSchemaVersion) {
       // Invariant: signing-only mode never persists a vault list, so we can't reach here in that mode.
       assert(!_isSigningOnlyMode, 'migration must not run in signing-only mode');
-      Logger.log('✅ 마이그레이션 시작: $savedDataSchemeVersion to $currentDataSchemeVersion');
+      Logger.log('✅ 마이그레이션 시작: $savedVaultDataSchemaVersion to $currentVaultDataSchemaVersion');
       printLongString('--> jsonArrayString: $jsonArrayString');
       final migrationStrategy = SecureStorageStrategy();
       await DataSchemaMigrationRunner.runDataSchemaMigrations(
-        previousDataSchemeVersion,
-        currentDataSchemeVersion,
+        previousVaultDataSchemaVersion,
+        currentVaultDataSchemaVersion,
         _decodeWalletListJson(jsonArrayString),
         _sharedPrefs,
         migrationStrategy.writePrivacyInfo,
         _walletLoadCancelToken,
       );
-      await updateDataSchemeVersion(currentDataSchemeVersion);
       jsonArrayString = _sharedPrefs.getString(SharedPrefsKeys.kVaultListField);
     }
 
