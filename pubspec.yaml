@@ -69,6 +69,7 @@ dependencies:
   slang_flutter: ^4.6.0
   pointycastle: ^3.9.1
   tuple: ^2.0.2
+  # 반드시 수정해야 함: coconut_lib 배포 완료 후 반드시 수정
   coconut_lib:
     git:
       url: https://github.com/noncelab/coconut_lib

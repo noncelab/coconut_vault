@@ -24,6 +24,7 @@ class MultisigSignViewModel extends ChangeNotifier {
   late final List<bool> _hasPassphraseList;
   late String _psbtForSigning;
   String? _signedRawTxHex;
+  bool _isRawTransactionValidated = false;
   bool _signStateInitialized = false;
   final bool _isSigningOnlyMode;
   Map<String, String>? _input0PubkeyBySigner;
@@ -61,7 +62,7 @@ class MultisigSignViewModel extends ChangeNotifier {
   int get sendingAmount => _signProvider.sendingAmount!;
   int get remainingSignatures =>
       _vaultListItem.requiredSignatureCount - _signerApproved.where((bool isApproved) => isApproved).length;
-  bool get isSignatureCompleted => remainingSignatures <= 0 || _signedRawTxHex != null;
+  bool get isSignatureCompleted => remainingSignatures <= 0 || _isRawTransactionValidated;
   List<MultisigSigner> get signers => _vaultListItem.signers;
   String get psbtForSigning => _psbtForSigning;
   int getInnerVaultId(int index) => _vaultListItem.signers[index].innerVaultId!;
@@ -149,7 +150,7 @@ class MultisigSignViewModel extends ChangeNotifier {
   }
 
   void saveSignedResult() {
-    if (_signedRawTxHex != null) {
+    if (_isRawTransactionValidated && _signedRawTxHex != null) {
       _signProvider.saveSignedRawTxHexString(_signedRawTxHex!);
       return;
     }
@@ -158,11 +159,13 @@ class MultisigSignViewModel extends ChangeNotifier {
   }
 
   void reset() {
+    _isRawTransactionValidated = false;
     _signProvider.resetSignedPsbt();
     _signProvider.resetSignedRawTxHexString();
   }
 
   void resetAll() {
+    _isRawTransactionValidated = false;
     _signProvider.resetPsbt();
     _signProvider.resetRecipientAddress();
     _signProvider.resetRecipientAmounts();
@@ -359,33 +362,49 @@ class MultisigSignViewModel extends ChangeNotifier {
   //   notifyListeners();
   // }
 
-  /// Raw tx hex string이 스캔된 경우는 반드시 서명이 완료된 상태
-  void validateRawSignedTransaction(String rawSignedTransaction) {
+  /// Raw tx hex string이 스캔된 경우 모든 input의 최종 witness를 검증합니다.
+  Future<void> validateRawSignedTransaction(String rawSignedTransaction) async {
+    _isRawTransactionValidated = false;
     final exceptionMessages = t.multisig_sign_screen.exception;
     try {
       if (!rawSignedTransaction.substring(8).startsWith(rawTxSegwitField)) {
         throw FormatException(exceptionMessages.not_segwit);
       }
 
-      final currentTx = Psbt.parse(_psbtForSigning).unsignedTransaction!;
-      final scannedTx = Transaction.parse(rawSignedTransaction);
-
-      if (!isSameTransactionBody(currentTx, scannedTx)) {
+      if (!await _vaultListItem.canSign(_psbtForSigning)) {
         throw FormatException(exceptionMessages.invalid_sign_error);
       }
 
-      // 서명 완료 여부 확인
-      for (int i = 0; i < currentTx.inputs.length; i++) {
-        // 서명 개수 체크
-        // n = requiredSignatureCount 일 때,
-        // witnessList[0] = dummy
-        // witnessList[..] = signature
-        // witnessList[..] = signature
-        // witnessList[n + 1] = witness script
-        if (scannedTx.inputs[i].witnessList.length - 2 != _vaultListItem.requiredSignatureCount) {
-          throw FormatException(exceptionMessages.needs_more_signature);
-        }
+      final currentPsbt = Psbt.parse(_psbtForSigning);
+      final currentTx = currentPsbt.unsignedTransaction!;
+      final scannedTx = Transaction.parse(rawSignedTransaction);
+
+      if (!isSameTransactionBody(currentTx, scannedTx) || scannedTx.inputs.length != currentPsbt.inputs.length) {
+        throw FormatException(exceptionMessages.invalid_sign_error);
       }
+
+      final prevouts = <TransactionOutput>[];
+      for (int i = 0; i < currentPsbt.inputs.length; i++) {
+        final psbtInput = currentPsbt.inputs[i];
+        final scannedInput = scannedTx.inputs[i];
+        final witnessScript = psbtInput.witnessScript;
+
+        if (psbtInput.witnessUtxo == null || witnessScript == null) {
+          throw FormatException(exceptionMessages.invalid_sign_error);
+        }
+        if (scannedInput.witnessList.length < 3 ||
+            scannedInput.witnessList.last.toUpperCase() != witnessScript.rawSerialize().toUpperCase()) {
+          throw FormatException(exceptionMessages.invalid_sign_error);
+        }
+
+        prevouts.add(psbtInput.witnessUtxo!);
+      }
+
+      if (!scannedTx.validateSpend(prevouts)) {
+        throw FormatException(exceptionMessages.invalid_sign_error);
+      }
+
+      _isRawTransactionValidated = true;
     } on FormatException {
       rethrow;
     } catch (e) {

@@ -131,7 +131,7 @@ class PsbtScannerViewModel {
         continue;
       }
 
-      if (parsedPsbt.isForVault(vault.coconutVault)) {
+      if (parsedPsbt.matchesVault(vault.coconutVault)) {
         return vault;
       }
     }

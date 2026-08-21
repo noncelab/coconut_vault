@@ -140,7 +140,7 @@ class SignIsolates {
     try {
       final parsedPsbt = Psbt.parse(psbtBase64);
       final taprootVault = dataList[0] as TaprootVault;
-      return parsedPsbt.isForVault(taprootVault);
+      return parsedPsbt.matchesVault(taprootVault);
     } catch (_) {
       return false;
     }
