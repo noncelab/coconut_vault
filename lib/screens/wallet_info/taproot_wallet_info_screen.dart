@@ -20,6 +20,7 @@ import 'package:coconut_vault/widgets/card/taproot/taproot_participant_card.dart
 import 'package:coconut_vault/widgets/card/taproot/taproot_setup_summary_card.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_vault_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -79,7 +80,10 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
                       style: CoconutTypography.body3_12.setColor(CoconutColors.gray700),
                     ),
                     CoconutLayout.spacing_300h,
-                    Text(dialogText.step2_title, style: CoconutTypography.body2_14_Bold),
+                    Text(
+                      dialogText.step2_title(version: NetworkType.currentNetworkType.isTestnet ? '3.16.0' : '0.16.0'),
+                      style: CoconutTypography.body2_14_Bold,
+                    ),
                     CoconutLayout.spacing_100h,
                     Text(
                       dialogText.step2_description,

@@ -1120,7 +1120,7 @@ wallet_info_screen:
     title: "Inheritance Wallet Backup Information Update"
     step1_title: "1. If you saved the previous inheritance wallet backup information elsewhere, update it with the new backup information."
     step1_description: "Select 'Export Wallet' > Open 'Share with Another Vault' > Check and copy the updated backup information > Store it safely"
-    step2_title: "2. Please update Coconut Wallet to version 3.16.0 or later."
+    step2_title: "2. Please update Coconut Wallet to version $version or later."
     step2_description: "The inheritance wallet information added to Coconut Wallet also needs to be up to date. Updating the app will apply the changes automatically."
     why_title: "Q. Why was it changed?"
     why_description: "Backup information is created according to agreed rules (Miniscript). The point at which an heir can use bitcoin should be represented with 'after', but it was incorrectly represented with 'older'.\n\nThis is an issue with the backup information representation and does not affect the current wallet's addresses, assets, or configured inheritance conditions. You can continue using the wallet as originally configured, and you do not need to create a new one."
