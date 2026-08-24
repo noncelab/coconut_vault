@@ -34,6 +34,82 @@ class TaprootWalletInfoScreen extends StatefulWidget {
 }
 
 class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      if (context.read<WalletProvider>().walletIdsWithUnacknowledgedOlderToAfterBackupUpdate.contains(widget.id)) {
+        await _showTaprootBackupUpdateDialog();
+      }
+    });
+  }
+
+  Future<void> _showTaprootBackupUpdateDialog() async {
+    final dialogText = t.wallet_info_screen.taproot_older_to_after_backup_update_dialog;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return PopScope(
+          canPop: false,
+          child: Dialog(
+            backgroundColor: CoconutColors.white,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Text(
+                        dialogText.title,
+                        textAlign: TextAlign.center,
+                        style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.black),
+                      ),
+                    ),
+                    CoconutLayout.spacing_300h,
+                    Text(dialogText.step1_title, style: CoconutTypography.body2_14_Bold),
+                    CoconutLayout.spacing_100h,
+                    Text(
+                      dialogText.step1_description,
+                      style: CoconutTypography.body3_12.setColor(CoconutColors.gray700),
+                    ),
+                    CoconutLayout.spacing_300h,
+                    Text(dialogText.step2_title, style: CoconutTypography.body2_14_Bold),
+                    CoconutLayout.spacing_100h,
+                    Text(
+                      dialogText.step2_description,
+                      style: CoconutTypography.body3_12.setColor(CoconutColors.gray700),
+                    ),
+                    CoconutLayout.spacing_300h,
+                    Text(dialogText.why_title, style: CoconutTypography.body2_14_Bold),
+                    CoconutLayout.spacing_100h,
+                    Text(dialogText.why_description, style: CoconutTypography.body3_12.setColor(CoconutColors.gray700)),
+                    CoconutLayout.spacing_300h,
+                    SizedBox(
+                      width: double.infinity,
+                      child: CoconutButton(
+                        height: 52,
+                        backgroundColor: CoconutColors.gray800,
+                        foregroundColor: CoconutColors.white,
+                        text: dialogText.confirm,
+                        onPressed: () => Navigator.pop(dialogContext),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _authenticateWithBiometricOrPin(
     BuildContext context,
     PinCheckContextEnum pinCheckContext,
@@ -434,6 +510,7 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
                             ),
                           SingleButton(
                             title: t.vault_menu_screen.export_wallet,
+                            showNotificationDot: viewModel.hasUnacknowledgedOlderToAfterBackupUpdate,
                             onPressed:
                                 () => Navigator.pushNamed(
                                   context,

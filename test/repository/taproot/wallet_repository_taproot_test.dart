@@ -596,12 +596,14 @@ void main() {
         final walletKey = WalletStorageKeys.walletKey(added.id, WalletType.taproot);
         final privacyInfoKey = WalletStorageKeys.privacyInfoKey(walletKey);
         final seedIndexKey = WalletStorageKeys.taprootSeedIndexKey(added.id);
+        await SharedPrefsRepository().addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(added.id);
 
         final deleted = await reloadedRepository.deleteWallet(added.id);
 
         expect(deleted, isTrue);
         expect(reloadedRepository.vaultList, isEmpty);
         expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), '[]');
+        expect(SharedPrefsRepository().hasUnacknowledgedOlderToAfterBackupUpdate(added.id), isFalse);
         expect(storage.deletedKeys, contains(keyPathSeedKey));
         expect(storage.deletedKeys, contains(beneficiarySeedKey));
         expect(storage.deletedKeys, contains(privacyInfoKey));
@@ -1369,10 +1371,15 @@ void main() {
 
       // secure-storage에서 signing-only 모드로 전환하면 기존 지갑 목록을 모두 삭제한다.
       // 이때 지갑별 seed, seed index, privacy info, public vault list가 함께 정리되어야 한다.
+      await SharedPrefsRepository().addWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate([
+        firstWallet.id,
+        secondWallet.id,
+      ]);
       await repository.updateIsSigningOnlyMode(true);
 
       expect(repository.vaultList, isEmpty);
       expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), '[]');
+      expect(SharedPrefsRepository().getWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate(), isEmpty);
       expect(storage.values, isEmpty);
       expect(storage.deletedKeys, contains(firstPrivacyInfoKey));
       expect(storage.deletedKeys, contains(secondPrivacyInfoKey));
@@ -1438,13 +1445,13 @@ void main() {
       final scriptKeyC = ScriptPathSeedInfo.generateKey(differentPolicy);
       expect(
         recreatedPolicyA.toMiniscript(),
-        "and_v(v:pk([70C4E9DE/86'/1'/0']tpubDCp2emt17Ng6ujD8BC6ScL4vfwhN3nAJQ8kCqLjRQHxcFhWt6YK5Ws6UcKD6HgLCZuwU8DryKo7h2gpieLa7Q9YF1AqfL9XiF7349nHaLi8/<0;1>/*),older(500000000))",
+        "and_v(v:pk([70C4E9DE/86'/1'/0']tpubDCp2emt17Ng6ujD8BC6ScL4vfwhN3nAJQ8kCqLjRQHxcFhWt6YK5Ws6UcKD6HgLCZuwU8DryKo7h2gpieLa7Q9YF1AqfL9XiF7349nHaLi8/<0;1>/*),after(500000000))",
       );
-      expect(scriptKeyA, '0f4b50131aa61179141f7475d9cf74339a1ecd5f760d2e1ca7bb8c57e0ead4eb');
+      expect(scriptKeyA, 'fae98e49125d72c19b4c253a67e995d53f2f24913c2021d8c9a14193f01048b8');
       expect(scriptKeyA, scriptKeyB);
       expect(scriptKeyA, added.beneficiaries.single.scriptKey);
       expect(scriptKeyA, storedScriptPathSeedInfo.key);
-      expect(scriptKeyC, '890b2a8bedc5da899ca0a49a57819c71bc6490ec6dfe0a5b5e35f2cfa52bb618');
+      expect(scriptKeyC, '8dafb551ca93f97220759b05be372db4efee4de71a11a9b7af3c6b362634e31a');
       expect(secureZone.encryptedPlaintexts.keys, contains(expectedStorageKey));
     });
   });

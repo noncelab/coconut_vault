@@ -49,7 +49,7 @@ class _ModeTransitionBackupEntry {
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletRepository {
-  static const int currentVaultDataSchemaVersion = 2;
+  static const int currentVaultDataSchemaVersion = 3;
   static String vaultTypeField = VaultListItemBase.vaultTypeField;
 
   final SecureStorageRepositoryContract _storageService;
@@ -60,6 +60,18 @@ class WalletRepository {
   late bool _isSigningOnlyMode;
   late WalletPersistenceStrategy _strategy;
   get vaultList => _vaultList;
+
+  Set<int> get walletIdsWithUnacknowledgedOlderToAfterBackupUpdate {
+    return _sharedPrefs.getWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate();
+  }
+
+  Future<void> addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(int walletId) {
+    return _sharedPrefs.addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(walletId);
+  }
+
+  Future<void> removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(int walletId) {
+    return _sharedPrefs.removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(walletId);
+  }
 
   Completer<void>? _walletLoadCancelToken;
 
@@ -114,7 +126,7 @@ class WalletRepository {
         _decodeWalletListJson(jsonArrayString),
         _sharedPrefs,
         migrationStrategy.writePrivacyInfo,
-        _walletLoadCancelToken,
+        _getPrivacyInfo,
       );
       jsonArrayString = _sharedPrefs.getString(SharedPrefsKeys.kVaultListField);
     }
@@ -510,6 +522,7 @@ class WalletRepository {
 
     // 저장이 성공한 후에만 메모리 상태를 교체한다.
     _vaultList = newVaults;
+    await _sharedPrefs.removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(id);
 
     return true;
   }
@@ -529,6 +542,7 @@ class WalletRepository {
     );
 
     _vaultList = [];
+    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate);
   }
 
   Future<bool> updateWallet(int id, String newName, int colorIndex, int iconIndex) async {

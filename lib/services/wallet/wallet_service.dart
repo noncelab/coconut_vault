@@ -52,6 +52,16 @@ class WalletService {
   /// Current authoritative snapshot from the repository.
   /// Adapters should re-read this after each mutating call to stay in sync.
   List<VaultListItemBase> get vaultSnapshot => _repo.vaultList ?? const [];
+  Set<int> get walletIdsWithUnacknowledgedOlderToAfterBackupUpdate =>
+      _repo.walletIdsWithUnacknowledgedOlderToAfterBackupUpdate;
+
+  Future<void> addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(int walletId) {
+    return _repo.addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(walletId);
+  }
+
+  Future<void> removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(int walletId) {
+    return _repo.removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(walletId);
+  }
 
   // ---- create ----
 

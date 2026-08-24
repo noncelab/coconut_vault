@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
@@ -17,19 +16,15 @@ import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/print_util.dart';
 import 'package:flutter/foundation.dart';
 
-Future<void> migrateV1toV2(
+Future<List<dynamic>> migrateV1toV2(
   List<dynamic> jsonList,
-  Completer<void>? cancelToken,
   SharedPrefsRepository sharedPrefs,
   Future<void> Function(int id, WalletType walletType, WalletPrivacyInfo data) savePrivacyInfo,
 ) async {
   assert(sharedPrefs.getString(SharedPrefsKeys.kVaultMode) == VaultMode.secureStorage.name);
   final vaultList = await loadVaultsFromJsonListV1(jsonList);
-  if (vaultList == null) return;
 
   for (final item in vaultList) {
-    if (cancelToken?.isCompleted == true) return;
-
     if (item is SingleSigVaultListItem) {
       // INFO: v1에서는 signerBsms를 사용했었기 때문에 deprecated 프로퍼티를 사용
       await savePrivacyInfo(
@@ -71,21 +66,18 @@ Future<void> migrateV1toV2(
     }
   }
 
-  final jsonString = jsonEncode(vaultList.map((item) => item.toPublicJson()).toList());
+  final migratedJsonList = vaultList.map((item) => item.toPublicJson()).toList();
+  final jsonString = jsonEncode(migratedJsonList);
   await sharedPrefs.setString(SharedPrefsKeys.kVaultListField, jsonString);
-  printLongString('✅마이그레이션 완료: $jsonString');
+  printLongString('✅ v1 -> v2 마이그레이션 완료: $jsonString');
+  return migratedJsonList;
 }
 
 // INFO: DATA_SCHEME_VERSION v1에서 사용하던 지갑 로드 함수
-Future<List<VaultListItemBase>?> loadVaultsFromJsonListV1(
-  List<dynamic> jsonList, {
-  Completer<void>? cancelToken,
-}) async {
+Future<List<VaultListItemBase>> loadVaultsFromJsonListV1(List<dynamic> jsonList) async {
   final vaultList = <VaultListItemBase>[];
 
   for (int i = 0; i < jsonList.length; i++) {
-    if (cancelToken?.isCompleted == true) return null;
-
     final item = await compute<Map<String, dynamic>, VaultListItemBase>(
       WalletIsolates.initializeWallet,
       jsonList[i] as Map<String, dynamic>,

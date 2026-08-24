@@ -29,6 +29,8 @@ class WalletInfoViewModel extends ChangeNotifier {
   bool get isSigningOnlyMode => _walletProvider.isSigningOnlyMode;
   bool get isInitialized => _isInitialized;
   bool get isMultisig => _isMultisig;
+  bool get hasUnacknowledgedOlderToAfterBackupUpdate =>
+      _walletProvider.walletIdsWithUnacknowledgedOlderToAfterBackupUpdate.contains(vaultItem.id);
 
   /// SingleSigInfoScreen Only
   int get linkedMutlsigVaultCount =>

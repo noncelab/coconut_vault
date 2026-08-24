@@ -1,4 +1,6 @@
 import 'dart:async';
+
+import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPrefsRepository {
@@ -59,5 +61,37 @@ class SharedPrefsRepository {
 
   Future setDouble(String key, double value) async {
     await _sharedPrefs.setDouble(key, value);
+  }
+
+  /// Taproot `older` → `after` backup 정보 업데이트 안내를 아직 확인하지 않은 지갑 ID를 관리합니다.
+  Set<int> getWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate() {
+    final ids =
+        _sharedPrefs.getStringList(SharedPrefsKeys.kWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate) ??
+        const <String>[];
+    return ids.map(int.tryParse).whereType<int>().toSet();
+  }
+
+  Future<void> addWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate(Iterable<int> walletIds) async {
+    final ids = getWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate()..addAll(walletIds);
+    await _sharedPrefs.setStringList(
+      SharedPrefsKeys.kWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate,
+      ids.map((id) => id.toString()).toList(),
+    );
+  }
+
+  Future<void> addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(int walletId) async {
+    await addWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate([walletId]);
+  }
+
+  Future<void> removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(int walletId) async {
+    final ids = getWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate()..remove(walletId);
+    await _sharedPrefs.setStringList(
+      SharedPrefsKeys.kWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate,
+      ids.map((id) => id.toString()).toList(),
+    );
+  }
+
+  bool hasUnacknowledgedOlderToAfterBackupUpdate(int walletId) {
+    return getWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate().contains(walletId);
   }
 }

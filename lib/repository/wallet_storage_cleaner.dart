@@ -169,5 +169,6 @@ class WalletStorageCleaner {
     await sp.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultOrder);
     await sp.deleteSharedPrefsWithKey(SharedPrefsKeys.kFavoriteVaultIds);
     await sp.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultModeTransitionMarker);
+    await sp.deleteSharedPrefsWithKey(SharedPrefsKeys.kWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate);
   }
 }

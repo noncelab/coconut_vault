@@ -5,6 +5,9 @@ class SharedPrefsKeys {
   static const String hasShownStartGuide = "HAS_SHOWN_START_GUIDE";
 
   static const String kDataSchemeVersion = "DATA_SCHEME_VERSION";
+  // VaultDataSchema v3 migration: Taproot wallets with legacy descriptors
+  static const String kWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate =
+      "WALLET_IDS_WITH_UNACKNOWLEDGED_OLDER_TO_AFTER_BACKUP_UPDATE";
 
   // 주요 설정
   static const String isPinCharacter = "IS_PIN_CHARACTER";

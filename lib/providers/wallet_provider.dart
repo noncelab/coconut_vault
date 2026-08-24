@@ -59,6 +59,26 @@ class WalletProvider extends ChangeNotifier {
   bool get isVaultsLoaded => _isVaultsLoaded;
   bool get isSigningOnlyMode => _isSigningOnlyMode;
 
+  /// coconut_lib의 legacy Taproot inheritance miniscript가 `older`로 생성되던 문제에 대한
+  /// backup 정보 업데이트 안내 대상 지갑 ID입니다.
+  ///
+  /// 실제 지갑 마이그레이션 여부가 아니라, 사용자가 최신 backup 정보를 확인하기 전까지
+  /// 유지하는 미확인 상태입니다. 최신 backup 정보 화면에 진입하면 해당 ID를 제거합니다.
+  Set<int> get walletIdsWithUnacknowledgedOlderToAfterBackupUpdate =>
+      _service.walletIdsWithUnacknowledgedOlderToAfterBackupUpdate;
+
+  /// 구버전 `older` descriptor/backup 정보를 최신 `after` 형식으로 변환한 지갑을 안내 대상으로 추가합니다.
+  Future<void> addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(int walletId) async {
+    await _service.addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(walletId);
+    notifyListeners();
+  }
+
+  /// 사용자가 최신 Taproot backup 정보를 확인했거나 지갑을 삭제한 경우 미확인 안내 대상을 제거합니다.
+  Future<void> removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(int walletId) async {
+    await _service.removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(walletId);
+    notifyListeners();
+  }
+
   // 5-1) Query (WalletQueryService 위임)
   /// SinglesigVaultListItem의 seed 중복 여부 확인
   bool isSeedDuplicated(Uint8List secret, Uint8List passphrase) => _query.isSeedDuplicated(secret, passphrase);

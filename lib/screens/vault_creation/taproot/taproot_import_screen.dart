@@ -111,6 +111,8 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
     _viewModel = TaprootImportViewModel(
       findWalletByDescriptor: (descriptor) => context.read<WalletProvider>().findWalletByDescriptor(descriptor),
       addTaprootVault: (walletCreateDto) => context.read<WalletProvider>().addTaprootVault(walletCreateDto),
+      addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate:
+          (walletId) => context.read<WalletProvider>().addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(walletId),
     );
     _viewModel.addListener(_handleViewModelChanged);
   }

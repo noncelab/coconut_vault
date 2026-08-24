@@ -140,6 +140,7 @@ connectivity_state:
 
 vault_home_screen:
   view_all_wallets: "ウォレットをすべて表示"
+  view_details: "詳細を見る"
   wallet_count: "$count項目"
   action_items:
     sign: "署名"
@@ -151,6 +152,10 @@ vault_home_screen:
     wallet_added_but_not_favorite: "ウォレットが追加されました。 「ウォレットをすべて表示」で確認してください。"
   secure_zone_checking: "セキュリティ領域にアクセスできるか確認しています。"
   secure_zone_check_failed: "セキュリティデータチェックに失敗しました"
+  taproot_older_to_after_backup_update_notice:
+    title: "バックアップ更新"
+    description: "相続ウォレットのバックアップデータの一部が変更されました。\nCoconut Walletも最新バージョンに更新してください。\nアプリを更新すると変更内容が自動的に反映されます。\nその後、構成情報をもう一度バックアップしてください。"
+  taproot_older_to_after_backup_update_notice_action: "詳細を見る"
 
 
 vault_list_screen:
@@ -662,7 +667,6 @@ taproot:
         title_1: "Taproot相続ウォレットの"
         title_2: "準備ができました"
         description: "別のVaultやウォッチ専用アプリで\n使えるようにウォレット情報を書き出せます"
-        exprot_wallet: "ウォレットを書き出す"
     created_parent_wallet: "親ウォレットを作成しました"
     set_child_wallet: "子ウォレットが設定されました"
     set_child_period: "子ウォレットの使用開始時期が設定されました"
@@ -1112,6 +1116,17 @@ sync_to_wallet_screen:
       guide2_1: "Import Wallet"
       guide3_1: "QRコードまたはファイルをスキャン"
     common: "下記のQRコードをスキャンしてください。"
+wallet_info_screen:
+  taproot_older_to_after_backup_update_dialog:
+    title: "相続ウォレットのバックアップ情報更新"
+    step1_title: "1. 以前の相続ウォレットのバックアップ情報を別の場所に保存している場合は、新しいバックアップ情報に更新してください。"
+    step1_description: "「ウォレットを書き出す」>「別のVaultと共有」> 更新されたバックアップ情報を確認・コピー > 安全に保管"
+    step2_title: "2. Coconut Walletを3.16.0以上に更新してください。"
+    step2_description: "Coconut Walletに追加された相続ウォレット情報も最新の状態にする必要があります。アプリを更新すると変更内容が自動的に反映されます。"
+    why_title: "Q. なぜ変更されたのですか？"
+    why_description: "バックアップ情報は合意されたルール（Miniscript）に従って作成されます。相続人がビットコインを使用できる時点は「after」と表示すべきですが、「older」と誤って表示されていました。\n\nこれはバックアップ情報の表現に関する問題で、現在のウォレットのアドレス、資産、設定した相続条件には影響しません。ウォレットはこれまで通り使用でき、新しく作り直す必要はありません。"
+    confirm: "理解しました"
+
 taproot_vault_detail_screen:
   signer: "私はこのウォレットの署名者です。普段からこのウォレットを使用できます。"
   cosigner: "私はこのウォレットの共同署名者です。他の共同署名者と一緒に署名することで、資産を使用できます。"

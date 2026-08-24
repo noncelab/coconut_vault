@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
+import 'package:coconut_vault/utils/migration/taproot_older_to_after_migration.dart';
 
 class TaprootWalletSyncData {
   final String name;
@@ -11,6 +12,7 @@ class TaprootWalletSyncData {
   final String descriptor;
   final List<String> keyPathExtendedPublicKeys;
   final List<TaprootWalletSyncScriptPathData> scriptPathSeedInfos;
+  final bool wasMigratedFromOlderToAfter;
 
   TaprootWalletSyncData({
     required this.name,
@@ -19,6 +21,7 @@ class TaprootWalletSyncData {
     required this.descriptor,
     required this.keyPathExtendedPublicKeys,
     required this.scriptPathSeedInfos,
+    this.wasMigratedFromOlderToAfter = false,
   });
 
   factory TaprootWalletSyncData.parse(String raw) {
@@ -28,24 +31,33 @@ class TaprootWalletSyncData {
     }
 
     final descriptor = _readString(decoded, TaprootVaultListItem.fieldDescriptor);
-    TaprootVault.fromDescriptor(descriptor);
+    final descriptorMigration = TaprootOlderToAfterMigration.migrateDescriptor(descriptor);
+    final scriptPathSeedInfos =
+        decoded.containsKey(TaprootVaultListItem.fieldScriptPathSeedInfos)
+            ? _readMapList(decoded, TaprootVaultListItem.fieldScriptPathSeedInfos)
+                .map(TaprootWalletSyncScriptPathData.fromJson)
+                .map(
+                  (seedInfo) => seedInfo.copyWith(
+                    miniscript: TaprootOlderToAfterMigration.migrateMiniscript(seedInfo.miniscript),
+                  ),
+                )
+                .toList()
+            : <TaprootWalletSyncScriptPathData>[];
+
+    TaprootVault.fromDescriptor(descriptorMigration.descriptor);
 
     return TaprootWalletSyncData(
       name: _readString(decoded, VaultListItemBase.fieldName),
       colorIndex: _readInt(decoded, VaultListItemBase.fieldColorIndex),
       iconIndex: _readInt(decoded, VaultListItemBase.fieldIconIndex),
-      descriptor: descriptor,
+      descriptor: descriptorMigration.descriptor,
       keyPathExtendedPublicKeys:
           decoded.containsKey(TaprootVaultListItem.fieldKeyPathSeedInfos)
               ? _readStringList(decoded, TaprootVaultListItem.fieldKeyPathSeedInfos)
               : [],
-      scriptPathSeedInfos:
-          decoded.containsKey(TaprootVaultListItem.fieldScriptPathSeedInfos)
-              ? _readMapList(
-                decoded,
-                TaprootVaultListItem.fieldScriptPathSeedInfos,
-              ).map(TaprootWalletSyncScriptPathData.fromJson).toList()
-              : [],
+      scriptPathSeedInfos: scriptPathSeedInfos,
+      wasMigratedFromOlderToAfter:
+          descriptorMigration.hasChanges || scriptPathSeedInfos.any((seedInfo) => seedInfo.wasMigratedFromOlderToAfter),
     );
   }
 
@@ -106,8 +118,21 @@ class TaprootWalletSyncData {
 class TaprootWalletSyncScriptPathData {
   final String miniscript;
   final List<String> extendedPublicKeys;
+  final bool wasMigratedFromOlderToAfter;
 
-  TaprootWalletSyncScriptPathData({required this.miniscript, required this.extendedPublicKeys});
+  TaprootWalletSyncScriptPathData({
+    required this.miniscript,
+    required this.extendedPublicKeys,
+    this.wasMigratedFromOlderToAfter = false,
+  });
+
+  TaprootWalletSyncScriptPathData copyWith({String? miniscript}) {
+    return TaprootWalletSyncScriptPathData(
+      miniscript: miniscript ?? this.miniscript,
+      extendedPublicKeys: extendedPublicKeys,
+      wasMigratedFromOlderToAfter: wasMigratedFromOlderToAfter || miniscript != null && miniscript != this.miniscript,
+    );
+  }
 
   factory TaprootWalletSyncScriptPathData.fromJson(Map<String, dynamic> json) {
     final miniscript = json['miniscript'];
