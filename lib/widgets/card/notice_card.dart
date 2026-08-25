@@ -109,7 +109,7 @@ class _NoticeCardState extends State<NoticeCard> with SingleTickerProviderStateM
                   border: Border.all(color: CoconutColors.white),
                   borderRadius: 0,
                   borderWidth: 0,
-                  animationEndValue: 0.3,
+                  animationEndValue: 0.85,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 0),
                     child: Row(
