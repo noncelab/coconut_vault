@@ -292,6 +292,10 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
   }
 
   SliverToBoxAdapter _buildTaprootMigrationNotice(VaultHomeViewModel viewModel, List<VaultListItemBase> wallets) {
+    if (!viewModel.isVaultsLoaded) {
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
+    }
+
     final pendingWallet =
         wallets
             .where(
@@ -300,6 +304,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                   !_dismissedTaprootMigrationWalletIds.contains(wallet.id),
             )
             .firstOrNull;
+
     if (pendingWallet == null) {
       return const SliverToBoxAdapter(child: SizedBox.shrink());
     }
