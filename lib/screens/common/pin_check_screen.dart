@@ -371,8 +371,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
         if (!mounted) return;
         setState(() => _isResetting = false);
-        Navigator.of(context).pop();
-        widget.onReset?.call();
+        await widget.onReset?.call();
         return;
       } catch (e) {
         if (!mounted) return;
