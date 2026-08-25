@@ -71,7 +71,6 @@ import 'package:coconut_vault/screens/wallet_info/single_sig_wallet_info_screen.
 import 'package:coconut_vault/screens/wallet_info/taproot_wallet_info_screen.dart';
 import 'package:coconut_vault/widgets/overlays/signing_mode_edge_panel.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
@@ -134,9 +133,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   late _CustomNavigatorObserver _navigatorObserver;
   final ValueNotifier<bool> _routeNotifierHasShow = ValueNotifier<bool>(false);
 
-  // only used debug mode
-  bool _wasHotReloaded = false;
-
   @override
   void initState() {
     super.initState();
@@ -159,6 +155,13 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   }
 
   void _updateEntryFlow(AppEntryFlow appEntryFlow) {
+    if (!preferenceProvider.isSigningOnlyMode &&
+        _appEntryFlow == AppEntryFlow.vaultHome &&
+        appEntryFlow != AppEntryFlow.vaultHome) {
+      _walletProvider?.dispose();
+      _walletProvider = null;
+    }
+
     _appEntryFlow = appEntryFlow;
     if (appEntryFlow == AppEntryFlow.vaultHome) {
       _shouldShowPrivacyScreen = false;
@@ -184,6 +187,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
 
     // 안전 저장 모드일 때
     _walletProvider?.dispose();
+    _walletProvider = null;
     final walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
     if (walletCount > 0) {
       Logger.log('--> _handleAppGoBackgroundOfMainRoute: walletCount > 0 / pinCheck화면으로 이동');
@@ -224,19 +228,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
     PreferenceProvider preferenceProvider,
     AppLifecycleStateProvider lifecycleProvider,
   ) {
-    if (preferenceProvider.isSigningOnlyMode) {
-      // 서명 전용 모드: 재사용
-      _walletProvider ??= WalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider);
-    } else {
-      if (kDebugMode && _wasHotReloaded && _walletProvider != null) {
-        _wasHotReloaded = false;
-        return _walletProvider!;
-      }
-
-      // 안전 저장 모드: 매번 새로 생성
-      _walletProvider = WalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider);
-    }
-
+    _walletProvider ??= WalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider);
     return _walletProvider!;
   }
 
@@ -645,6 +637,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                   ],
                 )
                 : CupertinoApp(
+                  key: ValueKey<AppEntryFlow>(_appEntryFlow),
                   debugShowCheckedModeBanner: false,
                   localizationsDelegates: const [
                     DefaultMaterialLocalizations.delegate,
@@ -676,13 +669,6 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
   }) {
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? defaultArgs ?? {};
     return builder(args);
-  }
-
-  @override
-  void reassemble() {
-    super.reassemble();
-    // debug 모드에서 hot reload 시에만 호출됨
-    _wasHotReloaded = true;
   }
 }
 

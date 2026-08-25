@@ -43,6 +43,7 @@ class WalletProvider extends ChangeNotifier {
   List<VaultListItemBase> _vaultList = [];
   // 리스트 로딩중 여부 (indicator 표시 및 중복 방지)
   bool _isVaultListLoading = false;
+  Future<void>? _loadVaultListFuture;
   // vault_type_selection_screen, vault_name_and_icon_setup_screen, app_update_preparation_screen 에서 사용
   // 다음 버튼 클릭시 loadVaultList()가 아직 진행중인 경우 완료 시점을 캐치하기 위함
   final ValueNotifier<bool> isVaultListLoadingNotifier = ValueNotifier<bool>(false);
@@ -215,9 +216,15 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadVaultList() async {
-    if (_isVaultListLoading) return;
+  /// 지갑 목록 로딩이 이미 진행 중이면 해당 작업이 끝날 때까지 기다립니다.
+  ///
+  /// 여러 화면이나 ViewModel에서 동시에 호출되더라도 로딩 작업은 한 번만
+  /// 실행하고, 모든 호출자가 동일한 Future의 완료를 기다리도록 합니다.
+  Future<void> loadVaultList() {
+    return _loadVaultListFuture ??= _loadVaultList();
+  }
 
+  Future<void> _loadVaultList() async {
     _isVaultListLoading = true;
     isVaultListLoadingNotifier.value = true;
     notifyListeners();
@@ -238,6 +245,7 @@ class WalletProvider extends ChangeNotifier {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
       rethrow;
     } finally {
+      _loadVaultListFuture = null;
       if (_isDisposed) {
         // ignore: control_flow_in_finally
         return;
