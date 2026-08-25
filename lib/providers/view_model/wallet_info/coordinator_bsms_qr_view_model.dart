@@ -15,7 +15,7 @@ enum CoordinatorViewMode { shareWithOtherVault, all }
 class CoordinatorBsmsQrViewModel extends ChangeNotifier {
   late String qrData;
   Map<String, String> walletQrDataMap = {};
-  Map<String, String> walletTextDataMap = {};
+  Map<String, String> walletCopyTextDataMap = {};
   late String walletName;
 
   CoordinatorBsmsQrViewModel(WalletProvider walletProvider, int id, {required CoordinatorViewMode mode}) {
@@ -74,7 +74,7 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
       'Specter Desktop': _generateSpecterFormat(vaultListItem, outputDescriptor),
     };
 
-    walletTextDataMap = {
+    walletCopyTextDataMap = {
       'BSMS': bsmsText,
       'BlueWallet Vault Multisig': walletQrDataMap['BlueWallet Vault Multisig']!,
       'Coldcard Multisig': coldcardText,

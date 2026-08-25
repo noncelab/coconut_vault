@@ -9,7 +9,7 @@ import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart'
 import 'package:coconut_vault/screens/wallet_info/account_number_settings_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/passphrase_check_bottom_sheet.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
-import 'package:coconut_vault/widgets/qr_with_copy_text.dart';
+import 'package:coconut_vault/widgets/qr_with_copy_text_screen.dart';
 import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/tooltip_description.dart';
 import 'package:flutter/foundation.dart';
@@ -52,21 +52,17 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
       child: Builder(
         builder: (providerContext) {
           final viewModel = providerContext.watch<WalletToSyncViewModel>();
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            color: CoconutColors.white,
-            child: QrWithCopyTextScreen(
-              title: t.sync_to_wallet_screen.title(name: _name),
-              tooltipDescription: _buildGuideTooltip(),
-              derivationPathSection:
-                  viewModel.derivationPath.isNotEmpty ? _buildDerivationPathSection(providerContext) : null,
-              qrData: viewModel.qrData.type == QrType.single ? viewModel.qrData.data : null,
-              qrViewDataHandler:
-                  viewModel.qrData.type != QrType.single
-                      ? BcUrQrViewHandler(viewModel.qrData.data, viewModel.urType)
-                      : null,
-              textData: viewModel.qrDataString,
-            ),
+          return QrWithCopyTextScreen(
+            title: t.sync_to_wallet_screen.title(name: _name),
+            tooltipDescription: _buildGuideTooltip(),
+            derivationPathSection:
+                viewModel.derivationPath.isNotEmpty ? _buildDerivationPathSection(providerContext) : null,
+            qrData: viewModel.qrData.type == QrType.single ? viewModel.qrData.data : null,
+            qrViewDataHandler:
+                viewModel.qrData.type != QrType.single
+                    ? BcUrQrViewHandler(viewModel.qrData.data, viewModel.urType)
+                    : null,
+            textData: viewModel.qrDataString,
           );
         },
       ),
@@ -84,7 +80,6 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
           children: _getGuideTextSpan(),
         ),
       ),
-      padding: const EdgeInsets.only(top: 4),
     );
   }
 

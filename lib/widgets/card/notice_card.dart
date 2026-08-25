@@ -1,4 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -101,20 +102,29 @@ class _NoticeCardState extends State<NoticeCard> with SingleTickerProviderStateM
               const SizedBox(height: 12),
               Align(
                 alignment: Alignment.centerRight,
-                child: GestureDetector(
-                  onTap: widget.onDetails,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(widget.actionLabel, style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.black)),
-                      const SizedBox(width: 8),
-                      SvgPicture.asset(
-                        'assets/svg/arrow-right.svg',
-                        width: 6,
-                        height: 10,
-                        colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
-                      ),
-                    ],
+                child: ShrinkAnimationButton(
+                  onPressed: widget.onDetails,
+                  defaultColor: CoconutColors.white,
+                  pressedColor: CoconutColors.white,
+                  border: Border.all(color: CoconutColors.white),
+                  borderRadius: 0,
+                  borderWidth: 0,
+                  animationEndValue: 0.3,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(widget.actionLabel, style: CoconutTypography.body3_12_Bold.setColor(CoconutColors.black)),
+                        const SizedBox(width: 8),
+                        SvgPicture.asset(
+                          'assets/svg/arrow-right.svg',
+                          width: 6,
+                          height: 10,
+                          colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
