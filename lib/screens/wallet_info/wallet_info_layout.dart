@@ -71,6 +71,61 @@ class WalletInfoLayout extends StatefulWidget {
     onSuccess();
   }
 
+  /// 이름/아이콘/색상 정보를 업데이트하고, 결과에 따라 토스트를 표시합니다.
+  /// 변경 사항이 없으면 false를 반환합니다.
+  static Future<bool> updateVaultInfo({
+    required BuildContext context,
+    required WalletInfoViewModel viewModel,
+    required int id,
+    required String newName,
+    required int newColorIndex,
+    required int newIconIndex,
+    required bool mounted,
+  }) async {
+    if (newName == viewModel.name && newIconIndex == viewModel.iconIndex && newColorIndex == viewModel.colorIndex) {
+      return false;
+    }
+
+    final hasChanged = await viewModel.updateVault(id, newName, newColorIndex, newIconIndex);
+
+    if (mounted) {
+      if (hasChanged) {
+        CoconutToast.showToast(context: context, text: t.toast.data_updated, isVisibleIcon: true);
+      } else {
+        CoconutToast.showToast(context: context, text: t.toast.name_already_used, isVisibleIcon: true);
+      }
+    }
+    return hasChanged;
+  }
+
+  /// 이름/아이콘/색상 편집 바텀 시트를 표시하고, 수정 시 [updateVaultInfo]를 호출합니다.
+  static void showNameAndIconEditBottomSheet({
+    required BuildContext context,
+    required WalletInfoViewModel viewModel,
+    required int id,
+    required bool mounted,
+  }) {
+    MyBottomSheet.showBottomSheet_90(
+      context: context,
+      child: NameAndIconEditBottomSheet(
+        name: viewModel.name,
+        iconIndex: viewModel.iconIndex,
+        colorIndex: viewModel.colorIndex,
+        onUpdate: (String newName, int newIconIndex, int newColorIndex) {
+          updateVaultInfo(
+            context: context,
+            viewModel: viewModel,
+            id: id,
+            newName: newName,
+            newColorIndex: newColorIndex,
+            newIconIndex: newIconIndex,
+            mounted: mounted,
+          );
+        },
+      ),
+    );
+  }
+
   /// 지갑 삭제 실패 다이얼로그를 표시합니다.
   static void showDeleteFailedDialog(BuildContext context, {String? errorMessage}) {
     showInfoPopup(
@@ -146,34 +201,12 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
   void _onNameChangeClicked() {
     _removeTooltip();
     final viewModel = context.read<WalletInfoViewModel>();
-    MyBottomSheet.showBottomSheet_90(
+    WalletInfoLayout.showNameAndIconEditBottomSheet(
       context: context,
-      child: NameAndIconEditBottomSheet(
-        name: viewModel.name,
-        iconIndex: viewModel.iconIndex,
-        colorIndex: viewModel.colorIndex,
-        onUpdate: (String newName, int newIconIndex, int newColorIndex) {
-          _updateVaultInfo(newName, newColorIndex, newIconIndex);
-        },
-      ),
+      viewModel: viewModel,
+      id: widget.id,
+      mounted: mounted,
     );
-  }
-
-  void _updateVaultInfo(String newName, int newColorIndex, int newIconIndex) async {
-    final viewModel = context.read<WalletInfoViewModel>();
-    if (newName == viewModel.name && newIconIndex == viewModel.iconIndex && newColorIndex == viewModel.colorIndex) {
-      return;
-    }
-
-    final hasChanged = await viewModel.updateVault(widget.id, newName, newColorIndex, newIconIndex);
-
-    if (mounted) {
-      if (hasChanged) {
-        CoconutToast.showToast(context: context, text: t.toast.data_updated, isVisibleIcon: true);
-        return;
-      }
-      CoconutToast.showToast(context: context, text: t.toast.name_already_used, isVisibleIcon: true);
-    }
   }
 
   Future<void> _authenticateWithBiometricOrPin(

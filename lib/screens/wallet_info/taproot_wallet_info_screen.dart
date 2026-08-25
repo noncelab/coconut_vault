@@ -386,6 +386,15 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
     Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id, 'targetXpub': xpub});
   }
 
+  void _onNameChangeClicked(BuildContext context, WalletInfoViewModel viewModel) {
+    WalletInfoLayout.showNameAndIconEditBottomSheet(
+      context: context,
+      viewModel: viewModel,
+      id: widget.id,
+      mounted: mounted,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -475,7 +484,11 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
                     CoconutLayout.spacing_500h,
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: TaprootVaultItemCard(vaultItem: vault, showTaprootWalletInfo: true),
+                      child: TaprootVaultItemCard(
+                        vaultItem: vault,
+                        showTaprootWalletInfo: true,
+                        onNameChangeClicked: () => _onNameChangeClicked(context, viewModel),
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
