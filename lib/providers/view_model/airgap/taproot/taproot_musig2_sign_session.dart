@@ -1,5 +1,6 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/isolates/musig2_first_signer_isolate.dart';
+import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/taproot/taproot_participant.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
@@ -259,10 +260,22 @@ class TaprootMusig2SignSession {
   // MARK: - Second Signer 메서드
 
   static String _createNonceAndSignInIsolate(Map<String, dynamic> params) {
-    final vault = TaprootVault.fromCoordinatorBsms(params['bsms']);
-    vault.bindSeedToKeyStore(params['seed']);
-    final psbtWithNonce = vault.addPublicNonce(params['psbt']);
-    return vault.addSignatureToPsbt(psbtWithNonce);
+    WalletIsolates.setNetworkType();
+
+    final seed = params['seed'] as Seed;
+    final bsms = params['bsms'] as String;
+    final psbt = params['psbt'] as String;
+
+    TaprootVault? vault;
+    try {
+      vault = TaprootVault.fromCoordinatorBsms(bsms);
+      vault.bindSeedToKeyStore(seed);
+      final psbtWithNonce = vault.addPublicNonce(psbt);
+      return vault.addSignatureToPsbt(psbtWithNonce);
+    } finally {
+      vault?.keyStoreList.forEach((keyStore) => keyStore.wipeSeed());
+      seed.wipe();
+    }
   }
 
   /// 두 번째 폰: 첫 번째 폰의 PSBT로 초기화 후 seed로 nonce + partial signature 생성하여 PSBT에 추가
