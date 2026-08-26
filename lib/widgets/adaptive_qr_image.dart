@@ -8,11 +8,20 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 class AdaptiveQrImage extends StatelessWidget {
-  const AdaptiveQrImage({super.key, this.qrData, this.qrDensity, this.qrViewDataHandler});
+  const AdaptiveQrImage({
+    super.key,
+    this.qrData,
+    this.qrDensity,
+    this.qrViewDataHandler,
+    this.animateWhenConstrained = false,
+  });
+
+  static const double _minimumStaticQrSize = 240;
 
   final String? qrData;
   final QrScanDensity? qrDensity;
   final IQrViewDataHandler? qrViewDataHandler;
+  final bool animateWhenConstrained;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +34,10 @@ class AdaptiveQrImage extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final qrSize = _getQrSize(constraints);
-          if (qrData != null) {
+          final shouldAnimate =
+              animateWhenConstrained && qrViewDataHandler != null && constraints.maxWidth < _minimumStaticQrSize;
+
+          if (qrData != null && !shouldAnimate) {
             return QrImageView(data: qrData!, size: qrSize);
           }
 
@@ -46,6 +58,6 @@ class AdaptiveQrImage extends StatelessWidget {
 
   double _getQrSize(BoxConstraints constraints) {
     final shortestScreenWidth = math.min(constraints.maxWidth, constraints.maxHeight);
-    return shortestScreenWidth.clamp(220, 360);
+    return math.min(shortestScreenWidth, 360);
   }
 }
