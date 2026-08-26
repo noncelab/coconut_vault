@@ -44,7 +44,6 @@ class TaprootSignViewModel extends ChangeNotifier {
   TaprootMusig2SignSession? _musig2SignSession;
 
   late String _psbtForSigning;
-  String? _signedRawTxHex;
   bool _signStateInitialized = false;
 
   /// 현재 PSBT가 요구하는 서명 종류. initPsbtSignState()에서 결정됨.
@@ -356,7 +355,11 @@ class TaprootSignViewModel extends ChangeNotifier {
     try {
       switch (signType) {
         case TaprootSignType.singleKeyPath:
-          final signedPsbtBase64 = await compute(SignIsolates.signWithSingleKeyPath, [seed, _psbtForSigning]);
+          final signedPsbtBase64 = await compute(SignIsolates.signWithSingleKeyPath, [
+            seed,
+            _psbtForSigning,
+            _vaultListItem.coordinatorBsms,
+          ]);
           Logger.log('--> singleKeyPath signed:');
           printLongString(signedPsbtBase64);
 
@@ -485,12 +488,6 @@ class TaprootSignViewModel extends ChangeNotifier {
   /// - First Signer: aggregation 완료된 최종 PSBT
   String? getMusig2SignedPsbtForQr() {
     return _musig2SignSession?.signedPsbtForQr;
-  }
-
-  // MARK: - 외부(QR) 서명 결과 반영
-
-  void saveSignedRawTxHex(String hexString) {
-    _signedRawTxHex = hexString;
   }
 
   // MARK: - 저장 / 리셋
