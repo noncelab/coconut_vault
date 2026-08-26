@@ -23,6 +23,7 @@ class DataSchemaMigrationRunner {
     var migratedTaprootWalletIds = <int>[];
     if (currentVersion < 2 && to >= 2) {
       currentVaultJsonList = await migrateV1toV2(currentVaultJsonList, sharedPrefs, savePrivacyInfo);
+      await persistCurrentVaultDataSchemaVersion(sharedPrefs, 2);
       currentVersion = 2;
     }
 
