@@ -1,4 +1,5 @@
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
@@ -106,21 +107,21 @@ class VaultListViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  VoidCallback? _pendingAuthCompleteCallback;
+  Future<void> Function()? _pendingAuthCompleteCallback;
 
-  Future<void> _handleAuthFlow({required VoidCallback onComplete, required bool hasVaultDeleted}) async {
+  Future<void> _handleAuthFlow({required Future<void> Function() onComplete, required bool hasVaultDeleted}) async {
     if (!hasVaultDeleted) {
       // 지갑이 삭제된 경우가 아니라면 pinCheck 생략
-      onComplete();
+      await onComplete();
       return;
     }
     if (!_authProvider.isPinSet) {
-      onComplete();
+      await onComplete();
       return;
     }
 
     if (await _authProvider.isBiometricsAuthValid()) {
-      onComplete();
+      await onComplete();
       return;
     }
 
@@ -129,10 +130,12 @@ class VaultListViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void handleAuthCompletion() {
-    if (_pendingAuthCompleteCallback != null) {
-      _pendingAuthCompleteCallback!();
-      _pendingAuthCompleteCallback = null;
+  Future<void> handleAuthCompletion() async {
+    final callback = _pendingAuthCompleteCallback;
+    _pendingAuthCompleteCallback = null;
+
+    if (callback != null) {
+      await callback();
     }
   }
 
@@ -171,22 +174,37 @@ class VaultListViewModel extends ChangeNotifier {
 
     await _handleAuthFlow(
       onComplete: () async {
+        final strings = t.vault_list_screen.alert.save_failed;
+
         if (hasVaultOrderChanged) {
           // 삭제 여부 판단
           if (tempVaultOrder.length != _preferenceProvider.vaultOrder.length) {
             setLoadingNotifier(true);
 
-            await _deleteVaults(deletedVaultIds);
-            setLoadingNotifier(false);
+            try {
+              await _deleteVaults(deletedVaultIds);
+            } catch (e) {
+              throw Exception('${strings.timing_delete}\n$e');
+            } finally {
+              setLoadingNotifier(false);
+            }
           }
-          await _preferenceProvider.setVaultOrder(tempVaultOrder);
+          try {
+            await _preferenceProvider.setVaultOrder(tempVaultOrder);
+          } catch (e) {
+            throw Exception('${strings.timing_order}\n$e');
+          }
 
           final vaultMap = {for (var vault in vaults) vault.id: vault};
           _walletProvider.vaultListNotifier.value =
               tempVaultOrder.map((id) => vaultMap[id]).whereType<VaultListItemBase>().toList();
         }
         if (hasFavoriteChanged) {
-          await _preferenceProvider.setFavoriteVaultIds(tempFavoriteVaultIds);
+          try {
+            await _preferenceProvider.setFavoriteVaultIds(tempFavoriteVaultIds);
+          } catch (e) {
+            throw Exception('${strings.timing_favorite}\n$e');
+          }
           _favoriteVaultIds = _preferenceProvider.favoriteVaultIds;
         }
         setEditMode(false);
@@ -199,15 +217,18 @@ class VaultListViewModel extends ChangeNotifier {
   Future<void> _deleteVaults(List<int> deletedVaultIds) async {
     debugPrint('deletedVaultIds: $deletedVaultIds');
 
-    for (int i = 0; i < deletedVaultIds.length; i++) {
-      int vaultId = deletedVaultIds[i];
-      debugPrint('[delete] vaultId: $vaultId');
-      debugPrint(
-        '[delete] vaultsType: ${_walletProvider.vaultListNotifier.value.firstWhere((v) => v.id == vaultId).vaultType}',
-      );
-      await _walletProvider.deleteWallet(vaultId);
+    try {
+      for (int i = 0; i < deletedVaultIds.length; i++) {
+        int vaultId = deletedVaultIds[i];
+        debugPrint('[delete] vaultId: $vaultId');
+        debugPrint(
+          '[delete] vaultsType: ${_walletProvider.vaultListNotifier.value.firstWhere((v) => v.id == vaultId).vaultType}',
+        );
+        await _walletProvider.deleteWallet(vaultId);
+      }
+    } finally {
+      _walletProvider.notifyListeners();
     }
-    _walletProvider.notifyListeners();
   }
 
   void setLoadingNotifier(bool value) {

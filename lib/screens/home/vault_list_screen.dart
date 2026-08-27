@@ -12,6 +12,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/services/wallet/wallet_service.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/home/vault_item_setting_bottom_sheet.dart';
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -69,8 +70,15 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                   child: PinCheckScreen(
                     pinCheckContext: PinCheckContextEnum.sensitiveAction,
                     onSuccess: () async {
-                      viewModel.handleAuthCompletion();
-                      Navigator.pop(context);
+                      try {
+                        await viewModel.handleAuthCompletion();
+                        if (!context.mounted) return;
+                        Navigator.pop(context);
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        Navigator.pop(context);
+                        await showInfoPopup(context, t.vault_list_screen.alert.save_failed.title, e.toString());
+                      }
                     },
                   ),
                 ),
@@ -108,7 +116,16 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                                 _buildEditableVaultList(),
                                 FixedBottomButton(
                                   onButtonClicked: () async {
-                                    await viewModel.applyTempDatasToVaults();
+                                    try {
+                                      await viewModel.applyTempDatasToVaults();
+                                    } catch (e) {
+                                      if (!context.mounted) return;
+                                      await showInfoPopup(
+                                        context,
+                                        t.vault_list_screen.alert.save_failed.title,
+                                        e.toString(),
+                                      );
+                                    }
                                   },
                                   isActive: viewModel.hasFavoriteChanged || viewModel.hasVaultOrderChanged,
                                   backgroundColor: CoconutColors.black,

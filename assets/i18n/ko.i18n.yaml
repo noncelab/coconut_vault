@@ -25,6 +25,8 @@ OK: "확인"
 confirm: "확인"
 complete: "완료"
 cancel: "취소"
+retry: "재시도"
+reset_failed: "초기화 실패"
 close: "닫기"
 abort: "종료"
 abort_sign: "서명 종료"
@@ -138,6 +140,7 @@ connectivity_state:
 
 vault_home_screen:
   view_all_wallets: "지갑 모두 보기"
+  view_details: "상세 보기"
   wallet_count: "$count개"
   action_items:
     sign: "서명하기"
@@ -149,6 +152,10 @@ vault_home_screen:
     wallet_added_but_not_favorite: "지갑이 추가 됐어요. 지갑 모두 보기에서 확인하세요."
   secure_zone_checking: "보안 영역에 접근 가능한지 확인 중이에요."
   secure_zone_check_failed: "보안 데이터 확인 실패"
+  taproot_older_to_after_backup_update_notice:
+    title: "백업 업데이트"
+    description: "상속 지갑의 백업 문구가 일부 변경되었어요\n코코넛 월렛도 최신 버전으로 업데이트해 주세요.\n월렛을 업데이트하면 변경 사항이 자동으로 반영돼요.\n이후 구성 정보를 다시 백업해 주세요."
+  taproot_older_to_after_backup_update_notice_action: "자세히 보기"
 
 vault_list_screen:
   primary_wallet: "대표 지갑"
@@ -163,6 +170,12 @@ vault_list_screen:
     delete_description: "지갑을 왼쪽으로 스와이프하면 삭제할 수 있어요."
     finish: "편집 종료"
     unsaved_changes_confirm_exit: "저장되지 않은 변경 사항이 있어요.\n그래도 나가시겠어요?"
+  alert:
+    save_failed:
+      title: "저장 실패"
+      timing_delete: "지갑 삭제 중 오류가 발생했어요."
+      timing_order: "지갑 순서 변경 중 오류가 발생했어요."
+      timing_favorite: "즐겨찾기 변경 중 오류가 발생했어요."
     
 select_vault_bottom_sheet:
   select_wallet: "지갑 선택"
@@ -653,7 +666,6 @@ taproot:
         title_1: "탭루트 상속 지갑이"
         title_2: "준비되었어요"
         description: "다른 볼트나 보기 전용 앱에서\n사용할 수 있도록 지갑 정보를 내보낼 수 있어요"
-        exprot_wallet: "지갑 내보내기"
     created_parent_wallet: "부모 지갑을 생성했어요"
     set_child_wallet: "자식 지갑이 설정되었어요"
     set_child_period: "자식 지갑의 사용 시점이 설정되었어요"
@@ -709,7 +721,7 @@ taproot:
         created_wallet: "지갑을 만들었어요"
         exported_to_parent: "부모 지갑으로 내보냈어요"
         imported_inheritance_info: "상속 지갑 정보를 가져왔어요"
-        active_inheritance_wallet: "상속 지갑이 활성화 돼요"
+        active_inheritance_wallet: "상속 조건이 활성화 돼요"
         singlesig_description: "단일 서명 지갑 | MFP: $mfp"
         taproot_description: "탭루트 지갑 | MFP: $mfp"
         single_sig_wallet: "단일 부모 지갑"
@@ -769,8 +781,8 @@ taproot:
       taproot_wallet_with_mfp: "탭루트 지갑 | MFP: $mfp"
       inheritance_wallet_added: "상속자 지갑을 추가했어요"
       inheritance_wallet_restored: "상속 지갑을 복구했어요"
-      inheritance_wallet_activation: "상속 지갑이 활성화 돼요"
-      inheritance_wallet_activated: "상속 지갑이 활성화 됐어요"
+      inheritance_wallet_activation: "상속 조건이 활성화 돼요"
+      inheritance_wallet_activated: "상속 조건이 활성화 됐어요"
       active_after: "${dateTime} 이후"
 mnemonic_coin_flip_screen:
   title: "니모닉 문구 만들기"
@@ -1103,6 +1115,17 @@ sync_to_wallet_screen:
       guide2_1: "Import Wallet"
       guide3_1: "Scan or import a file"
     common: "아래 QR 코드를 스캔해 주세요."
+wallet_info_screen:
+  taproot_older_to_after_backup_update_dialog:
+    title: "상속 지갑 백업 업데이트 알림"
+    step1_title: "1. 기존 상속 지갑의 백업 데이터를 다른 곳에 저장하신 경우 새로운 백업 데이터로 업데이트해주세요."
+    step1_description: "'지갑 내보내기' 메뉴 선택 > '다른 볼트와 공유하기'에서 업데이트 된 백업 데이터 확인 및 복사 > 안전한 곳에 저장"
+    step2_title: "2. 코코넛 월렛을 $version 이상으로 업데이트 해주세요."
+    step2_description: "코코넛 월렛에 추가된 상속 지갑 데이터도 최신 상태로 맞춰야 해요. 앱을 업데이트하면 변경 사항이 자동으로 반영돼요."
+    why_title: "Q. 왜 변경되었나요?"
+    why_description: "백업 데이터는 약속된 규칙(Miniscript)에 따라 만들어진 정보입니다. 상속자가 비트코인을 사용할 수 있는 시점을 'after'로 표시해야 하는데 'older'로 잘못 표시하고 있었습니다.\n\n이는 백업 데이터 표현의 문제로, 현재 지갑의 주소, 자산 및 설정한 상속 조건에는 영향을 주지 않습니다. 지갑은 처음 설정한 그대로 사용하실 수 있으며, 새로 만드실 필요가 없습니다."
+    confirm: "이해했습니다"
+
 taproot_vault_detail_screen:
   signer: "나는 이 지갑의 서명자예요. 평소에 이 지갑을 사용할 수 있어요."
   cosigner: "나는 이 지갑의 공동 서명자예요. 다른 공동 서명자와 함께 서명해야 자산을 사용할 수 있어요."
@@ -1227,6 +1250,9 @@ alert:
   delete_vault: 
     title: "지갑 삭제"
     description: "니모닉 문구를 백업하지 않으면, 이 지갑의 비트코인은 영원히 복구할 수 없습니다. 정말 삭제하시겠습니까?"
+  delete_vault_failed:
+    title: "지갑 삭제 실패"
+    description: "지갑 삭제에 실패했어요. 다시 시도해 주세요."
   forgot_password:
     title: "비밀번호를 잊으셨나요?"
     description1: "비밀번호를 초기화하면 볼트도 초기화돼요. 그래도 초기화 하시겠어요?"

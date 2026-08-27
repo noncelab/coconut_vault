@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/utils/migration/taproot_older_to_after_migration.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/i_qr_scan_data_handler.dart';
 
 class TaprootDescriptorQrDataHandler implements IQrScanDataHandler {
@@ -18,7 +19,7 @@ class TaprootDescriptorQrDataHandler implements IQrScanDataHandler {
       return false;
     }
 
-    _descriptor = data.trim();
+    _descriptor = TaprootOlderToAfterMigration.migrateDescriptor(data.trim()).descriptor;
     return true;
   }
 
@@ -30,7 +31,7 @@ class TaprootDescriptorQrDataHandler implements IQrScanDataHandler {
     }
 
     try {
-      TaprootVault.fromDescriptor(descriptor);
+      TaprootVault.fromDescriptor(TaprootOlderToAfterMigration.migrateDescriptor(descriptor).descriptor);
       return true;
     } catch (_) {
       return false;

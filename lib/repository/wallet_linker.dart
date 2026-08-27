@@ -24,6 +24,26 @@ class WalletLinker {
 
   WalletLinker(this._wallets);
 
+  /// Checks whether [singlesig] uses the same key as [keyStore] for a multisig signer.
+  ///
+  /// Compares master fingerprint (case-insensitive), [derivationPath], and the
+  /// normalized p2wsh xpub. [derivationPath] must be the signer's account-level
+  /// derivation path from the multisig descriptor or signer BSMS.
+  static bool isSinglesigKeyMatch(SingleSigVaultListItem singlesig, KeyStore keyStore, String derivationPath) {
+    final expectedMfp = (singlesig.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
+
+    final bsms = Bsms.parseSigner(singlesig.getSignerBsmsByAddressType(AddressType.p2wsh, withLabel: false));
+    final expectedDerivationPath = bsms.signer!.path;
+    final expectedXpub = bsms.signer!.extendedPublicKey.serialize(toXpub: true);
+
+    final normalizedDerivationPath = derivationPath.replaceFirst('m/', '');
+    final normalizedExpectedDerivationPath = expectedDerivationPath.replaceFirst('m/', '');
+
+    return keyStore.masterFingerprint.toUpperCase() == expectedMfp.toUpperCase() &&
+        normalizedDerivationPath == normalizedExpectedDerivationPath &&
+        keyStore.extendedPublicKey.serialize(toXpub: true) == expectedXpub;
+  }
+
   /// Links a newly added singlesig wallet to every existing multisig signer whose
   /// (masterFingerprint, derivationPath, xpub) triple matches, updating both sides.
   ///
@@ -33,22 +53,13 @@ class WalletLinker {
   void linkNewSinglesigWallet(SingleSigVaultListItem singlesig) {
     outerLoop:
     for (int i = 0; i < _wallets.length; i++) {
-      VaultListItemBase wallet = _wallets[i];
+      final wallet = _wallets[i];
       if (wallet is! MultisigVaultListItem) continue;
 
-      List<MultisigSigner> signers = wallet.signers;
-      String expectedMfp = (singlesig.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
-
-      final bsms = Bsms.parseSigner(singlesig.signerBsmsByAddressType[AddressType.p2wsh]!);
-      String expectedDerivationPath = bsms.signer!.path;
-      String expectedXpub = bsms.signer!.extendedPublicKey.serialize(toXpub: true);
+      final signers = wallet.signers;
       for (int j = 0; j < signers.length; j++) {
-        String signerMfp = signers[j].keyStore.masterFingerprint;
-        String signerDerivationPath = signers[j].getSignerDerivationPath();
-        String signerXpub = Bsms.parseSigner(signers[j].signerBsms!).signer!.extendedPublicKey.serialize(toXpub: true);
-        if (signerMfp.toUpperCase() == expectedMfp.toUpperCase() &&
-            signerDerivationPath == expectedDerivationPath &&
-            signerXpub == expectedXpub) {
+        final signerDerivationPath = signers[j].getSignerDerivationPath();
+        if (isSinglesigKeyMatch(singlesig, signers[j].keyStore, signerDerivationPath)) {
           wallet.signers[j].linkInternalWallet(singlesig);
           final linkedMultisigInfo = {wallet.id: j};
           if (singlesig.linkedMultisigInfo == null) {

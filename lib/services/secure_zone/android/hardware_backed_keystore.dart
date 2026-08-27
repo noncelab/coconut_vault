@@ -27,8 +27,9 @@ class HardwareBackedKeystore extends SecureZoneKeystore {
   }
 
   @override
-  Future<void> deleteKeys({required List<String> aliasList}) async {
-    await ch.invokeMethod<void>('deleteKeys', {'aliasList': aliasList});
+  Future<List<String>> deleteKeys({required List<String> aliasList}) async {
+    final result = await ch.invokeMethod<List>('deleteKeys', {'aliasList': aliasList});
+    return result?.cast<String>() ?? [];
   }
 
   Future<Map<String, dynamic>> _encrypt({required String alias, required Uint8List plaintext}) async {

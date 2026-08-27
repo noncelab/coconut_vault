@@ -12,7 +12,7 @@ class QrWithCopyTextScreen extends StatefulWidget {
   final IQrViewDataHandler? qrViewDataHandler;
   final String? textData;
   final Map<String, String>? qrDataMap;
-  final Map<String, String>? textDataMap;
+  final Map<String, String>? copyTextDataMap;
   final RichText? textRichText;
   final Widget? derivationPathSection;
   final Widget? footer;
@@ -26,7 +26,7 @@ class QrWithCopyTextScreen extends StatefulWidget {
     this.qrViewDataHandler,
     this.textData,
     this.qrDataMap,
-    this.textDataMap,
+    this.copyTextDataMap,
     this.textRichText,
     this.derivationPathSection,
     this.footer,
@@ -59,10 +59,6 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
 
   String get _displayTitle => _optionMap[_selectedKey] ?? _selectedKey;
 
-  double _calcQrWidth(BuildContext context) {
-    return MediaQuery.of(context).size.width * 0.76;
-  }
-
   String? get _currentQrData {
     if (!widget.showPulldownMenu) {
       return widget.qrData;
@@ -80,8 +76,8 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
       return widget.textData ?? widget.qrData ?? '';
     }
 
-    if (widget.textDataMap != null && widget.textDataMap!.containsKey(_selectedKey)) {
-      return widget.textDataMap![_selectedKey]!;
+    if (widget.copyTextDataMap != null && widget.copyTextDataMap!.containsKey(_selectedKey)) {
+      return widget.copyTextDataMap![_selectedKey]!;
     }
 
     if (widget.qrDataMap != null && widget.qrDataMap!.containsKey(_selectedKey)) {
@@ -97,7 +93,6 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
 
     final offset = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;
-    final screenWidth = MediaQuery.of(context).size.width;
 
     Navigator.of(context)
         .push(
@@ -118,7 +113,7 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
                     ),
                     Positioned(
                       top: offset.dy + size.height,
-                      right: screenWidth - (offset.dx + size.width),
+                      right: 16,
                       child: CoconutPulldownMenu(
                         entries:
                             _optionTitles.map((key) {
@@ -156,7 +151,6 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final qrWidth = _calcQrWidth(context);
     final displayQrData = _currentQrData;
     final displayTextData = _currentTextData;
 
@@ -183,13 +177,13 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
                     data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
                     child: Container(
                       key: _pulldownKey,
-                      margin: const EdgeInsets.only(bottom: 8),
+                      margin: const EdgeInsets.only(top: 16, right: 16, bottom: 8),
                       decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(8)),
                       child: CoconutPulldown(
                         title: _displayTitle,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
                         isOpen: _isPulldownOpen,
-                        fontSize: CoconutTypography.body2_14.fontSize,
+                        fontSize: CoconutTypography.body3_12.fontSize,
                         onChanged: (isOpen) {
                           setState(() {
                             _isPulldownOpen = true;
@@ -209,7 +203,7 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
                     CoconutLayout.spacing_300h,
                     AdaptiveQrImage(qrData: displayQrData, qrViewDataHandler: widget.qrViewDataHandler),
                     CoconutLayout.spacing_500h,
-                    _buildCopyButton(displayTextData, qrWidth),
+                    _buildCopyButton(displayTextData),
                     CoconutLayout.spacing_1500h,
                   ],
                 ),
@@ -221,9 +215,9 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
     );
   }
 
-  Widget _buildCopyButton(String textData, double qrWidth) {
-    return SizedBox(
-      width: qrWidth,
+  Widget _buildCopyButton(String textData) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: CopyTextContainer(
         text: textData,
         textStyle: CoconutTypography.body2_14_Number,

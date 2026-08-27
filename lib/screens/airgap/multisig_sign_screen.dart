@@ -315,7 +315,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             try {
               bool isRawTxHexString = isRawTransactionHexString(scannedData);
               if (isRawTxHexString) {
-                _viewModel.validateRawSignedTransaction(scannedData);
+                await _viewModel.validateRawSignedTransaction(scannedData);
                 _viewModel.saveSignedRawTxHex(scannedData);
               } else {
                 _viewModel.onScannedPsbt(scannedData, isOverwrite: signerIndex == null);

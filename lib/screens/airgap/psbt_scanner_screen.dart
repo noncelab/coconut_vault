@@ -119,6 +119,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     if (_isProcessing) return;
     _isProcessing = true;
 
+    // ColdCard에서 최종화된 TXN을 받아온 경우 raw transaction으로 분류될 수 있습니다.
     bool isRawTxHexString = scannedData is String ? isRawTransactionHexString(scannedData) : false;
     String? psbtBase64;
     try {

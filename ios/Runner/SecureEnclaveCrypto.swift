@@ -40,7 +40,9 @@ final class SecureEnclaveCrypto {
         guard let privateKey = SecKeyCreateRandomKey(attributes as CFDictionary, &error) else {
             throw (error!.takeRetainedValue() as Error)
         }
+        #if DEBUG
         print("✅ [Secure Enclave] 키 생성 성공: \(privateKey)")
+        #endif
         return privateKey
     }
 
@@ -87,7 +89,9 @@ final class SecureEnclaveCrypto {
         ]
         var item: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &item)
+        #if DEBUG
         print("load status: \(status)")
+        #endif
         return status == errSecSuccess ? (item as! SecKey) : nil
     }
 
@@ -103,19 +107,34 @@ final class SecureEnclaveCrypto {
              throw NSError(domain: NSOSStatusErrorDomain, code: Int(status),
                             userInfo: [NSLocalizedDescriptionKey: "Failed to delete key (\(status))"])
         }
+        #if DEBUG
         print("✅ [Secure Enclave] 키 삭제 성공: \(label)")
+        #endif
     }
 
     // Delete specified Secure Enclave EC keys by label list
-    static func deleteKeys(labels: [String]) throws {
+    // Returns the list of labels that failed to delete
+    static func deleteKeys(labels: [String]) -> [String] {
+        var failed: [String] = []
         for label in labels {
             do {
                 try deleteKey(label: label)
             } catch {
+                #if DEBUG
                 print("⚠️ [Secure Enclave] 키 삭제 실패: \(label), error: \(error)")
-                // Continue deleting other keys even if one fails
+                #endif
+                failed.append(label)
             }
         }
-        print("✅ [Secure Enclave] 지정된 키 삭제 완료")
+        if failed.isEmpty {
+            #if DEBUG
+            print("✅ [Secure Enclave] 지정된 키 삭제 완료")
+            #endif
+        } else {
+            #if DEBUG
+            print("⚠️ [Secure Enclave] 일부 키 삭제 실패: \(failed)")
+            #endif
+        }
+        return failed
     }
 }

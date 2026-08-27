@@ -28,6 +28,7 @@ class ResetCredentialsAndWalletsUsecase {
     WalletProvider? walletProvider,
     required AuthProvider authProvider,
     required PreferenceProvider preferenceProvider,
+    bool preservePermanentLock = false,
   }) async {
     if (walletProvider != null) {
       await walletProvider.reset();
@@ -35,6 +36,6 @@ class ResetCredentialsAndWalletsUsecase {
       await WalletStorageCleaner.clearAll();
     }
     await preferenceProvider.resetVaultOrderAndFavorites();
-    await authProvider.resetCredentials();
+    await authProvider.resetCredentials(preservePermanentLock: preservePermanentLock);
   }
 }

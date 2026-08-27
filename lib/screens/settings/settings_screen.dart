@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:flutter/foundation.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/constants/app_language.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
@@ -59,6 +60,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 _informationPart(context),
+                if (kDebugMode) CoconutLayout.spacing_1000h,
+                if (kDebugMode) _developerPart(context),
                 SizedBox(
                   height:
                       MediaQuery.of(context).viewPadding.bottom > 0
@@ -294,6 +297,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Navigator.pushNamed(context, AppRoutes.appInfo);
               },
             );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _developerPart(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _category('개발'),
+        _buildAnimatedButton(
+          title: '지갑 자동 추가',
+          onPressed: () {
+            Navigator.pushNamed(context, AppRoutes.developer);
           },
         ),
       ],

@@ -3,7 +3,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/wallet_info/taproot_sync_qr_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/widgets/qr_with_copy_text.dart';
+import 'package:coconut_vault/widgets/qr_with_copy_text_screen.dart';
 import 'package:coconut_vault/widgets/tooltip_description.dart';
 import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
 import 'package:flutter/material.dart';
@@ -20,14 +20,10 @@ class TaprootSyncQrScreen extends StatelessWidget {
       create: (context) => TaprootSyncQrViewModel(context.read<WalletProvider>(), id),
       child: Consumer<TaprootSyncQrViewModel>(
         builder: (context, viewModel, child) {
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            color: CoconutColors.white,
-            child: QrWithCopyTextScreen(
-              title: t.taproot.sync_qr_screen.title,
-              tooltipDescription: _buildQrDescription(context),
-              qrData: viewModel.qrData,
-            ),
+          return QrWithCopyTextScreen(
+            title: t.taproot.sync_qr_screen.title,
+            tooltipDescription: _buildQrDescription(context),
+            qrData: viewModel.qrData,
           );
         },
       ),

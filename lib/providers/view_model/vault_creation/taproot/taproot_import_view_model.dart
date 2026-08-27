@@ -18,6 +18,7 @@ enum ImportMode { enter, scan }
 
 typedef TaprootWalletSyncDuplicateChecker = VaultListItemBase? Function(String descriptor);
 typedef TaprootVaultAdder = Future<TaprootVaultListItem> Function(TaprootWalletCreateDto walletCreateDto);
+typedef TaprootBackupUpdateNotifier = Future<void> Function(int walletId);
 
 class TaprootImportParticipantCardState {
   final TaprootImportRole role;
@@ -108,6 +109,7 @@ class TaprootImportViewModel extends ChangeNotifier {
 
   final TaprootWalletSyncDuplicateChecker _findWalletByDescriptor;
   final TaprootVaultAdder _addTaprootVault;
+  final TaprootBackupUpdateNotifier _addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate;
   TaprootWalletSyncData? _walletSyncData;
   TaprootVaultListItem? _scannedVaultItem;
   TaprootVaultListItem? _scannedExtraVaultItem;
@@ -128,8 +130,10 @@ class TaprootImportViewModel extends ChangeNotifier {
   TaprootImportViewModel({
     required TaprootWalletSyncDuplicateChecker findWalletByDescriptor,
     required TaprootVaultAdder addTaprootVault,
+    required TaprootBackupUpdateNotifier addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate,
   }) : _findWalletByDescriptor = findWalletByDescriptor,
-       _addTaprootVault = addTaprootVault;
+       _addTaprootVault = addTaprootVault,
+       _addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate = addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate;
 
   TaprootVaultListItem? get scannedVaultItem => _scannedVaultItem;
   TaprootVaultListItem? get scannedExtraVaultItem => _scannedExtraVaultItem;
@@ -262,6 +266,14 @@ class TaprootImportViewModel extends ChangeNotifier {
 
     try {
       final vault = await _addTaprootVault(walletCreateDto);
+      if (_walletSyncData?.wasMigratedFromOlderToAfter == true) {
+        try {
+          await _addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(vault.id);
+        } catch (error) {
+          // Backup 안내 상태 저장 실패가 이미 완료된 지갑 추가를 실패로 만들지 않도록 무시한다.
+          Logger.error('Failed to save Taproot backup update notice state: $error');
+        }
+      }
       return TaprootImportSaveResult(
         vaultId: vault.id,
         parentMasterFingerprint: _masterFingerprintForRole(TaprootImportRole.signer),

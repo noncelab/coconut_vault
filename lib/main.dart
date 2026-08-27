@@ -7,6 +7,7 @@ import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/repository/old_secure_storage_cleaner_for_ios.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -23,7 +24,9 @@ void main() async {
   // This app is designed only to work vertically, so we limit
   // orientations to portrait up and down.
   WidgetsFlutterBinding.ensureInitialized();
-  await SharedPrefsRepository().init();
+  final sharedPrefs = SharedPrefsRepository();
+  await sharedPrefs.init();
+  await _migrateSharedPreferences(sharedPrefs);
   // Isolate 토큰 생성 및 초기화
   final RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
   BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
@@ -71,17 +74,31 @@ void main() async {
     },
   );
 
-  // 볼트 모드 마이그레이션
-  SharedPrefsRepository sharedPrefs = SharedPrefsRepository();
-  if (sharedPrefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true &&
-      sharedPrefs.getString(SharedPrefsKeys.kVaultMode).isEmpty) {
-    await sharedPrefs.setString(SharedPrefsKeys.kVaultMode, VaultMode.secureStorage.name);
-  }
-
   // iOS secure storage 옵션 변경에 따른 삭제
   if (Platform.isIOS) {
     await OldSecureStorageCleanerForIos.cleanAll();
   }
 
   return runApp(const CoconutVaultApp());
+}
+
+Future<void> _migrateSharedPreferences(SharedPrefsRepository prefs) async {
+  if (prefs.isContainsKey(SharedPrefsKeys.kLanguage)) {
+    final savedLanguageCode = prefs.getString(SharedPrefsKeys.kLanguage);
+    final migratedLanguageCode = switch (savedLanguageCode) {
+      'kr' => 'ko',
+      'jp' => 'ja',
+      _ => null,
+    };
+
+    if (migratedLanguageCode != null) {
+      await prefs.setString(SharedPrefsKeys.kLanguage, migratedLanguageCode);
+      Logger.log('Language code migrated from "$savedLanguageCode" to "$migratedLanguageCode"');
+    }
+  }
+
+  if (prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true &&
+      prefs.getString(SharedPrefsKeys.kVaultMode).isEmpty) {
+    await prefs.setString(SharedPrefsKeys.kVaultMode, VaultMode.secureStorage.name);
+  }
 }

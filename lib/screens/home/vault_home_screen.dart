@@ -23,6 +23,7 @@ import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/vault_addition_guide_card.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
+import 'package:coconut_vault/widgets/card/notice_card.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
@@ -50,6 +51,9 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
 
   late ScrollController _scrollController;
   bool _isAndroidSecureZoneChecking = false;
+  bool _isResetting = false;
+  Set<int>? _initialTaprootMigrationWalletIds;
+  final Set<int> _dismissedTaprootMigrationWalletIds = <int>{};
 
   @override
   void initState() {
@@ -170,6 +174,12 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
         child: Consumer2<VaultHomeViewModel, VisibilityProvider>(
           builder: (context, viewModel, visibilityProvider, child) {
             final wallets = viewModel.vaults;
+            final allWallets = context.read<WalletProvider>().vaultList;
+            if (_initialTaprootMigrationWalletIds == null && viewModel.isVaultsLoaded) {
+              _initialTaprootMigrationWalletIds = Set<int>.from(
+                viewModel.walletIdsWithUnacknowledgedOlderToAfterBackupUpdate,
+              );
+            }
             return Scaffold(
               backgroundColor: CoconutColors.gray150,
               body: Stack(
@@ -182,6 +192,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                     //     model.isVaultListLoading ? 1 : vaults.length,
                     slivers: <Widget>[
                       _buildAppBar(context, viewModel, wallets, viewModel.isSigningOnlyMode),
+                      _buildTaprootMigrationNotice(viewModel, allWallets),
                       _buildWalletActionItems(context),
                       SliverToBoxAdapter(child: Container(color: CoconutColors.gray200, height: 12)),
                       if (wallets.isNotEmpty) ...[_buildViewAll(wallets.length)],
@@ -189,6 +200,8 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                       SliverToBoxAdapter(child: Container(height: 100)),
                     ],
                   ),
+                  if (_isResetting)
+                    const Positioned.fill(child: AbsorbPointer(child: Center(child: CoconutCircularIndicator()))),
                   Visibility(
                     visible: _isAndroidSecureZoneChecking,
                     child: Container(
@@ -275,6 +288,41 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
           },
         ),
       ],
+    );
+  }
+
+  SliverToBoxAdapter _buildTaprootMigrationNotice(VaultHomeViewModel viewModel, List<VaultListItemBase> wallets) {
+    if (!viewModel.isVaultsLoaded) {
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
+    }
+
+    final pendingWallet =
+        wallets
+            .where(
+              (wallet) =>
+                  viewModel.walletIdsWithUnacknowledgedOlderToAfterBackupUpdate.contains(wallet.id) &&
+                  !_dismissedTaprootMigrationWalletIds.contains(wallet.id),
+            )
+            .firstOrNull;
+
+    if (pendingWallet == null) {
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
+    }
+
+    return SliverToBoxAdapter(
+      child: NoticeCard(
+        title: t.vault_home_screen.taproot_older_to_after_backup_update_notice.title,
+        description: t.vault_home_screen.taproot_older_to_after_backup_update_notice.description,
+        actionLabel: t.vault_home_screen.taproot_older_to_after_backup_update_notice_action,
+        onDismiss: () {
+          setState(() {
+            _dismissedTaprootMigrationWalletIds.addAll(_initialTaprootMigrationWalletIds ?? {pendingWallet.id});
+          });
+        },
+        onDetails: () {
+          Navigator.pushNamed(context, AppRoutes.taprootSetupInfo, arguments: {'id': pendingWallet.id});
+        },
+      ),
     );
   }
 
@@ -568,13 +616,33 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
                                 },
                                 onTapRight: () async {
                                   assert(isSigningOnlyMode);
-                                  await ResetCredentialsAndWalletsUsecase.execute(
-                                    authProvider: context.read<AuthProvider>(),
-                                    walletProvider: context.read<WalletProvider>(),
-                                    preferenceProvider: context.read<PreferenceProvider>(),
-                                  );
+                                  Navigator.pop(dialogContext);
+                                  if (_isResetting) return;
+                                  setState(() => _isResetting = true);
+                                  final authProvider = context.read<AuthProvider>();
+                                  final walletProvider = context.read<WalletProvider>();
+                                  final preferenceProvider = context.read<PreferenceProvider>();
 
-                                  widget.onSigningModeReset.call();
+                                  while (context.mounted) {
+                                    try {
+                                      await ResetCredentialsAndWalletsUsecase.execute(
+                                        authProvider: authProvider,
+                                        walletProvider: walletProvider,
+                                        preferenceProvider: preferenceProvider,
+                                      );
+
+                                      if (!mounted) return;
+                                      setState(() => _isResetting = false);
+                                      widget.onSigningModeReset.call();
+                                      return;
+                                    } catch (e) {
+                                      if (!context.mounted) return;
+                                      final shouldRetry = await showResetFailureRetryPopup(context, e);
+                                      if (shouldRetry) continue;
+                                      if (mounted) setState(() => _isResetting = false);
+                                      return;
+                                    }
+                                  }
                                 },
                               );
                             },

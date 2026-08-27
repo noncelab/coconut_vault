@@ -52,6 +52,12 @@ class _SignerBsmsScannerScreenState extends QrScannerScreenBase<SignerBsmsScanne
   Widget? buildTopGuideWidget(BuildContext context) => null;
 
   @override
+  Future<void> onFailedScanning(String message) async {
+    await super.onFailedScanning(message);
+    await _restartScanner();
+  }
+
+  @override
   void onBarcodeDetected(BarcodeCapture capture) async {
     final codes = capture.barcodes;
     if (codes.isEmpty) {
@@ -164,6 +170,22 @@ class _SignerBsmsScannerScreenState extends QrScannerScreenBase<SignerBsmsScanne
     }
 
     onFailedScanning(message);
+  }
+
+  Future<void> _restartScanner() async {
+    if (!mounted) {
+      return;
+    }
+
+    try {
+      await controller?.stop();
+      if (!mounted) {
+        return;
+      }
+      await controller?.start();
+    } catch (e) {
+      Logger.error('Signer BSMS scanner restart failed: $e');
+    }
   }
 
   @override

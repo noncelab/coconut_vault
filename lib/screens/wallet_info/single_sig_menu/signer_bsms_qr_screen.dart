@@ -4,7 +4,7 @@ import 'package:coconut_vault/providers/view_model/multisig_signer_bsms_export_v
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
-import 'package:coconut_vault/widgets/qr_with_copy_text.dart';
+import 'package:coconut_vault/widgets/qr_with_copy_text_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -28,15 +28,11 @@ class _SignerBsmsQrScreenState extends State<SignerBsmsQrScreen> {
         builder: (context, viewModel, child) {
           return Stack(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                color: CoconutColors.white,
-                child: QrWithCopyTextScreen(
-                  title: viewModel.name,
-                  qrData: viewModel.qrData,
-                  tooltipDescription: _buildDescription(),
-                  textRichText: _getCopyTextRichText(),
-                ),
+              QrWithCopyTextScreen(
+                title: viewModel.name,
+                qrData: viewModel.qrData,
+                tooltipDescription: _buildDescription(),
+                textRichText: _getCopyTextRichText(),
               ),
               Visibility(
                 visible: viewModel.isLoading,
@@ -63,7 +59,6 @@ class _SignerBsmsQrScreenState extends State<SignerBsmsQrScreen> {
           children: _getTooltipRichText(),
         ),
       ),
-      padding: const EdgeInsets.only(top: 4),
     );
   }
 

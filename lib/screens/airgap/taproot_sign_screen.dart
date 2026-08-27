@@ -42,10 +42,6 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
   late BitcoinUnit _currentUnit;
   bool _showLoading = false;
   bool _showFullAddress = true;
-  // MuSig2 First Signer 흐름에서 nonce 생성 시 획득한 Seed를 BottomSheet 닫힌 후 localSign 단계까지 보유.
-  // ViewModel보다 생명주기가 짧은 State에 두어 화면 종료 시 dispose()에서 wipe() 보장.
-  // step == localNonceCreated(재진입) 시에는 _getSeed() 재호출 없이 이 값을 재사용.
-  Seed? _pendingSeed;
   bool _isCupertinoLoadingShown = false;
   bool _isFinalizeLoadingDialogShown = false;
   String _cupertinoLoadingMessage = '';
@@ -74,13 +70,6 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
         );
       }
     });
-  }
-
-  @override
-  void dispose() {
-    _pendingSeed?.wipe();
-    _pendingSeed = null;
-    super.dispose();
   }
 
   @override
@@ -621,12 +610,10 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
 
   /// 두 번째 Signer의 PSBT 스캔 콜백 핸들러
   Future<void> _handleSecondSignerPsbtScanned(String scannedData) async {
-    assert(_pendingSeed != null, '_pendingSeed must be set in _runSignFlowAsFirstSigner');
-
     try {
       setState(() => _showLoading = true);
       _showFinalizeLoadingDialog();
-      await _viewModel.musig2FirstSignerFinalize(scannedData, _pendingSeed!);
+      await _viewModel.musig2FirstSignerFinalize(scannedData);
       _hideFinalizeLoadingDialog();
       if (mounted) Navigator.pop(context);
     } catch (e) {
@@ -689,12 +676,12 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
     assert(step == TaprootMusig2FirstSignerStep.none || step == TaprootMusig2FirstSignerStep.localNonceCreated);
 
     String? nonceAddedPsbt;
+    Seed? seed;
     try {
       // 2. nonce 생성 (PSBT에 자신의 nonce만 추가됨)
       if (step == TaprootMusig2FirstSignerStep.none) {
-        final seed = await _getSeed(index);
+        seed = await _getSeed(index);
         if (seed == null) return;
-        _pendingSeed = seed;
 
         setState(() => _showLoading = true);
         nonceAddedPsbt = await _viewModel.musig2FirstSignerCreateNonce(index, seed);
@@ -712,16 +699,13 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
           navigator.push(MaterialPageRoute(builder: (_) => _buildSecondSignerScanner()));
         },
       );
-      final isCompleted = await _checkCompletedAndGoNext();
-      if (isCompleted) {
-        _pendingSeed?.wipe();
-        _pendingSeed = null;
-      }
+      await _checkCompletedAndGoNext();
     } catch (error) {
       if (mounted) {
         showAlertDialog(context: context, content: t.errors.sign_error(error: error));
       }
     } finally {
+      seed?.wipe();
       if (mounted) setState(() => _showLoading = false);
     }
   }

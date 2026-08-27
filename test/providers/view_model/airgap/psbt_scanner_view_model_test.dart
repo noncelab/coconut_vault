@@ -111,6 +111,51 @@ void main() {
       expect(signProvider.vaultListItem, isNull);
     });
 
+    test('input 0은 vault 정책과 일치하지만 다른 input이 다른 정책이면 매칭되지 않는다 (mixed-policy PSBT 우회 방지)', () async {
+      final vaultA = _createP2wshVault(passphrases: ['A', 'B', 'C']);
+      // vaultA의 첫 번째 서명자(A)의 public key를 공유하지만, 서로 다른 참여자/threshold(1-of-2)를
+      // 가진 별개의 정책. 공격 시나리오: input 0은 정상 vaultA 정책, 이후 input은 다른 정책이지만
+      // 로컬 공개키(A)를 포함하는 mixed-policy PSBT.
+      final vaultB = MultisignatureVault.fromKeyStoreList([
+        vaultA.keyStoreList[0],
+        KeyStore.fromSeed(_createP2wpkhVault(passphrase: 'D').keyStore.seed, AddressType.p2wsh),
+      ], 1);
+
+      final psbtA = Psbt.parse(_createP2wshPsbt(vaultA).serialize());
+      final psbtB = Psbt.parse(_createP2wshPsbt(vaultB).serialize());
+      // input 1을 다른 정책(vaultB)의 input 데이터로 치환한다.
+      psbtA.psbtMap['inputs'][1] = psbtB.psbtMap['inputs'][1];
+      final mixedPolicyPsbtBase64 = psbtA.serialize();
+
+      final vaultItem = _createMultisigVaultListItem(id: 10, name: 'mixed policy target vault', vault: vaultA);
+      final signProvider = SignProvider();
+      final viewModel = PsbtScannerViewModel(_FakeWalletProvider([vaultItem]), signProvider);
+
+      expect(() => viewModel.setMatchingVault(mixedPolicyPsbtBase64), throwsA(isA<VaultNotFoundException>()));
+      expect(signProvider.vaultListItem, isNull);
+    });
+
+    test('구성원(공개키)은 동일하지만 threshold가 다른 input이 섞여 있으면 매칭되지 않는다 (mixed-threshold PSBT 우회 방지)', () async {
+      final vaultA = _createP2wshVault(passphrases: ['A', 'B', 'C']);
+      // vaultA와 서명자 구성(공개키)은 완전히 동일하지만 threshold만 다른(3-of-3) 정책.
+      // 공격 시나리오: input 0은 정상 vaultA(2-of-3) 정책, 이후 input은 동일한 서명자들로
+      // 구성되었지만 threshold가 다른(3-of-3) input이 섞인 mixed-threshold PSBT.
+      final vaultB = MultisignatureVault.fromKeyStoreList(vaultA.keyStoreList, 3);
+
+      final psbtA = Psbt.parse(_createP2wshPsbt(vaultA).serialize());
+      final psbtB = Psbt.parse(_createP2wshPsbt(vaultB).serialize());
+      // input 1을 동일 서명자, 다른 threshold(3-of-3) 정책의 input 데이터로 치환한다.
+      psbtA.psbtMap['inputs'][1] = psbtB.psbtMap['inputs'][1];
+      final mixedThresholdPsbtBase64 = psbtA.serialize();
+
+      final vaultItem = _createMultisigVaultListItem(id: 11, name: 'mixed threshold target vault', vault: vaultA);
+      final signProvider = SignProvider();
+      final viewModel = PsbtScannerViewModel(_FakeWalletProvider([vaultItem]), signProvider);
+
+      expect(() => viewModel.setMatchingVault(mixedThresholdPsbtBase64), throwsA(isA<VaultNotFoundException>()));
+      expect(signProvider.vaultListItem, isNull);
+    });
+
     test('일치하는 멀티시그 vault가 서명할 수 없으면 VaultNotFoundException을 던진다', () async {
       final vault = _createP2wshVault();
       final psbtBase64 = _createP2wshPsbt(vault).serialize();
