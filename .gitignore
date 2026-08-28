@@ -157,3 +157,5 @@ coconut_lib
 # fastlane
 coconut-fastlane-supply.json
 report.xml
+*/fastlane_production/fastlane/report.xml
+/fastlane/store_metadata/generated/
