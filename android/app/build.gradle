@@ -19,7 +19,7 @@ def getFlavor() {
     } else if (taskNames.any { it.toLowerCase().contains("mainnet")}) {
         return "mainnet"
     }
-    throw new GradleException("❌ build flavor를 추론할 수 없습니다. taskNames: ${taskNames}")
+    throw new RuntimeException("❌ build flavor를 추론할 수 없습니다. taskNames: ${taskNames}")
 }
 def flavor = getFlavor()
 def keystoreProperties = new Properties()
@@ -29,7 +29,16 @@ if (keystorePropertiesFile.exists()) {
         keystoreProperties.load(reader)
     }
 } else {
-    throw new GradleException("❌ keystore properties 파일이 존재하지 않습니다: ${keystorePropertiesFile}")
+    throw new RuntimeException("❌ keystore properties 파일이 존재하지 않습니다: ${keystorePropertiesFile}")
+}
+
+def signingStorePassword = System.getenv("ANDROID_SIGNING_STORE_PASSWORD")
+def signingKeyPassword = System.getenv("ANDROID_SIGNING_KEY_PASSWORD")
+def isReleaseBuild = gradle.startParameter.taskNames.any { it.toLowerCase().contains("release") }
+def isBundleBuild = gradle.startParameter.taskNames.any { it.toLowerCase().contains("bundle") }
+def useDebugSigningForReleaseRun = System.getenv("ANDROID_USE_DEBUG_SIGNING_FOR_RELEASE_RUN") == "true" && !isBundleBuild
+if (isReleaseBuild && !useDebugSigningForReleaseRun && (!signingStorePassword || !signingKeyPassword)) {
+    throw new RuntimeException("❌ Android 서명 비밀번호 환경변수가 설정되지 않았습니다.")
 }
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
@@ -63,7 +72,7 @@ android {
     defaultConfig {
         applicationId "onl.coconut.vault"
         minSdkVersion 26
-        targetSdkVersion 35
+        targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -71,9 +80,9 @@ android {
     signingConfigs {
         release {
             keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
+            keyPassword signingKeyPassword
             storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
+            storePassword signingStorePassword
         }
     }
 
@@ -83,7 +92,7 @@ android {
         }
         release {
             debuggable false
-            signingConfig signingConfigs.release
+            signingConfig useDebugSigningForReleaseRun ? signingConfigs.debug : signingConfigs.release
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

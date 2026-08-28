@@ -43,6 +43,7 @@ class WalletProvider extends ChangeNotifier {
   List<VaultListItemBase> _vaultList = [];
   // 리스트 로딩중 여부 (indicator 표시 및 중복 방지)
   bool _isVaultListLoading = false;
+  Future<void>? _loadVaultListFuture;
   // vault_type_selection_screen, vault_name_and_icon_setup_screen, app_update_preparation_screen 에서 사용
   // 다음 버튼 클릭시 loadVaultList()가 아직 진행중인 경우 완료 시점을 캐치하기 위함
   final ValueNotifier<bool> isVaultListLoadingNotifier = ValueNotifier<bool>(false);
@@ -58,6 +59,26 @@ class WalletProvider extends ChangeNotifier {
   bool get isVaultListLoading => _isVaultListLoading;
   bool get isVaultsLoaded => _isVaultsLoaded;
   bool get isSigningOnlyMode => _isSigningOnlyMode;
+
+  /// coconut_lib의 legacy Taproot inheritance miniscript가 `older`로 생성되던 문제에 대한
+  /// backup 정보 업데이트 안내 대상 지갑 ID입니다.
+  ///
+  /// 실제 지갑 마이그레이션 여부가 아니라, 사용자가 최신 backup 정보를 확인하기 전까지
+  /// 유지하는 미확인 상태입니다. 최신 backup 정보 화면에 진입하면 해당 ID를 제거합니다.
+  Set<int> get walletIdsWithUnacknowledgedOlderToAfterBackupUpdate =>
+      _service.walletIdsWithUnacknowledgedOlderToAfterBackupUpdate;
+
+  /// 구버전 `older` descriptor/backup 정보를 최신 `after` 형식으로 변환한 지갑을 안내 대상으로 추가합니다.
+  Future<void> addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(int walletId) async {
+    await _service.addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(walletId);
+    notifyListeners();
+  }
+
+  /// 사용자가 최신 Taproot backup 정보를 확인했거나 지갑을 삭제한 경우 미확인 안내 대상을 제거합니다.
+  Future<void> removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(int walletId) async {
+    await _service.removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(walletId);
+    notifyListeners();
+  }
 
   // 5-1) Query (WalletQueryService 위임)
   /// SinglesigVaultListItem의 seed 중복 여부 확인
@@ -179,11 +200,13 @@ class WalletProvider extends ChangeNotifier {
     _vaultList[index] = await _service.updateExternalSignerSource(id, signerIndex, newSignerSource);
   }
 
-  Future<void> deleteWallet(int id) async {
+  Future<bool> deleteWallet(int id) async {
     final deleted = await _service.deleteWallet(id);
-    if (!deleted) return;
+    // 중복 호출 등으로 이미 삭제된 경우. 호출자는 no-op로 처리.
+    if (!deleted) return false;
     _setVaultList(_service.vaultSnapshot);
     notifyListeners();
+    return true;
   }
 
   /// 모든 wallet 데이터(인메모리 + 영속)를 정리합니다.
@@ -193,9 +216,15 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadVaultList() async {
-    if (_isVaultListLoading) return;
+  /// 지갑 목록 로딩이 이미 진행 중이면 해당 작업이 끝날 때까지 기다립니다.
+  ///
+  /// 여러 화면이나 ViewModel에서 동시에 호출되더라도 로딩 작업은 한 번만
+  /// 실행하고, 모든 호출자가 동일한 Future의 완료를 기다리도록 합니다.
+  Future<void> loadVaultList() {
+    return _loadVaultListFuture ??= _loadVaultList();
+  }
 
+  Future<void> _loadVaultList() async {
     _isVaultListLoading = true;
     isVaultListLoadingNotifier.value = true;
     notifyListeners();
@@ -216,6 +245,7 @@ class WalletProvider extends ChangeNotifier {
       Logger.log('[loadVaultList] Exception : ${e.toString()}');
       rethrow;
     } finally {
+      _loadVaultListFuture = null;
       if (_isDisposed) {
         // ignore: control_flow_in_finally
         return;

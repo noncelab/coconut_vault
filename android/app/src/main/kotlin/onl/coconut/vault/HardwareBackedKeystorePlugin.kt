@@ -131,13 +131,8 @@ class HardwareBackedKeystorePlugin :
       }
       "deleteKeys" -> {
         val aliasList = call.argument<List<String>>("aliasList")!!
-
-        try {
-          deleteAesKeys(aliasList)
-          result.success(null)
-        } catch (e: Exception) {
-          result.error("DEL_KEYS_FAIL", e.message, null)
-        }
+        val failed = deleteAesKeys(aliasList)
+        result.success(failed)
       }
       "encrypt" -> {
         val alias = call.argument<String>("alias")!!
@@ -352,8 +347,9 @@ class HardwareBackedKeystorePlugin :
     ks.deleteEntry(alias)
   }
 
-  private fun deleteAesKeys(aliasList: List<String>) {
+  private fun deleteAesKeys(aliasList: List<String>): List<String> {
     val ks = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
+    val failed = mutableListOf<String>()
     for (alias in aliasList) {
       try {
         if (ks.containsAlias(alias)) {
@@ -364,9 +360,13 @@ class HardwareBackedKeystorePlugin :
         }
       } catch (e: Exception) {
         Log.e(TAG, "Failed to delete key: $alias", e)
-        // no-op: continue deleting others
+        failed.add(alias)
       }
     }
+    if (failed.isNotEmpty()) {
+      Log.w(TAG, "Some keys failed to delete: $failed")
+    }
+    return failed
   }
 
   private fun authenticateForKeystore(

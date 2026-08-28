@@ -45,6 +45,7 @@ class SingleButton extends StatelessWidget {
   final bool enableShrinkAnim;
   final double animationEndValue;
   final bool isDescriptionUnderTitle;
+  final bool showNotificationDot;
 
   const SingleButton({
     super.key,
@@ -60,6 +61,7 @@ class SingleButton extends StatelessWidget {
     this.subtitleStyle,
     this.titleStyle,
     this.isDescriptionUnderTitle = false,
+    this.showNotificationDot = false,
   });
 
   @override
@@ -105,9 +107,21 @@ class SingleButton extends StatelessWidget {
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      title,
-                      style: titleStyle ?? CoconutTypography.body2_14_Bold.setColor(CoconutColors.black),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Text(title, style: titleStyle ?? CoconutTypography.body2_14_Bold.setColor(CoconutColors.black)),
+                        if (showNotificationDot)
+                          Positioned(
+                            top: -1,
+                            right: -8,
+                            child: Container(
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(color: CoconutColors.hotPink, shape: BoxShape.circle),
+                            ),
+                          ),
+                      ],
                     ),
                   ),
                   if (isDescriptionUnderTitle && description != null)

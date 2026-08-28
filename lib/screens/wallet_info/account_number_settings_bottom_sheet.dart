@@ -204,7 +204,7 @@ class _AccountEditBottomSheetState extends State<AccountEditBottomSheet> {
           context: context,
           builder:
               (context) => CoconutPopup(
-                languageCode: context.read<VisibilityProvider>().language,
+                languageCode: context.read<VisibilityProvider>().appLanguage.code,
                 title: title,
                 description: description,
                 onTapRight: () {

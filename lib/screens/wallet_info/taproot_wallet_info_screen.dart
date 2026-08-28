@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/view_model/wallet_info/wallet_info_view_
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
+import 'package:coconut_vault/screens/wallet_info/wallet_info_layout.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/screens/home/select_vault_bottom_sheet.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
@@ -19,6 +20,7 @@ import 'package:coconut_vault/widgets/card/taproot/taproot_participant_card.dart
 import 'package:coconut_vault/widgets/card/taproot/taproot_setup_summary_card.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_vault_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -33,6 +35,85 @@ class TaprootWalletInfoScreen extends StatefulWidget {
 }
 
 class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      if (context.read<WalletProvider>().walletIdsWithUnacknowledgedOlderToAfterBackupUpdate.contains(widget.id)) {
+        await _showTaprootBackupUpdateDialog();
+      }
+    });
+  }
+
+  Future<void> _showTaprootBackupUpdateDialog() async {
+    final dialogText = t.wallet_info_screen.taproot_older_to_after_backup_update_dialog;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return PopScope(
+          canPop: false,
+          child: Dialog(
+            backgroundColor: CoconutColors.white,
+            insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Text(
+                        dialogText.title,
+                        textAlign: TextAlign.center,
+                        style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.black),
+                      ),
+                    ),
+                    CoconutLayout.spacing_300h,
+                    Text(dialogText.step1_title, style: CoconutTypography.body2_14_Bold),
+                    CoconutLayout.spacing_100h,
+                    Text(
+                      dialogText.step1_description,
+                      style: CoconutTypography.body3_12.setColor(CoconutColors.gray700),
+                    ),
+                    CoconutLayout.spacing_300h,
+                    Text(
+                      dialogText.step2_title(version: NetworkType.currentNetworkType.isTestnet ? '3.16.0' : '0.16.0'),
+                      style: CoconutTypography.body2_14_Bold,
+                    ),
+                    CoconutLayout.spacing_100h,
+                    Text(
+                      dialogText.step2_description,
+                      style: CoconutTypography.body3_12.setColor(CoconutColors.gray700),
+                    ),
+                    CoconutLayout.spacing_300h,
+                    Text(dialogText.why_title, style: CoconutTypography.body2_14_Bold),
+                    CoconutLayout.spacing_100h,
+                    Text(dialogText.why_description, style: CoconutTypography.body3_12.setColor(CoconutColors.gray700)),
+                    CoconutLayout.spacing_300h,
+                    SizedBox(
+                      width: double.infinity,
+                      child: CoconutButton(
+                        height: 52,
+                        backgroundColor: CoconutColors.gray800,
+                        foregroundColor: CoconutColors.white,
+                        text: dialogText.confirm,
+                        onPressed: () => Navigator.pop(dialogContext),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _authenticateWithBiometricOrPin(
     BuildContext context,
     PinCheckContextEnum pinCheckContext,
@@ -70,7 +151,7 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
       context: context,
       builder: (BuildContext dialogContext) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.alert.delete_vault.title,
           description: t.alert.delete_vault.description,
@@ -99,18 +180,21 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
   }
 
   Future<void> _deleteVault(BuildContext context, WalletInfoViewModel viewModel) async {
-    await viewModel.deleteVault();
-    if (!mounted) return;
-
-    vibrateLight();
-
-    if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
-      Navigator.popUntil(context, (route) {
-        return route.settings.name == AppRoutes.vaultList;
-      });
-    } else {
-      Navigator.popUntil(context, (route) => route.isFirst);
-    }
+    await WalletInfoLayout.deleteVault(
+      context: context,
+      viewModel: viewModel,
+      isMounted: mounted,
+      onSuccess: () {
+        vibrateLight();
+        if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
+          Navigator.popUntil(context, (route) {
+            return route.settings.name == AppRoutes.vaultList;
+          });
+        } else {
+          Navigator.popUntil(context, (route) => route.isFirst);
+        }
+      },
+    );
   }
 
   void _onVerifyPassphrasePressed(TaprootVaultListItem vault) {
@@ -302,6 +386,15 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
     Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': widget.id, 'targetXpub': xpub});
   }
 
+  void _onNameChangeClicked(BuildContext context, WalletInfoViewModel viewModel) {
+    WalletInfoLayout.showNameAndIconEditBottomSheet(
+      context: context,
+      viewModel: viewModel,
+      id: widget.id,
+      mounted: mounted,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -391,7 +484,11 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
                     CoconutLayout.spacing_500h,
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: TaprootVaultItemCard(vaultItem: vault, showTaprootWalletInfo: true),
+                      child: TaprootVaultItemCard(
+                        vaultItem: vault,
+                        showTaprootWalletInfo: true,
+                        onNameChangeClicked: () => _onNameChangeClicked(context, viewModel),
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -430,6 +527,7 @@ class _TaprootWalletInfoScreenState extends State<TaprootWalletInfoScreen> {
                             ),
                           SingleButton(
                             title: t.vault_menu_screen.export_wallet,
+                            showNotificationDot: viewModel.hasUnacknowledgedOlderToAfterBackupUpdate,
                             onPressed:
                                 () => Navigator.pushNamed(
                                   context,

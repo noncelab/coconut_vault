@@ -197,7 +197,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
           context: context,
           builder:
               (context) => CoconutPopup(
-                languageCode: context.read<VisibilityProvider>().language,
+                languageCode: context.read<VisibilityProvider>().appLanguage.code,
                 title: t.alert.auth_canceled_when_decrypt.title,
                 description: t.alert.auth_canceled_when_decrypt.description_export,
                 onTapRight: () {
@@ -216,7 +216,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
         context: context,
         builder:
             (context) => CoconutPopup(
-              languageCode: context.read<VisibilityProvider>().language,
+              languageCode: context.read<VisibilityProvider>().appLanguage.code,
               title: t.passphrase_check_screen.alert.failed.title,
               description: e.toString(),
               onTapRight: () {

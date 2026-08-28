@@ -58,3 +58,47 @@ class VaultIcon extends StatelessWidget {
     );
   }
 }
+
+/// 아이콘 우측 하단에 노출되는 edit 배지 오버레이
+class VaultIconEditBadge extends StatelessWidget {
+  final bool isTapped;
+  final Widget child;
+
+  const VaultIconEditBadge({super.key, required this.isTapped, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        child,
+        Positioned(
+          right: -3,
+          bottom: -3,
+          child: Container(
+            padding: const EdgeInsets.all(4.3),
+            decoration: BoxDecoration(
+              color: isTapped ? CoconutColors.gray300 : CoconutColors.gray150,
+              shape: BoxShape.circle,
+              boxShadow: const [
+                BoxShadow(color: CoconutColors.gray300, offset: Offset(2, 2), blurRadius: 10, spreadRadius: 0),
+              ],
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(1),
+              decoration: BoxDecoration(
+                color: isTapped ? CoconutColors.gray300 : CoconutColors.gray150,
+                shape: BoxShape.circle,
+              ),
+              child: SvgPicture.asset(
+                'assets/svg/edit-outlined.svg',
+                width: 10,
+                colorFilter: const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

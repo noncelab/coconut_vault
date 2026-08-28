@@ -175,7 +175,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         context: context,
         builder:
             (context) => CoconutPopup(
-              languageCode: context.read<VisibilityProvider>().language,
+              languageCode: context.read<VisibilityProvider>().appLanguage.code,
               title: t.exceptions.seed_invalidated.title,
               description: e.message,
               onTapRight: () {
@@ -231,7 +231,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.multisig_sign_screen.dialog.preparation.title(name: hwwType.displayName),
           description:
@@ -315,7 +315,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
             try {
               bool isRawTxHexString = isRawTransactionHexString(scannedData);
               if (isRawTxHexString) {
-                _viewModel.validateRawSignedTransaction(scannedData);
+                await _viewModel.validateRawSignedTransaction(scannedData);
                 _viewModel.saveSignedRawTxHex(scannedData);
               } else {
                 _viewModel.onScannedPsbt(scannedData, isOverwrite: signerIndex == null);
@@ -339,7 +339,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   context: context,
                   builder: (BuildContext context) {
                     return CoconutPopup(
-                      languageCode: context.read<VisibilityProvider>().language,
+                      languageCode: context.read<VisibilityProvider>().appLanguage.code,
                       title: t.multisig_sign_screen.dialog.signature_update.title,
                       description: t.multisig_sign_screen.dialog.signature_update.description,
                       onTapRight: () {
@@ -422,7 +422,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       context: context,
       builder: (BuildContext context) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.alert.stop_sign.title,
           description: t.alert.stop_sign.description,
@@ -485,7 +485,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                             context: context,
                             builder:
                                 (context) => CoconutPopup(
-                                  languageCode: context.read<VisibilityProvider>().language,
+                                  languageCode: context.read<VisibilityProvider>().appLanguage.code,
                                   title: t.alert.exit_sign.title,
                                   description: t.alert.exit_sign.description,
                                   backgroundColor: CoconutColors.white,

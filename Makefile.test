@@ -1,0 +1,15 @@
+# Wallet deletion failure injection test
+#
+# Usage:
+#   make wallet-delete-failure CASE=secure_zone
+#   make wallet-delete-failure CASE=secure_storage
+#   make wallet-delete-failure CASE=privacy_info
+#
+# The command builds, installs, and launches the regtest app. After launch,
+# use Developer > Load deletion test wallets and perform the deletion manually.
+
+.PHONY: wallet-delete-failure
+
+wallet-delete-failure:
+	@test -n "$(CASE)" || (echo "Usage: make wallet-delete-failure CASE=secure_zone|secure_storage|privacy_info" && exit 1)
+	fvm flutter run --flavor regtest --dart-define=WALLET_DELETE_FAILURE=$(CASE)

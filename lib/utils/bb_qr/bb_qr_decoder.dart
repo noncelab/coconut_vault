@@ -3,6 +3,15 @@ import 'dart:io';
 import 'package:base32/base32.dart';
 import 'package:coconut_vault/utils/logger.dart';
 
+/// BBQR 디코딩 중 안전 제한을 초과했을 때 발생하는 예외
+class BbQrDecodeLimitExceededException implements Exception {
+  final String message;
+  BbQrDecodeLimitExceededException(this.message);
+
+  @override
+  String toString() => 'BbQrDecodeLimitExceededException: $message';
+}
+
 class BbQrDecoder {
   // ColdCard Q1 Export Multisig Wallet Data
   /// ex: B$ZU0100
@@ -24,10 +33,17 @@ class BbQrDecoder {
   /// index: 현재 QR 조각의 순서(2자리 base36 숫자)
   /// payload: 인코딩된 데이터
 
+  /// 안전 제한 상수
+  static const int maxFragmentCount = 300;
+  static const int maxCompressedInputBytes = 5 * 1024 * 1024; // 5 MB
+  static const int maxDecompressedOutputBytes = 20 * 1024 * 1024; // 20 MB
+  static const double maxCompressionRatio = 500.0;
+
   final Map<int, List<int>> _chunks = {};
   int? _expectedTotal;
   bool _isComplete = false;
   dynamic _result;
+  int _totalCompressedBytes = 0;
 
   String? _encodingType;
   String? _dataType;
@@ -60,6 +76,15 @@ class BbQrDecoder {
         Logger.log(
           '--> BbQrDecoder.receivePart: invalid total/index '
           '(total: $total, index: $index)',
+        );
+        return false;
+      }
+
+      // fragment 수 제한
+      if (total > maxFragmentCount) {
+        Logger.log(
+          '--> BbQrDecoder.receivePart: fragment count $total exceeds '
+          'limit $maxFragmentCount',
         );
         return false;
       }
@@ -97,7 +122,18 @@ class BbQrDecoder {
         return false;
       }
 
+      // compressed input 총량 제한
+      if (_totalCompressedBytes + rawBytes.length > maxCompressedInputBytes) {
+        Logger.log(
+          '--> BbQrDecoder.receivePart: compressed input size '
+          '${_totalCompressedBytes + rawBytes.length} exceeds '
+          'limit $maxCompressedInputBytes',
+        );
+        return false;
+      }
+
       _chunks[index] = rawBytes;
+      _totalCompressedBytes += rawBytes.length;
 
       if (_chunks.length == _expectedTotal) {
         _isComplete = true;
@@ -131,10 +167,33 @@ class BbQrDecoder {
     return combinedBytes;
   }
 
-  /// raw deflate(Zlib raw) 압축 해제
+  /// raw deflate(Zlib raw) 압축 해제 (크기 제한 적용)
+  ///
+  /// [BbQrDecodeLimitExceededException]을 던질 수 있습니다.
   List<int> _decompressRawDeflate(List<int> compressed) {
     // ZLibCodec(raw: true) => raw deflate (no header/footer)
-    return ZLibCodec(raw: true).decode(compressed);
+    final decompressed = ZLibCodec(raw: true).decode(compressed);
+
+    // decompressed output 크기 제한
+    if (decompressed.length > maxDecompressedOutputBytes) {
+      throw BbQrDecodeLimitExceededException(
+        'Decompressed size ${decompressed.length} exceeds '
+        'limit $maxDecompressedOutputBytes bytes',
+      );
+    }
+
+    // compression ratio 제한 (zip bomb 방어)
+    if (compressed.isNotEmpty) {
+      final ratio = decompressed.length / compressed.length;
+      if (ratio > maxCompressionRatio) {
+        throw BbQrDecodeLimitExceededException(
+          'Compression ratio ${ratio.toStringAsFixed(1)} exceeds '
+          'limit $maxCompressionRatio',
+        );
+      }
+    }
+
+    return decompressed;
   }
 
   /// 조각을 합쳐서 UTF-8 문자열 반환
@@ -151,6 +210,9 @@ class BbQrDecoder {
     if (_encodingType == 'Z') {
       try {
         bytes = _decompressRawDeflate(combined);
+      } on BbQrDecodeLimitExceededException catch (e) {
+        Logger.log('--> BbQrDecoder.getCombinedText: limit exceeded: $e');
+        return null;
       } catch (e, st) {
         Logger.log('--> BbQrDecoder.getCombinedText: zlib error: $e\n$st');
         return null;
@@ -234,6 +296,9 @@ class BbQrDecoder {
         }
         return _result;
       }
+    } on BbQrDecodeLimitExceededException catch (e) {
+      Logger.log('--> BbQrDecoder.parseHexData: limit exceeded: $e');
+      return null;
     } catch (e, st) {
       Logger.log('--> BbQrDecoder.parseHexData: error: $e\n$st');
       return null;
@@ -255,5 +320,6 @@ class BbQrDecoder {
     _result = null;
     _encodingType = null;
     _dataType = null;
+    _totalCompressedBytes = 0;
   }
 }

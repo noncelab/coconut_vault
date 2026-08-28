@@ -12,6 +12,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/services/wallet/wallet_service.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/home/vault_item_setting_bottom_sheet.dart';
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -69,8 +70,15 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                   child: PinCheckScreen(
                     pinCheckContext: PinCheckContextEnum.sensitiveAction,
                     onSuccess: () async {
-                      viewModel.handleAuthCompletion();
-                      Navigator.pop(context);
+                      try {
+                        await viewModel.handleAuthCompletion();
+                        if (!context.mounted) return;
+                        Navigator.pop(context);
+                      } catch (e) {
+                        if (!context.mounted) return;
+                        Navigator.pop(context);
+                        await showInfoPopup(context, t.vault_list_screen.alert.save_failed.title, e.toString());
+                      }
                     },
                   ),
                 ),
@@ -108,7 +116,16 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
                                 _buildEditableVaultList(),
                                 FixedBottomButton(
                                   onButtonClicked: () async {
-                                    await viewModel.applyTempDatasToVaults();
+                                    try {
+                                      await viewModel.applyTempDatasToVaults();
+                                    } catch (e) {
+                                      if (!context.mounted) return;
+                                      await showInfoPopup(
+                                        context,
+                                        t.vault_list_screen.alert.save_failed.title,
+                                        e.toString(),
+                                      );
+                                    }
                                   },
                                   isActive: viewModel.hasFavoriteChanged || viewModel.hasVaultOrderChanged,
                                   backgroundColor: CoconutColors.black,
@@ -186,7 +203,8 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
       height: 16,
       colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
     );
-    bool isEnglishWordOrder = _visibilityProvider.isEnglishWordOrder;
+    final isEnglishWordOrder = _visibilityProvider.isEnglishWordOrder;
+
     return Container(
       width: MediaQuery.sizeOf(context).width,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -223,7 +241,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildEditModeHeaderLine(List<InlineSpan> inlineSpan) {
+  Widget _buildEditModeHeaderLine(List<InlineSpan> inlineSpans) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -235,7 +253,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
         ),
         Expanded(
           child: RichText(
-            text: TextSpan(style: CoconutTypography.body2_14.setColor(CoconutColors.gray800), children: inlineSpan),
+            text: TextSpan(style: CoconutTypography.body2_14.setColor(CoconutColors.gray800), children: inlineSpans),
             overflow: TextOverflow.visible,
             softWrap: true,
           ),
@@ -392,7 +410,7 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
               context: context,
               builder: (BuildContext context) {
                 return CoconutPopup(
-                  languageCode: context.read<VisibilityProvider>().language,
+                  languageCode: context.read<VisibilityProvider>().appLanguage.code,
                   title: t.vault_list_screen.edit.finish,
                   description: t.vault_list_screen.edit.unsaved_changes_confirm_exit,
                   leftButtonText: t.no,

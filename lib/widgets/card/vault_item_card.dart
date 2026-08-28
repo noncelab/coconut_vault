@@ -226,38 +226,12 @@ class _VaultItemCardState extends State<VaultItemCard> {
     final int colorIndex = widget.vaultItem.colorIndex;
     final int iconIndex = widget.vaultItem.iconIndex;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        VaultIcon(iconIndex: iconIndex, colorIndex: colorIndex),
-        Positioned(
-          right: -3,
-          bottom: -3,
-          child: Container(
-            padding: const EdgeInsets.all(4.3),
-            decoration: BoxDecoration(
-              color: _isItemTapped ? CoconutColors.gray300 : CoconutColors.gray150,
-              shape: BoxShape.circle,
-              boxShadow: const [
-                BoxShadow(color: CoconutColors.gray300, offset: Offset(2, 2), blurRadius: 10, spreadRadius: 0),
-              ],
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(1),
-              decoration: BoxDecoration(
-                color: _isItemTapped ? CoconutColors.gray300 : CoconutColors.gray150,
-                shape: BoxShape.circle,
-              ),
-              child: SvgPicture.asset(
-                'assets/svg/edit-outlined.svg',
-                width: 10,
-                colorFilter: const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn),
-              ),
-            ),
-          ),
-        ),
-      ],
+    final icon = Container(
+      decoration: const BoxDecoration(color: CoconutColors.white, borderRadius: BorderRadius.all(Radius.circular(12))),
+      child: VaultIcon(iconIndex: iconIndex, colorIndex: colorIndex),
     );
+
+    return VaultIconEditBadge(isTapped: _isItemTapped, child: icon);
   }
 
   Future<void> _handleAccountEditTap(int currentAccount) async {

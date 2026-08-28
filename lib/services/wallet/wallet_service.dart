@@ -16,7 +16,9 @@ import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.d
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/repository/wallet_linker.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/foundation.dart';
 
 const int kMaxFavoriteWallets = 5;
@@ -50,6 +52,16 @@ class WalletService {
   /// Current authoritative snapshot from the repository.
   /// Adapters should re-read this after each mutating call to stay in sync.
   List<VaultListItemBase> get vaultSnapshot => _repo.vaultList ?? const [];
+  Set<int> get walletIdsWithUnacknowledgedOlderToAfterBackupUpdate =>
+      _repo.walletIdsWithUnacknowledgedOlderToAfterBackupUpdate;
+
+  Future<void> addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(int walletId) {
+    return _repo.addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(walletId);
+  }
+
+  Future<void> removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(int walletId) {
+    return _repo.removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(walletId);
+  }
 
   // ---- create ----
 
@@ -87,23 +99,23 @@ class WalletService {
     return vault;
   }
 
-  /// [details]로부터 멀티시그 지갑을 생성하며, 내부 단일서명 지갑(MFP 일치)을 자동으로 연결.
+  /// [details]로부터 멀티시그 지갑을 생성하며, 내부 단일서명 지갑(MFP + derivation path + xpub 일치)을 자동으로 연결.
   /// [walletId]에 해당하는 내부 지갑이 연결되지 않으면 [NotRelatedMultisigWalletException] 발생.
   Future<MultisigVaultListItem> importMultisig(MultisigImportDetail details, int walletId) async {
     final multisigVault = MultisignatureVault.fromCoordinatorBsms(details.coordinatorBsms);
+    final parsedDescriptor = Descriptor.parse(multisigVault.descriptor);
 
-    // 내부 지갑 매칭 (MFP 기준)
+    // 내부 지갑 매칭 (MFP + derivation path + xpub)
     final linkedWalletList = List<SingleSigVaultListItem?>.filled(multisigVault.keyStoreList.length, null);
     bool isRelated = false;
 
     outerLoop:
     for (final wallet in vaultSnapshot) {
-      if (wallet.vaultType == WalletType.multiSignature) continue;
-
+      if (wallet.vaultType != WalletType.singleSignature) continue;
       final singleSig = wallet as SingleSigVaultListItem;
-      final walletMfp = (singleSig.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
       for (int i = 0; i < multisigVault.keyStoreList.length; i++) {
-        if (walletMfp == multisigVault.keyStoreList[i].masterFingerprint) {
+        final derivationPath = parsedDescriptor.getDerivationPath(i);
+        if (WalletLinker.isSinglesigKeyMatch(singleSig, multisigVault.keyStoreList[i], derivationPath)) {
           linkedWalletList[i] = wallet;
           if (singleSig.id == walletId) isRelated = true;
           continue outerLoop;
@@ -190,10 +202,13 @@ class WalletService {
   // ---- delete ----
 
   /// [id] 지갑 삭제 후 preferences 의 순서/즐겨찾기 목록에서도 제거.
-  /// 실제 삭제 여부를 bool 로 반환.
+  /// 중복 호출 등으로 이미 삭제된 경우 false 를 반환하며 no-op.
   Future<bool> deleteWallet(int id) async {
     final existed = vaultSnapshot.indexWhere((e) => e.id == id) != -1;
-    if (!existed) return false;
+    if (!existed) {
+      Logger.log('WalletService.deleteWallet: id=$id not in snapshot');
+      return false;
+    }
 
     final deleted = await _repo.deleteWallet(id);
     if (!deleted) return false;
@@ -218,8 +233,49 @@ class WalletService {
   /// 지갑 리스트를 스트리밍으로 로드. 각 지갑이 복원될 때마다 [onWallet] 호출.
   Future<void> loadVaults(void Function(VaultListItemBase wallet) onWallet) async {
     final jsonList = await _repo.loadVaultListJsonArrayString();
-    if (jsonList != null) {
-      await _repo.loadAndEmitEachWallet(jsonList, onWallet);
+    if (jsonList == null) {
+      await _syncVaultPreferencesWithIds(const {});
+      await _visibility.saveWalletCount(0);
+      return;
+    }
+
+    // 비싼 isolate 초기화 전에 SharedPrefs의 vaultOrder/favoriteVaultIds를 먼저 정리
+    final actualIds = jsonList.map((raw) => (raw as Map<String, dynamic>)['id'] as int).toSet();
+    await _syncVaultPreferencesWithIds(actualIds);
+
+    var count = 0;
+    await _repo.loadAndEmitEachWallet(jsonList, (wallet) {
+      count++;
+      onWallet(wallet);
+    });
+    await _visibility.saveWalletCount(count);
+  }
+
+  /// [actualIds] 기준으로 SharedPrefs의 vaultOrder와 favoriteVaultIds를 정리합니다.
+  Future<void> _syncVaultPreferencesWithIds(Set<int> actualIds) async {
+    final currentOrder = _pref.vaultOrder;
+    final existingOrder = currentOrder.where((id) => actualIds.contains(id)).toList();
+    final missingIds = actualIds.where((id) => !currentOrder.contains(id)).toList();
+    final newOrder = [...existingOrder, ...missingIds];
+
+    bool orderChanged = newOrder.length != currentOrder.length;
+    if (!orderChanged) {
+      for (int i = 0; i < newOrder.length; i++) {
+        if (newOrder[i] != currentOrder[i]) {
+          orderChanged = true;
+          break;
+        }
+      }
+    }
+
+    if (orderChanged) {
+      await _pref.setVaultOrder(newOrder);
+    }
+
+    final currentFavorites = _pref.favoriteVaultIds;
+    final newFavorites = currentFavorites.where((id) => actualIds.contains(id)).toList();
+    if (newFavorites.length != currentFavorites.length) {
+      await _pref.setFavoriteVaultIds(newFavorites);
     }
   }
 

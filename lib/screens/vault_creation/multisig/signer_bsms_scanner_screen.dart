@@ -52,6 +52,12 @@ class _SignerBsmsScannerScreenState extends QrScannerScreenBase<SignerBsmsScanne
   Widget? buildTopGuideWidget(BuildContext context) => null;
 
   @override
+  Future<void> onFailedScanning(String message) async {
+    await super.onFailedScanning(message);
+    await _restartScanner();
+  }
+
+  @override
   void onBarcodeDetected(BarcodeCapture capture) async {
     final codes = capture.barcodes;
     if (codes.isEmpty) {
@@ -166,10 +172,25 @@ class _SignerBsmsScannerScreenState extends QrScannerScreenBase<SignerBsmsScanne
     onFailedScanning(message);
   }
 
+  Future<void> _restartScanner() async {
+    if (!mounted) {
+      return;
+    }
+
+    try {
+      await controller?.stop();
+      if (!mounted) {
+        return;
+      }
+      await controller?.start();
+    } catch (e) {
+      Logger.error('Signer BSMS scanner restart failed: $e');
+    }
+  }
+
   @override
   List<TextSpan> buildTooltipRichText(BuildContext context, VisibilityProvider visibilityProvider) {
-    final String languageCode = t.$meta.locale.languageCode;
-    final bool isReversedOrder = languageCode == 'en';
+    final bool isEnglishWordOrder = visibilityProvider.isEnglishWordOrder;
 
     TextSpan buildTextSpan(String text, {bool isBold = false}) {
       return TextSpan(
@@ -186,7 +207,7 @@ class _SignerBsmsScannerScreenState extends QrScannerScreenBase<SignerBsmsScanne
 
       children.add(buildTextSpan(index));
 
-      if (isReversedOrder) {
+      if (isEnglishWordOrder) {
         children.add(buildTextSpan('$action '));
         children.add(buildTextSpan(target, isBold: true));
       } else {
@@ -220,7 +241,7 @@ class _SignerBsmsScannerScreenState extends QrScannerScreenBase<SignerBsmsScanne
               buildStep('3. ', t.bsms_scanner_screen.keystone3pro.guide2_5, t.bsms_scanner_screen.select),
               buildTextSpan('\n'),
               buildTextSpan('4. '),
-              if (isReversedOrder) ...[
+              if (isEnglishWordOrder) ...[
                 buildTextSpan('${t.bsms_scanner_screen.keystone3pro.guide2_7} '),
                 buildTextSpan(t.bsms_scanner_screen.keystone3pro.guide2_6, isBold: true),
               ] else ...[
@@ -256,7 +277,7 @@ class _SignerBsmsScannerScreenState extends QrScannerScreenBase<SignerBsmsScanne
             text: null,
             style: CoconutTypography.body2_14.setColor(CoconutColors.black),
             children: <TextSpan>[
-              if (isReversedOrder) ...[
+              if (isEnglishWordOrder) ...[
                 buildTextSpan('${t.bsms_scanner_screen.jade.guide2_1} '),
                 buildTextSpan(t.bsms_scanner_screen.jade.guide2_2, isBold: true),
               ] else ...[
@@ -273,7 +294,7 @@ class _SignerBsmsScannerScreenState extends QrScannerScreenBase<SignerBsmsScanne
               buildStep('4. ', t.bsms_scanner_screen.jade.guide2_6, t.bsms_scanner_screen.select),
               buildTextSpan('\n'),
               buildTextSpan('5. '),
-              if (isReversedOrder) ...[
+              if (isEnglishWordOrder) ...[
                 buildTextSpan('${t.bsms_scanner_screen.jade.guide2_8} '),
                 buildTextSpan(t.bsms_scanner_screen.jade.guide2_7, isBold: true),
               ] else ...[
@@ -337,9 +358,9 @@ class _SignerBsmsScannerScreenState extends QrScannerScreenBase<SignerBsmsScanne
             style: CoconutTypography.body2_14.setColor(CoconutColors.black),
             children: <TextSpan>[
               buildTextSpan('1. '),
-              isReversedOrder ? buildTextSpan('${t.bsms_scanner_screen.select} ') : buildTextSpan(''),
+              isEnglishWordOrder ? buildTextSpan('${t.bsms_scanner_screen.select} ') : buildTextSpan(''),
               buildTextSpan(t.bsms_scanner_screen.coconut_vault.guide2_2),
-              !isReversedOrder ? buildTextSpan(t.bsms_scanner_screen.select) : buildTextSpan(''),
+              !isEnglishWordOrder ? buildTextSpan(t.bsms_scanner_screen.select) : buildTextSpan(''),
               buildTextSpan('\n'),
               buildStep('2. ', t.bsms_scanner_screen.coconut_vault.guide2_3, t.bsms_scanner_screen.select),
               buildTextSpan(t.bsms_scanner_screen.coconut_vault.guide2_4),

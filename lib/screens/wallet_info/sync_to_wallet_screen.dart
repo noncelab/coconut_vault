@@ -9,7 +9,7 @@ import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart'
 import 'package:coconut_vault/screens/wallet_info/account_number_settings_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/passphrase_check_bottom_sheet.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
-import 'package:coconut_vault/widgets/qr_with_copy_text.dart';
+import 'package:coconut_vault/widgets/qr_with_copy_text_screen.dart';
 import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/tooltip_description.dart';
 import 'package:flutter/foundation.dart';
@@ -52,21 +52,17 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
       child: Builder(
         builder: (providerContext) {
           final viewModel = providerContext.watch<WalletToSyncViewModel>();
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            color: CoconutColors.white,
-            child: QrWithCopyTextScreen(
-              title: t.sync_to_wallet_screen.title(name: _name),
-              tooltipDescription: _buildGuideTooltip(),
-              derivationPathSection:
-                  viewModel.derivationPath.isNotEmpty ? _buildDerivationPathSection(providerContext) : null,
-              qrData: viewModel.qrData.type == QrType.single ? viewModel.qrData.data : null,
-              qrViewDataHandler:
-                  viewModel.qrData.type != QrType.single
-                      ? BcUrQrViewHandler(viewModel.qrData.data, viewModel.urType)
-                      : null,
-              textData: viewModel.qrDataString,
-            ),
+          return QrWithCopyTextScreen(
+            title: t.sync_to_wallet_screen.title(name: _name),
+            tooltipDescription: _buildGuideTooltip(),
+            derivationPathSection:
+                viewModel.derivationPath.isNotEmpty ? _buildDerivationPathSection(providerContext) : null,
+            qrData: viewModel.qrData.type == QrType.single ? viewModel.qrData.data : null,
+            qrViewDataHandler:
+                viewModel.qrData.type != QrType.single
+                    ? BcUrQrViewHandler(viewModel.qrData.data, viewModel.urType)
+                    : null,
+            textData: viewModel.qrDataString,
           );
         },
       ),
@@ -84,7 +80,6 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
           children: _getGuideTextSpan(),
         ),
       ),
-      padding: const EdgeInsets.only(top: 4),
     );
   }
 
@@ -183,23 +178,23 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
   // MARK: - Guide Text Builders
 
   List<TextSpan> _getGuideTextSpan() {
-    final language = Provider.of<VisibilityProvider>(context, listen: false).language;
+    final isEnglishWordOrder = Provider.of<VisibilityProvider>(context, listen: false).isEnglishWordOrder;
     final title = widget.syncOption.title;
 
     if (title == t.watch_only_options.coconut_wallet) {
-      return _getCoconutGuide(language);
+      return _getCoconutGuide(isEnglishWordOrder);
     } else if (title == t.watch_only_options.sparrow) {
-      return _getSparrowGuide(language);
+      return _getSparrowGuide(isEnglishWordOrder);
     } else if (title == t.watch_only_options.nunchuk) {
-      return _getNunchukGuide(language);
+      return _getNunchukGuide(isEnglishWordOrder);
     } else if (title == t.watch_only_options.bluewallet) {
-      return _getBlueWalletGuide(language);
+      return _getBlueWalletGuide(isEnglishWordOrder);
     }
     return [];
   }
 
-  List<TextSpan> _getCoconutGuide(String language) {
-    if (language == 'en') {
+  List<TextSpan> _getCoconutGuide(bool isEnglishWordOrder) {
+    if (isEnglishWordOrder) {
       return [
         em(t.watch_only_options.coconut_wallet),
         const TextSpan(text: '\n1. '),
@@ -225,8 +220,8 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
     ];
   }
 
-  List<TextSpan> _getSparrowGuide(String language) {
-    if (language == 'en') {
+  List<TextSpan> _getSparrowGuide(bool isEnglishWordOrder) {
+    if (isEnglishWordOrder) {
       return [
         em(t.watch_only_options.sparrow),
         const TextSpan(text: '\n'),
@@ -258,10 +253,10 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
     ];
   }
 
-  List<TextSpan> _getNunchukGuide(String language) {
+  List<TextSpan> _getNunchukGuide(bool isEnglishWordOrder) {
     final guide = t.sync_to_wallet_screen.guide.nunchuk;
 
-    if (language == 'en') {
+    if (isEnglishWordOrder) {
       return [
         em(t.watch_only_options.nunchuk),
         const TextSpan(text: '\n1. '),
@@ -296,10 +291,10 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
     ];
   }
 
-  List<TextSpan> _getBlueWalletGuide(String language) {
+  List<TextSpan> _getBlueWalletGuide(bool isEnglishWordOrder) {
     final guide = t.sync_to_wallet_screen.guide.bluewallet;
 
-    if (language == 'en') {
+    if (isEnglishWordOrder) {
       return [
         em(t.watch_only_options.bluewallet),
         const TextSpan(text: '\n1. '),

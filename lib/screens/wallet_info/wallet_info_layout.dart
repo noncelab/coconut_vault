@@ -16,6 +16,7 @@ import 'package:coconut_vault/screens/common/select_external_wallet_bottom_sheet
 import 'package:coconut_vault/screens/wallet_info/multisig_menu/multisig_add_key_option_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/multisig_menu/multisig_signer_memo_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/name_and_icon_edit_bottom_sheet.dart';
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
@@ -49,6 +50,91 @@ class WalletInfoLayout extends StatefulWidget {
     this.isMultisig = false,
     this.shouldShowPassphraseVerifyMenu, // only SingleSig
   });
+
+  /// 지갑 삭제를 수행하고, 성공 시 [onSuccess]를 호출합니다.
+  /// 삭제 중 예외가 발생하면 삭제 실패 다이얼로그를 표시합니다.
+  static Future<void> deleteVault({
+    required BuildContext context,
+    required WalletInfoViewModel viewModel,
+    required VoidCallback onSuccess,
+    required bool isMounted,
+  }) async {
+    try {
+      await viewModel.deleteVault();
+    } catch (e) {
+      if (isMounted) {
+        showDeleteFailedDialog(context, errorMessage: e.toString());
+      }
+      return;
+    }
+    if (!isMounted) return;
+    onSuccess();
+  }
+
+  /// 이름/아이콘/색상 정보를 업데이트하고, 결과에 따라 토스트를 표시합니다.
+  /// 변경 사항이 없으면 false를 반환합니다.
+  static Future<bool> updateVaultInfo({
+    required BuildContext context,
+    required WalletInfoViewModel viewModel,
+    required int id,
+    required String newName,
+    required int newColorIndex,
+    required int newIconIndex,
+    required bool mounted,
+  }) async {
+    if (newName == viewModel.name && newIconIndex == viewModel.iconIndex && newColorIndex == viewModel.colorIndex) {
+      return false;
+    }
+
+    final hasChanged = await viewModel.updateVault(id, newName, newColorIndex, newIconIndex);
+
+    if (mounted) {
+      if (hasChanged) {
+        CoconutToast.showToast(context: context, text: t.toast.data_updated, isVisibleIcon: true);
+      } else {
+        CoconutToast.showToast(context: context, text: t.toast.name_already_used, isVisibleIcon: true);
+      }
+    }
+    return hasChanged;
+  }
+
+  /// 이름/아이콘/색상 편집 바텀 시트를 표시하고, 수정 시 [updateVaultInfo]를 호출합니다.
+  static void showNameAndIconEditBottomSheet({
+    required BuildContext context,
+    required WalletInfoViewModel viewModel,
+    required int id,
+    required bool mounted,
+  }) {
+    MyBottomSheet.showBottomSheet_90(
+      context: context,
+      child: NameAndIconEditBottomSheet(
+        name: viewModel.name,
+        iconIndex: viewModel.iconIndex,
+        colorIndex: viewModel.colorIndex,
+        onUpdate: (String newName, int newIconIndex, int newColorIndex) {
+          updateVaultInfo(
+            context: context,
+            viewModel: viewModel,
+            id: id,
+            newName: newName,
+            newColorIndex: newColorIndex,
+            newIconIndex: newIconIndex,
+            mounted: mounted,
+          );
+        },
+      ),
+    );
+  }
+
+  /// 지갑 삭제 실패 다이얼로그를 표시합니다.
+  static void showDeleteFailedDialog(BuildContext context, {String? errorMessage}) {
+    showInfoPopup(
+      context,
+      t.alert.delete_vault_failed.title,
+      errorMessage ?? t.alert.delete_vault_failed.description,
+      buttonText: t.OK,
+    );
+  }
 
   @override
   State<WalletInfoLayout> createState() => _WalletInfoLayoutState();
@@ -115,34 +201,12 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
   void _onNameChangeClicked() {
     _removeTooltip();
     final viewModel = context.read<WalletInfoViewModel>();
-    MyBottomSheet.showBottomSheet_90(
+    WalletInfoLayout.showNameAndIconEditBottomSheet(
       context: context,
-      child: NameAndIconEditBottomSheet(
-        name: viewModel.name,
-        iconIndex: viewModel.iconIndex,
-        colorIndex: viewModel.colorIndex,
-        onUpdate: (String newName, int newIconIndex, int newColorIndex) {
-          _updateVaultInfo(newName, newColorIndex, newIconIndex);
-        },
-      ),
+      viewModel: viewModel,
+      id: widget.id,
+      mounted: mounted,
     );
-  }
-
-  void _updateVaultInfo(String newName, int newColorIndex, int newIconIndex) async {
-    final viewModel = context.read<WalletInfoViewModel>();
-    if (newName == viewModel.name && newIconIndex == viewModel.iconIndex && newColorIndex == viewModel.colorIndex) {
-      return;
-    }
-
-    final hasChanged = await viewModel.updateVault(widget.id, newName, newColorIndex, newIconIndex);
-
-    if (mounted) {
-      if (hasChanged) {
-        CoconutToast.showToast(context: context, text: t.toast.data_updated, isVisibleIcon: true);
-        return;
-      }
-      CoconutToast.showToast(context: context, text: t.toast.name_already_used, isVisibleIcon: true);
-    }
   }
 
   Future<void> _authenticateWithBiometricOrPin(
@@ -182,7 +246,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
       context: context,
       builder: (BuildContext dialogContext) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.alert.delete_vault.title,
           description: t.alert.delete_vault.description,
@@ -228,21 +292,22 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
   }
 
   Future<void> _deleteVault(BuildContext context) async {
-    if (!mounted) return;
-
-    await context.read<WalletInfoViewModel>().deleteVault();
-
-    if (!mounted) return;
-
-    vibrateLight();
-
-    if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
-      Navigator.popUntil(context, (route) {
-        return route.settings.name == AppRoutes.vaultList;
-      });
-    } else {
-      Navigator.popUntil(context, (route) => route.isFirst);
-    }
+    final viewModel = context.read<WalletInfoViewModel>();
+    await WalletInfoLayout.deleteVault(
+      context: context,
+      viewModel: viewModel,
+      isMounted: mounted,
+      onSuccess: () {
+        vibrateLight();
+        if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
+          Navigator.popUntil(context, (route) {
+            return route.settings.name == AppRoutes.vaultList;
+          });
+        } else {
+          Navigator.popUntil(context, (route) => route.isFirst);
+        }
+      },
+    );
   }
 
   void _showMemoEditBottomSheet(MultisigSigner signer, int index) {
@@ -362,17 +427,23 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
     );
   }
 
-  void onAuthenticationComplete() {
-    context.read<WalletInfoViewModel>().deleteVault();
-    vibrateLight();
-    if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
-      Navigator.popUntil(context, (route) {
-        return route.settings.name == AppRoutes.vaultList;
-      });
-    } else {
-      Navigator.popUntil(context, (route) => route.isFirst);
-    }
-    return;
+  Future<void> onAuthenticationComplete() async {
+    final viewModel = context.read<WalletInfoViewModel>();
+    await WalletInfoLayout.deleteVault(
+      context: context,
+      viewModel: viewModel,
+      isMounted: mounted,
+      onSuccess: () {
+        vibrateLight();
+        if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
+          Navigator.popUntil(context, (route) {
+            return route.settings.name == AppRoutes.vaultList;
+          });
+        } else {
+          Navigator.popUntil(context, (route) => route.isFirst);
+        }
+      },
+    );
   }
 
   @override
@@ -544,7 +615,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                         text: TextSpan(
                           style: CoconutTypography.body2_14.setColor(const Color(0xFF4E83FF)),
                           children: [
-                            if (context.read<VisibilityProvider>().language == 'en') ...[
+                            if (context.read<VisibilityProvider>().isEnglishWordOrder) ...[
                               TextSpan(text: t.vault_settings.key),
                               TextSpan(
                                 text: '#${t.vault_settings.nth(index: idx + 1)}',

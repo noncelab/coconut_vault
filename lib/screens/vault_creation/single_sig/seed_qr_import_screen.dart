@@ -89,7 +89,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
   Future<void> _showCameraPermissionDialog() async {
     await showConfirmDialog(
       context,
-      context.read<VisibilityProvider>().language,
+      context.read<VisibilityProvider>().appLanguage.code,
       t.coconut_qr_scanner.camera_error.title,
       t.coconut_qr_scanner.camera_error.need_camera_permission,
       rightButtonText: t.go_to_settings,
@@ -215,7 +215,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
               context: context,
               builder: (context) {
                 return CoconutPopup(
-                  languageCode: context.read<VisibilityProvider>().language,
+                  languageCode: context.read<VisibilityProvider>().appLanguage.code,
                   title: t.seed_qr_import_screen.error_title,
                   description: '${t.seed_qr_import_screen.error_message}: $e',
                   onTapRight: () {
@@ -236,7 +236,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
           context: context,
           builder:
               (context) => CoconutPopup(
-                languageCode: context.read<VisibilityProvider>().language,
+                languageCode: context.read<VisibilityProvider>().appLanguage.code,
                 title: t.seed_qr_import_screen.format_error_title,
                 description: t.seed_qr_import_screen.format_error_message,
                 rightButtonText: t.close,

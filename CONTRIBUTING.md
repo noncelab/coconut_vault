@@ -8,8 +8,8 @@
 - Do not add new packages. Modifications that remove existing packages are welcome.</br>
   새로운 패키지를 추가하지 마세요. 기존 패키지를 제거할 수 있는 수정은 환영입니다.
 
-- Please set up Git hooks (`dart format .`):</br>
-  Git hooks를 설정해주세요:
+- Please set up Git hooks (`fvm dart format`):</br>
+  Git hooks를 설정해주세요. 커밋 전에 FVM으로 Dart 코드를 포맷팅합니다.
 
 ```bash
 # 프로젝트 디렉토리 이동 / Change to project directory
@@ -19,7 +19,7 @@ cd /path/your/coconut_vault
 git config --local core.hooksPath .git/hooks
 
 # pre-commit.sample 제거 / Remove pre-commit.sample
-rm -rf .git/hooks/pre-commit.sample
+rm -f .git/hooks/pre-commit.sample
 
 # pre-commit 생성 및 script 추가 / Create pre-commit and add script
 vi .git/hooks/pre-commit
@@ -32,13 +32,22 @@ chmod +x .git/hooks/pre-commit
 
 ```bash
 #!/bin/bash
-dart format . --set-exit-if-changed
+export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.pub-cache/bin:$HOME/fvm/default/bin:$PATH"
+
+if ! command -v fvm >/dev/null 2>&1; then
+  echo "fvm을 찾을 수 없습니다. FVM을 설치하거나 PATH를 확인해 주세요."
+  exit 1
+fi
+
+find . -name "*.dart" -not -path "./coconut_lib/*" -not -path "./.dart_tool/*" -not -path "./build/*" -print0 | xargs -0 fvm dart format --line-length 120 --set-exit-if-changed
 if [[ $? -ne 0 ]]; then
-  echo "Code formatting issue. Please fix and commit again."
+  echo "코드 포맷팅에 문제가 있습니다. 다시 커밋해 주세요."
   exit 1
 fi
 exit 0
 ```
+
+GitHub Desktop을 사용하는 경우에도 위와 같이 FVM 경로를 `PATH`에 추가해야 합니다. GUI 앱은 터미널과 다른 `PATH`로 Git hook을 실행할 수 있어 `xargs: fvm: No such file or directory` 오류가 발생할 수 있습니다.
 
 ---
 

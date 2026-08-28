@@ -24,6 +24,8 @@ OK: "OK"
 confirm: "Confirm"
 complete: "Complete"
 cancel: "Cancel"
+retry: "Retry"
+reset_failed: "Reset Failed"
 close: "Close"
 abort: "Abort"
 abort_sign: "Abort Signing"
@@ -138,6 +140,7 @@ connectivity_state:
 
 vault_home_screen:
   view_all_wallets: "View All Wallets"
+  view_details: "View Details"
   wallet_count: "$count Items"
   action_items:
     sign: "Sign"
@@ -149,6 +152,10 @@ vault_home_screen:
     wallet_added_but_not_favorite: "Wallet added. Please check in the View All Wallets screen."
   secure_zone_checking: "Checking if the secure zone is accessible..."
   secure_zone_check_failed: "Secure Data Check Failed"
+  taproot_older_to_after_backup_update_notice:
+    title: "Backup Updated"
+    description: "Some of the inheritance wallet backup data has changed.\nPlease update Coconut Wallet to the latest version as well.\nThe changes will be applied automatically when you update the wallet.\nThen back up the configuration data again."
+  taproot_older_to_after_backup_update_notice_action: "View Details"
     
 vault_list_screen:
   primary_wallet: "Primary Wallet"
@@ -163,6 +170,12 @@ vault_list_screen:
       delete_description: "Swipe left on a wallet to delete it."
       finish: "Finish Editing"
       unsaved_changes_confirm_exit: "You have unsaved changes.\nAre you sure you want to exit?"  
+  alert:
+    save_failed:
+      title: "Save Failed"
+      timing_delete: "An error occurred while deleting wallets."
+      timing_order: "An error occurred while changing wallet order."
+      timing_favorite: "An error occurred while updating favorites."
 
 select_vault_bottom_sheet:
   select_wallet: "Select Wallet"
@@ -652,7 +665,6 @@ taproot:
         title_1: "Your inheritance wallet"
         title_2: "is ready"
         description: "You can export wallet info\nfor another Vault or watch-only app"
-        exprot_wallet: "Export wallet"
     created_parent_wallet: "Parent wallet has been created"
     set_child_wallet: "Child wallet has been set"
     set_child_period: "Child wallet usage time has been set"
@@ -708,7 +720,7 @@ taproot:
         created_wallet: "Wallet created"
         exported_to_parent: "Exported to parent wallet"
         imported_inheritance_info: "Inheritance wallet info imported"
-        active_inheritance_wallet: "Inheritance wallet becomes active"
+        active_inheritance_wallet: "Inheritance condition becomes active"
         singlesig_description: "Single Signature Wallet | MFP: $mfp"
         taproot_description: "Taproot Wallet | MFP: $mfp"
         single_sig_wallet: "Single Parent Wallet"
@@ -768,8 +780,8 @@ taproot:
       taproot_wallet_with_mfp: "Taproot Wallet | MFP: $mfp"
       inheritance_wallet_added: "Beneficiary wallet added"
       inheritance_wallet_restored: "Inheritance wallet restored"
-      inheritance_wallet_activation: "Inheritance wallet will be activated"
-      inheritance_wallet_activated: "Inheritance wallet is active"
+      inheritance_wallet_activation: "Inheritance condition will be activated"
+      inheritance_wallet_activated: "Inheritance condition is active"
       active_after: "After ${dateTime}"
 mnemonic_coin_flip_screen:
   title: "Mnemonic Generation"
@@ -1103,6 +1115,17 @@ sync_to_wallet_screen:
       guide2_1: "Import Wallet"
       guide3_1: "Scan or import a file"
     common: "Scan the QR code below."
+wallet_info_screen:
+  taproot_older_to_after_backup_update_dialog:
+    title: "Inheritance Wallet Backup Information Update"
+    step1_title: "1. If you saved the previous inheritance wallet backup information elsewhere, update it with the new backup information."
+    step1_description: "Select 'Export Wallet' > Open 'Share with Another Vault' > Check and copy the updated backup information > Store it safely"
+    step2_title: "2. Please update Coconut Wallet to version $version or later."
+    step2_description: "The inheritance wallet information added to Coconut Wallet also needs to be up to date. Updating the app will apply the changes automatically."
+    why_title: "Q. Why was it changed?"
+    why_description: "Backup information is created according to agreed rules (Miniscript). The point at which an heir can use bitcoin should be represented with 'after', but it was incorrectly represented with 'older'.\n\nThis is an issue with the backup information representation and does not affect the current wallet's addresses, assets, or configured inheritance conditions. You can continue using the wallet as originally configured, and you do not need to create a new one."
+    confirm: "I understand"
+
 taproot_vault_detail_screen:
   signer: "I am the signer of this wallet. I can use this wallet regularly."
   cosigner: "I am a cosigner of this wallet. I must sign along with other cosigners to spend the assets."
@@ -1227,6 +1250,9 @@ alert:
   delete_vault:
     title: "Delete Vault"
     description: "If you don't backup mnemonic, your bitcoins will be lost forever.\nReally delete?"
+  delete_vault_failed:
+    title: "Failed to Delete Vault"
+    description: "Failed to delete the wallet. Please try again."
   forgot_password:
     title: "Forgot password?"
     description1: "Resetting password will delete all stored wallets. Still want to reset?"

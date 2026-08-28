@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/constants/app_language.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -15,8 +16,8 @@ class LanguageBottomSheet extends StatefulWidget {
 class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
   @override
   Widget build(BuildContext context) {
-    return Selector<VisibilityProvider, String>(
-      selector: (_, viewModel) => viewModel.language,
+    return Selector<VisibilityProvider, AppLanguage>(
+      selector: (_, viewModel) => viewModel.appLanguage,
       builder: (context, language, child) {
         return Scaffold(
           backgroundColor: CoconutColors.white,
@@ -28,39 +29,23 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
           ),
           body: Padding(
             padding: const EdgeInsets.only(left: Sizes.size16, right: Sizes.size16),
-            child: Column(
-              children: [
-                _buildUnitItem(t.language.korean, t.language.korean, language == 'kr', () async {
+            child: ListView.separated(
+              itemCount: AppLanguage.displayValues.length,
+              itemBuilder: (context, index) {
+                final lang = AppLanguage.displayValues[index];
+                return _buildUnitItem(lang.displayName, language == lang, () async {
                   // 언어 변경 전에 BottomSheet를 먼저 닫기
                   if (context.mounted) {
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();
                   }
-
-                  // 언어 변경은 BottomSheet가 닫힌 후에 실행
-                  final provider = context.read<VisibilityProvider>();
-                  await provider.changeLanguage('kr');
-                }),
-                Divider(color: CoconutColors.black.withValues(alpha: 0.12), height: 1),
-                _buildUnitItem(t.language.english, t.language.english, language == 'en', () async {
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  }
-                  // 언어 변경은 BottomSheet가 닫힌 후에 실행
-                  final provider = context.read<VisibilityProvider>();
-                  await provider.changeLanguage('en');
-                }),
-                Divider(color: CoconutColors.black.withValues(alpha: 0.12), height: 1),
-                _buildUnitItem(t.language.japanese, t.language.japanese, language == 'jp', () async {
-                  if (context.mounted) {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  }
-                  final provider = context.read<VisibilityProvider>();
-                  await provider.changeLanguage('jp');
-                }),
-              ],
+                  // 언어 변경은 BottomSheet가 닫힌 후에 실행 (UI 블락 방지)
+                  await context.read<VisibilityProvider>().changeLanguage(lang);
+                });
+              },
+              separatorBuilder: (context, index) {
+                return Divider(color: CoconutColors.black.withValues(alpha: 0.12), height: 1);
+              },
             ),
           ),
         );
@@ -68,7 +53,7 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
     );
   }
 
-  Widget _buildUnitItem(String title, String subtitle, bool isChecked, VoidCallback onPress) {
+  Widget _buildUnitItem(String title, bool isChecked, VoidCallback onPress) {
     return GestureDetector(
       onTap: onPress,
       child: Container(

@@ -97,7 +97,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       context: context,
       builder: (BuildContext context) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.errors.scan_error_title,
           description: message,
@@ -119,6 +119,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     if (_isProcessing) return;
     _isProcessing = true;
 
+    // ColdCard에서 최종화된 TXN을 받아온 경우 raw transaction으로 분류될 수 있습니다.
     bool isRawTxHexString = scannedData is String ? isRawTransactionHexString(scannedData) : false;
     String? psbtBase64;
     try {
@@ -198,15 +199,15 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
     final textStyleBold = CoconutTypography.body2_14_Bold.copyWith(height: 1.3, color: CoconutColors.black);
     final hwwType = widget.hardwareWalletType ?? HardwareWalletType.coconutVault;
 
-    final visibilityProvider = Provider.of<VisibilityProvider>(context, listen: false);
-    final isEnglish = visibilityProvider.language == 'en';
+    final visibilityProvider = context.read<VisibilityProvider>();
+    final isEnglishWordOrder = visibilityProvider.isEnglishWordOrder;
 
     switch (hwwType) {
       case HardwareWalletType.coconutVault:
         return [
           if (widget.isFromBottomButton) ...[
             TextSpan(text: t.psbt_scanner_screen.guide_import_psbt_0, style: textStyle),
-            if (!isEnglish) ...[TextSpan(text: t.export_qr, style: textStyleBold)],
+            if (!visibilityProvider.isEnglishWordOrder) ...[TextSpan(text: t.export_qr, style: textStyleBold)],
             TextSpan(text: t.psbt_scanner_screen.guide_import_psbt_1, style: textStyle),
           ] else ...[
             TextSpan(
@@ -220,7 +221,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         ];
       case HardwareWalletType.seedSigner:
         return [
-          if (isEnglish) ...[
+          if (isEnglishWordOrder) ...[
             TextSpan(text: '1. ', style: textStyle),
             TextSpan(text: t.psbt_scanner_screen.tooltip.confirm_sign_info, style: textStyle),
             const TextSpan(text: '\n'),
@@ -244,7 +245,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         ];
       case HardwareWalletType.jade:
         return [
-          if (isEnglish) ...[
+          if (isEnglishWordOrder) ...[
             TextSpan(text: '1. ', style: textStyle),
             TextSpan(text: t.psbt_scanner_screen.tooltip.confirm_sign_info, style: textStyle),
             const TextSpan(text: '\n'),
@@ -268,7 +269,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
         ];
       case HardwareWalletType.coldCard:
         return [
-          if (isEnglish) ...[
+          if (isEnglishWordOrder) ...[
             TextSpan(text: '1. ', style: textStyle),
             TextSpan(text: t.psbt_scanner_screen.tooltip.coldcard_text1, style: textStyle),
             TextSpan(text: t.psbt_scanner_screen.tooltip.press_the_en, style: textStyle),
@@ -327,8 +328,8 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
           TextSpan(text: '1. ', style: textStyle),
           TextSpan(text: t.psbt_scanner_screen.tooltip.krux_text1, style: textStyle),
           const TextSpan(text: '\n'),
-          TextSpan(text: '2. ', style: textStyle),
-          if (isEnglish) ...[
+          TextSpan(text: '2. ', style: textStyle), // isEnglishWordOrder 사용
+          if (visibilityProvider.isEnglishWordOrder) ...[
             TextSpan(text: t.psbt_scanner_screen.tooltip.krux_text3, style: textStyle),
             TextSpan(text: t.psbt_scanner_screen.tooltip.krux_text2, style: textStyleBold),
           ] else ...[

@@ -229,7 +229,7 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
       context: context,
       builder:
           (ctx) => CoconutPopup(
-            languageCode: ctx.read<VisibilityProvider>().language,
+            languageCode: ctx.read<VisibilityProvider>().appLanguage.code,
             title: title,
             description: description,
             onTapRight: () => Navigator.pop(ctx),

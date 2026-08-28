@@ -8,6 +8,7 @@ import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
+import 'package:coconut_vault/model/exception/wallet_data_exception.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
@@ -38,9 +39,17 @@ import 'package:coconut_vault/utils/print_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+class _ModeTransitionBackupEntry {
+  final int walletId;
+  final String originalKey;
+  final String backupKey;
+
+  const _ModeTransitionBackupEntry({required this.walletId, required this.originalKey, required this.backupKey});
+}
+
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletRepository {
-  static const int currentDataSchemeVersion = 2;
+  static const int currentVaultDataSchemaVersion = 3;
   static String vaultTypeField = VaultListItemBase.vaultTypeField;
 
   final SecureStorageRepositoryContract _storageService;
@@ -51,6 +60,18 @@ class WalletRepository {
   late bool _isSigningOnlyMode;
   late WalletPersistenceStrategy _strategy;
   get vaultList => _vaultList;
+
+  Set<int> get walletIdsWithUnacknowledgedOlderToAfterBackupUpdate {
+    return _sharedPrefs.getWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate();
+  }
+
+  Future<void> addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(int walletId) {
+    return _sharedPrefs.addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(walletId);
+  }
+
+  Future<void> removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(int walletId) {
+    return _sharedPrefs.removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(walletId);
+  }
 
   Completer<void>? _walletLoadCancelToken;
 
@@ -69,50 +90,111 @@ class WalletRepository {
             : SecureStorageStrategy(storageService: _storageService, secureZoneRepository: _secureZoneRepository);
   }
 
-  int? _getSavedDataSchemeVersion() {
+  int? _getSavedVaultDataSchemaVersion() {
     return _sharedPrefs.getInt(SharedPrefsKeys.kDataSchemeVersion);
-  }
-
-  Future<void> updateDataSchemeVersion(int version) async {
-    await _sharedPrefs.setInt(SharedPrefsKeys.kDataSchemeVersion, version);
   }
 
   Future<List<dynamic>?> loadVaultListJsonArrayString() async {
     String? jsonArrayString;
 
     jsonArrayString = _sharedPrefs.getString(SharedPrefsKeys.kVaultListField);
-    int? savedDataSchemeVersion = _getSavedDataSchemeVersion();
+    int? savedVaultDataSchemaVersion = _getSavedVaultDataSchemaVersion();
 
     printLongString('--> $jsonArrayString');
     if (jsonArrayString.isEmpty || jsonArrayString == '[]') {
       _vaultList = [];
 
-      if (savedDataSchemeVersion == null || currentDataSchemeVersion > savedDataSchemeVersion) {
-        await updateDataSchemeVersion(currentDataSchemeVersion);
+      if (savedVaultDataSchemaVersion == null || currentVaultDataSchemaVersion > savedVaultDataSchemaVersion) {
+        await DataSchemaMigrationRunner.persistCurrentVaultDataSchemaVersion(
+          _sharedPrefs,
+          currentVaultDataSchemaVersion,
+        );
       }
       return null;
     }
 
-    int previousDataSchemeVersion = savedDataSchemeVersion ?? 1;
-    if (previousDataSchemeVersion < currentDataSchemeVersion) {
+    int previousVaultDataSchemaVersion = savedVaultDataSchemaVersion ?? 1;
+    if (previousVaultDataSchemaVersion < currentVaultDataSchemaVersion) {
       // Invariant: signing-only mode never persists a vault list, so we can't reach here in that mode.
       assert(!_isSigningOnlyMode, 'migration must not run in signing-only mode');
-      Logger.log('✅ 마이그레이션 시작: $savedDataSchemeVersion to $currentDataSchemeVersion');
+      Logger.log('✅ 마이그레이션 시작: $savedVaultDataSchemaVersion to $currentVaultDataSchemaVersion');
       printLongString('--> jsonArrayString: $jsonArrayString');
       final migrationStrategy = SecureStorageStrategy();
       await DataSchemaMigrationRunner.runDataSchemaMigrations(
-        previousDataSchemeVersion,
-        currentDataSchemeVersion,
-        jsonDecode(jsonArrayString),
+        previousVaultDataSchemaVersion,
+        currentVaultDataSchemaVersion,
+        _decodeWalletListJson(jsonArrayString),
         _sharedPrefs,
         migrationStrategy.writePrivacyInfo,
-        _walletLoadCancelToken,
+        _getPrivacyInfo,
       );
-      await updateDataSchemeVersion(currentDataSchemeVersion);
       jsonArrayString = _sharedPrefs.getString(SharedPrefsKeys.kVaultListField);
     }
 
-    return jsonDecode(jsonArrayString);
+    final jsonList = _decodeWalletListJson(jsonArrayString);
+
+    return _repairPublicVaultList(jsonList);
+  }
+
+  List<dynamic> _decodeWalletListJson(String jsonString) {
+    try {
+      final decoded = jsonDecode(jsonString);
+      if (decoded is! List<dynamic>) {
+        throw const FormatException('Wallet list must be a JSON array.');
+      }
+      return decoded;
+    } on FormatException catch (e) {
+      throw InvalidWalletDataException('Invalid wallet list JSON.', cause: e);
+    } on TypeError catch (e) {
+      throw InvalidWalletDataException('Invalid wallet list structure.', cause: e);
+    }
+  }
+
+  /// public list의 각 지갑에 대응하는 privacy info를 확인합니다.
+  /// privacy info가 없는 항목만 orphan으로 판단해 public list에서 제거하고 저장합니다.
+  /// 저장소 접근 오류와 잘못된 데이터는 orphan으로 처리하지 않고 호출자에게 전파합니다.
+  Future<List<dynamic>> _repairPublicVaultList(List<dynamic> jsonList) async {
+    final cleanedList = <dynamic>[];
+    var hasOrphan = false;
+
+    for (final raw in jsonList) {
+      if (raw is! Map<String, dynamic>) {
+        throw const InvalidWalletDataException('Wallet entry must be a JSON object.');
+      }
+
+      final map = raw;
+      final vaultTypeName = map[VaultListItemBase.vaultTypeField];
+      final walletId = map['id'];
+      if (vaultTypeName is! String || walletId is! int) {
+        throw const InvalidWalletDataException('Wallet entry has invalid id or vault type.');
+      }
+
+      WalletType? walletType;
+      for (final type in WalletType.values) {
+        if (type.name == vaultTypeName) {
+          walletType = type;
+          break;
+        }
+      }
+      if (walletType == null) {
+        throw InvalidWalletDataException('Unknown wallet type: $vaultTypeName');
+      }
+
+      try {
+        await _getPrivacyInfo(walletId, walletType);
+        cleanedList.add(raw);
+      } on PrivacyInfoNotFoundException catch (e) {
+        hasOrphan = true;
+        Logger.log('Orphan wallet found in public list, removing: id=$walletId, reason=$e');
+      }
+    }
+
+    if (hasOrphan) {
+      final cleanedJsonString = jsonEncode(cleanedList);
+      await _sharedPrefs.setString(SharedPrefsKeys.kVaultListField, cleanedJsonString);
+    }
+
+    return cleanedList;
   }
 
   Future<void> loadAndEmitEachWallet(List<dynamic> jsonList, Function(VaultListItemBase wallet) emitOneItem) async {
@@ -303,18 +385,37 @@ class WalletRepository {
 
   Future<WalletPrivacyInfo> _getPrivacyInfo(int id, WalletType walletType) async {
     final key = WalletStorageKeys.privacyInfoKey(WalletStorageKeys.walletKey(id, walletType));
-    final String? privacyInfoString = await _storageService.read(key: key);
+    final String? privacyInfoString = await _storageService.readStrict(key: key);
     if (privacyInfoString == null) {
-      throw "Privacy data cannot be found";
+      throw PrivacyInfoNotFoundException(walletId: id, walletType: walletType);
     }
 
-    switch (walletType) {
-      case WalletType.singleSignature:
-        return SingleSigWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
-      case WalletType.multiSignature:
-        return MultisigWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
-      case WalletType.taproot:
-        return TaprootWalletPrivacyInfo.fromJson(jsonDecode(privacyInfoString));
+    try {
+      final json = jsonDecode(privacyInfoString);
+      if (json is! Map<String, dynamic>) {
+        throw const FormatException('Privacy info must be a JSON object.');
+      }
+
+      switch (walletType) {
+        case WalletType.singleSignature:
+          return SingleSigWalletPrivacyInfo.fromJson(json);
+        case WalletType.multiSignature:
+          return MultisigWalletPrivacyInfo.fromJson(json);
+        case WalletType.taproot:
+          return TaprootWalletPrivacyInfo.fromJson(json);
+      }
+    } on FormatException catch (e) {
+      throw InvalidWalletDataException('Invalid privacy info for wallet id=$id, type=${walletType.name}', cause: e);
+    } on TypeError catch (e) {
+      throw InvalidWalletDataException(
+        'Invalid privacy info structure for wallet id=$id, type=${walletType.name}',
+        cause: e,
+      );
+    } on ArgumentError catch (e) {
+      throw InvalidWalletDataException(
+        'Invalid privacy info values for wallet id=$id, type=${walletType.name}',
+        cause: e,
+      );
     }
   }
 
@@ -401,33 +502,47 @@ class WalletRepository {
 
     final index = vaults.indexWhere((item) => item.id == id);
     if (index == -1) {
-      // 이미 삭제되었거나 존재하지 않음
+      // 중복 호출 등으로 이미 삭제된 경우. no-op로 처리하되 로그로 추적 가능하게.
+      Logger.log('deleteWallet: id=$id not found (already deleted or duplicate call)');
       return false;
     }
     final vault = vaults[index];
     final vaultType = vault.vaultType;
-    WalletLinker(vaults).unlinkOnDelete(vault);
-    vaults.removeAt(index);
 
-    await _strategy.mutate(execute: (ops) => ops.deleteWalletData(id, vaultType), snapshot: () => vaults);
+    // 원본 _vaultList는 건드리지 않고, 새로운 상태를 별도로 준비한다.
+    final newVaults = List<VaultListItemBase>.from(vaults);
+    WalletLinker(newVaults).unlinkOnDelete(vault);
+    newVaults.removeAt(index);
+
+    await _strategy.mutate(
+      execute: (ops) => ops.deleteWalletData(id, vaultType),
+      snapshot: () => newVaults,
+      ignorePublicListSaveFailure: true,
+    );
+
+    // 저장이 성공한 후에만 메모리 상태를 교체한다.
+    _vaultList = newVaults;
+    await _sharedPrefs.removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(id);
 
     return true;
   }
 
-  /// 서명 전용 모드 - 모든 지갑 삭제
-  Future<void> deleteWallets() async {
+  /// 서명 전용 모드로 전환 시 모든 지갑 삭제
+  Future<void> _deleteWallets() async {
     final vaults = _requireLoaded();
 
     final toDelete = List.of(vaults);
-    vaults.clear();
     await _strategy.mutate(
       execute: (ops) async {
         for (final vault in toDelete) {
           await ops.deleteWalletData(vault.id, vault.vaultType);
         }
       },
-      snapshot: () => vaults,
+      snapshot: () => const <VaultListItemBase>[],
     );
+
+    _vaultList = [];
+    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kWalletIdsWithUnacknowledgedOlderToAfterBackupUpdate);
   }
 
   Future<bool> updateWallet(int id, String newName, int colorIndex, int iconIndex) async {
@@ -511,10 +626,93 @@ class WalletRepository {
       await _changeToSecureStorageMode();
       _strategy = SecureStorageStrategy(storageService: _storageService, secureZoneRepository: _secureZoneRepository);
     } else {
-      await deleteWallets();
+      await _deleteWallets();
       _strategy = SigningOnlyStrategy(storageService: _storageService, secureZoneRepository: _secureZoneRepository);
     }
     _isSigningOnlyMode = isSigningOnlyMode;
+  }
+
+  Future<List<String>> _secureStorageKeysForVault(VaultListItemBase vault) async {
+    final keys = <String>{};
+    if (vault is SingleSigVaultListItem) {
+      keys.add(WalletStorageKeys.walletKey(vault.id, WalletType.singleSignature));
+    } else if (vault is TaprootVaultListItem) {
+      keys.add(WalletStorageKeys.taprootSeedIndexKey(vault.id));
+      final indexKeys = await _readTaprootSeedIndex(vault.id);
+      keys.addAll(indexKeys);
+      for (final seedInfo in vault.keyPathSeedInfos) {
+        keys.add(WalletStorageKeys.taprootSeedKey(vault.id, seedInfo.extendedPublicKey));
+      }
+      for (final scriptPath in vault.scriptPathSeedInfos) {
+        for (final seedInfo in scriptPath.seedInfos) {
+          keys.add(WalletStorageKeys.taprootSeedKey(vault.id, seedInfo.extendedPublicKey));
+        }
+      }
+    }
+    return keys.toList();
+  }
+
+  Future<List<String>> _readTaprootSeedIndex(int walletId) async {
+    final indexJson = await _storageService.read(key: WalletStorageKeys.taprootSeedIndexKey(walletId));
+    if (indexJson == null) return [];
+    try {
+      return List<String>.from(jsonDecode(indexJson));
+    } catch (_) {
+      return [];
+    }
+  }
+
+  Future<void> _cleanupModeTransitionMarkerAndBackups() async {
+    final allKeys = await _storageService.getAllKeys();
+    const backupPrefix = WalletStorageKeys.appModeTransitionBackupPrefix;
+    final backupKeys = allKeys.where((k) => k.startsWith(backupPrefix)).toList();
+    for (final key in backupKeys) {
+      await _storageService.delete(key: key);
+    }
+    await _sharedPrefs.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultModeTransitionMarker);
+  }
+
+  Future<void> _restoreVaultFromModeTransitionBackup(
+    VaultListItemBase vault,
+    List<_ModeTransitionBackupEntry> backupEntries,
+    SecureStorageStrategy secureStrategy,
+  ) async {
+    final walletBackupEntries = backupEntries.where((e) => e.walletId == vault.id).toList();
+
+    if (vault is SingleSigVaultListItem) {
+      final secretEntry = walletBackupEntries.firstWhere(
+        (e) => e.originalKey == WalletStorageKeys.walletKey(vault.id, WalletType.singleSignature),
+      );
+      final ciphertext = await _storageService.read(key: secretEntry.backupKey);
+      if (ciphertext != null) {
+        await secureStrategy.revertSinglesigModeTransition(id: vault.id, secretCiphertext: ciphertext);
+      }
+      return;
+    }
+
+    if (vault is TaprootVaultListItem) {
+      final seedCiphertexts = <String, String>{};
+      String? seedIndexJson;
+      for (final entry in walletBackupEntries) {
+        final value = await _storageService.read(key: entry.backupKey);
+        if (value == null) continue;
+        if (entry.originalKey == WalletStorageKeys.taprootSeedIndexKey(vault.id)) {
+          seedIndexJson = value;
+        } else {
+          seedCiphertexts[entry.originalKey] = value;
+        }
+      }
+      await secureStrategy.revertTaprootModeTransition(
+        id: vault.id,
+        seedCiphertexts: seedCiphertexts,
+        seedIndexJson: seedIndexJson ?? '[]',
+      );
+      return;
+    }
+
+    if (vault is MultisigVaultListItem) {
+      await secureStrategy.revertMultisigModeTransition(id: vault.id);
+    }
   }
 
   Future<void> _changeToSecureStorageMode() async {
@@ -527,17 +725,59 @@ class WalletRepository {
       storageService: _storageService,
       secureZoneRepository: _secureZoneRepository,
     );
-    await secureStrategy.mutate(
-      execute: (ops) async {
-        for (final vault in _vaultList!) {
-          if (vault is MultisigVaultListItem) {
-            await ops.persistMultisigAdd(id: vault.id, item: vault);
-            continue;
-          }
 
-          if (vault is TaprootVaultListItem) {
-            final seedInfosForAdd = <TaprootSeedInfoForSave>[];
-            for (final seedInfo in vault.keyPathSeedInfos) {
+    // 이전에 중단된 전환의 잔여물이 있으면 먼저 정리합니다.
+    await _cleanupModeTransitionMarkerAndBackups();
+
+    final backupEntries = <_ModeTransitionBackupEntry>[];
+
+    // 1. 모든 지갑의 기존 암호문을 백업 키에 복사합니다.
+    for (final vault in _vaultList!) {
+      final keys = await _secureStorageKeysForVault(vault);
+      for (final key in keys) {
+        final value = await _storageService.read(key: key);
+        if (value != null) {
+          final backupKey = WalletStorageKeys.appModeTransitionBackupKey(key);
+          await _storageService.write(key: backupKey, value: value);
+          backupEntries.add(_ModeTransitionBackupEntry(walletId: vault.id, originalKey: key, backupKey: backupKey));
+        }
+      }
+    }
+
+    // 2. 마커를 기록합니다.
+    await _sharedPrefs.setString(
+      SharedPrefsKeys.kVaultModeTransitionMarker,
+      jsonEncode({
+        'status': 'converting',
+        'direction': 'signingOnlyToSecureStorage',
+        'walletIds': _vaultList!.map((w) => w.id).toList(),
+      }),
+    );
+
+    final startedIds = <int>[];
+
+    try {
+      // 3. 순차적으로 복호화 → passphrase 제거 → 재암호화 → 덮어쓰기
+      for (final vault in _vaultList!) {
+        startedIds.add(vault.id);
+        if (vault is MultisigVaultListItem) {
+          await secureStrategy.convertMultisigForModeTransition(id: vault.id, item: vault);
+        } else if (vault is TaprootVaultListItem) {
+          final seedInfosForAdd = <TaprootSeedInfoForSave>[];
+          for (final seedInfo in vault.keyPathSeedInfos) {
+            final seed = await getTaprootSeedInSigningOnlyMode(
+              vault.id,
+              TaprootSeedKeyIdentifier(extendedPublicKey: seedInfo.extendedPublicKey),
+            );
+            seedInfosForAdd.add(
+              TaprootSeedInfoForSave(
+                secretPassphrasePair: (secret: seed.mnemonic, passphrase: null),
+                extendedPublicKey: seedInfo.extendedPublicKey,
+              ),
+            );
+          }
+          for (final scriptPathSeedInfo in vault.scriptPathSeedInfos) {
+            for (final seedInfo in scriptPathSeedInfo.seedInfos) {
               final seed = await getTaprootSeedInSigningOnlyMode(
                 vault.id,
                 TaprootSeedKeyIdentifier(extendedPublicKey: seedInfo.extendedPublicKey),
@@ -549,37 +789,36 @@ class WalletRepository {
                 ),
               );
             }
-            for (final scriptPathSeedInfo in vault.scriptPathSeedInfos) {
-              for (final seedInfo in scriptPathSeedInfo.seedInfos) {
-                final seed = await getTaprootSeedInSigningOnlyMode(
-                  vault.id,
-                  TaprootSeedKeyIdentifier(extendedPublicKey: seedInfo.extendedPublicKey),
-                );
-                seedInfosForAdd.add(
-                  TaprootSeedInfoForSave(
-                    secretPassphrasePair: (secret: seed.mnemonic, passphrase: null),
-                    extendedPublicKey: seedInfo.extendedPublicKey,
-                  ),
-                );
-              }
-            }
-
-            await ops.persistTaprootAdd(id: vault.id, item: vault, seedInfosForAdd: seedInfosForAdd);
-            continue;
           }
-
-          final singleSigWallet = vault as SingleSigVaultListItem;
+          await secureStrategy.convertTaprootForModeTransition(
+            id: vault.id,
+            item: vault,
+            seedInfosForAdd: seedInfosForAdd,
+          );
+        } else if (vault is SingleSigVaultListItem) {
           final Seed seed = await getSingleSigSeedInSigningOnlyMode(vault.id);
-          await ops.persistSinglesigAdd(
+          await secureStrategy.convertSinglesigForModeTransition(
             id: vault.id,
             secret: seed.mnemonic,
             passphrase: seed.passphrase.isEmpty ? null : seed.passphrase,
-            item: singleSigWallet,
+            item: vault,
           );
         }
-      },
-      snapshot: () => _vaultList!,
-    );
+      }
+
+      // 4. 공개 vault list 저장
+      await secureStrategy.savePublicVaultList(_vaultList!);
+    } catch (e) {
+      // 5. 하나라도 실패하면 즉시 전체 롤백 (시작한 모든 지갑을 원상복구)
+      for (final id in startedIds) {
+        final vault = _vaultList!.firstWhere((v) => v.id == id);
+        await _restoreVaultFromModeTransitionBackup(vault, backupEntries, secureStrategy);
+      }
+      rethrow;
+    } finally {
+      // 6. 백업 키 및 마커 삭제
+      await _cleanupModeTransitionMarkerAndBackups();
+    }
   }
 
   Future<void> updateSingleSigAccountVault(int id, int newAccountIndex, {Uint8List? inputPassphrase}) async {
