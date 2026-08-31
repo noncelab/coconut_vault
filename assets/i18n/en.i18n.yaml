@@ -137,6 +137,7 @@ connectivity_state:
   disabled: "Disabled"
   active: "Active"
   inactive: "Inactive"
+  unknown: "Unknown"
 
 vault_home_screen:
   view_all_wallets: "View All Wallets"
@@ -218,6 +219,10 @@ jail_break_detection_screen:
   continue_anyway: "Continue Anyway"
   delete_data: "Delete Data"
 
+bluetooth_permission_dialog:
+  title: "Bluetooth Permission"
+  description: "Coconut Vault suspends app use when the device is connected to a network or has Bluetooth turned on, to reduce the risk of key information being exposed through external communication. Bluetooth access permission is required to check whether Bluetooth is turned on."
+  request_button: "Request Permission"
 ios_bluetooth_auth_notification_screen:
   allow_permission: "Please allow Bluetooth access to check your connection status."
   guide1: "Bluetooth permission is required to verify that your device is not connected to other devices"
@@ -506,6 +511,7 @@ welcome_screen:
   screen_3_description: "Let's start Coconut Vault"
   screen_3_button: "Start"
   setting_guide: "View setting guide ⓘ"
+  bluetooth_manual_check: "I've manually confirmed Bluetooth is turned off"
   bottom_sheet_title: "Setting Guide"
   recommendation: "We recommend using a dedicated offline device exclusively for the Coconut Vault app"
   airplane_mode_on: 

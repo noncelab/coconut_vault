@@ -4,10 +4,15 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/utils/app_settings_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/check_list.dart';
+import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:permission_handler/permission_handler.dart' hide openAppSettings;
 import 'package:provider/provider.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -46,7 +51,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     _connectivityProvider = Provider.of<ConnectivityProvider>(context, listen: false);
 
     _initScreenItems();
-    _initConnectionState();
   }
 
   void _initScreenItems() {
@@ -56,11 +60,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         descriptionText: t.welcome_screen.screen_1_description,
         imagePath: 'assets/png/welcome1.png',
         buttonText: t.welcome_screen.screen_1_button,
-        onButtonPressed: () {
-          setState(() {
-            _currentScreenIndex = 1;
-          });
-        },
+        onButtonPressed: () => _handleEnvironmentCheckPressed(),
       ),
       ScreenItem(
         title: t.welcome_screen.screen_2_title,
@@ -84,11 +84,62 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     ]);
   }
 
-  Future<void> _initConnectionState() async {
+  /// '환경 확인하기' 버튼 탭 시 호출
+  /// iOS는 블루투스 권한 상태에 따라 설명 alert을 먼저 보여준 뒤 권한을 요청하고,
+  /// Android는 시스템 차원의 사전 권한 요청이 없으므로 바로 모니터링을 시작함.
+  Future<void> _handleEnvironmentCheckPressed() async {
+    if (Platform.isIOS) {
+      await _resolveIosBluetoothPermission();
+    } else {
+      await _startBluetoothMonitoring();
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _currentScreenIndex = 1;
+    });
+  }
+
+  Future<void> _startBluetoothMonitoring() async {
     await _connectivityProvider.setConnectActivity(bluetooth: true, network: false, developerMode: false);
 
     // 상태 값이 설정될 때까지 잠시 대기
     await Future.delayed(const Duration(milliseconds: 100));
+  }
+
+  /// permission_handler의 상태 조회는 iOS 시스템 권한 팝업을 유발하지 않으므로,
+  /// 이 호출만으로는 사용자에게 어떤 프롬프트도 노출되지 않습니다.
+  Future<void> _resolveIosBluetoothPermission() async {
+    final status = await Permission.bluetooth.status;
+
+    if (status.isGranted) {
+      await _startBluetoothMonitoring();
+      return;
+    }
+
+    final isPermanentlyDenied = status.isPermanentlyDenied || status.isRestricted;
+    if (!mounted) return;
+
+    await showConfirmDialog(
+      context,
+      context.read<VisibilityProvider>().appLanguage.code,
+      t.bluetooth_permission_dialog.title,
+      t.bluetooth_permission_dialog.description,
+      leftButtonText: t.cancel,
+      rightButtonText: isPermanentlyDenied ? t.go_to_settings : t.bluetooth_permission_dialog.request_button,
+      onTapLeft: () => Navigator.pop(context),
+      onTapRight: () async {
+        if (isPermanentlyDenied) {
+          openAppSettings();
+          return;
+        }
+
+        Navigator.pop(context);
+        // 아직 한 번도 요청한 적 없는 상태(notDetermined)에서만 시스템 권한 팝업이 뜹니다.
+        await Permission.bluetooth.request();
+        await _startBluetoothMonitoring();
+      },
+    );
   }
 
   @override
@@ -174,42 +225,66 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         return Consumer<ConnectivityProvider>(
           builder: (context, provider, child) {
             final isNetworkOn = provider.isNetworkOn ?? false;
-            final isBluetoothOn = provider.isBluetoothOn ?? false;
             final isDeveloperModeOn = provider.isDeveloperModeOn ?? false;
+            // iOS에서 블루투스 권한이 거부됐거나(unauthorized),
+            // 사용자가 권한 요청 자체를 취소해서 확인되지 않은 경우(isBluetoothOn == null)
+            // 사용자가 직접 확인했음을 체크하도록 요구함.
+            final needsBluetoothManualCheck =
+                Platform.isIOS && (provider.isBluetoothUnauthorized == true || provider.isBluetoothOn == null);
+            final isBluetoothOn = provider.isBluetoothOn ?? false;
 
             return Align(
               alignment: Alignment.topCenter,
               child: Padding(
                 padding: const EdgeInsets.all(32.0),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 24),
-                  decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(10)),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      _getConnectionState(
-                        t.welcome_screen.network,
-                        isNetworkOn,
-                        isNetworkOn ? t.connectivity_state.connected : t.connectivity_state.disconnected,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(10)),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          _getConnectionState(
+                            t.welcome_screen.network,
+                            isNetworkOn,
+                            isNetworkOn ? t.connectivity_state.connected : t.connectivity_state.disconnected,
+                          ),
+                          CoconutLayout.spacing_300h,
+                          needsBluetoothManualCheck
+                              ? _getConnectionState(t.welcome_screen.bluetooth, true, t.connectivity_state.unknown)
+                              : _getConnectionState(
+                                t.welcome_screen.bluetooth,
+                                isBluetoothOn,
+                                isBluetoothOn ? t.connectivity_state.enabled : t.connectivity_state.disabled,
+                              ),
+                          if (Platform.isAndroid) ...[
+                            CoconutLayout.spacing_300h,
+                            _getConnectionState(
+                              t.welcome_screen.developer_option,
+                              isDeveloperModeOn,
+                              isDeveloperModeOn ? t.connectivity_state.active : t.connectivity_state.inactive,
+                            ),
+                          ],
+                        ],
                       ),
+                    ),
+                    if (needsBluetoothManualCheck) ...[
                       CoconutLayout.spacing_300h,
-                      _getConnectionState(
-                        t.welcome_screen.bluetooth,
-                        isBluetoothOn,
-                        isBluetoothOn ? t.connectivity_state.enabled : t.connectivity_state.disabled,
-                      ),
-                      if (Platform.isAndroid) ...[
-                        CoconutLayout.spacing_300h,
-                        _getConnectionState(
-                          t.welcome_screen.developer_option,
-                          isDeveloperModeOn,
-                          isDeveloperModeOn ? t.connectivity_state.active : t.connectivity_state.inactive,
+                      ChecklistTile(
+                        item: ChecklistItem(
+                          title: t.welcome_screen.bluetooth_manual_check,
+                          isChecked: provider.isBluetoothManuallyConfirmedOff,
                         ),
-                      ],
+                        onChanged: (value) {
+                          _connectivityProvider.setBluetoothManuallyConfirmedOff(value ?? false);
+                        },
+                      ),
                     ],
-                  ),
+                  ],
                 ),
               ),
             );
@@ -272,7 +347,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         builder: (context, provider, child) {
           final isActive =
               provider.isNetworkOn == false &&
-              provider.isBluetoothOn == false &&
+              provider.isBluetoothSafe &&
               (!Platform.isAndroid || provider.isDeveloperModeOn == false);
 
           return FixedBottomButton(
