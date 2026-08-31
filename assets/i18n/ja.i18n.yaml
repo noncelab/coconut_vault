@@ -137,6 +137,7 @@ connectivity_state:
   disabled: "無効"
   active: "アクティブ"
   inactive: "非アクティブ"
+  unknown: "確認不可"
 
 vault_home_screen:
   view_all_wallets: "ウォレットをすべて表示"
@@ -219,6 +220,10 @@ jail_break_detection_screen:
   continue_anyway: "それでも続けます"
   delete_data: "データ削除"
 
+bluetooth_permission_dialog:
+  title: "Bluetooth 権限について"
+  description: "Coconut Vault は、デバイスがネットワークに接続されている場合や Bluetooth がオンになっている場合、外部通信による鍵情報の漏洩リスクを減らすためにアプリの使用を停止します。Bluetooth がオンになっているかを確認するために、Bluetooth へのアクセス許可が必要です。"
+  request_button: "権限をリクエスト"
 ios_bluetooth_auth_notification_screen:
   allow_permission: "接続状況を確認するために、Bluetooth へのアクセスを許可してください。"
   guide1: "他のデバイスに接続されていないことを確認するために、Bluetooth の許可が必要です。"
@@ -508,6 +513,7 @@ welcome_screen:
   screen_3_description: "安全な使用のため\nネットワークとBluetoothをOFFにしてください"
   screen_3_button: "開始"
   setting_guide: "設定ガイドを表示 ⓘ"
+  bluetooth_manual_check: "Bluetooth がオフになっていることを直接確認しました"
   bottom_sheet_title: "設定ガイド"
   recommendation: "ココナッツボルトアプリ専用で、空の機械の使用をお勧めします"
   airplane_mode_on: 

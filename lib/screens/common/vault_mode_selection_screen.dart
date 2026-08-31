@@ -141,7 +141,7 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
                 builder: (context, connectivityProvider, child) {
                   final isConnectivitySafe =
                       connectivityProvider.isNetworkOn == false &&
-                      connectivityProvider.isBluetoothOn == false &&
+                      connectivityProvider.isBluetoothSafe &&
                       (!Platform.isAndroid || connectivityProvider.isDeveloperModeOn == false);
 
                   final isModeSelected =
