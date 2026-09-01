@@ -13,6 +13,7 @@ class AssignablePillButton extends StatefulWidget {
   final double? height;
   final bool useAssigningAnimation;
   final bool isDisabled;
+  final int animationTrigger;
 
   const AssignablePillButton({
     super.key,
@@ -25,6 +26,7 @@ class AssignablePillButton extends StatefulWidget {
     this.height = 72,
     this.useAssigningAnimation = true,
     this.isDisabled = false,
+    this.animationTrigger = 0,
   });
 
   @override
@@ -81,7 +83,9 @@ class _AssignablePillButtonState extends State<AssignablePillButton> with Single
     }
 
     if (widget.useAssigningAnimation && _controller != null) {
-      if (widget.isAssigned != oldWidget.isAssigned) {
+      if (widget.isAssigned && widget.animationTrigger != oldWidget.animationTrigger) {
+        _controller!.forward(from: 0);
+      } else if (widget.isAssigned != oldWidget.isAssigned) {
         if (widget.isAssigned) {
           _controller!.forward();
         } else {
