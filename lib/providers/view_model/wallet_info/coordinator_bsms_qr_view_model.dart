@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/enums/multisig_export_format.dart';
 import 'package:coconut_vault/model/multisig/multisig_import_detail.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -66,21 +67,21 @@ class CoordinatorBsmsQrViewModel extends ChangeNotifier {
     String keystoneUr = _encodeToUrBytes(keystoneText);
 
     walletQrDataMap = {
-      'BSMS': bsmsUr,
-      'BlueWallet Vault Multisig': _generateBlueWalletFormat(vaultListItem),
-      'Coldcard Multisig': coldcardQr,
-      'Keystone Multisig': keystoneUr,
-      'Output Descriptor': outputDescriptor,
-      'Specter Desktop': _generateSpecterFormat(vaultListItem, outputDescriptor),
+      MultisigExportFormat.bsms.key: bsmsUr,
+      MultisigExportFormat.blueWallet.key: _generateBlueWalletFormat(vaultListItem),
+      MultisigExportFormat.coldcard.key: coldcardQr,
+      MultisigExportFormat.keystone.key: keystoneUr,
+      MultisigExportFormat.descriptor.key: outputDescriptor,
+      MultisigExportFormat.specter.key: _generateSpecterFormat(vaultListItem, outputDescriptor),
     };
 
     walletTextDataMap = {
-      'BSMS': bsmsText,
-      'BlueWallet Vault Multisig': walletQrDataMap['BlueWallet Vault Multisig']!,
-      'Coldcard Multisig': coldcardText,
-      'Keystone Multisig': keystoneText,
-      'Output Descriptor': outputDescriptor,
-      'Specter Desktop': walletQrDataMap['Specter Desktop']!,
+      MultisigExportFormat.bsms.key: bsmsText,
+      MultisigExportFormat.blueWallet.key: walletQrDataMap[MultisigExportFormat.blueWallet.key]!,
+      MultisigExportFormat.coldcard.key: coldcardText,
+      MultisigExportFormat.keystone.key: keystoneText,
+      MultisigExportFormat.descriptor.key: outputDescriptor,
+      MultisigExportFormat.specter.key: walletQrDataMap[MultisigExportFormat.specter.key]!,
     };
   }
 

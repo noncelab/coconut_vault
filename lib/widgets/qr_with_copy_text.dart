@@ -1,4 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/enums/multisig_export_format.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
@@ -44,15 +45,10 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
 
   bool _isPulldownOpen = false;
 
-  String _selectedKey = "BSMS";
+  String _selectedKey = MultisigExportFormat.bsms.key;
 
   final Map<String, String> _optionMap = {
-    "BSMS": "BSMS",
-    "BlueWallet Vault Multisig": "BlueWallet",
-    "Coldcard Multisig": "Coldcard",
-    "Keystone Multisig": "Keystone",
-    "Output Descriptor": "Descriptor",
-    "Specter Desktop": "Specter",
+    for (final format in MultisigExportFormat.values) format.key: format.displayTitle,
   };
 
   List<String> get _optionTitles => _optionMap.keys.toList();
@@ -158,7 +154,7 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
     final qrWidth = _calcQrWidth(context);
     final displayQrData = _currentQrData;
     final displayTextData = _currentTextData;
-    final isKeystoneMultisig = widget.showPulldownMenu && _selectedKey == 'Keystone Multisig';
+    final isKeystoneMultisig = widget.showPulldownMenu && _selectedKey == MultisigExportFormat.keystone.key;
     final constrainedQrHandler =
         isKeystoneMultisig ? BcUrQrViewHandler(displayTextData, UrType.bytes, maxFragmentLen: 50) : null;
 
