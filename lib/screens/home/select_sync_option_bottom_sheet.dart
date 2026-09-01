@@ -22,7 +22,7 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
       title: t.watch_only_options.coconut_wallet,
       iconPath:
           NetworkType.currentNetworkType.isTestnet
-              ? "assets/png/wallet_logo_regtest.png"
+              ? "assets/svg/coconut-regtest.svg"
               : "assets/svg/watch-only-icons/coconut.svg",
       format: WalletExportFormatEnum.coconut,
     ),
@@ -81,6 +81,9 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
   }
 
   Widget _buildSyncOptionItem(SyncOption option) {
+    final isCoconutWalletRegtest =
+        option.format == WalletExportFormatEnum.coconut && NetworkType.currentNetworkType.isTestnet;
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: ShrinkAnimationButton(
@@ -91,16 +94,16 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
           child: Column(
             children: [
-              if (option.iconPath.endsWith(".svg"))
-                SvgPicture.asset(option.iconPath)
-              else
+              if (isCoconutWalletRegtest)
                 Container(
-                  width: 35,
-                  height: 35,
-                  padding: const EdgeInsets.all(8),
+                  width: 36,
+                  height: 36,
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(color: CoconutColors.gray800, borderRadius: BorderRadius.circular(12)),
-                  child: Image.asset(option.iconPath),
-                ),
+                  child: SvgPicture.asset(option.iconPath),
+                )
+              else
+                SvgPicture.asset(option.iconPath),
               CoconutLayout.spacing_200h,
               MediaQuery(
                 data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),

@@ -117,9 +117,6 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/png/splash_logo_mainnet.png
-    - assets/png/splash_logo_regtest.png
-    - assets/png/wallet_logo_regtest.png
     - assets/svg/wallet-icons/bank.svg
     - assets/svg/wallet-icons/bitcoin-circle.svg
     - assets/svg/wallet-icons/bitcoin.svg
@@ -186,8 +183,7 @@ flutter:
     - assets/png/discord-full-logo.png
     - assets/png/discord-logo.png
     - assets/png/mail-icon.png
-    - assets/png/browser_ko.png
-    - assets/png/browser_en.png
+    - assets/svg/browser-mockup.svg
     - assets/png/state/bluetooth_on.png
     - assets/png/state/wifi_on.png
     - assets/png/state/developer_on.png
@@ -239,8 +235,6 @@ flutter:
     - assets/svg/coconut-mainnet.svg
     - assets/svg/coconut-regtest.svg
     - assets/png/password-required.png
-    - assets/png/browser_ko.png
-    - assets/png/browser_en.png
     - assets/svg/bluetooth.svg
     - assets/png/keychain-inaccessible.png
     - assets/svg/warning-hexagon.svg
@@ -253,6 +247,7 @@ flutter:
     - assets/svg/multisig-category/high-security.svg
     - assets/svg/add-circle-outlined.svg
     - assets/svg/coconut-vault.svg
+    - assets/svg/coconut-vault-regtest.svg
     - assets/svg/keystone.svg
     - assets/svg/seed-signer.svg
     - assets/svg/jade.svg

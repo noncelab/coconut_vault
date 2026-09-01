@@ -3,10 +3,10 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/constants/external_links.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
-import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/uri_launcher.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 enum TutorialScreenStatus {
@@ -159,11 +159,6 @@ class _TutorialScreenState extends State<TutorialScreen> {
   }
 
   Widget _browserImage() {
-    return Consumer<VisibilityProvider>(
-      builder: (context, visibilityProvider, child) {
-        final languageSuffix = visibilityProvider.appLanguage.imageSuffix;
-        return Image.asset('assets/png/browser_$languageSuffix.png', width: 222, fit: BoxFit.fitWidth);
-      },
-    );
+    return SvgPicture.asset('assets/svg/browser-mockup.svg', width: 222, fit: BoxFit.fitWidth);
   }
 }

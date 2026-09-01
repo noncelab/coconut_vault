@@ -1,3 +1,4 @@
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 
@@ -24,9 +25,18 @@ extension HardwareWalletTypeExtension on HardwareWalletType {
   };
 
   String get displayName => _names[this]!;
-  String get iconPath => _icons[this]!;
+
+  String get iconPath {
+    if (this == HardwareWalletType.coconutVault && NetworkType.currentNetworkType.isTestnet) {
+      return kCoconutVaultRegtestIconPath;
+    }
+    return _icons[this]!;
+  }
 
   static HardwareWalletType? getHardwareWalletTypeByIconPath(String iconPath) {
+    if (iconPath == kCoconutVaultIconPath || iconPath == kCoconutVaultRegtestIconPath) {
+      return HardwareWalletType.coconutVault;
+    }
     return _icons.entries.firstWhere((element) => element.value == iconPath).key as HardwareWalletType?;
   }
 

@@ -37,6 +37,7 @@ import 'package:coconut_vault/screens/wallet_info/single_sig_menu/extended_pub_k
 import 'package:coconut_vault/screens/wallet_info/export_options_screen.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
+import 'package:coconut_vault/widgets/icon/coconut_vault_logo.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
@@ -626,13 +627,7 @@ class _CoconutVaultAppState extends State<CoconutVaultApp> with SingleTickerProv
                     if (_shouldShowPrivacyScreen)
                       Container(
                         color: CoconutColors.white,
-                        child: Center(
-                          child: Image.asset(
-                            'assets/png/splash_logo_${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.png',
-                            width: 60,
-                            fit: BoxFit.fitWidth,
-                          ),
-                        ),
+                        child: const Center(child: CoconutVaultLogo(size: 60)),
                       ),
                   ],
                 )

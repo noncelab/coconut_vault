@@ -10,8 +10,8 @@ import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
@@ -181,7 +181,12 @@ abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
                   isBottom: useBottomAppBar,
                   actionButtonList: [
                     IconButton(
-                      icon: const Icon(CupertinoIcons.camera_rotate, size: 22),
+                      icon: SvgPicture.asset(
+                        'assets/svg/arrow-reload.svg',
+                        width: 20,
+                        height: 20,
+                        colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+                      ),
                       color: CoconutColors.black,
                       onPressed: () {
                         controller?.switchCamera();
