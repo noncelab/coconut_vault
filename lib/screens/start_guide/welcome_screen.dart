@@ -9,7 +9,6 @@ import 'package:coconut_vault/utils/app_settings_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/check_list.dart';
-import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:permission_handler/permission_handler.dart' hide openAppSettings;
@@ -120,24 +119,55 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final isPermanentlyDenied = status.isPermanentlyDenied || status.isRestricted;
     if (!mounted) return;
 
-    await showConfirmDialog(
-      context,
-      context.read<VisibilityProvider>().appLanguage.code,
-      t.bluetooth_permission_dialog.title,
-      t.bluetooth_permission_dialog.description,
-      leftButtonText: t.cancel,
-      rightButtonText: isPermanentlyDenied ? t.go_to_settings : t.bluetooth_permission_dialog.request_button,
-      onTapLeft: () => Navigator.pop(context),
-      onTapRight: () async {
-        if (isPermanentlyDenied) {
-          openAppSettings();
-          return;
-        }
+    if (isPermanentlyDenied) {
+      // 이미 거부되어 iOS가 시스템 팝업을 다시 띄워주지 않는 상태
+      // 버튼은 "설정하러 가기", 팝업은 dismissable
+      await showDialog(
+        context: context,
+        builder: (dialogContext) {
+          return CoconutPopup(
+            languageCode: context.read<VisibilityProvider>().appLanguage.code,
+            backgroundColor: CoconutColors.white.withValues(alpha: 0.7),
+            descriptionPadding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 12),
+            insetPadding: const EdgeInsets.symmetric(horizontal: 50),
+            title: t.bluetooth_permission_dialog.title,
+            description: t.bluetooth_permission_dialog.description,
+            rightButtonText: t.go_to_settings,
+            rightButtonColor: CoconutColors.black,
+            onTapRight: () {
+              openAppSettings();
+            },
+          );
+        },
+      );
+      return;
+    }
 
-        Navigator.pop(context);
-        // 아직 한 번도 요청한 적 없는 상태(notDetermined)에서만 시스템 권한 팝업이 뜹니다.
-        await Permission.bluetooth.request();
-        await _startBluetoothMonitoring();
+    // 아직 한 번도 요청한 적 없는 상태(notDetermined)
+    // 애플 가이드라인상 이 다이얼로그는 반드시 실제 시스템 권한 요청으로 이어져야 하며,
+    // 취소나 바깥 탭으로 요청 자체를 우회할 수 없어야 한다.
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return PopScope(
+          canPop: false,
+          child: CoconutPopup(
+            languageCode: context.read<VisibilityProvider>().appLanguage.code,
+            backgroundColor: CoconutColors.white.withValues(alpha: 0.7),
+            descriptionPadding: const EdgeInsets.only(left: 16, right: 16, top: 12, bottom: 12),
+            insetPadding: const EdgeInsets.symmetric(horizontal: 50),
+            title: t.bluetooth_permission_dialog.title,
+            description: t.bluetooth_permission_dialog.description,
+            rightButtonText: t.bluetooth_permission_dialog.request_button,
+            rightButtonColor: CoconutColors.black,
+            onTapRight: () async {
+              Navigator.pop(dialogContext);
+              await Permission.bluetooth.request();
+              await _startBluetoothMonitoring();
+            },
+          ),
+        );
       },
     );
   }
