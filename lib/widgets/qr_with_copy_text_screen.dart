@@ -1,6 +1,9 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/enums/multisig_export_format.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
+import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/view_data_handler/i_qr_view_data_handler.dart';
 import 'package:coconut_vault/widgets/button/copy_text_container.dart';
 import 'package:flutter/material.dart';
@@ -42,15 +45,10 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
 
   bool _isPulldownOpen = false;
 
-  String _selectedKey = "BSMS";
+  String _selectedKey = MultisigExportFormat.bsms.key;
 
   final Map<String, String> _optionMap = {
-    "BSMS": "BSMS",
-    "BlueWallet Vault Multisig": "BlueWallet",
-    "Coldcard Multisig": "Coldcard",
-    "Keystone Multisig": "Keystone",
-    "Output Descriptor": "Descriptor",
-    "Specter Desktop": "Specter",
+    for (final format in MultisigExportFormat.values) format.key: format.displayTitle,
   };
 
   List<String> get _optionTitles => _optionMap.keys.toList();
@@ -119,16 +117,13 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
                             _optionTitles.map((key) {
                               return CoconutPulldownMenuItem(title: key);
                             }).toList(),
-
                         selectedIndex: _selectedIndex,
-
                         onSelected: (index, title) {
                           setState(() {
                             _selectedKey = _optionTitles[index];
                           });
                           Navigator.pop(context);
                         },
-
                         backgroundColor: CoconutColors.white,
                         borderRadius: 8,
                         shadowColor: CoconutColors.black.withValues(alpha: 0.1),
@@ -153,6 +148,9 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
   Widget build(BuildContext context) {
     final displayQrData = _currentQrData;
     final displayTextData = _currentTextData;
+    final isKeystoneMultisig = widget.showPulldownMenu && _selectedKey == MultisigExportFormat.keystone.key;
+    final constrainedQrHandler =
+        isKeystoneMultisig ? BcUrQrViewHandler(displayTextData, UrType.bytes, maxFragmentLen: 50) : null;
 
     return Scaffold(
       backgroundColor: CoconutColors.white,
@@ -201,7 +199,11 @@ class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     CoconutLayout.spacing_300h,
-                    AdaptiveQrImage(qrData: displayQrData, qrViewDataHandler: widget.qrViewDataHandler),
+                    AdaptiveQrImage(
+                      qrData: displayQrData,
+                      qrViewDataHandler: constrainedQrHandler ?? widget.qrViewDataHandler,
+                      animateWhenConstrained: isKeystoneMultisig,
+                    ),
                     CoconutLayout.spacing_500h,
                     _buildCopyButton(displayTextData),
                     CoconutLayout.spacing_1500h,
