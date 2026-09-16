@@ -298,8 +298,6 @@ multisig:
   select_nth_key: "$index번 키 고르기"
   
 # lib/screens/airgap
-account_selection_bottom_sheet_screen:
-  text: "서명할 계정을 선택해주세요."
 psbt_confirmation_screen:
   title: "스캔 정보 확인"
   guide: "월렛에서 스캔한 정보가 맞는지 다시 한번 확인해 주세요."

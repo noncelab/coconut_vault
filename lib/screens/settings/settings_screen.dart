@@ -4,6 +4,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:flutter/foundation.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/constants/app_language.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
@@ -46,8 +47,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               controller: widget.scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               children: [
-                _securityPart(context),
-                CoconutLayout.spacing_1000h,
+                // 라이트 빌드는 모드가 고정되어 보안 섹션(모드 변경/비밀번호)을 표시하지 않음
+                // (트리쉐이킹용 const 가드이기도 함: _securityPart 내 PinCheckScreen/PinSettingScreen 참조가 dead code가 됨)
+                if (!kIsLiteBuild) ...[_securityPart(context), CoconutLayout.spacing_1000h],
                 _btcUnitPart(context),
                 CoconutLayout.spacing_1000h,
                 _languagePart(context),

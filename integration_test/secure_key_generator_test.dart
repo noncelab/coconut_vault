@@ -8,9 +8,9 @@ import 'package:coconut_vault/utils/secure_key_generator.dart';
 /// 실행 명령어:
 /// ```bash
 /// # 디버그 모드 (기본)
-/// flutter test integration_test/secure_key_generator_test.dart --flavor regtest
+/// flutter test integration_test/secure_key_generator_test.dart --flavor fullRegtest
 /// # release 모드
-/// flutter test integration_test/secure_key_generator_test.dart --flavor regtest --release
+/// flutter test integration_test/secure_key_generator_test.dart --flavor fullRegtest --release
 /// ```
 ///
 /// 자세한 내용은 README.md 참고

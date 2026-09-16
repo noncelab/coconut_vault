@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -91,7 +92,8 @@ class SingleSigWalletInfoScreen extends StatelessWidget {
             onPressed: () {
               if (!context.mounted) return;
               final walletProvider = context.read<WalletProvider>();
-              if (walletProvider.isSigningOnlyMode) {
+              // 트리쉐이킹용 const 가드: 라이트 빌드에서 아래 인증 경로를 dead code로 만들어 PinCheckScreen 제거
+              if (kIsLiteBuild || walletProvider.isSigningOnlyMode) {
                 Navigator.pushNamed(context, AppRoutes.mnemonicView, arguments: {'id': id});
                 return;
               }

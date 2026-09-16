@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -77,6 +78,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         imagePath: 'assets/png/welcome2.png',
         buttonText: t.welcome_screen.screen_3_button,
         onButtonPressed: () {
+          if (kIsLiteBuild) {
+            // 라이트 빌드는 서명 전용 모드로 고정되어 모드 선택을 건너뜀
+            // (트리쉐이킹용 const 가드이기도 함: 아래 VaultModeSelectionScreen 경로가 dead code가 됨)
+            widget.onComplete();
+            return;
+          }
           Navigator.pushNamed(context, AppRoutes.vaultModeSelection, arguments: {'onComplete': widget.onComplete});
         },
       ),

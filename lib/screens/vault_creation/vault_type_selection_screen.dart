@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -91,13 +92,16 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                       true,
                     ),
                     CoconutLayout.spacing_300h,
-                    buildCreationOptionButton(
-                      t.taproot.taproot_inheritance_wallet,
-                      t.select_vault_type_screen.taproot,
-                      onTapTaprootWallet,
-                      true,
-                    ),
-                    CoconutLayout.spacing_300h,
+                    // 트리쉐이킹용 const 가드: 라이트는 탭루트 생성 미지원 — vault_creation/taproot 전체가 dead code로 제거됨
+                    if (!kIsLiteBuild) ...[
+                      buildCreationOptionButton(
+                        t.taproot.taproot_inheritance_wallet,
+                        t.select_vault_type_screen.taproot,
+                        onTapTaprootWallet,
+                        true,
+                      ),
+                      CoconutLayout.spacing_300h,
+                    ],
                   ],
                 ),
                 Visibility(

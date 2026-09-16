@@ -297,8 +297,6 @@ multisig:
   select_nth_key: "Select key #$index"
 
 # lib/screens/airgap
-account_selection_bottom_sheet_screen:
-  text: "Please select the account to sign."
 psbt_confirmation_screen:
   title: "Scan Info Confirmation"
   guide: "Please verify that the information scanned from the wallet is correct."

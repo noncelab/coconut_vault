@@ -12,4 +12,4 @@
 
 wallet-delete-failure:
 	@test -n "$(CASE)" || (echo "Usage: make wallet-delete-failure CASE=secure_zone|secure_storage|privacy_info" && exit 1)
-	fvm flutter run --flavor regtest --dart-define=WALLET_DELETE_FAILURE=$(CASE)
+	fvm flutter run --flavor fullRegtest --dart-define=WALLET_DELETE_FAILURE=$(CASE)

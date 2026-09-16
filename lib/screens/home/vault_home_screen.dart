@@ -4,6 +4,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
@@ -389,7 +390,8 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
   }
 
   void _onPressedWalletAddButton(VaultHomeViewModel viewModel) {
-    if (!viewModel.isSigningOnlyMode && !viewModel.isPinSet) {
+    // 트리쉐이킹용 const 가드: 라이트 빌드에서 이 분기를 dead code로 만들어 PinSettingScreen 제거
+    if (!kIsLiteBuild && !viewModel.isSigningOnlyMode && !viewModel.isPinSet) {
       MyBottomSheet.showBottomSheet_90(context: context, child: const PinSettingScreen(greetingVisible: true));
     } else {
       Navigator.pushNamed(context, AppRoutes.vaultTypeSelection);

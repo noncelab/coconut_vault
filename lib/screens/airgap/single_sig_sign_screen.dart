@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -100,7 +101,8 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
   }
 
   Future<void> _sign() async {
-    if (!_viewModel.isSigningOnlyMode) {
+    // 트리쉐이킹용 const 가드: 라이트 빌드에서 안전 저장 모드 경로를 dead code로 만들어 PinCheckScreen 등 제거
+    if (!kIsLiteBuild && !_viewModel.isSigningOnlyMode) {
       // 안전 저장 모드
       await _addSignatureToPsbtInStorageMode();
     } else {

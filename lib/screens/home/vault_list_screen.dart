@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
@@ -61,7 +62,8 @@ class _VaultListScreenState extends State<VaultListScreen> with TickerProviderSt
           final isEditMode = data.item4;
           final vaultOrder = data.item5;
           // Pin check 로직(편집모드에서 삭제 후 완료 버튼 클릭시 동작)
-          if (viewModel.pinCheckNotifier.value == true) {
+          // 트리쉐이킹용 const 가드: 라이트는 PIN 미사용이므로 이 블록을 dead code로 만들어 PinCheckScreen 제거
+          if (!kIsLiteBuild && viewModel.pinCheckNotifier.value == true) {
             WidgetsBinding.instance.addPostFrameCallback((_) async {
               viewModel.pinCheckNotifier.value = false;
               await MyBottomSheet.showBottomSheet_90(

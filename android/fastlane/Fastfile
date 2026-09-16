@@ -5,6 +5,7 @@ default_platform(:android)
 
 require_relative "../../fastlane/shared/pubspec_helper"
 require_relative "../../fastlane/shared/util_helper"
+require_relative "../../fastlane/shared/android_signing_helper"
 
 # 루트/안드로이드 경로
 ROOT_DIR     = File.expand_path(File.join(__dir__, "..", ".."))
@@ -16,12 +17,27 @@ end
 
 # ---------- Lanes ----------
 platform :android do
-  desc "Release Android REGTEST to Play (pubspec에서 읽고, 성공 시 build +1)"
+  desc "Release Android FULL REGTEST to Play (pubspec에서 읽고, 성공 시 build +1)"
   lane :release_android_regtest do |opts|
-    opts ||= {}
+    release_android(flavor: "fullRegtest", package: "onl.coconut.vault.regtest", opts: opts)
+  end
+
+  desc "Release Android FULL MAINNET to Play (pubspec에서 읽고, 성공 시 build +1)"
+  lane :release_android_mainnet do |opts|
+    release_android(flavor: "fullMainnet", package: "onl.coconut.vault.mainnet", opts: opts)
+  end
+
+  desc "Release Android LITE MAINNET to Play (pubspec에서 읽고, 성공 시 build +1)"
+  lane :release_android_lite_mainnet do |opts|
+    release_android(flavor: "liteMainnet", package: "onl.coconut.vault.lite", opts: opts)
+  end
+
+  # flavor: 조합 flavor 이름. pubspec 버전 키(aos_#{flavor})와 --flavor 빌드 인자에 공통 사용
+  private_lane :release_android do |options|
+    flavor  = options[:flavor]
+    package = options[:package]
+    opts    = options[:opts] || {}
     platform_ = "aos"
-    flavor    = "regtest"
-    package   = "onl.coconut.vault.regtest"
 
     skip_prep   = UtilHelper.truthy?(opts[:skip_prep]   || ENV["SKIP_PREP"])
     skip_clean  = UtilHelper.truthy?(opts[:skip_clean]  || ENV["SKIP_CLEAN"])
@@ -32,6 +48,10 @@ platform :android do
     new_build = old_build + 1
     UI.message("Android/#{flavor} -> versionName=#{marketing}, versionCode=#{new_build}")
 
+    # fullMainnet/liteMainnet -> mainnet, fullRegtest -> regtest (key_<flavor>.properties 키)
+    keystore_flavor = flavor.sub(/\A(full|lite)/i, "").downcase
+    signing_password_prompted = AndroidSigningHelper.ensure_password!(root_dir: ROOT_DIR, flavor: keystore_flavor)
+
     begin
       ENV["SUPPLY_PACKAGE_NAME"] = package
 
@@ -39,12 +59,16 @@ platform :android do
       prep_cmds << "fvm flutter clean"   unless skip_prep || skip_clean
       prep_cmds << "fvm flutter pub get" unless skip_prep || skip_pubget
 
+      # 라이트 빌드는 별도 엔트리포인트 사용
+      target_arg = flavor.start_with?("lite") ? "-t lib/main_lite.dart" : ""
+
       sh %Q{
         cd #{ROOT_DIR} &&
         #{prep_cmds.empty? ? "true" : prep_cmds.join(" &&\n      ")} &&
         fvm flutter build appbundle \
           --flavor #{flavor} \
           --release \
+          #{target_arg} \
           --build-name="#{marketing}" \
           --build-number=#{new_build}
       }
@@ -71,64 +95,11 @@ platform :android do
       UI.error("❌ Android build/upload failed: #{e.message}")
       UI.important("pubspec.yaml was not updated because build failed.")
       raise
-    end
-  end
-
-  # ✅ mainnet lane 추가 (같은 platform 블록 안)
-  desc "Release Android MAINNET to Play (pubspec에서 읽고, 성공 시 build +1)"
-  lane :release_android_mainnet do |opts|
-    opts ||= {}
-    platform_ = "aos"
-    flavor    = "mainnet"
-    package   = "onl.coconut.vault.mainnet"
-
-    skip_prep   = UtilHelper.truthy?(opts[:skip_prep]   || ENV["SKIP_PREP"])
-    skip_clean  = UtilHelper.truthy?(opts[:skip_clean]  || ENV["SKIP_CLEAN"])
-    skip_pubget = UtilHelper.truthy?(opts[:skip_pubget] || ENV["SKIP_PUBGET"])
-    UI.message("skip_prep=#{skip_prep}, skip_clean=#{skip_clean}, skip_pubget=#{skip_pubget}")
-
-    marketing, old_build = PubspecHelper.version_tuple_for(platform: platform_, flavor: flavor)
-    new_build = old_build + 1
-    UI.message("Android/#{flavor} -> versionName=#{marketing}, versionCode=#{new_build}")
-
-    begin
-      ENV["SUPPLY_PACKAGE_NAME"] = package
-
-      prep_cmds = []
-      prep_cmds << "fvm flutter clean"   unless skip_prep || skip_clean
-      prep_cmds << "fvm flutter pub get" unless skip_prep || skip_pubget
-
-      sh %Q{
-        cd #{ROOT_DIR} &&
-        #{prep_cmds.empty? ? "true" : prep_cmds.join(" &&\n      ")} &&
-        fvm flutter build appbundle \
-          --flavor #{flavor} \
-          --release \
-          --build-name="#{marketing}" \
-          --build-number=#{new_build}
-      }
-
-      aab_path = find_latest_aab(flavor: flavor)
-      UI.user_error!("AAB not found for flavor #{flavor}") unless aab_path
-
-      upload_to_play_store(
-        aab: aab_path,
-        track: "internal",
-        skip_upload_images: true,
-        skip_upload_screenshots: true
-      )
-
-      PubspecHelper.update_pubspec_build_number(
-        platform: platform_,
-        flavor: flavor,
-        marketing: marketing,
-        old_build: old_build,
-        new_build: new_build
-      )
-    rescue => e
-      UI.error("❌ Android build/upload failed: #{e.message}")
-      UI.important("pubspec.yaml was not updated because build failed.")
-      raise
+    ensure
+      if signing_password_prompted
+        ENV.delete("ANDROID_SIGNING_STORE_PASSWORD")
+        ENV.delete("ANDROID_SIGNING_KEY_PASSWORD")
+      end
     end
   end
 end  # ← 여기서 단 한 번 platform 블록을 닫음

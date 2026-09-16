@@ -15,16 +15,16 @@ module PubspecHelper
 
   # "x.y.z+N" 튜플 반환
   # pubspec.yaml 예시:
-  # version: 3.3.1+1        # (fallback)
   # app_versions:
-  #   ios_regtest: 3.3.1+1
-  #   ios_mainnet: 0.4.6+1
-  # platform: "ios" | "aos", flavor: "regtest" | "mainnet"
+  #   ios_fullRegtest: 3.3.1+1
+  #   ios_fullMainnet: 0.4.6+1
+  #   ios_liteMainnet: 1.0.0+1
+  # platform: "ios" | "aos", flavor: "fullRegtest" | "fullMainnet" | "liteMainnet" (조합 flavor 이름)
   def self.version_tuple_for(platform:, flavor:)
     yml = read_pubspec_versions
     key = "#{platform}_#{flavor}"
-    raw = yml.dig("app_versions", key) || yml["version"]
-    UI.user_error!("version string not found in pubspec.yaml for key: app_versions.#{key} (and no global 'version')") unless raw
+    raw = yml.dig("app_versions", key)
+    UI.user_error!("version string not found in pubspec.yaml for key: app_versions.#{key}") unless raw
 
     m = raw.to_s.match(/\A(\d+\.\d+\.\d+)\+(\d+)\z/)
     UI.user_error!("version format must be x.y.z+build, got: #{raw}") unless m

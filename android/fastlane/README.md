@@ -21,7 +21,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane android release_android_regtest
 ```
 
-Release Android REGTEST to Play (pubspec에서 읽고, 성공 시 build +1)
+Release Android FULL REGTEST to Play (pubspec에서 읽고, 성공 시 build +1)
 
 ### android release_android_mainnet
 
@@ -29,7 +29,15 @@ Release Android REGTEST to Play (pubspec에서 읽고, 성공 시 build +1)
 [bundle exec] fastlane android release_android_mainnet
 ```
 
-Release Android MAINNET to Play (pubspec에서 읽고, 성공 시 build +1)
+Release Android FULL MAINNET to Play (pubspec에서 읽고, 성공 시 build +1)
+
+### android release_android_lite_mainnet
+
+```sh
+[bundle exec] fastlane android release_android_lite_mainnet
+```
+
+Release Android LITE MAINNET to Play (pubspec에서 읽고, 성공 시 build +1)
 
 ----
 

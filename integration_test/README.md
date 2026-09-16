@@ -12,7 +12,7 @@
 각 테스트 파일은 다음 명령어로 실행할 수 있습니다:
 
 ```bash
-flutter test integration_test/<test_file>.dart --flavor regtest
+flutter test integration_test/<test_file>.dart --flavor fullRegtest
 ```
 
 ## 디버깅을 하고 싶을 때
@@ -28,7 +28,7 @@ flutter test integration_test/<test_file>.dart --flavor regtest
             "type": "dart",
             "program": "integration_test/[테스트 파일 이름].dart",
             "toolArgs": [
-              "--flavor=regtest",
+              "--flavor=fullRegtest",
             ]
         },
    ]
@@ -38,7 +38,7 @@ launch.json 파일 수정 후, 해당 테스트 파일을 엽니다. vscode 왼�
 
 ### Android Studio 사용하는 경우
 우측 상단에 main.dart 버튼을 눌러서 Edit Configuration을 누르고 윈도우 좌측 상단에 + 버튼 누릅니다.
-Flutter Test를 클릭해주고, Test File 경로를 지정합니다. Additional args에 --flavor regtest 입력하고 OK 버튼을 눌러서 Configuration 파일 추가합니다.
+Flutter Test를 클릭해주고, Test File 경로를 지정합니다. Additional args에 --flavor fullRegtest 입력하고 OK 버튼을 눌러서 Configuration 파일 추가합니다.
 특정 테스트만 진행하고 싶은 경우 IDE 좌측 숫자 부분에 디버그 아이콘 눌러서 Configuration 추가하여 실행합니다. 
 
 ### 현재 포함된 테스트들

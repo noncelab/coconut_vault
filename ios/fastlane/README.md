@@ -21,7 +21,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane ios release_ios_regtest
 ```
 
-Release iOS REGTEST to TestFlight (pubspec.yaml에서 버전 읽기, 빌드 성공 후 빌드 번호만 +1)
+Release iOS FULL REGTEST to TestFlight (pubspec.yaml에서 버전 읽기, 빌드 성공 후 빌드 번호만 +1)
 
 ### ios release_ios_mainnet
 
@@ -29,7 +29,15 @@ Release iOS REGTEST to TestFlight (pubspec.yaml에서 버전 읽기, 빌드 성�
 [bundle exec] fastlane ios release_ios_mainnet
 ```
 
-Release iOS MAINNET to TestFlight (pubspec.yaml에서 버전 읽기, 빌드 성공 후 빌드 번호만 +1)
+Release iOS FULL MAINNET to TestFlight (pubspec.yaml에서 버전 읽기, 빌드 성공 후 빌드 번호만 +1)
+
+### ios release_ios_lite_mainnet
+
+```sh
+[bundle exec] fastlane ios release_ios_lite_mainnet
+```
+
+Release iOS LITE MAINNET to TestFlight (pubspec.yaml에서 버전 읽기, 빌드 성공 후 빌드 번호만 +1)
 
 ----
 

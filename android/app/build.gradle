@@ -22,6 +22,9 @@ def getFlavor() {
     throw new RuntimeException("❌ build flavor를 추론할 수 없습니다. taskNames: ${taskNames}")
 }
 def flavor = getFlavor()
+// iOS와 번들 ID를 맞추기 위해 lite mainnet만 network suffix를 제외하기 위한 app flavor 추론
+// (기본값: onl.coconut.vault.lite.mainnet -> onl.coconut.vault.lite)
+def isLite = gradle.startParameter.taskNames.any { it.toLowerCase().contains("lite") }
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file("key_${flavor}.properties")
 if (keystorePropertiesFile.exists()) {
@@ -98,8 +101,16 @@ android {
         }
     }
 
-    flavorDimensions "network"
+    flavorDimensions "app", "network"
     productFlavors {
+        full {
+            dimension "app"
+        }
+        lite {
+            dimension "app"
+            applicationIdSuffix ".lite"
+            versionNameSuffix "-lite"
+        }
         regtest {
             dimension "network"
             applicationIdSuffix ".regtest"
@@ -107,7 +118,7 @@ android {
         }
         mainnet {
             dimension "network"
-            applicationIdSuffix ".mainnet"
+            applicationIdSuffix isLite ? "" : ".mainnet"
             versionNameSuffix ""
         }
     }

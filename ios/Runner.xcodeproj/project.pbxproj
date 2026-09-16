@@ -46,33 +46,44 @@
 /* Begin PBXFileReference section */
 		02761CB4884191AAD82CFFC7 /* Pods-Runner.release-regtestlocal.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release-regtestlocal.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release-regtestlocal.xcconfig"; sourceTree = "<group>"; };
 		0C50A961C72B6FCA84E0C539 /* Pods-Runner.debug-mainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-mainnet.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug-mainnet.xcconfig"; sourceTree = "<group>"; };
+		0D5340B9582DD16E6A1A6F26 /* Pods-Runner.release-fullregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release-fullregtest.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release-fullregtest.xcconfig"; sourceTree = "<group>"; };
 		0FB25F23C3B3E4A84D968391 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
+		10E2EC80EC4951E2AF8BCA71 /* Pods-Runner.debug-litemainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-litemainnet.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug-litemainnet.xcconfig"; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		19EFE348A86DFDF3F0305FA2 /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 		1F0B388DD831EB075CA41ACA /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1FFB39DB667F7C32665B0020 /* Pods-Runner.release-litemainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release-litemainnet.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release-litemainnet.xcconfig"; sourceTree = "<group>"; };
 		21CD2E452A89999FD1BE35A4 /* Pods-Runner.debug-regtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-regtest.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug-regtest.xcconfig"; sourceTree = "<group>"; };
 		25B807CF8882E745EE89F3F0 /* Pods-RunnerTests.debug-regtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-regtest.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-regtest.xcconfig"; sourceTree = "<group>"; };
 		264FA19A75CB037BD11F0FC7 /* Pods-RunnerTests.release-mainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-mainnet.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-mainnet.xcconfig"; sourceTree = "<group>"; };
+		2CA6B95F23E3A9705B2409F2 /* Pods-RunnerTests.release-fullregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-fullregtest.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-fullregtest.xcconfig"; sourceTree = "<group>"; };
 		314A8D0FA0062B84F8C4FDC7 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		314E440D5EBB68A0E6896BAB /* Pods-Runner.profile-mainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-mainnet.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-mainnet.xcconfig"; sourceTree = "<group>"; };
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		34524884BB741FB4A6CCDFBE /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
+		40AE23FE50BEA40417A850E7 /* Pods-RunnerTests.debug-fullmainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-fullmainnet.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-fullmainnet.xcconfig"; sourceTree = "<group>"; };
 		479F538FB9473F469BEDF745 /* Pods-Runner.profile-regtestlocal.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-regtestlocal.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-regtestlocal.xcconfig"; sourceTree = "<group>"; };
 		4EA6FA1F57CEB85D7DC90516 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		4FF49A7758D3E65B884B71AA /* Pods-Runner.release-regtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release-regtest.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release-regtest.xcconfig"; sourceTree = "<group>"; };
+		53F3C7F9805B0A73F7509C72 /* Pods-Runner.profile-fullmainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-fullmainnet.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-fullmainnet.xcconfig"; sourceTree = "<group>"; };
 		5F16E51E2DD4661B00645244 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = Base.lproj/LaunchScreenRegtest.storyboard; sourceTree = "<group>"; };
 		61F6F6D26281475EE0C0EA2C /* Pods-RunnerTests.release-regtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-regtest.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-regtest.xcconfig"; sourceTree = "<group>"; };
+		65B948C799995DDDFF94EDA8 /* Pods-Runner.debug-fullmainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-fullmainnet.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug-fullmainnet.xcconfig"; sourceTree = "<group>"; };
 		65CE4C024BC5E362887F5A53 /* Pods-RunnerTests.profile-mainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile-mainnet.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile-mainnet.xcconfig"; sourceTree = "<group>"; };
 		6685694B6DC07C1AC299C075 /* Pods-RunnerTests.debug-mainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-mainnet.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-mainnet.xcconfig"; sourceTree = "<group>"; };
+		6C346FA70C7362580BE3EF00 /* Pods-Runner.release-fullmainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release-fullmainnet.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release-fullmainnet.xcconfig"; sourceTree = "<group>"; };
 		70B840FC8FF9AA9D15FD0F57 /* Pods-RunnerTests.debug-regtestlocal.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-regtestlocal.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-regtestlocal.xcconfig"; sourceTree = "<group>"; };
 		742714AFAEA9B5093E421749 /* Pods-RunnerTests.profile-regtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile-regtest.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile-regtest.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		7C8C75E3DB1995CE457E6DF2 /* Pods-Runner.profile-regtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-regtest.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-regtest.xcconfig"; sourceTree = "<group>"; };
+		816D974C8AC1B7D7971FFC57 /* Pods-RunnerTests.profile-litemainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile-litemainnet.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile-litemainnet.xcconfig"; sourceTree = "<group>"; };
+		81C578B5178310AE36C1D08F /* Pods-Runner.debug-literegtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-literegtest.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug-literegtest.xcconfig"; sourceTree = "<group>"; };
+		9383B66FF00CB8D2CE9274A9 /* Pods-RunnerTests.release-literegtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-literegtest.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-literegtest.xcconfig"; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
 		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
 		97C146EE1CF9000F007C117D /* Runner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Runner.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -82,12 +93,25 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9F574C5B5704171F2E2F7545 /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
 		9FE8A6D5350B9A8D03256970 /* Pods-RunnerTests.release-regtestlocal.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-regtestlocal.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-regtestlocal.xcconfig"; sourceTree = "<group>"; };
+		A459DEA7D71DA5686A87BF84 /* Pods-Runner.release-literegtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release-literegtest.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release-literegtest.xcconfig"; sourceTree = "<group>"; };
+		B27891AFADC6DA716AB4F993 /* Pods-Runner.profile-litemainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-litemainnet.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-litemainnet.xcconfig"; sourceTree = "<group>"; };
+		B918393F340451981EC68056 /* Pods-RunnerTests.release-fullmainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-fullmainnet.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-fullmainnet.xcconfig"; sourceTree = "<group>"; };
+		BD2F12552AC884F2A1FDA3C5 /* Pods-RunnerTests.profile-fullmainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile-fullmainnet.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile-fullmainnet.xcconfig"; sourceTree = "<group>"; };
+		BD4CBD2E264F6A23CDA3EAD1 /* Pods-Runner.profile-fullregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-fullregtest.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-fullregtest.xcconfig"; sourceTree = "<group>"; };
 		C21987182EA1D489007EDA3E /* SecureEnclaveCrypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureEnclaveCrypto.swift; sourceTree = "<group>"; };
+		C2710170F1C478B83FBCCAF2 /* Pods-Runner.debug-fullregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-fullregtest.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug-fullregtest.xcconfig"; sourceTree = "<group>"; };
 		C2C4B44E2C76E072009809A2 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		C552C406EF0DA05473C16C24 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
+		CF3CBA7FD60CB199423B75F8 /* Pods-RunnerTests.profile-literegtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile-literegtest.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile-literegtest.xcconfig"; sourceTree = "<group>"; };
 		D4304EBB91225AD4CA7BF94D /* Pods-Runner.debug-regtestlocal.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-regtestlocal.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug-regtestlocal.xcconfig"; sourceTree = "<group>"; };
 		D9B026A0F4E2A5B0DA733FD6 /* Pods-Runner.release-mainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release-mainnet.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release-mainnet.xcconfig"; sourceTree = "<group>"; };
+		DD0917D436B117D1724653DE /* Pods-RunnerTests.debug-litemainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-litemainnet.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-litemainnet.xcconfig"; sourceTree = "<group>"; };
+		DFD57D7CDF3AC6EF4D7C0806 /* Pods-RunnerTests.debug-literegtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-literegtest.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-literegtest.xcconfig"; sourceTree = "<group>"; };
+		E785D84AD0B17014FCBB3CF3 /* Pods-RunnerTests.debug-fullregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-fullregtest.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-fullregtest.xcconfig"; sourceTree = "<group>"; };
 		EC1999A8D0E2FFE08E3590F9 /* Pods-RunnerTests.profile-regtestlocal.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile-regtestlocal.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile-regtestlocal.xcconfig"; sourceTree = "<group>"; };
+		EE6668F7057B1A5B557A1B4A /* Pods-RunnerTests.profile-fullregtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile-fullregtest.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile-fullregtest.xcconfig"; sourceTree = "<group>"; };
+		F2748EEC9449402279E15927 /* Pods-Runner.profile-literegtest.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-literegtest.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-literegtest.xcconfig"; sourceTree = "<group>"; };
+		FEBB8AE2B6E7ACA02A47F947 /* Pods-RunnerTests.release-litemainnet.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-litemainnet.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-litemainnet.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -243,6 +267,30 @@
 				6685694B6DC07C1AC299C075 /* Pods-RunnerTests.debug-mainnet.xcconfig */,
 				264FA19A75CB037BD11F0FC7 /* Pods-RunnerTests.release-mainnet.xcconfig */,
 				65CE4C024BC5E362887F5A53 /* Pods-RunnerTests.profile-mainnet.xcconfig */,
+				65B948C799995DDDFF94EDA8 /* Pods-Runner.debug-fullmainnet.xcconfig */,
+				C2710170F1C478B83FBCCAF2 /* Pods-Runner.debug-fullregtest.xcconfig */,
+				6C346FA70C7362580BE3EF00 /* Pods-Runner.release-fullmainnet.xcconfig */,
+				0D5340B9582DD16E6A1A6F26 /* Pods-Runner.release-fullregtest.xcconfig */,
+				53F3C7F9805B0A73F7509C72 /* Pods-Runner.profile-fullmainnet.xcconfig */,
+				BD4CBD2E264F6A23CDA3EAD1 /* Pods-Runner.profile-fullregtest.xcconfig */,
+				10E2EC80EC4951E2AF8BCA71 /* Pods-Runner.debug-litemainnet.xcconfig */,
+				1FFB39DB667F7C32665B0020 /* Pods-Runner.release-litemainnet.xcconfig */,
+				B27891AFADC6DA716AB4F993 /* Pods-Runner.profile-litemainnet.xcconfig */,
+				81C578B5178310AE36C1D08F /* Pods-Runner.debug-literegtest.xcconfig */,
+				A459DEA7D71DA5686A87BF84 /* Pods-Runner.release-literegtest.xcconfig */,
+				F2748EEC9449402279E15927 /* Pods-Runner.profile-literegtest.xcconfig */,
+				40AE23FE50BEA40417A850E7 /* Pods-RunnerTests.debug-fullmainnet.xcconfig */,
+				E785D84AD0B17014FCBB3CF3 /* Pods-RunnerTests.debug-fullregtest.xcconfig */,
+				B918393F340451981EC68056 /* Pods-RunnerTests.release-fullmainnet.xcconfig */,
+				2CA6B95F23E3A9705B2409F2 /* Pods-RunnerTests.release-fullregtest.xcconfig */,
+				BD2F12552AC884F2A1FDA3C5 /* Pods-RunnerTests.profile-fullmainnet.xcconfig */,
+				EE6668F7057B1A5B557A1B4A /* Pods-RunnerTests.profile-fullregtest.xcconfig */,
+				DD0917D436B117D1724653DE /* Pods-RunnerTests.debug-litemainnet.xcconfig */,
+				FEBB8AE2B6E7ACA02A47F947 /* Pods-RunnerTests.release-litemainnet.xcconfig */,
+				816D974C8AC1B7D7971FFC57 /* Pods-RunnerTests.profile-litemainnet.xcconfig */,
+				DFD57D7CDF3AC6EF4D7C0806 /* Pods-RunnerTests.debug-literegtest.xcconfig */,
+				9383B66FF00CB8D2CE9274A9 /* Pods-RunnerTests.release-literegtest.xcconfig */,
+				CF3CBA7FD60CB199423B75F8 /* Pods-RunnerTests.profile-literegtest.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -547,6 +595,124 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		1A0BCECAAE1092FB54F2E40D /* Debug-liteRegtest */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DFD57D7CDF3AC6EF4D7C0806 /* Pods-RunnerTests.debug-literegtest.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B4QCD2QSS8;
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.RunnerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
+			};
+			name = "Debug-liteRegtest";
+		};
+		1A92872D18048DE276A69564 /* Release-liteMainnet */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				APP_FLAVOR = mainnet;
+				APP_NAME = "코코넛 볼트";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = B4QCD2QSS8;
+				ENABLE_BITCODE = NO;
+				ENABLE_MODULE_VERIFIER = YES;
+				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "코코넛 볼트 라이트";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
+				LAUNCH_SCREEN = LaunchScreen;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.1;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.lite;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = "Release-liteMainnet";
+		};
+		1B50128D2110A5F5330021B2 /* Profile-liteRegtest */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APP_FLAVOR = regtest;
+				APP_NAME = "코코넛 볼트 학습용";
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.regtest;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Profile-liteRegtest";
+		};
 		249021D3217E4FDB00AE95B9 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -593,7 +759,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault;
 				SDKROOT = iphoneos;
@@ -656,7 +822,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
-				PRODUCT_BUNDLE_IDENTIFIER = com.noncelab.pow.vault.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -677,7 +843,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
-				PRODUCT_BUNDLE_IDENTIFIER = com.noncelab.pow.vault.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
@@ -696,12 +862,354 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
-				PRODUCT_BUNDLE_IDENTIFIER = com.noncelab.pow.vault.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
 			};
 			name = Profile;
+		};
+		342F82B6398317EC07EB3089 /* Profile-liteMainnet */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APP_FLAVOR = "";
+				APP_NAME = "코코넛 볼트";
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Profile-liteMainnet";
+		};
+		3663ED7F8A7F9EA2E1D1FDB1 /* Debug-liteRegtest */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
+			buildSettings = {
+				APP_FLAVOR = regtest;
+				APP_NAME = "코코넛 볼트 학습용";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconRegtest;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = B4QCD2QSS8;
+				ENABLE_BITCODE = NO;
+				ENABLE_MODULE_VERIFIER = YES;
+				INFOPLIST_FILE = Runner/Info.plist;
+				"INFOPLIST_FILE[sdk=*]" = Runner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "코코넛 볼트 라이트";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
+				LAUNCH_SCREEN = LaunchScreenRegtest;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.1;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
+				OTHER_SWIFT_FLAGS = "$(inherited) -D DEBUG";
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.lite.regtest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = "Debug-liteRegtest";
+		};
+		398AAFF85D6AEEE3F6000F20 /* Debug-liteRegtest */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APP_FLAVOR = regtest;
+				APP_NAME = "코코넛 볼트 학습용";
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.regtest;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = "Debug-liteRegtest";
+		};
+		71A0F699BB77CFB6E6E4ECEF /* Debug-liteMainnet */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APP_FLAVOR = "";
+				APP_NAME = "코코넛 볼트";
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = "Debug-liteMainnet";
+		};
+		82E0DF65EDCD95E92C6B51F8 /* Release-liteRegtest */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9383B66FF00CB8D2CE9274A9 /* Pods-RunnerTests.release-literegtest.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B4QCD2QSS8;
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.RunnerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
+			};
+			name = "Release-liteRegtest";
+		};
+		83D95A918D13A9144AA00F78 /* Release-liteMainnet */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APP_FLAVOR = "";
+				APP_NAME = "코코넛 볼트";
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Release-liteMainnet";
+		};
+		8AA75834EA5C7143E6092BCF /* Debug-liteMainnet */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
+			buildSettings = {
+				APP_FLAVOR = mainnet;
+				APP_NAME = "코코넛 볼트";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = B4QCD2QSS8;
+				ENABLE_BITCODE = NO;
+				ENABLE_MODULE_VERIFIER = YES;
+				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "코코넛 볼트 라이트";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
+				LAUNCH_SCREEN = LaunchScreen;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.1;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
+				OTHER_SWIFT_FLAGS = "$(inherited) -D DEBUG";
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.lite;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = "Debug-liteMainnet";
 		};
 		97C147031CF9000F007C117D /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -755,7 +1263,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault;
@@ -810,7 +1318,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault;
 				SDKROOT = iphoneos;
@@ -906,7 +1414,67 @@
 			};
 			name = Release;
 		};
-		C2523A0D2DD30DFE003ACBD5 /* Debug-mainnet */ = {
+		AD0B0F75899F0B2B335E7951 /* Release-liteRegtest */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				APP_FLAVOR = regtest;
+				APP_NAME = "코코넛 볼트 학습용";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconRegtest;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = B4QCD2QSS8;
+				ENABLE_BITCODE = NO;
+				ENABLE_MODULE_VERIFIER = YES;
+				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "코코넛 볼트 라이트";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
+				LAUNCH_SCREEN = LaunchScreenRegtest;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.1;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.lite.regtest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = "Release-liteRegtest";
+		};
+		B96C3B73E78FAD3814459710 /* Profile-liteMainnet */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 816D974C8AC1B7D7971FFC57 /* Pods-RunnerTests.profile-litemainnet.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B4QCD2QSS8;
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.RunnerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
+			};
+			name = "Profile-liteMainnet";
+		};
+		C2523A0D2DD30DFE003ACBD5 /* Debug-fullMainnet */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -958,16 +1526,16 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
-			name = "Debug-mainnet";
+			name = "Debug-fullMainnet";
 		};
-		C2523A0E2DD30DFE003ACBD5 /* Debug-mainnet */ = {
+		C2523A0E2DD30DFE003ACBD5 /* Debug-fullMainnet */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
 			buildSettings = {
@@ -1008,11 +1576,11 @@
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = "Debug-mainnet";
+			name = "Debug-fullMainnet";
 		};
-		C2523A0F2DD30DFE003ACBD5 /* Debug-mainnet */ = {
+		C2523A0F2DD30DFE003ACBD5 /* Debug-fullMainnet */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 6685694B6DC07C1AC299C075 /* Pods-RunnerTests.debug-mainnet.xcconfig */;
+			baseConfigurationReference = 40AE23FE50BEA40417A850E7 /* Pods-RunnerTests.debug-fullmainnet.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -1022,16 +1590,16 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
-				PRODUCT_BUNDLE_IDENTIFIER = com.noncelab.pow.vault.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
 			};
-			name = "Debug-mainnet";
+			name = "Debug-fullMainnet";
 		};
-		C2523A102DD30E0E003ACBD5 /* Release-mainnet */ = {
+		C2523A102DD30E0E003ACBD5 /* Release-fullMainnet */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -1077,7 +1645,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault;
 				SDKROOT = iphoneos;
@@ -1087,9 +1655,9 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
-			name = "Release-mainnet";
+			name = "Release-fullMainnet";
 		};
-		C2523A112DD30E0E003ACBD5 /* Release-mainnet */ = {
+		C2523A112DD30E0E003ACBD5 /* Release-fullMainnet */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
@@ -1128,11 +1696,11 @@
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = "Release-mainnet";
+			name = "Release-fullMainnet";
 		};
-		C2523A122DD30E0E003ACBD5 /* Release-mainnet */ = {
+		C2523A122DD30E0E003ACBD5 /* Release-fullMainnet */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 264FA19A75CB037BD11F0FC7 /* Pods-RunnerTests.release-mainnet.xcconfig */;
+			baseConfigurationReference = B918393F340451981EC68056 /* Pods-RunnerTests.release-fullmainnet.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -1142,14 +1710,14 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
-				PRODUCT_BUNDLE_IDENTIFIER = com.noncelab.pow.vault.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
 			};
-			name = "Release-mainnet";
+			name = "Release-fullMainnet";
 		};
-		C2523A132DD30E18003ACBD5 /* Profile-mainnet */ = {
+		C2523A132DD30E18003ACBD5 /* Profile-fullMainnet */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -1195,7 +1763,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault;
 				SDKROOT = iphoneos;
@@ -1203,9 +1771,9 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
-			name = "Profile-mainnet";
+			name = "Profile-fullMainnet";
 		};
-		C2523A142DD30E18003ACBD5 /* Profile-mainnet */ = {
+		C2523A142DD30E18003ACBD5 /* Profile-fullMainnet */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
@@ -1244,11 +1812,11 @@
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = "Profile-mainnet";
+			name = "Profile-fullMainnet";
 		};
-		C2523A152DD30E18003ACBD5 /* Profile-mainnet */ = {
+		C2523A152DD30E18003ACBD5 /* Profile-fullMainnet */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 65CE4C024BC5E362887F5A53 /* Pods-RunnerTests.profile-mainnet.xcconfig */;
+			baseConfigurationReference = BD2F12552AC884F2A1FDA3C5 /* Pods-RunnerTests.profile-fullmainnet.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -1258,14 +1826,151 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
-				PRODUCT_BUNDLE_IDENTIFIER = com.noncelab.pow.vault.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
 			};
-			name = "Profile-mainnet";
+			name = "Profile-fullMainnet";
 		};
-		DEC632CF2C58EA4300973B4A /* Debug-regtest */ = {
+		D375F62DB46C685037328933 /* Profile-liteMainnet */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				APP_FLAVOR = mainnet;
+				APP_NAME = "코코넛 볼트";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = B4QCD2QSS8;
+				ENABLE_BITCODE = NO;
+				ENABLE_MODULE_VERIFIER = YES;
+				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "코코넛 볼트 라이트";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
+				LAUNCH_SCREEN = LaunchScreen;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.1;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.lite;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = "Profile-liteMainnet";
+		};
+		D3A3E781585C6EFDF81B73F7 /* Release-liteMainnet */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = FEBB8AE2B6E7ACA02A47F947 /* Pods-RunnerTests.release-litemainnet.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B4QCD2QSS8;
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.RunnerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
+			};
+			name = "Release-liteMainnet";
+		};
+		D3CC7D3270AEF57639AC0368 /* Release-liteRegtest */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				APP_FLAVOR = regtest;
+				APP_NAME = "코코넛 볼트 학습용";
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.regtest;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Release-liteRegtest";
+		};
+		DE6EFEF7E771A721F55348CF /* Profile-liteRegtest */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CF3CBA7FD60CB199423B75F8 /* Pods-RunnerTests.profile-literegtest.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B4QCD2QSS8;
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.RunnerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
+			};
+			name = "Profile-liteRegtest";
+		};
+		DEC632CF2C58EA4300973B4A /* Debug-fullRegtest */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -1317,16 +2022,16 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.regtest;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
-			name = "Debug-regtest";
+			name = "Debug-fullRegtest";
 		};
-		DEC632D02C58EA4300973B4A /* Debug-regtest */ = {
+		DEC632D02C58EA4300973B4A /* Debug-fullRegtest */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
 			buildSettings = {
@@ -1368,11 +2073,11 @@
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = "Debug-regtest";
+			name = "Debug-fullRegtest";
 		};
-		DEC632D12C58EA4300973B4A /* Debug-regtest */ = {
+		DEC632D12C58EA4300973B4A /* Debug-fullRegtest */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 25B807CF8882E745EE89F3F0 /* Pods-RunnerTests.debug-regtest.xcconfig */;
+			baseConfigurationReference = E785D84AD0B17014FCBB3CF3 /* Pods-RunnerTests.debug-fullregtest.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -1382,16 +2087,16 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
-				PRODUCT_BUNDLE_IDENTIFIER = com.noncelab.pow.vault.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
 			};
-			name = "Debug-regtest";
+			name = "Debug-fullRegtest";
 		};
-		DEC632D22C58EA4D00973B4A /* Release-regtest */ = {
+		DEC632D22C58EA4D00973B4A /* Release-fullRegtest */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -1437,7 +2142,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.regtest;
 				SDKROOT = iphoneos;
@@ -1447,9 +2152,9 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
-			name = "Release-regtest";
+			name = "Release-fullRegtest";
 		};
-		DEC632D32C58EA4D00973B4A /* Release-regtest */ = {
+		DEC632D32C58EA4D00973B4A /* Release-fullRegtest */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
@@ -1488,11 +2193,11 @@
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = "Release-regtest";
+			name = "Release-fullRegtest";
 		};
-		DEC632D42C58EA4D00973B4A /* Release-regtest */ = {
+		DEC632D42C58EA4D00973B4A /* Release-fullRegtest */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 61F6F6D26281475EE0C0EA2C /* Pods-RunnerTests.release-regtest.xcconfig */;
+			baseConfigurationReference = 2CA6B95F23E3A9705B2409F2 /* Pods-RunnerTests.release-fullregtest.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -1502,14 +2207,14 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
-				PRODUCT_BUNDLE_IDENTIFIER = com.noncelab.pow.vault.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
 			};
-			name = "Release-regtest";
+			name = "Release-fullRegtest";
 		};
-		DEC632D52C58EA5400973B4A /* Profile-regtest */ = {
+		DEC632D52C58EA5400973B4A /* Profile-fullRegtest */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -1555,7 +2260,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.regtest;
 				SDKROOT = iphoneos;
@@ -1563,9 +2268,9 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
-			name = "Profile-regtest";
+			name = "Profile-fullRegtest";
 		};
-		DEC632D62C58EA5400973B4A /* Profile-regtest */ = {
+		DEC632D62C58EA5400973B4A /* Profile-fullRegtest */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
@@ -1604,11 +2309,11 @@
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
-			name = "Profile-regtest";
+			name = "Profile-fullRegtest";
 		};
-		DEC632D72C58EA5400973B4A /* Profile-regtest */ = {
+		DEC632D72C58EA5400973B4A /* Profile-fullRegtest */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 742714AFAEA9B5093E421749 /* Pods-RunnerTests.profile-regtest.xcconfig */;
+			baseConfigurationReference = EE6668F7057B1A5B557A1B4A /* Pods-RunnerTests.profile-fullregtest.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -1618,12 +2323,74 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
-				PRODUCT_BUNDLE_IDENTIFIER = com.noncelab.pow.vault.RunnerTests;
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
 			};
-			name = "Profile-regtest";
+			name = "Profile-fullRegtest";
+		};
+		E4D2CB9D9BEFADF0A2545919 /* Profile-liteRegtest */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
+			buildSettings = {
+				APP_FLAVOR = regtest;
+				APP_NAME = "코코넛 볼트 학습용";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIconRegtest;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 2;
+				DEVELOPMENT_TEAM = B4QCD2QSS8;
+				ENABLE_BITCODE = NO;
+				ENABLE_MODULE_VERIFIER = YES;
+				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "코코넛 볼트 라이트";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				INFOPLIST_KEY_UILaunchStoryboardName = "";
+				LAUNCH_SCREEN = LaunchScreenRegtest;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.1;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.lite.regtest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = "Profile-liteRegtest";
+		};
+		F53D17B6BAE8642814899A0B /* Debug-liteMainnet */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DD0917D436B117D1724653DE /* Pods-RunnerTests.debug-litemainnet.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = B4QCD2QSS8;
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu99 gnu++11";
+				PRODUCT_BUNDLE_IDENTIFIER = onl.coconut.vault.RunnerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
+			};
+			name = "Debug-liteMainnet";
 		};
 /* End XCBuildConfiguration section */
 
@@ -1632,14 +2399,20 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				331C8088294A63A400263BE5 /* Debug */,
-				C2523A0F2DD30DFE003ACBD5 /* Debug-mainnet */,
-				DEC632D12C58EA4300973B4A /* Debug-regtest */,
+				C2523A0F2DD30DFE003ACBD5 /* Debug-fullMainnet */,
+				DEC632D12C58EA4300973B4A /* Debug-fullRegtest */,
 				331C8089294A63A400263BE5 /* Release */,
-				C2523A122DD30E0E003ACBD5 /* Release-mainnet */,
-				DEC632D42C58EA4D00973B4A /* Release-regtest */,
+				C2523A122DD30E0E003ACBD5 /* Release-fullMainnet */,
+				DEC632D42C58EA4D00973B4A /* Release-fullRegtest */,
 				331C808A294A63A400263BE5 /* Profile */,
-				C2523A152DD30E18003ACBD5 /* Profile-mainnet */,
-				DEC632D72C58EA5400973B4A /* Profile-regtest */,
+				C2523A152DD30E18003ACBD5 /* Profile-fullMainnet */,
+				DEC632D72C58EA5400973B4A /* Profile-fullRegtest */,
+				F53D17B6BAE8642814899A0B /* Debug-liteMainnet */,
+				D3A3E781585C6EFDF81B73F7 /* Release-liteMainnet */,
+				B96C3B73E78FAD3814459710 /* Profile-liteMainnet */,
+				1A0BCECAAE1092FB54F2E40D /* Debug-liteRegtest */,
+				82E0DF65EDCD95E92C6B51F8 /* Release-liteRegtest */,
+				DE6EFEF7E771A721F55348CF /* Profile-liteRegtest */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = "Debug-regtest";
@@ -1648,14 +2421,20 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				97C147031CF9000F007C117D /* Debug */,
-				C2523A0D2DD30DFE003ACBD5 /* Debug-mainnet */,
-				DEC632CF2C58EA4300973B4A /* Debug-regtest */,
+				C2523A0D2DD30DFE003ACBD5 /* Debug-fullMainnet */,
+				DEC632CF2C58EA4300973B4A /* Debug-fullRegtest */,
 				97C147041CF9000F007C117D /* Release */,
-				C2523A102DD30E0E003ACBD5 /* Release-mainnet */,
-				DEC632D22C58EA4D00973B4A /* Release-regtest */,
+				C2523A102DD30E0E003ACBD5 /* Release-fullMainnet */,
+				DEC632D22C58EA4D00973B4A /* Release-fullRegtest */,
 				249021D3217E4FDB00AE95B9 /* Profile */,
-				C2523A132DD30E18003ACBD5 /* Profile-mainnet */,
-				DEC632D52C58EA5400973B4A /* Profile-regtest */,
+				C2523A132DD30E18003ACBD5 /* Profile-fullMainnet */,
+				DEC632D52C58EA5400973B4A /* Profile-fullRegtest */,
+				71A0F699BB77CFB6E6E4ECEF /* Debug-liteMainnet */,
+				83D95A918D13A9144AA00F78 /* Release-liteMainnet */,
+				342F82B6398317EC07EB3089 /* Profile-liteMainnet */,
+				398AAFF85D6AEEE3F6000F20 /* Debug-liteRegtest */,
+				D3CC7D3270AEF57639AC0368 /* Release-liteRegtest */,
+				1B50128D2110A5F5330021B2 /* Profile-liteRegtest */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = "Debug-regtest";
@@ -1664,14 +2443,20 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				97C147061CF9000F007C117D /* Debug */,
-				C2523A0E2DD30DFE003ACBD5 /* Debug-mainnet */,
-				DEC632D02C58EA4300973B4A /* Debug-regtest */,
+				C2523A0E2DD30DFE003ACBD5 /* Debug-fullMainnet */,
+				DEC632D02C58EA4300973B4A /* Debug-fullRegtest */,
 				97C147071CF9000F007C117D /* Release */,
-				C2523A112DD30E0E003ACBD5 /* Release-mainnet */,
-				DEC632D32C58EA4D00973B4A /* Release-regtest */,
+				C2523A112DD30E0E003ACBD5 /* Release-fullMainnet */,
+				DEC632D32C58EA4D00973B4A /* Release-fullRegtest */,
 				249021D4217E4FDB00AE95B9 /* Profile */,
-				C2523A142DD30E18003ACBD5 /* Profile-mainnet */,
-				DEC632D62C58EA5400973B4A /* Profile-regtest */,
+				C2523A142DD30E18003ACBD5 /* Profile-fullMainnet */,
+				DEC632D62C58EA5400973B4A /* Profile-fullRegtest */,
+				8AA75834EA5C7143E6092BCF /* Debug-liteMainnet */,
+				1A92872D18048DE276A69564 /* Release-liteMainnet */,
+				D375F62DB46C685037328933 /* Profile-liteMainnet */,
+				3663ED7F8A7F9EA2E1D1FDB1 /* Debug-liteRegtest */,
+				AD0B0F75899F0B2B335E7951 /* Release-liteRegtest */,
+				E4D2CB9D9BEFADF0A2545919 /* Profile-liteRegtest */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = "Debug-regtest";

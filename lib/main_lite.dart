@@ -1,22 +1,24 @@
 import 'dart:io';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/app_lite.dart';
 import 'package:coconut_vault/constants/app_language.dart';
 import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/repository/old_secure_storage_cleaner_for_ios.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:coconut_vault/app.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_protector/screen_protector.dart';
 
+/// 라이트(서명 전용) 버전 엔트리포인트.
+///
+/// `flutter build --flavor liteMainnet -t lib/main_lite.dart`
+/// 안전 저장 모드 레거시 마이그레이션/정리 코드는 라이트에서 불필요하여 제외합니다.
 void main() async {
   if (kReleaseMode) {
     debugPrint = (String? message, {int? wrapWidth}) {};
@@ -27,7 +29,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final sharedPrefs = SharedPrefsRepository();
   await sharedPrefs.init();
-  await _migrateSharedPreferences(sharedPrefs);
+  // 라이트 버전은 서명 전용 모드로 고정 (일부 코드가 kIsLiteBuild 대신 저장된 모드를 직접 조회함)
+  await sharedPrefs.setString(SharedPrefsKeys.kVaultMode, VaultMode.signingOnly.name);
   // Isolate 토큰 생성 및 초기화
   final RootIsolateToken rootIsolateToken = RootIsolateToken.instance!;
   BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
@@ -73,31 +76,5 @@ void main() async {
     },
   );
 
-  // iOS secure storage 옵션 변경에 따른 삭제
-  if (Platform.isIOS) {
-    await OldSecureStorageCleanerForIos.cleanAll();
-  }
-
-  return runApp(const CoconutVaultApp());
-}
-
-Future<void> _migrateSharedPreferences(SharedPrefsRepository prefs) async {
-  if (prefs.isContainsKey(SharedPrefsKeys.kLanguage)) {
-    final savedLanguageCode = prefs.getString(SharedPrefsKeys.kLanguage);
-    final migratedLanguageCode = switch (savedLanguageCode) {
-      'kr' => 'ko',
-      'jp' => 'ja',
-      _ => null,
-    };
-
-    if (migratedLanguageCode != null) {
-      await prefs.setString(SharedPrefsKeys.kLanguage, migratedLanguageCode);
-      Logger.log('Language code migrated from "$savedLanguageCode" to "$migratedLanguageCode"');
-    }
-  }
-
-  if (prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true &&
-      prefs.getString(SharedPrefsKeys.kVaultMode).isEmpty) {
-    await prefs.setString(SharedPrefsKeys.kVaultMode, VaultMode.secureStorage.name);
-  }
+  return runApp(const CoconutVaultLiteApp());
 }
