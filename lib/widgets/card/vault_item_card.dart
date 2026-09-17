@@ -11,6 +11,7 @@ import 'package:coconut_vault/screens/wallet_info/passphrase_check_bottom_sheet.
 import 'package:coconut_vault/utils/colors_util.dart';
 import 'package:coconut_vault/widgets/button/tooltip_button.dart';
 import 'package:coconut_vault/widgets/icon/vault_icon.dart';
+import 'package:coconut_vault/widgets/text/mfp_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -146,15 +147,14 @@ class _VaultItemCardState extends State<VaultItemCard> {
                   )
                   : TooltipButton(
                     isSelected: false,
-                    text: rightText,
                     isLeft: true,
                     iconkey: widget.tooltipKey,
                     containerMargin: EdgeInsets.zero,
                     onTapDown: (_) => widget.onTooltipClicked(),
-                    textStyle: CoconutTypography.heading4_18_NumberBold,
                     iconColor: CoconutColors.black,
                     iconSize: 18,
                     isIconBold: true,
+                    child: MfpText(mfp: rightText, style: CoconutTypography.heading4_18_NumberBold),
                   ),
         );
       },

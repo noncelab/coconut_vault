@@ -151,7 +151,8 @@ String _singleSigMasterFingerprint(WalletCreationProvider creationProvider) {
       passphrase: creationProvider.passphrase != null ? Uint8List.fromList(creationProvider.passphrase!) : null,
     );
     keyStore = KeyStore.fromSeed(seed, AddressType.p2wpkh);
-    return keyStore.masterFingerprint.toUpperCase();
+    final mfp = keyStore.masterFingerprint.toUpperCase();
+    return '${mfp.substring(0, 4)} ${mfp.substring(4)}';
   } finally {
     keyStore?.wipeSeed();
     seed?.wipe();

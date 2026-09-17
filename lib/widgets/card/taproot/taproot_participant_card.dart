@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
+import 'package:coconut_vault/widgets/text/mfp_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
@@ -126,7 +127,13 @@ class TaprootParticipantCard extends StatelessWidget {
                     if (_lockStatusIcon != null) ...[CoconutLayout.spacing_200w, _lockStatusIcon!],
                   ],
                 ),
-                Text('$mfp · $derivationPath', style: CoconutTypography.caption_10.setColor(CoconutColors.gray600)),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    MfpText(mfp: mfp, style: CoconutTypography.caption_10.setColor(CoconutColors.gray600)),
+                    Text(' · $derivationPath', style: CoconutTypography.caption_10.setColor(CoconutColors.gray600)),
+                  ],
+                ),
               ],
             ),
           ),

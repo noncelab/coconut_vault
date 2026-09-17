@@ -28,6 +28,7 @@ import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/icon/vault_icon.dart';
+import 'package:coconut_vault/widgets/text/mfp_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -744,7 +745,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
     return Column(
       crossAxisAlignment: isLeftAlign ? CrossAxisAlignment.start : CrossAxisAlignment.end,
       children: [
-        Text(mfp, style: CoconutTypography.body2_14_Number),
+        MfpText(mfp: mfp, style: CoconutTypography.body2_14_Number),
         memo != null && memo.isNotEmpty
             ? Row(
               mainAxisAlignment: isLeftAlign ? MainAxisAlignment.start : MainAxisAlignment.end,
