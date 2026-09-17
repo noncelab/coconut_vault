@@ -39,14 +39,4 @@ enum AppLanguage {
 
   /// 영어와 같은 어순(SVO)을 사용하는 언어인지 여부
   bool get hasEnglishWordOrder => this == AppLanguage.en || this == AppLanguage.es || this == AppLanguage.de;
-
-  /// 언어별 이미지 파일 접미사
-  String get imageSuffix {
-    switch (this) {
-      case AppLanguage.ko:
-        return 'ko';
-      default:
-        return 'en';
-    }
-  }
 }

@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/view_model/splash_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/widgets/icon/coconut_vault_logo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -83,17 +83,7 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: CoconutColors.white,
       body: Column(
         children: [
-          Flexible(
-            child: Container(
-              padding: Platform.isIOS ? null : const EdgeInsets.only(top: Sizes.size48),
-              child: Center(
-                child: Image.asset(
-                  'assets/png/splash_logo_${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.png',
-                  width: Sizes.size60,
-                ),
-              ),
-            ),
-          ),
+          const Flexible(child: Center(child: CoconutVaultLogo(size: Sizes.size60))),
           ChangeNotifierProxyProvider<ConnectivityProvider, SplashViewModel>(
             create: (_) => _viewModel,
             update: (_, connectivityProvider, splashViewModel) {

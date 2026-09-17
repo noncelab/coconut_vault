@@ -336,7 +336,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
   void _showAddIconBottomSheet(String? iconSource, int index) async {
     final viewModel = context.read<WalletInfoViewModel>();
     final iconSourceList = [
-      kCoconutVaultIconPath,
+      HardwareWalletType.coconutVault.iconPath,
       kKeystoneIconPath,
       kSeedSignerIconPath,
       kJadeIconPath,
@@ -356,9 +356,9 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
     await MyBottomSheet.showDraggableBottomSheet<HardwareWalletType?>(
       context: context,
       showDragHandle: false,
-      maxChildSize: 0.45,
+      maxChildSize: 0.5,
       minChildSize: 0.2,
-      initialChildSize: 0.45,
+      initialChildSize: 0.5,
       childBuilder:
           (context) => SelectExternalWalletBottomSheet(
             title: t.multi_sig_setting_screen.add_signer.title,
@@ -385,24 +385,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
     }
 
     final selectedButton = externalWalletButtonList[selectedIndex];
-    final iconSource = selectedButton.iconSource;
-
-    switch (iconSource) {
-      case kCoconutVaultIconPath:
-        return HardwareWalletType.coconutVault;
-      case kKeystoneIconPath:
-        return HardwareWalletType.keystone;
-      case kSeedSignerIconPath:
-        return HardwareWalletType.seedSigner;
-      case kJadeIconPath:
-        return HardwareWalletType.jade;
-      case kColdCardIconPath:
-        return HardwareWalletType.coldCard;
-      case kKruxIconPath:
-        return HardwareWalletType.krux;
-      default:
-        return null;
-    }
+    return HardwareWalletTypeExtension.getHardwareWalletTypeByIconPath(selectedButton.iconSource);
   }
 
   Future<void> _authenticateAndDelete() async {
