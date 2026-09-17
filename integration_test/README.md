@@ -68,8 +68,81 @@ Flutter Test를 클릭해주고, Test File 경로를 지정합니다. Additional
    - 복원 파일이 존재하고 앱 업데이트가 완료됐을 때 PinCheckScreen -> VaultListRestorationScreen -> VaultListScreen으로 진입하는 통합테스트
    - 복원 파일이 존재하고 앱 업데이트가 안됐을 때 RestorationInfoScreen -> PinCheckScreen -> VaultListRestorationScreen -> VaultList으로 진입하는 통합테스트
 
+## Android mainnet 싱글시그 생성 테스트
+
+이 테스트들은 Android 우선으로 작성되었으며 에뮬레이터에서도 실행할 수 있습니다. 다음 세 엔트리포인트는 코인 플립, 주사위, 자동 생성, 니모닉 가져오기 및 SeedQR 가져오기 경로를 공유합니다.
+
+> **경고: 아래 테스트는 매 테스트 시작 전에 선택한 mainnet 앱 flavor의 SharedPreferences와 secure storage를 전부 삭제합니다. 기존 mainnet 볼트와 앱 설정이 영구적으로 삭제될 수 있으므로 개인 키나 실제 자금이 연결된 기기에서는 절대로 실행하지 마세요. 테스트 전용 Android 에뮬레이터를 사용하세요.**
+
+안전 저장 모드(fullMainnet):
+
+```bash
+fvm flutter test integration_test/single_sig_full_mainnet_safe_storage_test.dart --flavor fullMainnet -d <ANDROID_DEVICE_ID>
+```
+
+서명 전용 모드(fullMainnet):
+
+```bash
+fvm flutter test integration_test/single_sig_full_mainnet_signing_only_test.dart --flavor fullMainnet -d <ANDROID_DEVICE_ID>
+```
+
+liteMainnet(서명 전용 고정):
+
+```bash
+fvm flutter test integration_test/single_sig_lite_mainnet_test.dart --flavor liteMainnet -d <ANDROID_DEVICE_ID>
+```
+
+특정 비-SeedQR 테스트만 실행하려면 테스트 이름을 지정할 수 있습니다.
+
+```bash
+fvm flutter test integration_test/single_sig_full_mainnet_safe_storage_test.dart --flavor fullMainnet -d <ANDROID_DEVICE_ID> \
+  --plain-name "imports a mnemonic and creates a wallet"
+```
+
+## Android mainnet 멀티시그 생성 테스트
+
+이 테스트들은 Android 우선으로 작성되었으며 에뮬레이터에서도 실행할 수 있습니다. 내부 싱글시그 지갑 2개를 fixture API로 준비한 뒤 production UI를 통해 2-of-2 멀티시그를 생성하는 경로를 검증합니다.
+
+> **경고: 아래 테스트는 매 테스트 시작 전에 선택한 mainnet 앱 flavor의 SharedPreferences와 secure storage를 전부 삭제합니다. 기존 mainnet 볼트와 앱 설정이 영구적으로 삭제될 수 있으므로 개인 키나 실제 자금이 연결된 기기에서는 절대로 실행하지 마세요. 테스트 전용 Android 에뮬레이터를 사용하세요.**
+
+안전 저장 모드(fullMainnet):
+
+```bash
+fvm flutter test integration_test/multisig_full_mainnet_safe_storage_test.dart --flavor fullMainnet -d <ANDROID_DEVICE_ID>
+```
+
+서명 전용 모드(fullMainnet):
+
+```bash
+fvm flutter test integration_test/multisig_full_mainnet_signing_only_test.dart --flavor fullMainnet -d <ANDROID_DEVICE_ID>
+```
+
+liteMainnet(서명 전용 고정):
+
+```bash
+fvm flutter test integration_test/multisig_lite_mainnet_test.dart --flavor liteMainnet -d <ANDROID_DEVICE_ID>
+```
+
+특정 테스트만 실행하려면 테스트 이름을 지정할 수 있습니다.
+
+```bash
+fvm flutter test integration_test/multisig_full_mainnet_safe_storage_test.dart --flavor fullMainnet -d <ANDROID_DEVICE_ID> \
+  --plain-name "creates a 2-of-2 multisig from two internal single-sig wallets"
+```
+
+### SeedQR 반자동 절차
+
+SeedQR 테스트에는 카메라 입력만 수동으로 필요합니다.
+
+1. 테스트 전용 Android 에뮬레이터를 실행하고 카메라 권한을 허용합니다.
+2. 테스트가 SeedQR 스캐너 화면에서 대기하면 CLI에 출력되는 `000000000000000000000000000000000000000000000003` 문자열로 만든 Standard SeedQR을 카메라에 보여 줍니다. 이는 `abandon` 11개와 `about`으로 구성된 공개 테스트 니모닉입니다.
+3. QR을 인식하면 테스트가 확인 화면의 경고를 닫고 다음 생성 단계까지 자동 진행합니다.
+4. 스캔 대기 시간은 5분입니다. 제한 시간 안에 QR을 제시하지 않으면 테스트가 실패합니다.
+5. 테스트 니모닉에 자금을 보내지 말고, 실제 복구 문구를 카메라에 제시하지 마세요.
+
 ## 주의사항
 
-- 테스트는 실제 디바이스의 저장소와 보안 기능을 사용합니다.
+- 기존 regtest 테스트 일부는 실제 디바이스의 저장소와 보안 기능을 사용합니다.
 - 각 테스트는 실행 후 자동으로 테스트 데이터를 정리합니다. 설치했던 앱도 삭제합니다.
 - 테스트 실패 시 디바이스에 테스트 데이터가 남아있을 수 있으니 수동 정리가 필요할 수 있습니다.
+- mainnet 싱글시그 생성 테스트는 종료 시가 아니라 **시작 시 앱 데이터를 삭제**하므로 테스트 실패 여부와 관계없이 기존 데이터 복구가 불가능할 수 있습니다.

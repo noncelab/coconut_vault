@@ -51,6 +51,7 @@ class MultisigCreationOptionsScreen extends StatelessWidget {
                   return Column(
                     children: [
                       ShrinkAnimationButton(
+                        key: ValueKey(index == 0 ? 'multisig-option-new' : 'multisig-option-import'),
                         defaultColor: CoconutColors.gray150,
                         pressedColor: CoconutColors.gray500.withValues(alpha: 0.1),
                         onPressed: () {

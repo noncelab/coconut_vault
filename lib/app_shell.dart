@@ -1,0 +1,506 @@
+import 'dart:io';
+
+import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/app_entry_flow.dart';
+import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
+import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/connectivity_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
+import 'package:coconut_vault/providers/sign_provider.dart';
+import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
+import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/repository/shared_preferences_repository.dart';
+import 'package:coconut_vault/screens/common/app_unavailable_notification_screen.dart';
+import 'package:coconut_vault/screens/common/splash_screen.dart';
+import 'package:coconut_vault/screens/home/vault_home_screen.dart';
+import 'package:coconut_vault/screens/precheck/device_password_checker_screen.dart';
+import 'package:coconut_vault/screens/precheck/jail_break_detection_screen.dart';
+import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
+import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
+import 'package:coconut_vault/services/security_prechecker.dart';
+import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/widgets/overlays/signing_mode_edge_panel.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'utils/logger.dart';
+
+const cupertinoThemeData = CupertinoThemeData(
+  brightness: Brightness.light,
+  primaryColor: CoconutColors.black, // 기본 색상
+  scaffoldBackgroundColor: CoconutColors.white, // 배경색
+  textTheme: CupertinoTextThemeData(
+    navTitleTextStyle: TextStyle(
+      fontFamily: 'Pretendard',
+      fontSize: 14,
+      fontWeight: FontWeight.w600,
+      color: CoconutColors.gray800, // 제목 텍스트 색상
+    ),
+    textStyle: TextStyle(
+      fontFamily: 'Pretendard',
+      fontSize: 16,
+      fontWeight: FontWeight.w400,
+      color: CoconutColors.black, // 기본 텍스트 색상
+    ),
+  ),
+  barBackgroundColor: CoconutColors.white,
+);
+
+/// `main`/`main_lite`에서 공유하는 앱 뼈대.
+///
+/// [routesBuilder]와 [fallbackRoutesBuilder]를 통해 flavor별 라우트 테이블을 주입받고,
+/// [firstLaunchExtraBuilder]와 [pinCheckScreenBuilder]로 full 버전 전용 화면을 분리합니다.
+/// 라이트 빌드가 불필요한 full 전용 import에 의존하지 않도록 설계되었습니다.
+typedef PinCheckScreenBuilder =
+    Widget Function(
+      BuildContext context,
+      VoidCallback onSuccess,
+      VoidCallback onReset,
+      VoidCallback onPermanentlyLocked,
+      VoidCallback onPermanentLockReset,
+    );
+
+typedef FallbackRoutesBuilder =
+    Map<String, WidgetBuilder> Function(VoidCallback onWelcomeComplete, VoidCallback onModeSelectionComplete);
+
+class VaultApp extends StatefulWidget {
+  final bool isLiteBuild;
+  final Map<String, WidgetBuilder> Function(VoidCallback onWelcomeComplete) routesBuilder;
+  final FallbackRoutesBuilder fallbackRoutesBuilder;
+  final WidgetBuilder? firstLaunchExtraBuilder;
+  final PinCheckScreenBuilder? pinCheckScreenBuilder;
+
+  const VaultApp({
+    super.key,
+    required this.isLiteBuild,
+    required this.routesBuilder,
+    required this.fallbackRoutesBuilder,
+    this.firstLaunchExtraBuilder,
+    this.pinCheckScreenBuilder,
+  });
+
+  @override
+  State<VaultApp> createState() => _VaultAppState();
+}
+
+class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin {
+  AppEntryFlow _appEntryFlow = AppEntryFlow.splash;
+  bool _shouldShowPrivacyScreen = false;
+  late final authProvider = AuthProvider();
+  late final preferenceProvider = PreferenceProvider();
+  late final visibilityProvider = VisibilityProvider(isSigningOnlyMode: preferenceProvider.isSigningOnlyMode);
+  late final lifecycleProvider = AppLifecycleStateProvider();
+  WalletProvider? _walletProvider; // 서명전용 모드일 때를 위해서 변수 할당, ChangeNotifier.value 사용하므로 dispose를 직접 관리
+
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
+  // 현재 라우트 추적
+  late _RouteObserver _navigatorObserver;
+  final ValueNotifier<bool> _routeNotifierHasShow = ValueNotifier<bool>(false);
+
+  @override
+  void initState() {
+    super.initState();
+    _navigatorObserver = _RouteObserver(
+      onRouteChanged: (routeName) {
+        if (routeName == null || routeName == '/' || routeName == AppRoutes.vaultModeSelection) {
+          _routeNotifierHasShow.value = false;
+        } else {
+          _routeNotifierHasShow.value = true;
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _walletProvider?.dispose();
+    _routeNotifierHasShow.dispose();
+    super.dispose();
+  }
+
+  void _updateEntryFlow(AppEntryFlow appEntryFlow) {
+    if (!widget.isLiteBuild &&
+        !preferenceProvider.isSigningOnlyMode &&
+        _appEntryFlow == AppEntryFlow.vaultHome &&
+        appEntryFlow != AppEntryFlow.vaultHome) {
+      _walletProvider?.dispose();
+      _walletProvider = null;
+    }
+
+    _appEntryFlow = appEntryFlow;
+    if (appEntryFlow == AppEntryFlow.vaultHome) {
+      _shouldShowPrivacyScreen = false;
+
+      lifecycleProvider.registerCallbacks(
+        onAppGoBackground: _handleAppGoBackgroundOfMainRoute,
+        onAppGoInactive: _handleAppGoInactiveOfMainRoute,
+        onAppGoActive: _handleAppGoActiveOfMainRoute,
+      );
+    } else {
+      lifecycleProvider.unregisterAllCallbacks();
+    }
+
+    setState(() {});
+  }
+
+  void _handleAppGoBackgroundOfMainRoute() {
+    // 라이트 버전과 서명 전용 모드에서는 백그라운드 전환 시 지갑 데이터를 메모리에서 유지
+    if (widget.isLiteBuild || preferenceProvider.isSigningOnlyMode) return;
+
+    if (lifecycleProvider.shouldIgnoreLifecycleEvent) {
+      return;
+    }
+
+    // 안전 저장 모드일 때
+    _walletProvider?.dispose();
+    _walletProvider = null;
+    final walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
+    if (walletCount > 0) {
+      Logger.log('--> _handleAppGoBackgroundOfMainRoute: walletCount > 0 / pinCheck화면으로 이동');
+      _updateEntryFlow(AppEntryFlow.pinCheck);
+    }
+  }
+
+  void _handleAppGoInactiveOfMainRoute() {
+    if (Platform.isAndroid) return; // 안드로이드는 화면보호기 Native에서 처리
+    setState(() {
+      _shouldShowPrivacyScreen = true;
+    });
+  }
+
+  Future<void> _handleAppGoActiveOfMainRoute() async {
+    // 플랫폼별로 다른 로직 적용
+    // iOS: 무한 반복 방지를 위해 _shouldShowPrivacyScreen 체크 추가
+    // Android: 기기 비밀번호 해제 감지를 위해 항상 실행
+    if (Platform.isIOS && _shouldShowPrivacyScreen == false && _appEntryFlow == AppEntryFlow.vaultHome) {
+      // iOS에서 이미 _appEntryFlow가 vaultHome로 이동한 경우 무한 반복 방지
+      return;
+    }
+
+    if (lifecycleProvider.shouldIgnoreLifecycleEvent) {
+      return;
+    }
+
+    // 생체인증 상태 업데이트: 생체인증 ON 상태에서 백그라운드 나가서 권한을 해제한 경우에 상태값을 변경하기 위해
+    if (!widget.isLiteBuild && !preferenceProvider.isSigningOnlyMode) {
+      await authProvider.updateDeviceBiometricAvailability();
+    }
+
+    _updateEntryFlow(AppEntryFlow.securityPrecheck);
+  }
+
+  /// 라이트 버전 온보딩 완료: 모드 선택 없이 가이드 확인 처리 후 홈으로 이동
+  void _completeLiteOnboarding() {
+    visibilityProvider.setHasSeenGuide().then((_) {
+      if (mounted) {
+        _updateEntryFlow(AppEntryFlow.vaultHome);
+      }
+    });
+  }
+
+  VoidCallback get _onWelcomeComplete =>
+      widget.isLiteBuild ? _completeLiteOnboarding : () => _updateEntryFlow(AppEntryFlow.vaultHome);
+
+  WalletProvider _ensureWalletProvider(
+    VisibilityProvider visibilityProvider,
+    PreferenceProvider preferenceProvider,
+    AppLifecycleStateProvider lifecycleProvider,
+  ) {
+    _walletProvider ??= WalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider);
+    return _walletProvider!;
+  }
+
+  Widget _getHomeScreenRoute(AppEntryFlow appEntry, BuildContext context) {
+    switch (appEntry) {
+      case AppEntryFlow.splash:
+        return SplashScreen(onComplete: _updateEntryFlow);
+
+      case AppEntryFlow.securityPrecheck:
+        return FutureBuilder<SecurityCheckResult>(
+          future: Future.delayed(const Duration(milliseconds: 500), () => SecurityPrechecker().performSecurityCheck()),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return _buildSecurityCheckInProgress();
+            }
+
+            if (snapshot.hasData) {
+              final securityResult = snapshot.data!.status;
+
+              switch (securityResult) {
+                case SecurityCheckStatus.jailbreakDetected:
+                  return JailBreakDetectionScreen(
+                    hasSeenGuide: visibilityProvider.hasSeenGuide,
+                    onSkip: () async {
+                      // 첫 실행 화면으로 이동하여 다시 보안 검사 이어서 실행
+                      _updateEntryFlow(AppEntryFlow.splash);
+                    },
+                    onReset: () {
+                      _updateEntryFlow(AppEntryFlow.vaultResetCompleted);
+                    },
+                  );
+                case SecurityCheckStatus.devicePasswordRequired:
+                  return DevicePasswordCheckerScreen(
+                    state: DevicePasswordCheckerScreenState.devicePasswordRequired,
+                    onComplete: () {
+                      // 스플래시 플로우로 이동 후 다시 보안 검사 이어서 실행
+                      _updateEntryFlow(AppEntryFlow.splash);
+                    },
+                  );
+                case SecurityCheckStatus.secure:
+                  WidgetsBinding.instance.addPostFrameCallback((_) async {
+                    Logger.log('--> case SecurityCheckStatus.secure:');
+                    // 한번도 튜토리얼을 보지 않은 경우
+                    if (!visibilityProvider.hasSeenGuide) {
+                      _updateEntryFlow(AppEntryFlow.firstLaunch);
+                      return;
+                    }
+
+                    // 라이트 버전 또는 서명 전용 모드인 경우
+                    if (widget.isLiteBuild || preferenceProvider.isSigningOnlyMode) {
+                      _updateEntryFlow(AppEntryFlow.vaultHome);
+                      return;
+                    }
+
+                    // 영구 잠금 상태 - 이미 데이터는 초기화되었지만 PinCheck화면에서 t.errors.restart_vault 버튼을 누르지 않고 앱을 종료한 경우
+                    if (authProvider.isPermanentlyLocked) {
+                      _updateEntryFlow(AppEntryFlow.pinCheck);
+                      return;
+                    }
+
+                    // 저장 모드 && PinSet
+                    if (Platform.isIOS && authProvider.isPinSet) {
+                      // 기기 패스코드 삭제 여부 확인
+                      final isKeychainValid = await SecureZoneManager().verifyIosKeychainValidity();
+                      if (!isKeychainValid) {
+                        _updateEntryFlow(AppEntryFlow.cannotAccessToSecureZone);
+                        return;
+                      }
+                    }
+
+                    final walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
+                    if (walletCount > 0) {
+                      _updateEntryFlow(AppEntryFlow.pinCheck);
+                      return;
+                    }
+
+                    _updateEntryFlow(AppEntryFlow.vaultHome);
+                  });
+                case SecurityCheckStatus.error:
+              }
+            }
+            return _buildSecurityCheckInProgress();
+          },
+        );
+      case AppEntryFlow.firstLaunch:
+        if (!widget.isLiteBuild && NetworkType.currentNetworkType.isTestnet && widget.firstLaunchExtraBuilder != null) {
+          return widget.firstLaunchExtraBuilder!(context);
+        }
+        return WelcomeScreen(onComplete: _onWelcomeComplete);
+      case AppEntryFlow.pinCheck:
+        // 라이트 빌드에서는 PIN 잠금이 없어 도달하지 않음
+        if (widget.isLiteBuild || widget.pinCheckScreenBuilder == null) return const SizedBox.shrink();
+
+        if (!authProvider.isPermanentlyLocked) {
+          authProvider.updateDeviceBiometricAvailability();
+          lifecycleProvider.registerCallbacks(onAppGoActive: () => _updateEntryFlow(AppEntryFlow.securityPrecheck));
+        }
+        return widget.pinCheckScreenBuilder!(
+          context,
+          () => _updateEntryFlow(AppEntryFlow.vaultHome),
+          () => _updateEntryFlow(AppEntryFlow.securityPrecheck),
+          () => lifecycleProvider.unregisterAllCallbacks(),
+          () => _updateEntryFlow(AppEntryFlow.vaultHome),
+        );
+      case AppEntryFlow.vaultHome:
+        return VaultHomeScreen(
+          onSigningModeReset: () {
+            _updateEntryFlow(AppEntryFlow.vaultResetCompleted);
+          },
+          onSecureZoneUnaccessible: () {
+            _updateEntryFlow(AppEntryFlow.cannotAccessToSecureZone);
+          },
+        );
+      case AppEntryFlow.cannotAccessToSecureZone:
+        return DevicePasswordCheckerScreen(
+          state: DevicePasswordCheckerScreenState.devicePasswordChanged,
+          onComplete: () async {
+            _updateEntryFlow(AppEntryFlow.vaultHome);
+          },
+        );
+      case AppEntryFlow.vaultResetCompleted:
+        lifecycleProvider.disposeWhenVaultReset();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          runApp(
+            const CupertinoApp(
+              debugShowCheckedModeBanner: false,
+              home: AppUnavailableNotificationScreen(isVaultReset: true),
+            ),
+          );
+        });
+        return const SizedBox.shrink(); // 빈 위젯 반환
+    }
+  }
+
+  Widget _buildSecurityCheckInProgress() {
+    return Container(
+      color: Colors.white,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(t.verify_security, style: CoconutTypography.body1_16_Bold.setColor(CoconutColors.gray800)),
+          CoconutLayout.spacing_300h,
+          const CircularProgressIndicator(color: CoconutColors.gray800),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    CoconutTheme.setTheme(Brightness.light);
+
+    final routes =
+        _appEntryFlow == AppEntryFlow.vaultHome
+            ? widget.routesBuilder(_onWelcomeComplete)
+            : widget.fallbackRoutesBuilder(_onWelcomeComplete, () => _updateEntryFlow(AppEntryFlow.vaultHome));
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => authProvider),
+        ChangeNotifierProvider(create: (_) => preferenceProvider),
+        ChangeNotifierProvider(create: (_) => visibilityProvider),
+        ChangeNotifierProvider(create: (_) => lifecycleProvider),
+        ChangeNotifierProxyProvider2<VisibilityProvider, PreferenceProvider, ConnectivityProvider>(
+          create: (_) => ConnectivityProvider(hasSeenGuide: visibilityProvider.hasSeenGuide),
+          update: (_, visibilityProvider, preferenceProvider, connectivityProvider) {
+            if (visibilityProvider.hasSeenGuide) {
+              connectivityProvider!.setHasSeenGuideTrue();
+            }
+
+            return connectivityProvider!;
+          },
+        ),
+        if (_appEntryFlow == AppEntryFlow.vaultHome) ...[
+          Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
+          Provider<TaprootWalletCreationProvider>(create: (_) => TaprootWalletCreationProvider()),
+          Provider<SignProvider>(create: (_) => SignProvider()),
+          ChangeNotifierProvider.value(
+            value: _ensureWalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider),
+          ),
+        ],
+      ],
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child:
+            _appEntryFlow == AppEntryFlow.vaultHome
+                ? Stack(
+                  children: [
+                    CupertinoApp(
+                      navigatorKey: _navigatorKey,
+                      navigatorObservers: [_navigatorObserver],
+                      debugShowCheckedModeBanner: false,
+                      localizationsDelegates: const [
+                        DefaultMaterialLocalizations.delegate,
+                        DefaultWidgetsLocalizations.delegate,
+                        DefaultCupertinoLocalizations.delegate,
+                      ],
+                      theme: cupertinoThemeData,
+                      color: CoconutColors.white,
+                      home: _getHomeScreenRoute(_appEntryFlow, context),
+                      builder: (context, child) {
+                        return Stack(
+                          children: [
+                            child ?? const SizedBox.shrink(),
+                            Selector<WalletProvider, bool>(
+                              selector: (context, walletProvider) => walletProvider.vaultList.isNotEmpty,
+                              builder: (context, vaultListIsNotEmpty, child) {
+                                return vaultListIsNotEmpty
+                                    ? SigningModeEdgePanel(
+                                      navigatorKey: _navigatorKey,
+                                      routeVisibilityListenable: _routeNotifierHasShow,
+                                      onResetCompleted: () => _updateEntryFlow(AppEntryFlow.vaultResetCompleted),
+                                    )
+                                    : const SizedBox.shrink();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                      routes: routes,
+                    ),
+                    if (_shouldShowPrivacyScreen)
+                      Container(
+                        color: CoconutColors.white,
+                        child: Center(
+                          child: Image.asset(
+                            'assets/png/splash_logo_${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.png',
+                            width: 60,
+                            fit: BoxFit.fitWidth,
+                          ),
+                        ),
+                      ),
+                  ],
+                )
+                : CupertinoApp(
+                  key: ValueKey<AppEntryFlow>(_appEntryFlow),
+                  debugShowCheckedModeBanner: false,
+                  localizationsDelegates: const [
+                    DefaultMaterialLocalizations.delegate,
+                    DefaultWidgetsLocalizations.delegate,
+                    DefaultCupertinoLocalizations.delegate,
+                  ],
+                  theme: cupertinoThemeData,
+                  color: CoconutColors.white,
+                  home: _getHomeScreenRoute(_appEntryFlow, context),
+                  routes: routes,
+                ),
+      ),
+    );
+  }
+}
+
+/// 라우트 변경을 감지하는 NavigatorObserver
+class _RouteObserver extends NavigatorObserver {
+  final Function(String?) onRouteChanged;
+
+  _RouteObserver({required this.onRouteChanged});
+
+  void notifyRouteChange(Route<dynamic>? route) {
+    if (route != null) {
+      final routeName = route.settings.name;
+      onRouteChanged(routeName);
+    }
+  }
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    notifyRouteChange(route);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPop(route, previousRoute);
+    notifyRouteChange(previousRoute);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+    notifyRouteChange(newRoute);
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didRemove(route, previousRoute);
+    notifyRouteChange(previousRoute);
+  }
+}

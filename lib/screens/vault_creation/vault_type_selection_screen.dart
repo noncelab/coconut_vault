@@ -83,6 +83,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                       t.select_vault_type_screen.single_sig,
                       onTapSinglesigWallet,
                       true,
+                      key: const ValueKey('vault-type-single-sig'),
                     ),
                     CoconutLayout.spacing_300h,
                     buildCreationOptionButton(
@@ -90,6 +91,7 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
                       t.select_vault_type_screen.multisig,
                       onTapMultisigWallet,
                       true,
+                      key: const ValueKey('vault-type-multisig'),
                     ),
                     CoconutLayout.spacing_300h,
                     // 트리쉐이킹용 const 가드: 라이트는 탭루트 생성 미지원 — vault_creation/taproot 전체가 dead code로 제거됨
@@ -120,8 +122,15 @@ class _VaultTypeSelectionScreenState extends State<VaultTypeSelectionScreen> {
   }
 }
 
-Widget buildCreationOptionButton(String title, String description, VoidCallback onPressed, bool isSelectable) {
+Widget buildCreationOptionButton(
+  String title,
+  String description,
+  VoidCallback onPressed,
+  bool isSelectable, {
+  Key? key,
+}) {
   return ShrinkAnimationButton(
+    key: key,
     defaultColor: CoconutColors.gray150,
     pressedColor: CoconutColors.gray500.withValues(alpha: 0.1),
     onPressed: isSelectable ? onPressed : () {},

@@ -16,7 +16,6 @@ void main() {
       AppRoutes.seedQrImport,
       AppRoutes.mnemonicConfirmation,
       AppRoutes.mnemonicView,
-      AppRoutes.vaultNameSetup,
       AppRoutes.singleSigSetupInfo,
       AppRoutes.multisigSetupInfo,
       AppRoutes.multisigBsmsView,

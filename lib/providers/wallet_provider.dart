@@ -95,6 +95,9 @@ class WalletProvider extends ChangeNotifier {
 
   VaultListItemBase? findWalletByDescriptor(String descriptor) => _query.findWalletByDescriptor(descriptor);
 
+  /// 내부 지갑과 xpub가 일치하는 signer의 MFP를 교정한 리스트를 반환
+  List<MultisigSigner> sanitizeSignerMfp(List<MultisigSigner> signers) => _query.sanitizeSignerMfp(signers);
+
   // 5-2) 퍼블릭 메서드
   // Returns a copy of the list of vault list.
   List<VaultListItemBase> getVaults() {

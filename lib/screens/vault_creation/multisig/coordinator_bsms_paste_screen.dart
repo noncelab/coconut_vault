@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
@@ -13,6 +14,7 @@ import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
+import 'package:coconut_vault/screens/vault_creation/vault_creation_completion_coordinator.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -35,6 +37,7 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
 
   final bool _bsmsObscured = false;
   bool _isProcessing = false;
+  bool _isSaving = false;
   NormalizedMultisigConfig? _normalizedMultisigConfig;
 
   String? _errorMessage;
@@ -148,6 +151,11 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
       List<MultisigSigner> signers = _viewModel.getMultisigSignersFromMultisigConfig(_normalizedMultisigConfig!);
 
       if (isCoconutMultisigConfig) {
+        if (kIsLiteBuild) {
+          setState(() {
+            _isSaving = true;
+          });
+        }
         final Map<String, dynamic> jsonResult = jsonDecode(rawText);
         final colorIndex = jsonResult[VaultListItemBase.fieldColorIndex] as int;
         final iconIndex = jsonResult[VaultListItemBase.fieldIconIndex] as int;
@@ -168,68 +176,87 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
           _normalizedMultisigConfig!.signerBsms.length,
         );
         creationProvider.setSigners(signers);
-        Navigator.pushReplacementNamed(
+        await proceedToVaultCreationCompletion(
           context,
-          AppRoutes.vaultNameSetup,
-          arguments: {'name': _normalizedMultisigConfig!.name, 'isImported': true},
+          isImported: true,
+          replaceCurrentRoute: true,
+          routeArguments: {'name': _normalizedMultisigConfig!.name, 'isImported': true},
+          onLiteCreationStarted: () {
+            setState(() {
+              _isSaving = true;
+            });
+          },
         );
       }
     } catch (e) {
       Logger.error('🛑: $e');
+      if (!mounted) return;
       await showInfoPopup(context, t.alert.wallet_creation_failed.title, e.toString());
     } finally {
-      setState(() {
-        _isProcessing = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+          _isSaving = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        _bsmsFocusNode.unfocus();
-      },
-      child: Scaffold(
-        backgroundColor: CoconutColors.white,
-        appBar: CoconutAppBar.build(title: t.bsms_scanner_screen.import_multisig_wallet, context: context),
-        body: SafeArea(
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24),
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          t.bsms_paste_screen.import_bsms,
-                          textAlign: TextAlign.center,
-                          style: CoconutTypography.body1_16_Bold,
-                        ),
-                        const SizedBox(height: 8.0),
-                        _buildBSMSTextField(),
-                      ],
+    return PopScope(
+      canPop: !_isSaving,
+      child: GestureDetector(
+        onTap: () {
+          _bsmsFocusNode.unfocus();
+        },
+        child: Scaffold(
+          backgroundColor: CoconutColors.white,
+          appBar: CoconutAppBar.build(
+            title: t.bsms_scanner_screen.import_multisig_wallet,
+            context: context,
+            onBackPressed: _isSaving ? () {} : null,
+          ),
+          body: SafeArea(
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24),
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            t.bsms_paste_screen.import_bsms,
+                            textAlign: TextAlign.center,
+                            style: CoconutTypography.body1_16_Bold,
+                          ),
+                          const SizedBox(height: 8.0),
+                          _buildBSMSTextField(),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              FixedBottomButton(
-                onButtonClicked: _onCompletePressed,
-                text: t.complete,
-                showGradient: false,
-                isActive: _normalizedMultisigConfig != null && !_isProcessing,
-                subWidget: CoconutUnderlinedButton(
-                  text: t.bsms_paste_screen.back_scan,
-                  onTap: () {
-                    Navigator.pushReplacementNamed(context, AppRoutes.coordinatorBsmsConfigScanner);
-                  },
+                FixedBottomButton(
+                  onButtonClicked: _onCompletePressed,
+                  text: t.complete,
+                  showGradient: false,
+                  isActive: _normalizedMultisigConfig != null && !_isProcessing,
+                  subWidget: CoconutUnderlinedButton(
+                    text: t.bsms_paste_screen.back_scan,
+                    onTap: () {
+                      if (!_isSaving) {
+                        Navigator.pushReplacementNamed(context, AppRoutes.coordinatorBsmsConfigScanner);
+                      }
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -243,6 +270,7 @@ class _CoordinatorBsmsPasteScreenState extends State<CoordinatorBsmsPasteScreen>
           padding: const EdgeInsets.only(top: 12),
           child: SizedBox(
             child: CoconutTextField(
+              key: const ValueKey('coordinator-bsms-paste-field'),
               focusNode: _bsmsFocusNode,
               controller: _bsmsController,
               onChanged: (_) {},

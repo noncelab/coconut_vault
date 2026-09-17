@@ -260,7 +260,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
         Opacity(
           opacity: viewModel.isVaultsLoaded ? 1.0 : 0.2,
           child: _buildAppBarIconButton(
-            key: GlobalKey(),
+            key: const ValueKey('vault-home-add'),
             icon: SvgPicture.asset(
               'assets/svg/wallet-plus.svg',
               colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),

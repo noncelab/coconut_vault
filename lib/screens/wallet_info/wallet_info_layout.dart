@@ -100,12 +100,15 @@ class WalletInfoLayout extends StatefulWidget {
   }
 
   /// 이름/아이콘/색상 편집 바텀 시트를 표시하고, 수정 시 [updateVaultInfo]를 호출합니다.
+  /// 라이트 빌드에서는 사용하지 않습니다.
   static void showNameAndIconEditBottomSheet({
     required BuildContext context,
     required WalletInfoViewModel viewModel,
     required int id,
     required bool mounted,
   }) {
+    // 라이트 빌드에서는 이름/아이콘 편집을 지원하지 않음 (트리쉐이킹용 const 가드)
+    if (kIsLiteBuild) return;
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: NameAndIconEditBottomSheet(
@@ -200,6 +203,8 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
   }
 
   void _onNameChangeClicked() {
+    // 라이트 빌드에서는 이름/아이콘 편집을 지원하지 않음 (트리쉐이킹용 const 가드)
+    if (kIsLiteBuild) return;
     _removeTooltip();
     final viewModel = context.read<WalletInfoViewModel>();
     WalletInfoLayout.showNameAndIconEditBottomSheet(
@@ -444,7 +449,8 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                           VaultItemCard(
                             tooltipKey: _tooltipIconKey,
                             onTooltipClicked: _onTooltipClicked,
-                            onNameChangeClicked: _onNameChangeClicked,
+                            // 라이트 빌드에서는 이름/아이콘 편집을 지원하지 않음
+                            onNameChangeClicked: kIsLiteBuild ? null : _onNameChangeClicked,
                             vaultItem: viewModel.vaultItem,
                           ),
                           if (viewModel.linkedMultisigInfo != null && viewModel.linkedMultisigInfo!.isNotEmpty) ...[
@@ -641,7 +647,8 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                   },
                 );
               }
-            } else {
+            } else if (!kIsLiteBuild) {
+              // 라이트 빌드에서는 외부 signer 메모 편집을 지원하지 않음
               _showMemoEditBottomSheet(signer, index);
             }
           },

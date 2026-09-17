@@ -9,7 +9,6 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/wallet_info/account_number_settings_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/passphrase_check_bottom_sheet.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/button/tooltip_button.dart';
 import 'package:coconut_vault/widgets/icon/vault_icon.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +23,8 @@ import 'package:provider/provider.dart';
 class VaultItemCard extends StatefulWidget {
   final VaultListItemBase vaultItem;
   final VoidCallback onTooltipClicked;
-  final VoidCallback onNameChangeClicked;
+  // null이면 이름/아이콘 편집 탭과 편집 배지를 비활성화합니다 (라이트 빌드)
+  final VoidCallback? onNameChangeClicked;
   final GlobalKey tooltipKey;
 
   const VaultItemCard({
@@ -84,12 +84,15 @@ class _VaultItemCardState extends State<VaultItemCard> {
           children: [
             Expanded(
               child: GestureDetector(
-                onTapDown: (_) => setState(() => _isItemTapped = true),
-                onTapCancel: () => setState(() => _isItemTapped = false),
-                onTap: () {
-                  widget.onNameChangeClicked();
-                  setState(() => _isItemTapped = false);
-                },
+                onTapDown: widget.onNameChangeClicked != null ? (_) => setState(() => _isItemTapped = true) : null,
+                onTapCancel: widget.onNameChangeClicked != null ? () => setState(() => _isItemTapped = false) : null,
+                onTap:
+                    widget.onNameChangeClicked != null
+                        ? () {
+                          widget.onNameChangeClicked!();
+                          setState(() => _isItemTapped = false);
+                        }
+                        : null,
                 child: Row(
                   children: [
                     _buildIcon(),
@@ -231,6 +234,9 @@ class _VaultItemCardState extends State<VaultItemCard> {
       child: VaultIcon(iconIndex: iconIndex, colorIndex: colorIndex),
     );
 
+    if (widget.onNameChangeClicked == null) {
+      return icon;
+    }
     return VaultIconEditBadge(isTapped: _isItemTapped, child: icon);
   }
 

@@ -195,6 +195,7 @@ class _CoinFlipState extends BaseEntropyWidgetState<CoinFlip> {
 
   Widget _buildCoinButton(String text, VoidCallback onPressed) {
     return ShrinkAnimationButton(
+      key: ValueKey('coin-flip-${text == t.mnemonic_coin_flip_screen.coin_head ? 'heads' : 'tails'}'),
       onPressed: onPressed,
       pressedColor: CoconutColors.gray150,
       borderRadius: 100,
