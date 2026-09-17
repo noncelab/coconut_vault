@@ -372,7 +372,7 @@ class MyBottomSheet {
           expand: false,
           builder: (context, scrollController) {
             void handleDrag() {
-              if (isAnimating) return;
+              if (isAnimating || !draggableController.isAttached) return;
               final extent = draggableController.size;
               final targetExtent =
                   (extent - minChildSize).abs() < (extent - maxChildSize).abs() ? minChildSize + 0.01 : maxChildSize;

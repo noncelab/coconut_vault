@@ -407,7 +407,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     HardwareWalletType? hwwType;
 
     final iconSourceList = [
-      kCoconutVaultIconPath,
+      HardwareWalletType.coconutVault.iconPath,
       kKeystoneIconPath,
       kSeedSignerIconPath,
       kJadeIconPath,
@@ -426,9 +426,9 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     await MyBottomSheet.showDraggableBottomSheet<HardwareWalletType?>(
       context: context,
       showDragHandle: false,
-      maxChildSize: 0.45,
+      maxChildSize: 0.5,
       minChildSize: 0.2,
-      initialChildSize: 0.45,
+      initialChildSize: 0.5,
       childBuilder:
           (context) => SelectExternalWalletBottomSheet(
             title:
@@ -725,7 +725,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                 },
                 child: SvgPicture.asset(
                   iconPath,
-                  width: 24.0,
+                  width: 20.0,
                   colorFilter: iconColorFilter,
                   key: ValueKey<bool>(isSignerApproved),
                 ),

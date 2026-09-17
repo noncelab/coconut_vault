@@ -24,6 +24,7 @@ import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
+import 'package:coconut_vault/widgets/icon/coconut_vault_logo.dart';
 import 'package:coconut_vault/widgets/overlays/signing_mode_edge_panel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -439,13 +440,7 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
                     if (_shouldShowPrivacyScreen)
                       Container(
                         color: CoconutColors.white,
-                        child: Center(
-                          child: Image.asset(
-                            'assets/png/splash_logo_${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.png',
-                            width: 60,
-                            fit: BoxFit.fitWidth,
-                          ),
-                        ),
+                        child: const Center(child: CoconutVaultLogo(size: 60)),
                       ),
                   ],
                 )

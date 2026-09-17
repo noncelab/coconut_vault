@@ -248,7 +248,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                     width: 1,
                                                   ),
                                                   child: Container(
-                                                    width: 210,
+                                                    width: 250,
                                                     height: 64,
                                                     padding: const EdgeInsets.symmetric(horizontal: 16),
                                                     child:
@@ -473,6 +473,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       physics: const ClampingScrollPhysics(),
       enableSingleChildScroll: false,
       hideAppBar: true,
+      controller: _draggableController,
       child: const SignerBsmsScannerScreen(hardwareWalletType: HardwareWalletType.coconutVault),
     );
 
@@ -537,6 +538,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       physics: const ClampingScrollPhysics(),
       enableSingleChildScroll: false,
       hideAppBar: true,
+      controller: _draggableController,
       child: SignerBsmsScannerScreen(hardwareWalletType: selectedWalletType!),
     );
 
