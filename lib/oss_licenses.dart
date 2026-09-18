@@ -30,6 +30,7 @@ const allDependencies = <Package>[
   _cbor,
   _characters,
   _checked_yaml,
+  _cli_util,
   _clock,
   _coconut_design_system,
   _coconut_lib,
@@ -62,6 +63,7 @@ const allDependencies = <Package>[
   _flutter_keyboard_visibility_platform_interface,
   _flutter_keyboard_visibility_web,
   _flutter_keyboard_visibility_windows,
+  _flutter_launcher_icons,
   _flutter_lints,
   _flutter_oss_licenses,
   _flutter_plugin_android_lifecycle,
@@ -81,6 +83,7 @@ const allDependencies = <Package>[
   _http_multi_server,
   _http_parser,
   _ieee754,
+  _image,
   _intl,
   _io,
   _js,
@@ -249,7 +252,14 @@ const dependencies = <Package>[
 ];
 
 /// Direct `dev_dependencies`.
-const devDependencies = <Package>[_build_runner, _flutter_lints, _flutter_oss_licenses, _json_serializable, _test];
+const devDependencies = <Package>[
+  _build_runner,
+  _flutter_launcher_icons,
+  _flutter_lints,
+  _flutter_oss_licenses,
+  _json_serializable,
+  _test,
+];
 
 /// Package license definition.
 class Package {
@@ -1208,6 +1218,45 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   isMarkdown: false,
   isSdk: false,
   dependencies: [PackageRef('json_annotation'), PackageRef('source_span'), PackageRef('yaml')],
+);
+
+/// cli_util 0.4.2
+const _cli_util = Package(
+  name: 'cli_util',
+  description: 'A library to help in building Dart command-line apps.',
+  repository: 'https://github.com/dart-lang/tools/tree/main/pkgs/cli_util',
+  authors: [],
+  version: '0.4.2',
+  license: '''Copyright 2015, the Dart project authors. 
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+      copyright notice, this list of conditions and the following
+      disclaimer in the documentation and/or other materials provided
+      with the distribution.
+    * Neither the name of Google LLC nor the names of its
+      contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
+  isMarkdown: false,
+  isSdk: false,
+  dependencies: [PackageRef('meta'), PackageRef('path')],
 );
 
 /// clock 1.1.2
@@ -3524,6 +3573,48 @@ THE SOFTWARE.''',
   dependencies: [PackageRef('flutter_keyboard_visibility_platform_interface'), PackageRef('flutter')],
 );
 
+/// flutter_launcher_icons 0.14.4
+const _flutter_launcher_icons = Package(
+  name: 'flutter_launcher_icons',
+  description: "A package which simplifies the task of updating your Flutter app's launcher icon.",
+  homepage: 'https://github.com/fluttercommunity/flutter_launcher_icons',
+  repository: 'https://github.com/fluttercommunity/flutter_launcher_icons/',
+  authors: [],
+  version: '0.14.4',
+  license: '''MIT License
+
+Copyright (c) 2019 Mark O'Sullivan
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.''',
+  isMarkdown: false,
+  isSdk: false,
+  dependencies: [
+    PackageRef('args'),
+    PackageRef('checked_yaml'),
+    PackageRef('cli_util'),
+    PackageRef('image'),
+    PackageRef('json_annotation'),
+    PackageRef('path'),
+    PackageRef('yaml'),
+  ],
+);
+
 /// flutter_lints 3.0.2
 const _flutter_lints = Package(
   name: 'flutter_lints',
@@ -4267,6 +4358,41 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
   isMarkdown: false,
   isSdk: false,
   dependencies: [PackageRef('meta')],
+);
+
+/// image 4.8.0
+const _image = Package(
+  name: 'image',
+  description:
+      'Dart Image Library provides server and web apps the ability to load, manipulate, and save images with various image file formats.',
+  homepage: 'https://github.com/brendan-duncan/image',
+  authors: [],
+  version: '4.8.0',
+  license: '''The MIT License
+
+Copyright (c) 2013-2022 Brendan Duncan.
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.''',
+  isMarkdown: false,
+  isSdk: false,
+  dependencies: [PackageRef('archive'), PackageRef('meta'), PackageRef('xml')],
 );
 
 /// intl 0.19.0

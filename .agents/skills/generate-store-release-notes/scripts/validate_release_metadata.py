@@ -12,6 +12,10 @@ from pathlib import Path
 APP_STORE_LOCALES = ("ko", "en-US", "ja")
 PLAY_STORE_LOCALES = ("ko-KR", "en-US", "ja-JP")
 MAX_CHARACTERS = 500
+ANDROID_VERSION_KEYS = {
+    "mainnet": "aos_fullMainnet",
+    "regtest": "aos_fullRegtest",
+}
 
 
 def repository_root() -> Path:
@@ -20,10 +24,11 @@ def repository_root() -> Path:
 
 def next_android_version_code(root: Path, flavor: str) -> int:
     pubspec = (root / "pubspec.yaml").read_text(encoding="utf-8")
-    pattern = rf"^\s*aos_{re.escape(flavor)}:\s*\d+\.\d+\.\d+\+(\d+)\s*$"
+    version_key = ANDROID_VERSION_KEYS[flavor]
+    pattern = rf"^\s*{re.escape(version_key)}:\s*\d+\.\d+\.\d+\+(\d+)\s*$"
     match = re.search(pattern, pubspec, flags=re.MULTILINE)
     if not match:
-        raise ValueError(f"app_versions.aos_{flavor} was not found in pubspec.yaml")
+        raise ValueError(f"app_versions.{version_key} was not found in pubspec.yaml")
     return int(match.group(1)) + 1
 
 
