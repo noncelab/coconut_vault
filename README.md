@@ -116,10 +116,10 @@ storeFile=../app/local.jks
 
 ```bash
 # Debug
-flutter run --flavor regtest
+flutter run --flavor fullRegtest
 
 # Release
-flutter run --release --flavor regtest
+flutter run --release --flavor fullRegtest
 ```
 
 **Debug mode** only checks that network and Bluetooth are disabled; **release mode** also requires developer options to be turned off on the device.
@@ -144,7 +144,7 @@ Run → Edit Configurations... → Set Build Flavor to `regtest`
   "name": "coconut_vault (debug)",
   "request": "launch",
   "type": "dart",
-  "args": ["--flavor", "regtest"]
+  "args": ["--flavor", "fullRegtest"]
 }
 ```
 

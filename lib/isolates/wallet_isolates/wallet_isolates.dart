@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data'; // Added for Uint8List
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/isolates/wallet_isolates/taproot/taproot_inheritance_isolates.dart';
 import 'package:coconut_vault/model/common/wallet_address.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
@@ -29,9 +30,7 @@ typedef TaprootCreationResult =
 
 class WalletIsolates {
   static void setNetworkType() {
-    const String? appFlavor =
-        String.fromEnvironment('FLUTTER_APP_FLAVOR') != '' ? String.fromEnvironment('FLUTTER_APP_FLAVOR') : null;
-    NetworkType.setNetworkType(appFlavor == "mainnet" ? NetworkType.mainnet : NetworkType.regtest);
+    setNetworkTypeFromAppFlavor();
   }
 
   static List<SingleSigVaultListItem> createSingleSigVault(Map<String, dynamic> data) {

@@ -151,6 +151,7 @@ class _FixedBottomTweenButtonState extends State<FixedBottomTweenButton> {
                     SizedBox(
                       width: rightButtonWidth,
                       child: ShrinkAnimationButton(
+                        key: const ValueKey('fixed-bottom-tween-right'),
                         onPressed: () {
                           widget.rightButtonClicked();
                         },

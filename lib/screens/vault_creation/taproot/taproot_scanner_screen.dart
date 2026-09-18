@@ -180,7 +180,7 @@ class _TaprootScannerScreenState extends QrScannerScreenBase<TaprootScannerScree
       }
       await controller?.start();
     } catch (e) {
-      debugPrint('Taproot scanner restart failed: $e');
+      Logger.error('Taproot scanner restart failed: $e');
     }
   }
 

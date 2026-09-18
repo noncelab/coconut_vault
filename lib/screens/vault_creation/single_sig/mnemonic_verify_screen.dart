@@ -295,6 +295,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
             fit: BoxFit.scaleDown,
             child: Text(
               t.mnemonic_verify_screen.select_word(index: currentPosition + 1),
+              key: ValueKey('mnemonic-verify-position-$currentPosition'),
               style: CoconutTypography.body1_16_Bold,
               textAlign: TextAlign.center,
             ),
@@ -325,6 +326,7 @@ class _MnemonicVerifyScreenState extends State<MnemonicVerifyScreen> {
     return Container(
       margin: const EdgeInsets.only(left: 66, right: 66, bottom: 20),
       child: ShrinkAnimationButton(
+        key: ValueKey('mnemonic-verify-option-$option'),
         onPressed: () => _showResult ? null : _onAnswerSelected(option, optionIndex),
         defaultColor: buttonColor,
         pressedColor: buttonColor,

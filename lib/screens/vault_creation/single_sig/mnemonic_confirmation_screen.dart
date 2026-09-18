@@ -6,10 +6,13 @@ import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
+import 'package:coconut_vault/screens/vault_creation/vault_creation_completion_coordinator.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
+import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
 import 'package:flutter/material.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
 // 니모닉 확인 및 마지막 확인 화면
@@ -39,6 +42,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   late Uint8List _mnemonic;
   Uint8List? _passphrase;
   bool _isWarningVisible = true;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -117,18 +121,24 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
 
     return PopScope(
       canPop: false,
-      child: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child:
-            widget.isEmbedded
-                ? body
-                : Scaffold(
-                  appBar: CoconutAppBar.build(title: screenTitle, context: context),
-                  backgroundColor: CoconutColors.white,
-                  body: SafeArea(child: body),
-                ),
+      child: CustomLoadingOverlay(
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child:
+              widget.isEmbedded
+                  ? body
+                  : Scaffold(
+                    appBar: CoconutAppBar.build(
+                      title: screenTitle,
+                      context: context,
+                      onBackPressed: _isSaving ? () {} : null,
+                    ),
+                    backgroundColor: CoconutColors.white,
+                    body: SafeArea(child: body),
+                  ),
+        ),
       ),
     );
   }
@@ -163,7 +173,23 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
       if (widget.isTaproot) {
         Navigator.pop(context, true);
       } else {
-        Navigator.pushReplacementNamed(context, AppRoutes.vaultNameSetup);
+        await proceedToVaultCreationCompletion(
+          context,
+          replaceCurrentRoute: true,
+          onLiteCreationStarted: () {
+            context.loaderOverlay.show();
+            setState(() {
+              _isSaving = true;
+            });
+          },
+          onLiteCreationFinished: () {
+            if (!mounted) return;
+            context.loaderOverlay.hide();
+            setState(() {
+              _isSaving = false;
+            });
+          },
+        );
       }
     }
   }

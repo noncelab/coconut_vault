@@ -328,40 +328,6 @@ class MultisigSignViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// TODO: 코드 리뷰..!!!
-  /// 스캔된 PSBT의 partial signature를 기반으로 서명 상태를 동기화합니다.
-  // void syncImportedPartialSigs(String psbtBase64) {
-  //   if (psbtBase64.startsWith('02000000')) {
-  //     // Raw Transaction인 경우 서명 여부 확인을 canUpdatePsbt()에서 이미 진행 완료
-  //     // TODO: 이거 하면 안됨......
-  //     _signerApproved.fillRange(0, _signerApproved.length, true);
-  //     notifyListeners();
-  //     return;
-  //   }
-
-  //   final scannedPsbtPartialSigs = Psbt.parse(psbtBase64).inputs[0].partialSig?.map((e) => e.publicKey).toList() ?? [];
-  //   _signerApproved.fillRange(0, _signerApproved.length, false);
-
-  //   if (scannedPsbtPartialSigs.isEmpty) {
-  //     // partialSig가 비어있는 경우 = 서명이 하나도 안된 경우
-  //     debugPrint('scannedPsbtPartialSigsMap is empty');
-  //     notifyListeners();
-  //     return;
-  //   }
-
-  //   for (var signer in signers) {
-  //     final mfp = signer.keyStore.masterFingerprint;
-  //     final pubKey = unsignedPubkeyMap![mfp];
-  //     final index = signers.indexOf(signer);
-
-  //     if (scannedPsbtPartialSigs.contains(pubKey)) {
-  //       _signerApproved[index] = true;
-  //     }
-  //   }
-
-  //   notifyListeners();
-  // }
-
   /// Raw tx hex string이 스캔된 경우 모든 input의 최종 witness를 검증합니다.
   Future<void> validateRawSignedTransaction(String rawSignedTransaction) async {
     _isRawTransactionValidated = false;

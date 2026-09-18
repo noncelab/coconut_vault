@@ -10,8 +10,8 @@ import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/overlays/scanner_overlay.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
@@ -35,6 +35,8 @@ abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
   bool get showBackButton => true;
   bool get showAppBar => true;
   bool get showBottomButton => false;
+  bool get canPop => true;
+  VoidCallback? get onBackPressed => null;
   String get bottomButtonText => '';
 
   bool _isShowedCameraPermissionDialog = false;
@@ -169,28 +171,37 @@ abstract class QrScannerScreenBase<T extends StatefulWidget> extends State<T> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomLoadingOverlay(
-      child: Scaffold(
-        appBar:
-            showAppBar
-                ? CoconutAppBar.build(
-                  title: appBarTitle,
-                  backgroundColor: CoconutColors.white,
-                  context: context,
-                  isBackButton: showBackButton,
-                  isBottom: useBottomAppBar,
-                  actionButtonList: [
-                    IconButton(
-                      icon: const Icon(CupertinoIcons.camera_rotate, size: 22),
-                      color: CoconutColors.black,
-                      onPressed: () {
-                        controller?.switchCamera();
-                      },
-                    ),
-                  ],
-                )
-                : null,
-        body: SafeArea(top: false, child: _buildChild(context)),
+    return PopScope(
+      canPop: canPop,
+      child: CustomLoadingOverlay(
+        child: Scaffold(
+          appBar:
+              showAppBar
+                  ? CoconutAppBar.build(
+                    title: appBarTitle,
+                    backgroundColor: CoconutColors.white,
+                    context: context,
+                    isBackButton: showBackButton,
+                    onBackPressed: onBackPressed,
+                    isBottom: useBottomAppBar,
+                    actionButtonList: [
+                      IconButton(
+                        icon: SvgPicture.asset(
+                          'assets/svg/arrow-reload.svg',
+                          width: 20,
+                          height: 20,
+                          colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+                        ),
+                        color: CoconutColors.black,
+                        onPressed: () {
+                          controller?.switchCamera();
+                        },
+                      ),
+                    ],
+                  )
+                  : null,
+          body: SafeArea(top: false, child: _buildChild(context)),
+        ),
       ),
     );
   }

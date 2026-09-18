@@ -1,4 +1,5 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -150,11 +151,17 @@ class _SelectExternalWalletBottomSheetState extends State<SelectExternalWalletBo
       borderRadius: 12,
       onPressed: () => setState(() => selectedIndex = index),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         child: Column(
           children: [
-            SvgPicture.asset(button.iconSource),
-            CoconutLayout.spacing_100h,
+            SvgPicture.asset(
+              button.iconSource,
+              colorFilter:
+                  button.iconSource == kCoconutVaultRegtestIconPath
+                      ? const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn)
+                      : null,
+            ),
+            CoconutLayout.spacing_200h,
             MediaQuery(
               data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
               child: Text(

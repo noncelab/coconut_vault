@@ -17,6 +17,7 @@ import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
 import 'package:coconut_vault/utils/bip/signer_bsms.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
+import 'package:coconut_vault/screens/vault_creation/vault_creation_completion_coordinator.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
@@ -83,6 +84,7 @@ class SignerOption {
 class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   bool _isFinishing = false;
   bool _isNextProcessing = false;
+  bool _isSaving = false;
   bool _alreadyDialogShown = false;
   late SignerAssignmentViewModel _viewModel;
   late DraggableScrollableController _draggableController;
@@ -117,7 +119,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!_isFinishing) _onBackPressed(context);
+        if (!_isFinishing && !_isSaving) _onBackPressed(context);
       },
       child: ChangeNotifierProvider<SignerAssignmentViewModel>(
         create:
@@ -133,7 +135,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                 appBar: CoconutAppBar.build(
                   title: t.multisig_wallet_creation,
                   context: context,
-                  onBackPressed: () => _onBackPressed(context),
+                  onBackPressed: _isSaving ? () {} : () => _onBackPressed(context),
                   backgroundColor: CoconutColors.white,
                 ),
                 body: SafeArea(
@@ -198,6 +200,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                             return Column(
                                               children: [
                                                 ShrinkAnimationButton(
+                                                  key: ValueKey('signer-assignment-slot-$i'),
                                                   onPressed: () {
                                                     if (signer.importKeyType != null) {
                                                       _showDialog(DialogType.deleteKey, keyIndex: i);
@@ -245,7 +248,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
                                                     width: 1,
                                                   ),
                                                   child: Container(
-                                                    width: 210,
+                                                    width: 250,
                                                     height: 64,
                                                     padding: const EdgeInsets.symmetric(horizontal: 16),
                                                     child:
@@ -392,16 +395,19 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
         child: Column(
           children: [
             _buildKeyOptionButton(
+              key: const ValueKey('signer-assignment-internal-key'),
               title: t.assign_signers_screen.use_internal_key,
               onPressed: () => _onUseInternalKeyPressed(index),
             ),
             CoconutLayout.spacing_300h,
             _buildKeyOptionButton(
+              key: const ValueKey('signer-assignment-import-other-vault'),
               title: t.assign_signers_screen.import_from_other_vault,
               onPressed: () => _onImportFromOtherVaultPressed(index),
             ),
             CoconutLayout.spacing_300h,
             _buildKeyOptionButton(
+              key: const ValueKey('signer-assignment-import-hww'),
               title: t.assign_signers_screen.import_from_hww,
               onPressed: () => _onImportFromHwwPressed(index),
             ),
@@ -411,8 +417,9 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
     );
   }
 
-  Widget _buildKeyOptionButton({required String title, required VoidCallback onPressed}) {
+  Widget _buildKeyOptionButton({required String title, required VoidCallback onPressed, Key? key}) {
     return ShrinkAnimationButton(
+      key: key,
       borderGradientColors: [CoconutColors.black.withValues(alpha: 0.08), CoconutColors.black.withValues(alpha: 0.08)],
       borderWidth: 1,
       borderRadius: 12,
@@ -466,6 +473,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       physics: const ClampingScrollPhysics(),
       enableSingleChildScroll: false,
       hideAppBar: true,
+      controller: _draggableController,
       child: const SignerBsmsScannerScreen(hardwareWalletType: HardwareWalletType.coconutVault),
     );
 
@@ -530,6 +538,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       physics: const ClampingScrollPhysics(),
       enableSingleChildScroll: false,
       hideAppBar: true,
+      controller: _draggableController,
       child: SignerBsmsScannerScreen(hardwareWalletType: selectedWalletType!),
     );
 
@@ -642,14 +651,32 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
       return;
     }
 
-    if (mounted) {
-      setState(() {
-        _isNextProcessing = false;
-      });
-    }
-
     _viewModel.saveSignersToProvider(signers);
-    Navigator.pushNamed(context, AppRoutes.vaultNameSetup);
+
+    if (!mounted) return;
+    try {
+      await proceedToVaultCreationCompletion(
+        context,
+        onLiteCreationStarted: () {
+          _viewModel.setLoadingMessage(t.vault_name_icon_setup_screen.saving);
+          setState(() {
+            _isSaving = true;
+          });
+        },
+        onLiteCreationFinished: () {
+          if (!mounted) return;
+          setState(() {
+            _isSaving = false;
+          });
+        },
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isNextProcessing = false;
+        });
+      }
+    }
   }
 
   void _onBackPressed(BuildContext context) {

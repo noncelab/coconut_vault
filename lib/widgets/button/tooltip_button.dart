@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 
 class TooltipButton extends StatefulWidget {
   final bool isSelected;
-  final String text;
+  final String? text;
+  final Widget? child;
   final bool isLeft;
   final GestureTapDownCallback onTapDown;
   final EdgeInsets containerMargin;
@@ -16,7 +17,8 @@ class TooltipButton extends StatefulWidget {
   const TooltipButton({
     super.key,
     required this.isSelected,
-    required this.text,
+    this.text,
+    this.child,
     required this.isLeft,
     required this.onTapDown,
     required this.iconkey,
@@ -25,7 +27,7 @@ class TooltipButton extends StatefulWidget {
     this.iconColor,
     this.iconSize,
     this.isIconBold = false,
-  });
+  }) : assert(text != null || child != null, 'Either text or child must be provided.');
 
   @override
   State<TooltipButton> createState() => _TooltipButtonState();
@@ -52,17 +54,22 @@ class _TooltipButtonState extends State<TooltipButton> {
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerRight,
-                  child: Text(
-                    widget.text,
-                    style:
-                        widget.textStyle ??
-                        CoconutTypography.body2_14.merge(
-                          TextStyle(
-                            color: widget.isSelected ? CoconutColors.black : CoconutColors.black.withValues(alpha: 0.3),
-                            fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.normal,
-                          ),
-                        ),
-                  ),
+                  child:
+                      widget.child ??
+                      Text(
+                        widget.text!,
+                        style:
+                            widget.textStyle ??
+                            CoconutTypography.body2_14.merge(
+                              TextStyle(
+                                color:
+                                    widget.isSelected
+                                        ? CoconutColors.black
+                                        : CoconutColors.black.withValues(alpha: 0.3),
+                                fontWeight: widget.isSelected ? FontWeight.bold : FontWeight.normal,
+                              ),
+                            ),
+                      ),
                 ),
               ),
               const SizedBox(width: 4),

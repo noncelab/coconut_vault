@@ -383,6 +383,7 @@ class _WordsLengthSelectionState extends State<WordsLengthSelection> {
 
   Widget _buildWordCountButton(String text) {
     return ShrinkAnimationButton(
+      key: ValueKey('word-count-${text == t.mnemonic_generate_screen.twelve ? 12 : 24}'),
       defaultColor: CoconutColors.gray150,
       pressedColor: CoconutColors.gray500.withValues(alpha: 0.15),
       child: Container(
@@ -434,6 +435,7 @@ class _PassphraseSelectionState extends State<PassphraseSelection> {
 
   Widget _buildPassphraseUseButton(String text) {
     return ShrinkAnimationButton(
+      key: ValueKey('passphrase-${text == t.no ? 'no' : 'yes'}'),
       defaultColor: CoconutColors.gray150,
       pressedColor: CoconutColors.gray500.withValues(alpha: 0.15),
       child: Container(
@@ -624,6 +626,7 @@ class _WarningWidgetState extends State<WarningWidget> {
               _description,
               CoconutLayout.spacing_600h,
               ShrinkAnimationButton(
+                key: const ValueKey('mnemonic-warning-dismiss'),
                 borderRadius: 12,
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 14),

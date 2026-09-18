@@ -215,8 +215,6 @@ class VaultListViewModel extends ChangeNotifier {
   }
 
   Future<void> _deleteVaults(List<int> deletedVaultIds) async {
-    debugPrint('deletedVaultIds: $deletedVaultIds');
-
     try {
       for (int i = 0; i < deletedVaultIds.length; i++) {
         int vaultId = deletedVaultIds[i];

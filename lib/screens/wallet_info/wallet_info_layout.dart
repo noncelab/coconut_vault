@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -27,6 +28,7 @@ import 'package:coconut_vault/widgets/button/single_button.dart';
 import 'package:coconut_vault/widgets/card/vault_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/icon/vault_icon.dart';
+import 'package:coconut_vault/widgets/text/mfp_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -99,12 +101,15 @@ class WalletInfoLayout extends StatefulWidget {
   }
 
   /// 이름/아이콘/색상 편집 바텀 시트를 표시하고, 수정 시 [updateVaultInfo]를 호출합니다.
+  /// 라이트 빌드에서는 사용하지 않습니다.
   static void showNameAndIconEditBottomSheet({
     required BuildContext context,
     required WalletInfoViewModel viewModel,
     required int id,
     required bool mounted,
   }) {
+    // 라이트 빌드에서는 이름/아이콘 편집을 지원하지 않음 (트리쉐이킹용 const 가드)
+    if (kIsLiteBuild) return;
     MyBottomSheet.showBottomSheet_90(
       context: context,
       child: NameAndIconEditBottomSheet(
@@ -199,6 +204,8 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
   }
 
   void _onNameChangeClicked() {
+    // 라이트 빌드에서는 이름/아이콘 편집을 지원하지 않음 (트리쉐이킹용 const 가드)
+    if (kIsLiteBuild) return;
     _removeTooltip();
     final viewModel = context.read<WalletInfoViewModel>();
     WalletInfoLayout.showNameAndIconEditBottomSheet(
@@ -258,29 +265,18 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
           onTapLeft: () => Navigator.pop(context),
           onTapRight: () async {
             final viewModel = context.read<WalletInfoViewModel>();
+            if (!context.mounted) return;
 
-            if (widget.isMultisig) {
-              if (context.mounted) {
-                if (!context.read<WalletInfoViewModel>().isSigningOnlyMode) {
-                  // 안전 저장 모드
-                  _authenticateAndDelete();
-                } else {
-                  // 서명 전용 모드
-                  onAuthenticationComplete();
-                }
-                return;
-              }
-            }
-
-            if (!mounted) return;
-
-            if (!viewModel.isSigningOnlyMode) {
+            // 트리쉐이킹용 const 가드: 라이트 빌드에서 인증 경로를 dead code로 만들어 PinCheckScreen 제거
+            if (!kIsLiteBuild && !viewModel.isSigningOnlyMode) {
+              // 안전 저장 모드
               await _authenticateWithBiometricOrPin(
                 context,
                 PinCheckContextEnum.seedDeletion,
                 () => _deleteVault(context),
               );
             } else {
+              // 서명 전용 모드
               _deleteVault(context);
             }
           },
@@ -336,7 +332,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
   void _showAddIconBottomSheet(String? iconSource, int index) async {
     final viewModel = context.read<WalletInfoViewModel>();
     final iconSourceList = [
-      kCoconutVaultIconPath,
+      HardwareWalletType.coconutVault.iconPath,
       kKeystoneIconPath,
       kSeedSignerIconPath,
       kJadeIconPath,
@@ -356,9 +352,9 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
     await MyBottomSheet.showDraggableBottomSheet<HardwareWalletType?>(
       context: context,
       showDragHandle: false,
-      maxChildSize: 0.45,
+      maxChildSize: 0.5,
       minChildSize: 0.2,
-      initialChildSize: 0.45,
+      initialChildSize: 0.5,
       childBuilder:
           (context) => SelectExternalWalletBottomSheet(
             title: t.multi_sig_setting_screen.add_signer.title,
@@ -385,65 +381,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
     }
 
     final selectedButton = externalWalletButtonList[selectedIndex];
-    final iconSource = selectedButton.iconSource;
-
-    switch (iconSource) {
-      case kCoconutVaultIconPath:
-        return HardwareWalletType.coconutVault;
-      case kKeystoneIconPath:
-        return HardwareWalletType.keystone;
-      case kSeedSignerIconPath:
-        return HardwareWalletType.seedSigner;
-      case kJadeIconPath:
-        return HardwareWalletType.jade;
-      case kColdCardIconPath:
-        return HardwareWalletType.coldCard;
-      case kKruxIconPath:
-        return HardwareWalletType.krux;
-      default:
-        return null;
-    }
-  }
-
-  Future<void> _authenticateAndDelete() async {
-    final authProvider = context.read<AuthProvider>();
-    if (await authProvider.isBiometricsAuthValid() && context.mounted) {
-      onAuthenticationComplete();
-      return;
-    }
-
-    if (!mounted) return;
-    await MyBottomSheet.showBottomSheet_90(
-      context: context,
-      child: CustomLoadingOverlay(
-        child: PinCheckScreen(
-          pinCheckContext: PinCheckContextEnum.seedDeletion,
-          onSuccess: () async {
-            Navigator.pop(context);
-            onAuthenticationComplete();
-          },
-        ),
-      ),
-    );
-  }
-
-  Future<void> onAuthenticationComplete() async {
-    final viewModel = context.read<WalletInfoViewModel>();
-    await WalletInfoLayout.deleteVault(
-      context: context,
-      viewModel: viewModel,
-      isMounted: mounted,
-      onSuccess: () {
-        vibrateLight();
-        if (widget.entryPoint != null && widget.entryPoint == AppRoutes.vaultList) {
-          Navigator.popUntil(context, (route) {
-            return route.settings.name == AppRoutes.vaultList;
-          });
-        } else {
-          Navigator.popUntil(context, (route) => route.isFirst);
-        }
-      },
-    );
+    return HardwareWalletTypeExtension.getHardwareWalletTypeByIconPath(selectedButton.iconSource);
   }
 
   @override
@@ -495,7 +433,8 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                           VaultItemCard(
                             tooltipKey: _tooltipIconKey,
                             onTooltipClicked: _onTooltipClicked,
-                            onNameChangeClicked: _onNameChangeClicked,
+                            // 라이트 빌드에서는 이름/아이콘 편집을 지원하지 않음
+                            onNameChangeClicked: kIsLiteBuild ? null : _onNameChangeClicked,
                             vaultItem: viewModel.vaultItem,
                           ),
                           if (viewModel.linkedMultisigInfo != null && viewModel.linkedMultisigInfo!.isNotEmpty) ...[
@@ -692,7 +631,8 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                   },
                 );
               }
-            } else {
+            } else if (!kIsLiteBuild) {
+              // 라이트 빌드에서는 외부 signer 메모 편집을 지원하지 않음
               _showMemoEditBottomSheet(signer, index);
             }
           },
@@ -788,7 +728,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
     return Column(
       crossAxisAlignment: isLeftAlign ? CrossAxisAlignment.start : CrossAxisAlignment.end,
       children: [
-        Text(mfp, style: CoconutTypography.body2_14_Number),
+        MfpText(mfp: mfp, style: CoconutTypography.body2_14_Number),
         memo != null && memo.isNotEmpty
             ? Row(
               mainAxisAlignment: isLeftAlign ? MainAxisAlignment.start : MainAxisAlignment.end,

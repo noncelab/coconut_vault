@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
@@ -12,6 +11,7 @@ import 'package:coconut_vault/screens/settings/settings_screen.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/vault_creation/vault_creation_completion_coordinator.dart';
 import 'package:coconut_vault/utils/passphrase_warning_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
@@ -64,6 +64,7 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   String _passphraseConfirm = '';
   bool _passphraseObscured = false;
   bool _isWarningVisible = true;
+  bool _isSaving = false;
 
   late VoidCallback _passphraseListener;
 
@@ -155,61 +156,68 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomLoadingOverlay(
-      child: GestureDetector(
-        onTap: () {
-          FocusScope.of(context).unfocus();
-        },
-        child: Scaffold(
-          backgroundColor: CoconutColors.white,
-          appBar: CoconutAppBar.build(
+    return PopScope(
+      canPop: !_isSaving,
+      child: CustomLoadingOverlay(
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: Scaffold(
             backgroundColor: CoconutColors.white,
-            context: context,
-            title: t.seed_qr_confirmation_screen.title,
-          ),
-          body: SafeArea(
-            child: Stack(
-              children: [
-                SingleChildScrollView(
-                  controller: _scrollController,
-                  child: Container(
-                    color: CoconutColors.white,
-                    child: Column(
-                      children: [
-                        CoconutLayout.spacing_1000h,
-                        MnemonicList(mnemonic: widget.scannedData),
-                        CoconutLayout.spacing_600h,
-                        Padding(padding: const EdgeInsets.symmetric(horizontal: 16.0), child: _buildPassphraseToggle()),
-                        if (_usePassphrase)
-                          Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                                child: _buildPassphraseTextField(),
-                              ),
-                            ],
+            appBar: CoconutAppBar.build(
+              backgroundColor: CoconutColors.white,
+              context: context,
+              title: t.seed_qr_confirmation_screen.title,
+              onBackPressed: _isSaving ? () {} : null,
+            ),
+            body: SafeArea(
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    controller: _scrollController,
+                    child: Container(
+                      color: CoconutColors.white,
+                      child: Column(
+                        children: [
+                          CoconutLayout.spacing_1000h,
+                          MnemonicList(mnemonic: widget.scannedData),
+                          CoconutLayout.spacing_600h,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: _buildPassphraseToggle(),
                           ),
-                        CoconutLayout.spacing_2500h,
-                      ],
+                          if (_usePassphrase)
+                            Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                  child: _buildPassphraseTextField(),
+                                ),
+                              ],
+                            ),
+                          CoconutLayout.spacing_2500h,
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                FixedBottomButton(
-                  text: t.next,
-                  isActive: _usePassphrase ? _isPassphraseInputValid && !_isWarningVisible : !_isWarningVisible,
-                  backgroundColor: CoconutColors.black,
-                  onButtonClicked: () => _handleNextButton(),
-                  subWidget: widget.showPassphraseWarningSubWidget ? _buildPassphraseWarningSubWidget() : null,
-                ),
-                WarningWidget(
-                  visible: _isWarningVisible,
-                  onWarningDismissed: () {
-                    setState(() {
-                      _isWarningVisible = false;
-                    });
-                  },
-                ),
-              ],
+                  FixedBottomButton(
+                    text: t.next,
+                    isActive: _usePassphrase ? _isPassphraseInputValid && !_isWarningVisible : !_isWarningVisible,
+                    backgroundColor: CoconutColors.black,
+                    onButtonClicked: () => _handleNextButton(),
+                    subWidget: widget.showPassphraseWarningSubWidget ? _buildPassphraseWarningSubWidget() : null,
+                  ),
+                  WarningWidget(
+                    visible: _isWarningVisible,
+                    onWarningDismissed: () {
+                      setState(() {
+                        _isWarningVisible = false;
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -266,14 +274,29 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
       }
 
       if (mounted) {
-        context.loaderOverlay.hide();
-
         if (widget.onCompleted != null) {
+          context.loaderOverlay.hide();
           widget.onCompleted!();
           return;
         }
 
-        Navigator.pushNamed(context, AppRoutes.vaultNameSetup);
+        context.loaderOverlay.hide();
+        await proceedToVaultCreationCompletion(
+          context,
+          onLiteCreationStarted: () {
+            context.loaderOverlay.show();
+            setState(() {
+              _isSaving = true;
+            });
+          },
+          onLiteCreationFinished: () {
+            if (!mounted) return;
+            context.loaderOverlay.hide();
+            setState(() {
+              _isSaving = false;
+            });
+          },
+        );
       }
     } catch (e) {
       if (!mounted) return;

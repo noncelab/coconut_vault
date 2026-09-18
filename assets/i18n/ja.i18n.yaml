@@ -298,8 +298,6 @@ multisig:
   select_nth_key: "キー #$index を選択"
 
 # lib/screens/airgap
-account_selection_bottom_sheet_screen:
-  text: "署名するアカウントを選択してください。"
 psbt_confirmation_screen:
   title: "スキャン情報確認"
   guide: "ウォレットからスキャンした情報が正しいか確認してください。"

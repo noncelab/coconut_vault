@@ -45,7 +45,6 @@ class SignerBsmsQrDataHandler implements IQrScanDataHandler {
       case HardwareWalletType.seedSigner:
       case HardwareWalletType.krux:
       case HardwareWalletType.coconutVault:
-        print('result: ${_textBuffer?.toString()}');
         return _textBuffer?.toString();
       default:
         return null;

@@ -15,6 +15,7 @@ IOS_APP_IDENTIFIERS = {
 
 def prepare_ios_production(flavor:, opts:)
   platform_ = "ios"
+  build_flavor = "full#{flavor.capitalize}" # flavor는 메타데이터/앱 식별 키, build_flavor는 --flavor 인자이자 pubspec 키
   skip_prep = UtilHelper.truthy?(opts[:skip_prep] || ENV["SKIP_PREP"])
   skip_clean = UtilHelper.truthy?(opts[:skip_clean] || ENV["SKIP_CLEAN"])
   skip_pubget = UtilHelper.truthy?(opts[:skip_pubget] || ENV["SKIP_PUBGET"])
@@ -24,7 +25,7 @@ def prepare_ios_production(flavor:, opts:)
   UI.user_error!("Apple ID username cannot be empty.") if apple_id_username.empty?
   ENV["FASTLANE_USER"] = apple_id_username
 
-  marketing, old_build = PubspecHelper.version_tuple_for(platform: platform_, flavor: flavor)
+  marketing, old_build = PubspecHelper.version_tuple_for(platform: platform_, flavor: build_flavor)
   new_build = old_build + 1
   metadata_path = ProductionReleaseHelper.validate_metadata!(
     root: ROOT_DIR,
@@ -47,7 +48,7 @@ def prepare_ios_production(flavor:, opts:)
       cd #{Shellwords.escape(ROOT_DIR)} &&
       #{prep_cmds.empty? ? "true" : prep_cmds.join(" &&\n") } &&
       fvm flutter build ipa \
-        --flavor #{flavor} \
+        --flavor #{build_flavor} \
         --release \
         --export-method app-store \
         --build-name=#{Shellwords.escape(marketing)} \
@@ -75,7 +76,7 @@ def prepare_ios_production(flavor:, opts:)
 
     PubspecHelper.update_pubspec_build_number(
       platform: platform_,
-      flavor: flavor,
+      flavor: build_flavor,
       marketing: marketing,
       old_build: old_build,
       new_build: new_build

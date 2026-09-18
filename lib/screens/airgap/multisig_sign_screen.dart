@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
@@ -117,7 +118,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   Future<void> _signByInnerWallet(int index) async {
-    if (!_viewModel.isSigningOnlyMode) {
+    // 트리쉐이킹용 const 가드: 라이트 빌드에서 안전 저장 모드 경로를 dead code로 만들어 PinCheckScreen 등 제거
+    if (!kIsLiteBuild && !_viewModel.isSigningOnlyMode) {
       // 안전 저장 모드
       await _addSignatureToPsbtInStorageMode(index);
     } else {
@@ -405,7 +407,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     HardwareWalletType? hwwType;
 
     final iconSourceList = [
-      kCoconutVaultIconPath,
+      HardwareWalletType.coconutVault.iconPath,
       kKeystoneIconPath,
       kSeedSignerIconPath,
       kJadeIconPath,
@@ -424,9 +426,9 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     await MyBottomSheet.showDraggableBottomSheet<HardwareWalletType?>(
       context: context,
       showDragHandle: false,
-      maxChildSize: 0.45,
+      maxChildSize: 0.5,
       minChildSize: 0.2,
-      initialChildSize: 0.45,
+      initialChildSize: 0.5,
       childBuilder:
           (context) => SelectExternalWalletBottomSheet(
             title:
@@ -723,7 +725,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                 },
                 child: SvgPicture.asset(
                   iconPath,
-                  width: 24.0,
+                  width: 20.0,
                   colorFilter: iconColorFilter,
                   key: ValueKey<bool>(isSignerApproved),
                 ),
