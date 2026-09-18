@@ -438,10 +438,7 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
                       routes: routes,
                     ),
                     if (_shouldShowPrivacyScreen)
-                      Container(
-                        color: CoconutColors.white,
-                        child: const Center(child: CoconutVaultLogo(size: 60)),
-                      ),
+                      Container(color: CoconutColors.white, child: const Center(child: CoconutVaultLogo(size: 60))),
                   ],
                 )
                 : CupertinoApp(

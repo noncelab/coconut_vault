@@ -210,7 +210,6 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   }
 
   bool _shouldScrollChild(TaprootImportStep step) {
-    print('--> _shouldScrollChild: $step');
     return switch (step) {
       TaprootImportStep.scanner || TaprootImportStep.importWallet => false,
       _ => true,

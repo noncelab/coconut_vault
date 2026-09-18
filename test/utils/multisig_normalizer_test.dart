@@ -122,54 +122,8 @@ bcrt1qe9kjcm3ydmwu90jqaj5tx257jq9gnvm2zxr2whu0ttreqgruj5mqvx499u}
   });
 
   group('NormalizedMultisigConfig.getMultisigConfigString', () {
-    test('regtest: 생성된 문자열이 Keystone 포맷과 일치해야 한다', () {
-      // TODO: Regtest용 데이터로 업데이트 해야함
-      // 현재 FormatException: Invalid BSMS format 에러 발생
-      // given
-      const bsms1 = '''
-BSMS 1.0
-00
-[73c5da0a/48'/0'/0'/2']xpub6E9t6eQGiTVTG99xWo6KEdYAVyGtrmkCNgbTPVPSEvA6wgAS2irZxLdvbLBTz5XURtLSB2LPMZHf85CJxapgr8NpYcdDX56UKpVvZ5qxu9k
-mother
-''';
-
-      const bsms2 = '''
-BSMS 1.0
-00
-[a0f6ba00/48'/0'/0'/2']xpub6Dtc8ee6APa87VBy7LoZo6RfdGY3k8gnPzT1TYvHygVPJhur24RgEk9FftpzcvPhQgk9j5WKr5jkxs1Lhew25ffN5tLQfkcdE6Lz5DosnsT
-father
-''';
-
-      // 네트워크 타입을 regtest로 설정
-      NetworkType.setNetworkType(NetworkType.regtest);
-
-      final config = NormalizedMultisigConfig(name: 'family-multisig', requiredCount: 2, signerBsms: [bsms1, bsms2]);
-
-      // when
-      final result = config.getMultisigConfigString();
-
-      // then
-      final expected =
-          StringBuffer()
-            ..writeln('# Keystone Multisig setup file (created by Coconut Vault)')
-            ..writeln('#')
-            ..writeln()
-            ..writeln('Name: family-multisig')
-            ..writeln('Policy: 2 of 2')
-            ..writeln("Derivation: m/48'/1'/0'/2'")
-            ..writeln('Format: P2WSH')
-            ..writeln()
-            ..writeln(
-              '73C5DA0A: xpub6E9t6eQGiTVTG99xWo6KEdYAVyGtrmkCNgbTPVPSEvA6wgAS2irZxLdvbLBTz5XURtLSB2LPMZHf85CJxapgr8NpYcdDX56UKpVvZ5qxu9k',
-            )
-            ..writeln(
-              'A0F6BA00: xpub6Dtc8ee6APa87VBy7LoZo6RfdGY3k8gnPzT1TYvHygVPJhur24RgEk9FftpzcvPhQgk9j5WKr5jkxs1Lhew25ffN5tLQfkcdE6Lz5DosnsT',
-            );
-
-      print('--> result: \n$result');
-      expect(result, expected.toString());
-    });
-
+    // Keystone에서 testnet용 멀티시그 데이터를 제공하지 않아 실제 regtest UR fixture를 확보할 수 없음.
+    // 메인넷 테스트만 가능
     test('mainnet: 생성된 문자열이 Keystone 포맷과 일치해야 한다', () {
       // given
       const bsms1 = '''
@@ -239,90 +193,29 @@ father
       // final bsms = MultisigNormalizer.signerBsmsFromUrResult(mapResult);
       // print('--> bsms: $bsms');
     });
-    test('regtest: 키스톤 UR 결과를 정상적으로 BSMS 형식으로 변환한다', () {
+
+    // Keystone에서 testnet용 멀티시그 데이터를 제공하지 않아 실제 regtest UR fixture를 확보할 수 없음.
+    // 메인넷 테스트만 가능
+    test('mainnet: 키스톤 UR 결과를 정상적으로 BSMS 형식으로 변환한다', () {
       // given
-      NetworkType.setNetworkType(NetworkType.regtest);
-
-      // 실제 키스톤 UR 예시 (regtest용)
-      final urParts = [
-        'UR:CRYPTO-ACCOUNT/OEADCYOTPRWMJOAOLYTAADMETAADDLOLAOWKAXHDCLAOGUBYCFTLBNBNLGFLHFBEZECHNSECAAONCXHYPFAMFNCSVDJYSBRSECGEGUDEHEYKAAHDCXFTCYJEFLWSOXWMIHRPIMYACLLPURCYSSIOSEIOSOSPRFUYJZVDKKBEDWLYCKIHDKAHTAADEHOEADAEAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYOTPRWMJOAXAAAYCYGHIELYGEVEATAHFR',
-      ];
-
-      final decoder = URDecoder();
-      for (final part in urParts) {
-        decoder.receivePart(part);
-      }
+      NetworkType.setNetworkType(NetworkType.mainnet);
+      const ur =
+          'UR:CRYPTO-ACCOUNT/OEADCYJKSKTNBKAOLYTAADMETAADDLOLAOWKAXHDCLAOCYFRYKZOYLEMTIWFINMUZCFGUOGABWASFRWMGUDPIHGWVTURTALUTDKPLPUONEDTAAHDCXRKNBSTSGCMBKLTBAZERHFZPYMHTIWKDEGWWDCWHYBTCLCHIOKBLFFHSRKBDPHGIAAHTAADEHOEADAEAOAEAMTAADDYOTADLOCSDYYKAEYKAEYKAOYKAOCYJKSKTNBKAXAAAYCYCEWZMSCMCHOLYNKG';
+      const expected = '''BSMS 1.0
+00
+[73C5DA0A/48'/0'/0'/2']xpub6DkFAXWQ2dHxq2vatrt9qyA3bXYU4ToWQwCHbf5XB2mSTexcHZCeKS1VZYcPoBd5X8yVcbXFHJR9R8UCVpt82VX1VhR28mCyxUFL4r6KFrf''';
+      final decoder = URDecoder()..receivePart(ur);
 
       expect(decoder.isComplete(), true, reason: 'UR 디코딩이 완료되어야 함');
       expect(decoder.isSuccess(), true, reason: 'UR 디코딩이 성공해야 함');
-
       final mapResult = UrBytesConverter.convertToMap(decoder.result);
       expect(mapResult, isNotNull, reason: 'UR 결과가 Map으로 변환되어야 함');
 
       // when
-      final bsms = MultisigNormalizer.signerBsmsFromUrResult(mapResult!);
+      final bsms = MultisigNormalizer.signerBsmsFromUrResult(mapResult!, descriptorToXpub: true);
 
       // then
-      expect(bsms, isNotEmpty, reason: 'BSMS 문자열이 생성되어야 함');
-      expect(bsms, startsWith('BSMS 1.0'), reason: 'BSMS 형식으로 시작해야 함');
-      expect(bsms, contains('00'), reason: 'BSMS 버전 정보가 포함되어야 함');
-
-      // fingerprint와 derivation path가 포함되어야 함
-      expect(bsms, contains('48'), reason: 'derivation path에 48이 포함되어야 함');
-      expect(bsms, contains('1'), reason: 'regtest이므로 coin type 1이 포함되어야 함');
-      expect(bsms, contains('2'), reason: 'script type 2가 포함되어야 함');
-
-      print('--> signerBsms: \n$bsms');
-    });
-
-    test('mainnet: 키스톤 UR 결과를 정상적으로 BSMS 형식으로 변환한다', () {
-      // given
-      NetworkType.setNetworkType(NetworkType.mainnet);
-
-      // 실제 키스톤 UR 예시 (mainnet용 - coin type 0)
-      // 실제 UR 데이터가 필요하지만, 일단 구조만 테스트
-      // 실제로는 mainnet용 UR을 사용해야 함
-
-      // Mock UR 결과 구조 생성 (CborValue 형태)
-      final mockUrResult = <dynamic, dynamic>{
-        2: [
-          // accounts list
-          <dynamic, dynamic>{
-            3: CborBytes(
-              Uint8List.fromList(Codec.decodeHex('02531119d50c0c8d475610fe179c3504a5205eb0063c18e774cbbf354a53285ff5')),
-            ), // pubkey (33 bytes)
-            4: CborBytes(
-              Uint8List.fromList(Codec.decodeHex('3a1a6b47efa4eb65b66af82185df1ac467c167c9c8bcdb6ce779102c811e6524')),
-            ), // chaincode (32 bytes)
-            6: <dynamic, dynamic>{
-              // origin
-              1: [
-                CborSmallInt(48),
-                CborBool(true),
-                CborSmallInt(0),
-                CborBool(true),
-                CborSmallInt(0),
-                CborBool(true),
-                CborSmallInt(2),
-                CborBool(true),
-              ], // path: m/48'/0'/0'/2'
-              2: CborSmallInt(0x73C5DA0A), // master fingerprint
-            },
-            // TODO: 이 값이 키스톤 UR 결과에 없었음. 있어야만 현재 성공하는 상황
-            // TODO: 실제로 키스톤 데이터를 파싱해서 이 값이 있는지 여부를 확인해야함.
-            // 8: CborSmallInt(0x5464814A), // parent fingerprint
-          },
-        ],
-      };
-
-      // when
-      final bsms = MultisigNormalizer.signerBsmsFromUrResult(mockUrResult);
-
-      // then
-      expect(bsms, isNotEmpty, reason: 'BSMS 문자열이 생성되어야 함');
-      expect(bsms, startsWith('BSMS 1.0'), reason: 'BSMS 형식으로 시작해야 함');
-      expect(bsms, contains('73C5DA0A'), reason: 'master fingerprint가 포함되어야 함');
-      expect(bsms, contains("48'/0'/0'/2'"), reason: 'derivation path가 포함되어야 함');
+      expect(bsms, expected);
 
       print('--> signerBsms: \n$bsms');
     });

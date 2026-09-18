@@ -6,6 +6,7 @@ import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/psbt_scanner_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/utils/coconut/transaction_util.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/animated_qr/coconut_qr_scanner.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bb_qr_scan_data_handler.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/bc_ur_qr_scan_data_handler.dart';
@@ -143,7 +144,7 @@ class _PsbtScannerScreenState extends State<PsbtScannerScreen> {
       }
     } catch (e) {
       vibrateExtraLightDouble();
-      debugPrint('e: ${e.toString()}');
+      Logger.error('e: ${e.toString()}');
 
       await _showErrorDialog(_viewModel.getScanErrorMessage(e));
       return;

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -45,7 +46,7 @@ Future<void> openSystemSecuritySettings(
                   final uri = Uri.parse('app-settings:');
                   await launchUrl(uri);
                 } catch (e) {
-                  debugPrint('iOS 설정 열기 실패: $e');
+                  Logger.error('iOS 설정 열기 실패: $e');
                 }
               },
             ),
@@ -56,7 +57,7 @@ Future<void> openSystemSecuritySettings(
         final uri = Uri.parse('app-settings:');
         await launchUrl(uri);
       } catch (e) {
-        debugPrint('iOS 설정 열기 실패: $e');
+        Logger.error('iOS 설정 열기 실패: $e');
       }
     }
   }

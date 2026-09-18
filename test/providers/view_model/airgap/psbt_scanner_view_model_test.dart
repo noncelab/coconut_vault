@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
-import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/exception/needs_multisig_setup_exception.dart';
 import 'package:coconut_vault/model/exception/vault_can_not_sign_exception.dart';
