@@ -26,6 +26,25 @@ class ConnectivityProvider extends ChangeNotifier {
   bool? _isDeveloperModeOn = Platform.isAndroid && kReleaseMode ? null : false; // Android only
   bool? get isDeveloperModeOn => _isDeveloperModeOn;
 
+  /// 블루투스 권한이 거부되어 자동으로 상태를 확인할 수 없을 때,
+  /// 사용자가 직접 블루투스가 꺼져 있음을 확인했는지 여부를 기록 (세션 동안만 유지)
+  bool _isBluetoothManuallyConfirmedOff = false;
+  bool get isBluetoothManuallyConfirmedOff => _isBluetoothManuallyConfirmedOff;
+
+  void setBluetoothManuallyConfirmedOff(bool isConfirmed) {
+    _isBluetoothManuallyConfirmedOff = isConfirmed;
+    notifyListeners();
+  }
+
+  /// 권한이 거부됐거나(unauthorized),
+  /// 사용자가 권한 요청을 취소해 한 번도 확인되지 않은 경우 (isBluetoothOn == null)
+  /// 사용자의 수동 확인 여부로 안전을 판단함.
+  /// 권한이 있어 실제로 확인된 경우에만 감지 결과를 그대로 사용함.
+  bool get isBluetoothSafe =>
+      (_isBluetoothUnauthorized == true || _isBluetoothOn == null)
+          ? _isBluetoothManuallyConfirmedOff
+          : _isBluetoothOn == false;
+
   void Function(ConnectivityState)? onConnectivityStateChanged;
 
   StreamSubscription<BluetoothAdapterState>? _bluetoothSubscription;
@@ -160,10 +179,12 @@ class ConnectivityProvider extends ChangeNotifier {
   void _onConnectivityChanged() {
     if (_isDisposed) return;
 
-    if (Platform.isIOS && _isBluetoothUnauthorized == true) {
-      runApp(const CupertinoApp(debugShowCheckedModeBanner: false, home: IosBluetoothAuthNotificationScreen()));
-    } else if (_isBluetoothOn == true || _isNetworkOn == true || (Platform.isAndroid && _isDeveloperModeOn == true)) {
-      if (_hasSeenGuide) {
+    // 최초 온보딩(welcome_screen)에서는 설명 다이얼로그 → 사용자가 직접 요청/취소를 선택하는 플로우로 권한을 요청한다.
+    // 이 전체화면 차단 화면은 온보딩을 이미 마친 재진입 시에만 동작한다.
+    if (_hasSeenGuide) {
+      if (Platform.isIOS && _isBluetoothUnauthorized == true) {
+        runApp(const CupertinoApp(debugShowCheckedModeBanner: false, home: IosBluetoothAuthNotificationScreen()));
+      } else if (_isBluetoothOn == true || _isNetworkOn == true || (Platform.isAndroid && _isDeveloperModeOn == true)) {
         runApp(
           CupertinoApp(
             debugShowCheckedModeBanner: false,

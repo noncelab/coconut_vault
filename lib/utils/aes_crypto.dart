@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:encrypt/encrypt.dart';
+import 'package:encrypt_next/encrypt.dart';
 
 class Aes256Crypto {
   static const _keyLength = 32; // AES-256 키 길이 (32 bytes = 256 bits)

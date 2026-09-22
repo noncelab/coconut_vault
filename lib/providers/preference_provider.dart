@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/vault_mode_enum.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
@@ -16,7 +17,7 @@ class PreferenceProvider extends ChangeNotifier {
   late List<int> _favoriteVaultIds;
   List<int> get favoriteVaultIds => _favoriteVaultIds;
 
-  bool get isSigningOnlyMode => getVaultMode() == VaultMode.signingOnly;
+  bool get isSigningOnlyMode => kIsLiteBuild || getVaultMode() == VaultMode.signingOnly;
 
   late (double?, double?) _signingModeEdgePanelPos;
   (double?, double?) get signingModeEdgePanelPos => _signingModeEdgePanelPos;

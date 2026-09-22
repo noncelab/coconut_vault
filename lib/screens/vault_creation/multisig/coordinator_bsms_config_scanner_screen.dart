@@ -2,6 +2,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
@@ -12,6 +13,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/qr_scanner_screen_base.dart';
 import 'package:coconut_vault/utils/bip/multisig_normalizer.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
+import 'package:coconut_vault/screens/vault_creation/vault_creation_completion_coordinator.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/animated_qr/scan_data_handler/coordinator_bsms_qr_data_handler.dart';
@@ -34,6 +36,7 @@ class _CoordinatorBsmsConfigScannerScreenState extends QrScannerScreenBase<Coord
   late final ImportCoordinatorBsmsViewModel _viewModel;
   bool _isFirstScanData = true;
   bool _clipboardContentAvailable = false;
+  bool _isSaving = false;
 
   _CoordinatorBsmsConfigScannerScreenState() : _dataHandler = CoordinatorBsmsQrDataHandler();
 
@@ -74,6 +77,12 @@ class _CoordinatorBsmsConfigScannerScreenState extends QrScannerScreenBase<Coord
   bool get showBottomButton => _clipboardContentAvailable;
 
   @override
+  bool get canPop => !_isSaving;
+
+  @override
+  VoidCallback? get onBackPressed => _isSaving ? () {} : null;
+
+  @override
   String get bottomButtonText => t.bsms_scanner_base.paste;
 
   @override
@@ -88,6 +97,12 @@ class _CoordinatorBsmsConfigScannerScreenState extends QrScannerScreenBase<Coord
   @override
   void onBottomButtonClicked() {
     Navigator.pushReplacementNamed(context, AppRoutes.bsmsPaste);
+  }
+
+  @override
+  Future<void> onFailedScanning(String message) async {
+    await super.onFailedScanning(message);
+    await _restartScanner();
   }
 
   @override
@@ -170,6 +185,11 @@ class _CoordinatorBsmsConfigScannerScreenState extends QrScannerScreenBase<Coord
       bool isCoconutMultisigConfig = _viewModel.isCoconutMultisigConfig(result);
       List<MultisigSigner> signers = _viewModel.getMultisigSignersFromMultisigConfig(normalizedMultisigConfig);
       if (isCoconutMultisigConfig) {
+        if (kIsLiteBuild) {
+          setState(() {
+            _isSaving = true;
+          });
+        }
         final colorIndex = result[VaultListItemBase.fieldColorIndex] as int;
         final iconIndex = result[VaultListItemBase.fieldIconIndex] as int;
         final vault = await _viewModel.addMultisigVault(normalizedMultisigConfig, colorIndex, iconIndex, signers);
@@ -189,13 +209,31 @@ class _CoordinatorBsmsConfigScannerScreenState extends QrScannerScreenBase<Coord
         );
         creationProvider.setSigners(signers);
         if (!context.mounted) return;
-        Navigator.pushReplacementNamed(
+        await proceedToVaultCreationCompletion(
           context,
-          AppRoutes.vaultNameSetup,
-          arguments: {'name': normalizedMultisigConfig.name, 'isImported': true},
+          isImported: true,
+          replaceCurrentRoute: true,
+          routeArguments: {'name': normalizedMultisigConfig.name, 'isImported': true},
+          onLiteCreationStarted: () {
+            setState(() {
+              _isSaving = true;
+            });
+          },
+          onLiteCreationFinished: () {
+            if (!mounted) return;
+            setState(() {
+              isProcessing = false;
+              _isSaving = false;
+            });
+          },
         );
       }
     } catch (e) {
+      if (mounted && _isSaving) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
       Logger.error('🛑: $e');
       String failureMessage;
 
@@ -226,5 +264,21 @@ class _CoordinatorBsmsConfigScannerScreenState extends QrScannerScreenBase<Coord
   void _handleScanFailure(String message) {
     _reset();
     onFailedScanning(message);
+  }
+
+  Future<void> _restartScanner() async {
+    if (!mounted) {
+      return;
+    }
+
+    try {
+      await controller?.stop();
+      if (!mounted) {
+        return;
+      }
+      await controller?.start();
+    } catch (e) {
+      Logger.error('Coordinator BSMS scanner restart failed: $e');
+    }
   }
 }

@@ -1,0 +1,96 @@
+# frozen_string_literal: true
+
+default_platform(:android)
+
+require "shellwords"
+require_relative "../../../fastlane/shared/pubspec_helper"
+require_relative "../../../fastlane/shared/util_helper"
+require_relative "../../../fastlane/shared/android_signing_helper"
+require_relative "../../../fastlane/production/release_helper"
+
+ROOT_DIR = File.expand_path("../../..", __dir__)
+ANDROID_PACKAGES = {
+  "mainnet" => "onl.coconut.vault.mainnet",
+  "regtest" => "onl.coconut.vault.regtest"
+}.freeze
+
+def prepare_android_production(flavor:, opts:)
+  platform_ = "aos"
+  build_flavor = "full#{flavor.capitalize}" # flavor는 메타데이터/keystore 키, build_flavor는 --flavor 인자이자 pubspec 키
+  package = ANDROID_PACKAGES.fetch(flavor)
+  skip_prep = UtilHelper.truthy?(opts[:skip_prep] || ENV["SKIP_PREP"])
+  skip_clean = UtilHelper.truthy?(opts[:skip_clean] || ENV["SKIP_CLEAN"])
+  skip_pubget = UtilHelper.truthy?(opts[:skip_pubget] || ENV["SKIP_PUBGET"])
+
+  marketing, old_build = PubspecHelper.version_tuple_for(platform: platform_, flavor: build_flavor)
+  new_build = old_build + 1
+  metadata_path = ProductionReleaseHelper.validate_metadata!(
+    root: ROOT_DIR,
+    platform: "android",
+    flavor: flavor,
+    version_code: new_build
+  )
+
+  signing_password_prompted = AndroidSigningHelper.ensure_password!(root_dir: ROOT_DIR, flavor: flavor)
+
+  begin
+    prep_cmds = []
+    prep_cmds << "fvm flutter clean" unless skip_prep || skip_clean
+    prep_cmds << "fvm flutter pub get" unless skip_prep || skip_pubget
+
+    sh <<~SHELL
+      cd #{Shellwords.escape(ROOT_DIR)} &&
+      #{prep_cmds.empty? ? "true" : prep_cmds.join(" &&\n") } &&
+      fvm flutter build appbundle \
+        --flavor #{build_flavor} \
+        --release \
+        --build-name=#{Shellwords.escape(marketing)} \
+        --build-number=#{new_build}
+    SHELL
+
+    aab_path = Dir[File.join(ROOT_DIR, "build", "app", "outputs", "bundle", "#{build_flavor}Release", "*.aab")]
+      .max_by { |path| File.mtime(path) }
+    UI.user_error!("AAB not found for #{build_flavor}.") unless aab_path
+
+    upload_to_play_store(
+      aab: aab_path,
+      package_name: package,
+      json_key: File.join(ROOT_DIR, "android", "fastlane", "coconut-fastlane-supply.json"),
+      track: "production",
+      release_status: "draft",
+      changes_not_sent_for_review: true,
+      metadata_path: metadata_path,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+
+    PubspecHelper.update_pubspec_build_number(
+      platform: platform_,
+      flavor: build_flavor,
+      marketing: marketing,
+      old_build: old_build,
+      new_build: new_build
+    )
+  rescue => error
+    UI.error("Android production preparation failed: #{error.message}")
+    UI.important("pubspec.yaml was not updated because production preparation failed.")
+    raise
+  ensure
+    if signing_password_prompted
+      ENV.delete("ANDROID_SIGNING_STORE_PASSWORD")
+      ENV.delete("ANDROID_SIGNING_KEY_PASSWORD")
+    end
+  end
+end
+
+platform :android do
+  desc "Build Android MAINNET and create an unsubmitted production draft with localized release notes"
+  lane :prepare_android_mainnet_production do |opts|
+    prepare_android_production(flavor: "mainnet", opts: opts || {})
+  end
+
+  desc "Build Android REGTEST and create an unsubmitted production draft with localized release notes"
+  lane :prepare_android_regtest_production do |opts|
+    prepare_android_production(flavor: "regtest", opts: opts || {})
+  end
+end

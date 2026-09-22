@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
 
-import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/external_links.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -16,6 +15,7 @@ import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/button_group.dart';
 import 'package:coconut_vault/widgets/button/single_button.dart';
+import 'package:coconut_vault/widgets/icon/coconut_vault_logo.dart';
 
 class AppInfoScreen extends StatefulWidget {
   const AppInfoScreen({super.key});
@@ -194,9 +194,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: CoconutColors.borderLightGray, width: 2.0),
                 ),
-                child: Image.asset(
-                  'assets/png/splash_logo_${NetworkType.currentNetworkType.isTestnet ? "regtest" : "mainnet"}.png',
-                ),
+                child: const CoconutVaultLogo(size: 48),
               ),
               const SizedBox(width: 30),
               Expanded(

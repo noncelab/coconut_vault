@@ -177,4 +177,75 @@ void main() {
       print('========================');
     });
   });
+
+  group('BbQrDecoder 안전 제한 테스트', () {
+    test('fragment 수가 maxFragmentCount를 초과하면 거부', () {
+      final decoder = BbQrDecoder();
+
+      // base36으로 total=400을 인코딩: 400 = 11*36 + 4 = "B4"
+      // maxFragmentCount는 300이므로 거부되어야 함
+      // 400 in base36 = "B4"
+      final part = 'B\$ZUB400AAAAAAAAAA';
+      final result = decoder.receivePart(part);
+      expect(result, false, reason: 'fragment 수 400은 제한(300)을 초과');
+    });
+
+    test('fragment 수가 maxFragmentCount 이내이면 허용', () {
+      final decoder = BbQrDecoder();
+
+      // total=1, index=0 in base36 = "01" "00"
+      // 유효한 base32 payload 필요
+      final part =
+          'B\$ZU0100IXG4XMU2GAAIBYJ5J6IZTM5QLWURAEO5QWVXHAAMAIU6ULQIZBCQQYFYHZ63W2FH7P7Z73YLNDWJ2PDJT4AHO6HT4JJ3ZQBH4VBQXMXCTWBB7TZ6UU6E2QF4QCQKK7OPU2P4FF4ANGOZ4QP5O4IALD55RPTXEBRCMAMZABB55WFZD4UCGV72ELKUG3N72ZV33NWMLDLAWK7KN7AMHQYQULUCOCKLJA4OO3UAY6B3YS5HSOJFV52UYF25LHB5QI7G4D2FNLJNBEPOONC7OBBG55RXXJRGLBXUAFFZSPB2FNVTVM6XEHXBMGX6WLWHQNFCAPSJ7UILNWI3AIGWWS67O7KXBIGROU7IJB7PIMHS6QVKBHJJVNULP6ZH34SL2UE3KNEJW5UYMYR45VGMMO7M4M3LTB6NYVU2THAXWJ4KQENVQ6IPK4TXOVJTRBB76WE2RUJ6HJA3XFBZMIKA64FJNPRSAYKOMYVNOSHLZTQTQHY53WCPK2WZWAUSKTIVBD774VFYSZPURDZUO4VYZC35ZDMQLUZK2OPVE5JMUH4XF43TXLFQORA7I3VYQZS26RER4RLTKP6NUNDUESL5XGSFI3FPEYIB5K4V5UN6VJV4LIROYM4VWYMYVO5IEPBXUFL6AM';
+      final result = decoder.receivePart(part);
+      expect(result, true, reason: 'fragment 수 1은 제한 이내여야 함');
+    });
+
+    test('compressed input 총량이 maxCompressedInputBytes를 초과하면 거부', () {
+      final decoder = BbQrDecoder();
+
+      // 대량의 payload를 가진 HEX 인코딩 사용 (검증이 더 쉬움)
+      // maxCompressedInputBytes = 5MB, 그래서 5MB가 넘는 payload 생성
+      // total=2, 각각 3MB 정도면 두 번째에서 거부
+      final bigPayload = 'A' * (3 * 1024 * 1024); // 3MB hex string
+
+      // total=2 in base36 = "02"
+      final part1 = 'B\$HU0200$bigPayload';
+      final part2 = 'B\$HU0201$bigPayload';
+
+      final result1 = decoder.receivePart(part1);
+      expect(result1, true, reason: '첫 번째 조각은 허용되어야 함');
+
+      final result2 = decoder.receivePart(part2);
+      expect(result2, false, reason: '총 compressed input이 5MB를 초과하므로 거부되어야 함');
+    });
+
+    test('정상 데이터는 모든 제한을 통과', () {
+      final decoder = BbQrDecoder();
+      final part =
+          'B\$ZU0100IXG4XMU2GAAIBYJ5J6IZTM5QLWURAEO5QWVXHAAMAIU6ULQIZBCQQYFYHZ63W2FH7P7Z73YLNDWJ2PDJT4AHO6HT4JJ3ZQBH4VBQXMXCTWBB7TZ6UU6E2QF4QCQKK7OPU2P4FF4ANGOZ4QP5O4IALD55RPTXEBRCMAMZABB55WFZD4UCGV72ELKUG3N72ZV33NWMLDLAWK7KN7AMHQYQULUCOCKLJA4OO3UAY6B3YS5HSOJFV52UYF25LHB5QI7G4D2FNLJNBEPOONC7OBBG55RXXJRGLBXUAFFZSPB2FNVTVM6XEHXBMGX6WLWHQNFCAPSJ7UILNWI3AIGWWS67O7KXBIGROU7IJB7PIMHS6QVKBHJJVNULP6ZH34SL2UE3KNEJW5UYMYR45VGMMO7M4M3LTB6NYVU2THAXWJ4KQENVQ6IPK4TXOVJTRBB76WE2RUJ6HJA3XFBZMIKA64FJNPRSAYKOMYVNOSHLZTQTQHY53WCPK2WZWAUSKTIVBD774VFYSZPURDZUO4VYZC35ZDMQLUZK2OPVE5JMUH4XF43TXLFQORA7I3VYQZS26RER4RLTKP6NUNDUESL5XGSFI3FPEYIB5K4V5UN6VJV4LIROYM4VWYMYVO5IEPBXUFL6AM';
+
+      expect(decoder.receivePart(part), true);
+      expect(decoder.isComplete, true);
+
+      final text = decoder.getCombinedText();
+      expect(text, isNotNull, reason: '정상 데이터는 디코딩되어야 함');
+      expect(text!.isNotEmpty, true);
+    });
+
+    test('reset 후 _totalCompressedBytes 초기화 확인', () {
+      final decoder = BbQrDecoder();
+
+      final bigPayload = 'A' * (3 * 1024 * 1024); // 3MB
+      final part1 = 'B\$HU0100$bigPayload';
+      decoder.receivePart(part1);
+
+      decoder.reset();
+
+      // reset 후에는 다시 받을 수 있어야 함
+      final part2 = 'B\$HU0100$bigPayload';
+      final result = decoder.receivePart(part2);
+      expect(result, true, reason: 'reset 후에는 카운터가 초기화되어야 함');
+    });
+  });
 }

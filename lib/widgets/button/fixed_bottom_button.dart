@@ -94,6 +94,7 @@ class _FixedBottomButtonState extends State<FixedBottomButton> {
                 widget.subWidget ?? Container(),
                 CoconutLayout.spacing_300h,
                 ShrinkAnimationButton(
+                  key: const ValueKey('fixed-bottom-button-action'),
                   onPressed: () {
                     widget.onButtonClicked();
                   },

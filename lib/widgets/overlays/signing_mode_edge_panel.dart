@@ -8,6 +8,7 @@ import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/usecases/reset_credentials_and_wallets_usecase.dart';
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -40,6 +41,7 @@ class _SigningModeEdgePanelState extends State<SigningModeEdgePanel> with Single
   bool _isDraggingManually = false;
   bool _isPanningEdgePanel = false;
   bool _isResetDialogOpen = false;
+  bool _isResetting = false;
 
   Timer? _longPressTimer;
   late AnimationController _animationController;
@@ -108,6 +110,12 @@ class _SigningModeEdgePanelState extends State<SigningModeEdgePanel> with Single
 
             if (!isVisible) {
               return const SizedBox.shrink();
+            }
+
+            if (_isResetting) {
+              children.add(
+                const Positioned.fill(child: AbsorbPointer(child: Center(child: CoconutCircularIndicator()))),
+              );
             }
 
             return Stack(children: children);
@@ -245,7 +253,7 @@ class _SigningModeEdgePanelState extends State<SigningModeEdgePanel> with Single
                         setState(() {
                           _panelWidth = _maxWidth;
                         });
-                      } else {
+                      } else if (!_isResetting) {
                         _showResetDialog(context);
                       }
                     },
@@ -380,7 +388,7 @@ class _SigningModeEdgePanelState extends State<SigningModeEdgePanel> with Single
         context: navContext,
         builder:
             (dialogContext) => CoconutPopup(
-              languageCode: context.read<VisibilityProvider>().language,
+              languageCode: context.read<VisibilityProvider>().appLanguage.code,
               insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(navContext).size.width * 0.15),
               title: t.wallet_delete_failed,
               description: t.wallet_delete_failed_description,
@@ -400,7 +408,7 @@ class _SigningModeEdgePanelState extends State<SigningModeEdgePanel> with Single
       context: navContext,
       builder:
           (dialogContext) => CoconutPopup(
-            languageCode: context.read<VisibilityProvider>().language,
+            languageCode: context.read<VisibilityProvider>().appLanguage.code,
             insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(navContext).size.width * 0.15),
             title: t.delete_vault,
             description: t.delete_vault_description,
@@ -413,12 +421,31 @@ class _SigningModeEdgePanelState extends State<SigningModeEdgePanel> with Single
             },
             onTapRight: () async {
               Navigator.pop(dialogContext);
-              await ResetCredentialsAndWalletsUsecase.execute(
-                authProvider: context.read<AuthProvider>(),
-                walletProvider: context.read<WalletProvider>(),
-                preferenceProvider: context.read<PreferenceProvider>(),
-              );
-              widget.onResetCompleted();
+              if (_isResetting) return;
+              setState(() => _isResetting = true);
+              final authProvider = context.read<AuthProvider>();
+              final walletProvider = context.read<WalletProvider>();
+              final preferenceProvider = context.read<PreferenceProvider>();
+
+              while (mounted) {
+                try {
+                  await ResetCredentialsAndWalletsUsecase.execute(
+                    authProvider: authProvider,
+                    walletProvider: walletProvider,
+                    preferenceProvider: preferenceProvider,
+                  );
+                  if (!mounted) return;
+                  setState(() => _isResetting = false);
+                  widget.onResetCompleted();
+                  return;
+                } catch (e) {
+                  if (!context.mounted) return;
+                  final shouldRetry = await showResetFailureRetryPopup(context, e, navigatorContext: navContext);
+                  if (shouldRetry) continue;
+                  if (mounted) setState(() => _isResetting = false);
+                  return;
+                }
+              }
             },
           ),
     );

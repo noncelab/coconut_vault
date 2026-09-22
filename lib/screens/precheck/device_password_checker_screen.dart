@@ -6,6 +6,7 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/usecases/reset_credentials_and_wallets_usecase.dart';
 import 'package:coconut_vault/utils/device_secure_checker.dart' as device_secure_checker;
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +26,7 @@ class DevicePasswordCheckerScreen extends StatefulWidget {
 
 class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScreen> with WidgetsBindingObserver {
   bool isDeviceSecured = false;
+  bool _isResetting = false;
 
   @override
   initState() {
@@ -60,59 +62,64 @@ class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScree
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<VisibilityProvider>(
-      builder: (context, visibilityProvider, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-          child: Scaffold(
-            backgroundColor: _getBackgroundColor(),
-            body: SafeArea(
-              child: SizedBox(
-                width: double.infinity,
-                height: MediaQuery.sizeOf(context).height,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: Column(
-                        children: [
-                          Flexible(
-                            flex: 1,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                                  child: FittedBox(fit: BoxFit.scaleDown, child: _buildTitleTextWidget()),
-                                ),
-                                CoconutLayout.spacing_300h,
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: MediaQuery.sizeOf(context).width * 0.23),
+    return PopScope(
+      canPop: !_isResetting,
+      child: Consumer<VisibilityProvider>(
+        builder: (context, visibilityProvider, child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+            child: Scaffold(
+              backgroundColor: _getBackgroundColor(),
+              body: SafeArea(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: MediaQuery.sizeOf(context).height,
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: Column(
+                          children: [
+                            Flexible(
+                              flex: 1,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                                    child: FittedBox(fit: BoxFit.scaleDown, child: _buildTitleTextWidget()),
+                                  ),
+                                  CoconutLayout.spacing_300h,
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: MediaQuery.sizeOf(context).width * 0.23),
 
-                                  child: _buildDescriptionTextWidget(),
-                                ),
-                              ],
+                                    child: _buildDescriptionTextWidget(),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          CoconutLayout.spacing_800h,
-                          Flexible(
-                            flex: 1,
-                            child: Padding(padding: const EdgeInsets.symmetric(horizontal: 80), child: _buildImage()),
-                          ),
-                        ],
+                            CoconutLayout.spacing_800h,
+                            Flexible(
+                              flex: 1,
+                              child: Padding(padding: const EdgeInsets.symmetric(horizontal: 80), child: _buildImage()),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    _buildBottomButton(),
-                  ],
+                      _buildBottomButton(),
+                      if (_isResetting)
+                        const Positioned.fill(child: AbsorbPointer(child: Center(child: CoconutCircularIndicator()))),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -190,7 +197,7 @@ class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScree
   Widget _buildBottomButton() {
     return FixedBottomButton(
       showGradient: false,
-      isActive: true,
+      isActive: !_isResetting,
       onButtonClicked: () async => _onButtonClicked(),
       text: _getButtonText(),
     );
@@ -206,6 +213,11 @@ class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScree
   }
 
   void _onButtonClicked() async {
+    if (widget.state == DevicePasswordCheckerScreenState.devicePasswordChanged) {
+      if (_isResetting) return;
+      setState(() => _isResetting = true);
+    }
+
     switch (widget.state) {
       case DevicePasswordCheckerScreenState.devicePasswordRequired:
         await device_secure_checker.openSystemSecuritySettings(
@@ -223,22 +235,30 @@ class _DevicePasswordCheckerScreenState extends State<DevicePasswordCheckerScree
         } catch (_) {
           // ignore
         }
+        final authProvider = context.read<AuthProvider>();
         final visibilityProvider = context.read<VisibilityProvider>();
         final preferenceProvider = context.read<PreferenceProvider>();
-        try {
-          await ResetCredentialsAndWalletsUsecase.execute(
-            walletProvider: walletProvider,
-            authProvider: context.read<AuthProvider>(),
-            preferenceProvider: preferenceProvider,
-          );
-          await walletProvider?.reloadRelatedToVault();
-          visibilityProvider.reloadRelatedToVault();
-          preferenceProvider.reloadRelatedToVault();
-        } catch (_) {
-          break;
-        }
-        if (mounted) {
-          widget.onComplete();
+        while (mounted) {
+          try {
+            await ResetCredentialsAndWalletsUsecase.execute(
+              walletProvider: walletProvider,
+              authProvider: authProvider,
+              preferenceProvider: preferenceProvider,
+            );
+            await walletProvider?.reloadRelatedToVault();
+            visibilityProvider.reloadRelatedToVault();
+            preferenceProvider.reloadRelatedToVault();
+            if (!mounted) return;
+            setState(() => _isResetting = false);
+            widget.onComplete();
+            return;
+          } catch (e) {
+            if (!mounted) return;
+            final shouldRetry = await showResetFailureRetryPopup(context, e);
+            if (shouldRetry) continue;
+            if (mounted) setState(() => _isResetting = false);
+            return;
+          }
         }
         break;
     }

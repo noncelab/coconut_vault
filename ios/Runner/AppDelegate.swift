@@ -270,12 +270,8 @@ func installTEEHandler(_ teeChannel: FlutterMethodChannel) {
                 return
             }
             
-            do {
-                try SecureEnclaveCrypto.deleteKeys(labels: aliasList)
-                result(nil)
-            } catch {
-                result(FlutterError(code:"DEL_KEYS_FAIL", message: error.localizedDescription, details:nil))
-            }
+            let failed = SecureEnclaveCrypto.deleteKeys(labels: aliasList)
+            result(failed)
             
         default:
             result(FlutterMethodNotImplemented)

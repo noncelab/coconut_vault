@@ -15,7 +15,7 @@ import 'integration_test_utils.dart';
 ///
 /// 실행 명령어:
 /// ```bash
-/// flutter test integration_test/app_flow_test.dart --flavor regtest
+/// flutter test integration_test/app_flow_test.dart --flavor fullRegtest
 /// ```
 ///
 /// 자세한 내용은 README.md 참고

@@ -431,7 +431,7 @@ class MultisigNormalizer {
     }
     // final derivationPath = _derivationPathFromComponents(rawPathList);
 
-    final mfpDec = origin['2'].value;
+    final mfpDec = origin['2']?.value;
     if (mfpDec == null || mfpDec is! int) {
       printLongString('--> mfpDec: $mfpDec');
       throw const FormatException('Master fingerprint ["6"]["2"] is missing or invalid');

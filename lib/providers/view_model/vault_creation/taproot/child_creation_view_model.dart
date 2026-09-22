@@ -1,5 +1,6 @@
 import 'package:coconut_vault/core/wallet/taproot_validator.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
+import 'package:coconut_vault/constants/app_language.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
 import 'package:coconut_vault/utils/date_format_util.dart';
 import 'package:flutter/foundation.dart';
@@ -128,14 +129,14 @@ class ChildCreationViewModel extends ChangeNotifier {
 
   String get scannedParentMfps => _scannedVaultItem?.owners.map((o) => o.masterFingerprint).join(', ') ?? '';
 
-  String getFormattedLockTime(String lang) {
+  String getFormattedLockTime(AppLanguage language) {
     if (_scannedVaultItem == null || _masterFingerprint == null) return '';
 
     final matching = _scannedVaultItem!.beneficiaries.where((b) => b.masterFingerprint == _masterFingerprint);
     if (matching.isEmpty) return '';
 
     final datetime = DateTime.fromMillisecondsSinceEpoch(matching.first.lockTime * 1000);
-    return DateFormatUtil.formatLocalizedDateTime(datetime, lang);
+    return DateFormatUtil.formatLocalizedDateTime(datetime, language);
   }
 
   ChildKeyPreparationType get keyPreparationType => _keyPreparationType;

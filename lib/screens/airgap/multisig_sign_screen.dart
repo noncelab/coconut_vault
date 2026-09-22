@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
@@ -9,6 +10,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/view_model/airgap/multisig_sign_view_model.dart';
@@ -47,6 +49,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   bool _showFullAddress = true;
   bool _isCupertinoLoadingShown = false;
   String _cupertinoLoadingMessage = '';
+  late final List<int> _signerAnimationTriggers;
 
   @override
   void initState() {
@@ -58,15 +61,28 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       Provider.of<PreferenceProvider>(context, listen: false).isSigningOnlyMode,
     );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _viewModel.initPsbtSignState();
-    });
+    _viewModel.initPsbtSignState();
+    _signerAnimationTriggers = List<int>.filled(_viewModel.signers.length, 0);
   }
 
   void _toggleUnit() {
     setState(() {
       _currentUnit = _currentUnit == BitcoinUnit.btc ? BitcoinUnit.sats : BitcoinUnit.btc;
     });
+  }
+
+  Future<void> _waitUntilScannerGuardIsDismissed() async {
+    final lifecycleProvider = context.read<AppLifecycleStateProvider>();
+    const retryInterval = Duration(milliseconds: 50);
+
+    for (int i = 0; i < 40; i++) {
+      if (lifecycleProvider.currentState == AppLifecycleState.resumed &&
+          !lifecycleProvider.isOperationInProgress(AppLifecycleOperations.cameraAuthRequest)) {
+        await WidgetsBinding.instance.endOfFrame;
+        return;
+      }
+      await Future.delayed(retryInterval);
+    }
   }
 
   /// PassphraseCheckScreen 내부에서 인증까지 완료함
@@ -102,7 +118,8 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
   }
 
   Future<void> _signByInnerWallet(int index) async {
-    if (!_viewModel.isSigningOnlyMode) {
+    // 트리쉐이킹용 const 가드: 라이트 빌드에서 안전 저장 모드 경로를 dead code로 만들어 PinCheckScreen 등 제거
+    if (!kIsLiteBuild && !_viewModel.isSigningOnlyMode) {
       // 안전 저장 모드
       await _addSignatureToPsbtInStorageMode(index);
     } else {
@@ -175,7 +192,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         context: context,
         builder:
             (context) => CoconutPopup(
-              languageCode: context.read<VisibilityProvider>().language,
+              languageCode: context.read<VisibilityProvider>().appLanguage.code,
               title: t.exceptions.seed_invalidated.title,
               description: e.message,
               onTapRight: () {
@@ -231,7 +248,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.multisig_sign_screen.dialog.preparation.title(name: hwwType.displayName),
           description:
@@ -313,9 +330,10 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
           hardwareWalletType: hwwType,
           onMultisigPsbtScanned: (String scannedData) async {
             try {
+              final approvedBeforeScan = List<bool>.of(_viewModel.signersApproved);
               bool isRawTxHexString = isRawTransactionHexString(scannedData);
               if (isRawTxHexString) {
-                _viewModel.validateRawSignedTransaction(scannedData);
+                await _viewModel.validateRawSignedTransaction(scannedData);
                 _viewModel.saveSignedRawTxHex(scannedData);
               } else {
                 _viewModel.onScannedPsbt(scannedData, isOverwrite: signerIndex == null);
@@ -339,7 +357,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   context: context,
                   builder: (BuildContext context) {
                     return CoconutPopup(
-                      languageCode: context.read<VisibilityProvider>().language,
+                      languageCode: context.read<VisibilityProvider>().appLanguage.code,
                       title: t.multisig_sign_screen.dialog.signature_update.title,
                       description: t.multisig_sign_screen.dialog.signature_update.description,
                       onTapRight: () {
@@ -348,6 +366,21 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                     );
                   },
                 );
+              }
+
+              if (!mounted || isRawTxHexString) return;
+              await _waitUntilScannerGuardIsDismissed();
+              if (!mounted) return;
+              final newlyApprovedSignerIndexes = <int>[
+                for (int i = 0; i < _viewModel.signersApproved.length; i++)
+                  if (!approvedBeforeScan[i] && _viewModel.signersApproved[i]) i,
+              ];
+              if (newlyApprovedSignerIndexes.isNotEmpty) {
+                setState(() {
+                  for (final index in newlyApprovedSignerIndexes) {
+                    _signerAnimationTriggers[index]++;
+                  }
+                });
               }
             } on FormatException catch (e) {
               await showInfoPopup(
@@ -374,7 +407,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     HardwareWalletType? hwwType;
 
     final iconSourceList = [
-      kCoconutVaultIconPath,
+      HardwareWalletType.coconutVault.iconPath,
       kKeystoneIconPath,
       kSeedSignerIconPath,
       kJadeIconPath,
@@ -393,9 +426,9 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
     await MyBottomSheet.showDraggableBottomSheet<HardwareWalletType?>(
       context: context,
       showDragHandle: false,
-      maxChildSize: 0.45,
+      maxChildSize: 0.5,
       minChildSize: 0.2,
-      initialChildSize: 0.45,
+      initialChildSize: 0.5,
       childBuilder:
           (context) => SelectExternalWalletBottomSheet(
             title:
@@ -422,7 +455,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
       context: context,
       builder: (BuildContext context) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title: t.alert.stop_sign.title,
           description: t.alert.stop_sign.description,
@@ -485,7 +518,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                             context: context,
                             builder:
                                 (context) => CoconutPopup(
-                                  languageCode: context.read<VisibilityProvider>().language,
+                                  languageCode: context.read<VisibilityProvider>().appLanguage.code,
                                   title: t.alert.exit_sign.title,
                                   description: t.alert.exit_sign.description,
                                   backgroundColor: CoconutColors.white,
@@ -692,7 +725,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                 },
                 child: SvgPicture.asset(
                   iconPath,
-                  width: 24.0,
+                  width: 20.0,
                   colorFilter: iconColorFilter,
                   key: ValueKey<bool>(isSignerApproved),
                 ),
@@ -711,6 +744,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                 iconWidget: iconWidget,
                 text: buttonText,
                 activeColor: const Color(0xFF88C125),
+                animationTrigger: _signerAnimationTriggers[index],
 
                 onPressed: () async {
                   if (isSignerApproved) {

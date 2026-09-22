@@ -12,17 +12,22 @@ class CustomTooltip {
     Color? backgroundColor,
     Color? borderColor,
     EdgeInsets? padding,
+    bool showIcon = true,
   }) {
     return Padding(
       padding: padding ?? EdgeInsets.only(top: paddingTop, left: 16, right: 16),
       child: CoconutToolTip(
         backgroundColor: backgroundColor ?? (isBackgroundWhite ? CoconutColors.gray150 : CoconutColors.gray100),
         borderColor: borderColor ?? (isBackgroundWhite ? Colors.transparent : CoconutColors.gray400),
-        icon: SvgPicture.asset(
-          'assets/svg/circle-info.svg',
-          width: 20,
-          colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
-        ),
+        showIcon: showIcon,
+        icon:
+            showIcon
+                ? SvgPicture.asset(
+                  'assets/svg/circle-info.svg',
+                  width: 20,
+                  colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+                )
+                : null,
         tooltipType: CoconutTooltipType.fixed,
         richText: richText,
       ),

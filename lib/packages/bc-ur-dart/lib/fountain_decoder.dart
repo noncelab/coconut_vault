@@ -33,7 +33,7 @@ class FountainDecoder {
   Set<int>? lastPartIndexes;
   int processedPartsCount = 0;
   dynamic result;
-  Set<int>? expectedPartIndexes;
+  int? _expectedPartCount;
   int? expectedFragmentLen;
   int? expectedMessageLen;
   int? expectedChecksum;
@@ -41,9 +41,7 @@ class FountainDecoder {
   Map<Set<int>, FountainDecoderPart> mixedParts = {};
   List<FountainDecoderPart> queuedParts = [];
 
-  int? expectedPartCount() {
-    return expectedPartIndexes?.length;
-  }
+  int? get expectedPartCount => _expectedPartCount;
 
   bool isSuccess() {
     return result != null && result is! Exception;
@@ -69,10 +67,10 @@ class FountainDecoder {
     if (isComplete()) {
       return 1;
     }
-    if (expectedPartIndexes == null) {
+    if (expectedPartCount == null) {
       return 0;
     }
-    double estimatedInputParts = expectedPartCount()! * 1.75;
+    double estimatedInputParts = expectedPartCount! * 1.75;
     return (processedPartsCount / estimatedInputParts).clamp(0, 0.99);
   }
 
@@ -151,7 +149,7 @@ class FountainDecoder {
     simpleParts[p.indexes] = p;
     receivedPartIndexes.add(fragmentIndex);
 
-    if (receivedPartIndexes.length == expectedPartIndexes!.length) {
+    if (receivedPartIndexes.length == expectedPartCount!) {
       var sortedParts = simpleParts.values.toList()..sort((a, b) => a.index.compareTo(b.index));
 
       var fragments = sortedParts.map((part) => part.data).toList();
@@ -192,13 +190,13 @@ class FountainDecoder {
   }
 
   bool validatePart(FountainEncoderPart p) {
-    if (expectedPartIndexes == null) {
-      expectedPartIndexes = Set<int>.from(List<int>.generate(p.seqLen, (i) => i));
+    if (expectedPartCount == null) {
+      _expectedPartCount = p.seqLen;
       expectedMessageLen = p.messageLen;
       expectedChecksum = p.checksum;
       expectedFragmentLen = p.data.length;
     } else {
-      if (expectedPartCount() != p.seqLen) return false;
+      if (expectedPartCount != p.seqLen) return false;
       if (expectedMessageLen != p.messageLen) return false;
       if (expectedChecksum != p.checksum) return false;
       if (expectedFragmentLen != p.data.length) return false;

@@ -45,6 +45,8 @@ class VaultHomeViewModel extends ChangeNotifier {
 
   List<int> get favoriteVaultIds => _favoriteVaultIds;
   bool get isSigningOnlyMode => _preferenceProvider.isSigningOnlyMode;
+  Set<int> get walletIdsWithUnacknowledgedOlderToAfterBackupUpdate =>
+      _walletProvider.walletIdsWithUnacknowledgedOlderToAfterBackupUpdate;
 
   List<VaultListItemBase> get vaults {
     // 지갑 목록을 가져오고, 순서가 설정되어 있다면 그 순서대로 정렬
@@ -86,7 +88,7 @@ class VaultHomeViewModel extends ChangeNotifier {
 
   void _onPreferenceProviderUpdated() {
     /// 지갑 즐겨찾기 변동 체크
-    if (favoriteVaultIds.toString() != _preferenceProvider.favoriteVaultIds.toString() && vaults.isNotEmpty) {
+    if (favoriteVaultIds.toString() != _preferenceProvider.favoriteVaultIds.toString()) {
       loadFavoriteVaults();
     }
 
@@ -94,8 +96,6 @@ class VaultHomeViewModel extends ChangeNotifier {
   }
 
   Future<void> loadFavoriteVaults() async {
-    if (_walletProvider.vaultList.isEmpty) return;
-
     final ids = _preferenceProvider.favoriteVaultIds;
 
     final vaults =

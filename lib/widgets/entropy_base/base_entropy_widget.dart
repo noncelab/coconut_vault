@@ -406,7 +406,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
       context: context,
       builder:
           (BuildContext context) => CoconutPopup(
-            languageCode: context.read<VisibilityProvider>().language,
+            languageCode: context.read<VisibilityProvider>().appLanguage.code,
             title: t.delete_all,
             description: t.alert.erase_all_entered_so_far,
             backgroundColor: CoconutColors.white,

@@ -1,5 +1,3 @@
-import 'dart:math' as Math;
-
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/hardware_wallet_type_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -39,13 +37,10 @@ class MultisigQrCodeViewScreen extends StatefulWidget {
 class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
   late VisibilityProvider _visibilityProvider;
 
-  bool _isEnglish = true;
-
   @override
   void initState() {
     super.initState();
     _visibilityProvider = Provider.of<VisibilityProvider>(context, listen: false);
-    _isEnglish = _visibilityProvider.language == 'en';
   }
 
   @override
@@ -126,9 +121,10 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
   List<TextSpan> _getTooltipRichText() {
     final textStyle = CoconutTypography.body2_14.copyWith(height: 1.2, color: CoconutColors.black);
     final textStyleBold = CoconutTypography.body2_14_Bold.copyWith(height: 1.2, color: CoconutColors.black);
+    final isEnglishWordOrder = _visibilityProvider.isEnglishWordOrder;
 
     if (widget.hardwareWalletType == HardwareWalletType.keystone) {
-      if (_isEnglish) {
+      if (isEnglishWordOrder) {
         return [
           TextSpan(text: '1. ', style: textStyle),
           TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.keystone_text0_en, style: textStyle),
@@ -189,7 +185,7 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
         TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
       ];
     } else if (widget.hardwareWalletType == HardwareWalletType.krux) {
-      if (_isEnglish) {
+      if (isEnglishWordOrder) {
         return [
           TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.krux_text0_en(mfp: widget.mfp ?? ''), style: textStyle),
           TextSpan(text: '1. ', style: textStyle),
@@ -233,7 +229,7 @@ class _MultisigQrCodeViewScreenState extends State<MultisigQrCodeViewScreen> {
         TextSpan(text: t.signer_qr_bottom_sheet.select, style: textStyle),
       ];
     } else {
-      if (_isEnglish) {
+      if (isEnglishWordOrder) {
         return [
           TextSpan(text: t.signer_qr_bottom_sheet.add_to_hww.vault_text0_en, style: textStyle),
           TextSpan(text: '1. ', style: textStyle),

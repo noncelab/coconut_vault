@@ -1,0 +1,231 @@
+import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/enums/multisig_export_format.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
+import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
+import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
+import 'package:coconut_vault/widgets/animated_qr/view_data_handler/i_qr_view_data_handler.dart';
+import 'package:coconut_vault/widgets/button/copy_text_container.dart';
+import 'package:flutter/material.dart';
+
+class QrWithCopyTextScreen extends StatefulWidget {
+  final String title;
+  final Widget? tooltipDescription;
+  final String? qrData;
+  final IQrViewDataHandler? qrViewDataHandler;
+  final String? textData;
+  final Map<String, String>? qrDataMap;
+  final Map<String, String>? copyTextDataMap;
+  final RichText? textRichText;
+  final Widget? derivationPathSection;
+  final Widget? footer;
+  final bool showPulldownMenu;
+
+  const QrWithCopyTextScreen({
+    super.key,
+    required this.title,
+    this.tooltipDescription,
+    required this.qrData,
+    this.qrViewDataHandler,
+    this.textData,
+    this.qrDataMap,
+    this.copyTextDataMap,
+    this.textRichText,
+    this.derivationPathSection,
+    this.footer,
+    this.showPulldownMenu = false,
+  });
+
+  @override
+  State<QrWithCopyTextScreen> createState() => _QrWithCopyTextScreenState();
+}
+
+class _QrWithCopyTextScreenState extends State<QrWithCopyTextScreen> {
+  final GlobalKey _pulldownKey = GlobalKey();
+
+  bool _isPulldownOpen = false;
+
+  String _selectedKey = MultisigExportFormat.bsms.key;
+
+  final Map<String, String> _optionMap = {
+    for (final format in MultisigExportFormat.values) format.key: format.displayTitle,
+  };
+
+  List<String> get _optionTitles => _optionMap.keys.toList();
+
+  int get _selectedIndex => _optionTitles.indexOf(_selectedKey);
+
+  String get _displayTitle => _optionMap[_selectedKey] ?? _selectedKey;
+
+  String? get _currentQrData {
+    if (!widget.showPulldownMenu) {
+      return widget.qrData;
+    }
+
+    if (widget.qrDataMap == null) {
+      return widget.qrData;
+    }
+
+    return widget.qrDataMap![_selectedKey] ?? widget.qrData;
+  }
+
+  String get _currentTextData {
+    if (!widget.showPulldownMenu) {
+      return widget.textData ?? widget.qrData ?? '';
+    }
+
+    if (widget.copyTextDataMap != null && widget.copyTextDataMap!.containsKey(_selectedKey)) {
+      return widget.copyTextDataMap![_selectedKey]!;
+    }
+
+    if (widget.qrDataMap != null && widget.qrDataMap!.containsKey(_selectedKey)) {
+      return widget.qrDataMap![_selectedKey]!;
+    }
+
+    return widget.qrData ?? '';
+  }
+
+  void _showDropdownMenu() {
+    final RenderBox? renderBox = _pulldownKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return;
+
+    final offset = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+
+    Navigator.of(context)
+        .push(
+          PageRouteBuilder(
+            opaque: false,
+            barrierDismissible: true,
+            barrierColor: Colors.transparent,
+            transitionDuration: Duration.zero,
+            pageBuilder: (context, _, __) {
+              return MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                child: Stack(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      behavior: HitTestBehavior.translucent,
+                      child: const SizedBox.expand(),
+                    ),
+                    Positioned(
+                      top: offset.dy + size.height,
+                      right: 16,
+                      child: CoconutPulldownMenu(
+                        entries:
+                            _optionTitles.map((key) {
+                              return CoconutPulldownMenuItem(title: key);
+                            }).toList(),
+                        selectedIndex: _selectedIndex,
+                        onSelected: (index, title) {
+                          setState(() {
+                            _selectedKey = _optionTitles[index];
+                          });
+                          Navigator.pop(context);
+                        },
+                        backgroundColor: CoconutColors.white,
+                        borderRadius: 8,
+                        shadowColor: CoconutColors.black.withValues(alpha: 0.1),
+                        isSelectedItemBold: true,
+                        buttonPadding: const EdgeInsets.only(right: 16, left: 16),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        )
+        .then((_) {
+          setState(() {
+            _isPulldownOpen = false;
+          });
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final displayQrData = _currentQrData;
+    final displayTextData = _currentTextData;
+    final isKeystoneMultisig = widget.showPulldownMenu && _selectedKey == MultisigExportFormat.keystone.key;
+    final constrainedQrHandler =
+        isKeystoneMultisig ? BcUrQrViewHandler(displayTextData, UrType.bytes, maxFragmentLen: 50) : null;
+
+    return Scaffold(
+      backgroundColor: CoconutColors.white,
+      appBar: CoconutAppBar.build(
+        title: widget.title,
+        context: context,
+        isBottom: false,
+        onBackPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              if (widget.tooltipDescription != null) ...[widget.tooltipDescription!],
+              if (widget.derivationPathSection != null) ...[CoconutLayout.spacing_500h, widget.derivationPathSection!],
+              if (widget.showPulldownMenu)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: MediaQuery(
+                    data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                    child: Container(
+                      key: _pulldownKey,
+                      margin: const EdgeInsets.only(top: 16, right: 16, bottom: 8),
+                      decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(8)),
+                      child: CoconutPulldown(
+                        title: _displayTitle,
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+                        isOpen: _isPulldownOpen,
+                        fontSize: CoconutTypography.body3_12.fontSize,
+                        onChanged: (isOpen) {
+                          setState(() {
+                            _isPulldownOpen = true;
+                          });
+                          _showDropdownMenu();
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CoconutLayout.spacing_300h,
+                    AdaptiveQrImage(
+                      qrData: displayQrData,
+                      qrViewDataHandler: constrainedQrHandler ?? widget.qrViewDataHandler,
+                      animateWhenConstrained: isKeystoneMultisig,
+                    ),
+                    CoconutLayout.spacing_500h,
+                    _buildCopyButton(displayTextData),
+                    CoconutLayout.spacing_1500h,
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCopyButton(String textData) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: CopyTextContainer(
+        text: textData,
+        textStyle: CoconutTypography.body2_14_Number,
+        toastMsg: t.toast.clipboard_copied,
+        textRichText: widget.textRichText,
+      ),
+    );
+  }
+}

@@ -173,9 +173,12 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
     final List<int?> inputAmounts = viewModel.inputs;
 
     final externalOutputAmounts =
-        viewModel.outputs.where((output) => output.isChange != true).map((output) => output.outAmount!).toList();
+        viewModel.outputs
+            .where((output) => !viewModel.isChangeOutput(output))
+            .map((output) => output.outAmount!)
+            .toList();
     final changeOutputAmounts =
-        viewModel.outputs.where((output) => output.isChange == true).map((output) => output.outAmount!).toList();
+        viewModel.outputs.where(viewModel.isChangeOutput).map((output) => output.outAmount!).toList();
 
     return SendTransactionFlowCard(
       inputAmounts: inputAmounts,
@@ -190,7 +193,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
     final detailItems = <OutputDetailItem>[];
     int outputIndex = 0;
     for (final output in viewModel.outputs) {
-      final isChange = output.isChange == true;
+      final isChange = viewModel.isChangeOutput(output);
       if (!isChange) {
         outputIndex += 1;
       }

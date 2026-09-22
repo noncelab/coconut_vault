@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:encrypt/encrypt.dart';
+import 'package:encrypt_next/encrypt.dart';
 import 'package:coconut_vault/utils/aes_crypto.dart';
 import 'package:coconut_vault/utils/secure_key_generator.dart';
 

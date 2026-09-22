@@ -112,7 +112,7 @@ class _VaultNameAndIconSetupScreenState extends State<VaultNameAndIconSetupScree
         context: context,
         builder: (context) {
           return CoconutPopup(
-            languageCode: context.read<VisibilityProvider>().language,
+            languageCode: context.read<VisibilityProvider>().appLanguage.code,
             title: t.errors.creation_error,
             description: t.alert.auth_canceled_when_encrypt.description,
             rightButtonText: t.confirm,

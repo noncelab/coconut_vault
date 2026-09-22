@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/constants/app_language.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app_routes_params.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
@@ -86,7 +87,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   static const int _progressInitialStepCount = 1;
   static const Color _parentWalletActiveColor = CoconutColors.purple;
 
-  late final String _language;
+  late final AppLanguage _language;
   late final ParentCreationViewModel _viewModel;
   final List<ParentCreationStep> _stepHistory = [ParentCreationStep.intro, ParentCreationStep.selectWalletType];
   int _currentStep = 1;
@@ -123,7 +124,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   @override
   void initState() {
     super.initState();
-    _language = context.read<VisibilityProvider>().language;
+    _language = context.read<VisibilityProvider>().appLanguage;
     _viewModel = ParentCreationViewModel(context.read<WalletProvider>());
     _viewModel.addListener(_handleViewModelChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) => _scheduleTitleAnimationCompletion());

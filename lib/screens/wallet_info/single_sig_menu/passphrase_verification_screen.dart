@@ -241,7 +241,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
           context: context,
           builder:
               (context) => CoconutPopup(
-                languageCode: context.read<VisibilityProvider>().language,
+                languageCode: context.read<VisibilityProvider>().appLanguage.code,
                 title: title,
                 description: description,
                 onTapRight: () => Navigator.pop(context),

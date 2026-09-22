@@ -29,6 +29,8 @@ class WalletInfoViewModel extends ChangeNotifier {
   bool get isSigningOnlyMode => _walletProvider.isSigningOnlyMode;
   bool get isInitialized => _isInitialized;
   bool get isMultisig => _isMultisig;
+  bool get hasUnacknowledgedOlderToAfterBackupUpdate =>
+      _walletProvider.walletIdsWithUnacknowledgedOlderToAfterBackupUpdate.contains(vaultItem.id);
 
   /// SingleSigInfoScreen Only
   int get linkedMutlsigVaultCount =>
@@ -111,12 +113,12 @@ class WalletInfoViewModel extends ChangeNotifier {
     return true;
   }
 
-  Future<void> deleteVault() async {
+  Future<bool> deleteVault() async {
     if (_vaultListItem == null) {
-      return;
+      return false;
     }
 
-    await _walletProvider.deleteWallet(_vaultListItem!.id);
+    return await _walletProvider.deleteWallet(_vaultListItem!.id);
   }
 
   /// SingleSigInfoScreen Only

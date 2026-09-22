@@ -21,6 +21,10 @@ class WalletStorageKeys {
 
   // 탭루트 지갑 구성하는 SeedKey 목록을 저장하는 키
   static String taprootSeedIndexKey(int walletId) => hashString("$walletId - taprootSeedIndex");
+
+  // 서명전용모드 → 보안저장모드 전환 시 원본 암호문 백업용 키
+  static const String appModeTransitionBackupPrefix = "appModeTransitionBackup_";
+  static String appModeTransitionBackupKey(String originalKey) => "$appModeTransitionBackupPrefix$originalKey";
 }
 
 /// Persistence behavior that differs between secure-storage mode and signing-only mode.
@@ -49,6 +53,7 @@ abstract class WalletPersistenceStrategy {
   Future<T> mutate<T>({
     required Future<T> Function(WalletWriteOps ops) execute,
     required List<VaultListItemBase> Function() snapshot,
+    bool ignorePublicListSaveFailure = false,
   });
 
   /// Update privacy info for an existing singlesig wallet (e.g., after account derivation change).

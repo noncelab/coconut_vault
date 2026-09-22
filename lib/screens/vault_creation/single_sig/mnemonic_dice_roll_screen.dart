@@ -262,6 +262,7 @@ class _DiceRollState extends BaseEntropyWidgetState<DiceRoll> {
     return Padding(
       padding: const EdgeInsets.all(2.0),
       child: ShrinkAnimationButton(
+        key: ValueKey('dice-roll-$buttonText'),
         onPressed: onButtonPressed,
         borderRadius: 12,
         child: Container(

@@ -31,9 +31,13 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
     super.dispose();
   }
 
-  void onTapShareWithOtherVault() {
+  Future<void> onTapShareWithOtherVault() async {
+    if (widget.walletType == WalletType.taproot) {
+      await context.read<WalletProvider>().removeWalletIdWithUnacknowledgedOlderToAfterBackupUpdate(widget.id);
+    }
     final route = widget.walletType == WalletType.taproot ? AppRoutes.taprootSyncView : AppRoutes.multisigBsmsView;
 
+    if (!mounted) return;
     Navigator.pushReplacementNamed(context, route, arguments: {'id': widget.id});
   }
 
@@ -99,8 +103,11 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
                     _buildOption(
                       t.taproot.sync_qr_screen.title,
                       t.taproot.sync_qr_screen.description,
-                      onTapShareWithOtherVault,
+                      () => onTapShareWithOtherVault(),
                       true,
+                      showNotificationDot: model.walletIdsWithUnacknowledgedOlderToAfterBackupUpdate.contains(
+                        widget.id,
+                      ),
                     ),
                   ],
                   if (widget.walletType == WalletType.multiSignature) ...[
@@ -151,7 +158,13 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
     );
   }
 
-  Widget _buildOption(String title, String description, VoidCallback onPressed, bool isSelectable) {
+  Widget _buildOption(
+    String title,
+    String description,
+    VoidCallback onPressed,
+    bool isSelectable, {
+    bool showNotificationDot = false,
+  }) {
     return ShrinkAnimationButton(
       defaultColor: CoconutColors.gray150,
       pressedColor: CoconutColors.gray500.withValues(alpha: 0.1),
@@ -168,12 +181,27 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      title,
-                      style: CoconutTypography.body1_16_Bold.copyWith(
-                        color: isSelectable ? CoconutColors.black : CoconutColors.gray400,
-                        letterSpacing: 0.2,
-                      ),
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Text(
+                          title,
+                          style: CoconutTypography.body1_16_Bold.copyWith(
+                            color: isSelectable ? CoconutColors.black : CoconutColors.gray400,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                        if (showNotificationDot)
+                          Positioned(
+                            top: -1,
+                            right: -8,
+                            child: Container(
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(color: CoconutColors.hotPink, shape: BoxShape.circle),
+                            ),
+                          ),
+                      ],
                     ),
                     CoconutLayout.spacing_100h,
                     Flexible(

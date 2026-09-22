@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:coconut_vault/utils/deletion_failure_injector.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 abstract class SecureStorageRepositoryContract {
   Future<void> write({required String key, required String value});
   Future<String?> read({required String key});
+  Future<String?> readStrict({required String key});
   Future<void> writeBytes({required String key, required Uint8List value});
   Future<Uint8List?> readBytes({required String key});
   Future<void> delete({required String key});
@@ -57,6 +59,11 @@ class SecureStorageRepository implements SecureStorageRepositoryContract {
   }
 
   @override
+  Future<String?> readStrict({required String key}) async {
+    return _storage.read(key: key);
+  }
+
+  @override
   Future<void> writeBytes({required String key, required Uint8List value}) async {
     try {
       await _storage.write(key: key, value: utf8.decode(value));
@@ -80,6 +87,10 @@ class SecureStorageRepository implements SecureStorageRepositoryContract {
 
   @override
   Future<void> delete({required String key}) async {
+    DeletionFailureInjector.throwIfConfigured('secure_storage', key);
+    if (key.startsWith('privacy_')) {
+      DeletionFailureInjector.throwIfConfigured('privacy_info', key);
+    }
     await _storage.delete(key: key);
   }
 

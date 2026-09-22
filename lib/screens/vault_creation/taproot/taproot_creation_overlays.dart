@@ -24,7 +24,7 @@ class TaprootCreationOverlays {
       context: context,
       builder: (dialogContext) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           title: title,
           description: description,
           leftButtonText: leftButtonText ?? t.cancel,
@@ -46,7 +46,7 @@ class TaprootCreationOverlays {
       context: context,
       builder: (dialogContext) {
         return CoconutPopup(
-          languageCode: context.read<VisibilityProvider>().language,
+          languageCode: context.read<VisibilityProvider>().appLanguage.code,
           title: title,
           description: description,
           rightButtonText: rightButtonText,
@@ -69,7 +69,7 @@ class TaprootCreationOverlays {
         return PopScope(
           canPop: false,
           child: CoconutPopup(
-            languageCode: context.read<VisibilityProvider>().language,
+            languageCode: context.read<VisibilityProvider>().appLanguage.code,
             title: title,
             description: description,
             rightButtonText: t.confirm,

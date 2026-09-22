@@ -148,9 +148,7 @@ class URDecoder {
   // return expectedType;
   // }
 
-  int? expectedPartCount() {
-    return fountainDecoder.expectedPartCount();
-  }
+  int? get expectedPartCount => fountainDecoder.expectedPartCount;
 
   Set<int> receivedPartIndexes() {
     return fountainDecoder.receivedPartIndexes;

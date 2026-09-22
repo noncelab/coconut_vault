@@ -27,6 +27,7 @@ bool isSameTransactionBody(Transaction tx1, Transaction tx2) {
   return true;
 }
 
+/// ColdCard에서 최종화된 TXN으로 전달된 경우에 이 형식으로 분류될 수 있습니다.
 bool isRawTransactionHexString(String data) {
   try {
     if (!isHexString(data)) return false;

@@ -7,8 +7,6 @@ import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
-import 'package:coconut_vault/providers/preference_provider.dart';
-import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
@@ -90,7 +88,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isPermanentlyLocked => _currentTurn == kMaxTurn;
   bool get isUnlockAvailable => unlockAvailableAt?.isBefore(DateTime.now()) ?? true;
 
-  VoidCallback? onAuthenticationSuccess;
+  FutureOr<void> Function()? onAuthenticationSuccess;
 
   AuthProvider() {
     updateDeviceBiometricAvailability();
@@ -231,7 +229,7 @@ class AuthProvider extends ChangeNotifier {
     bool isAuthenticated = await authenticateWithBiometrics(context: context);
     if (isAuthenticated) {
       if (onAuthenticationSuccess != null) {
-        onAuthenticationSuccess!();
+        await onAuthenticationSuccess!();
       }
       await resetAuthenticationState();
     }
@@ -290,7 +288,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> resetCredentials() async {
+  Future<void> resetCredentials({bool preservePermanentLock = false}) async {
     if (_isDisposed) return;
 
     await _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
@@ -298,7 +296,15 @@ class AuthProvider extends ChangeNotifier {
     await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
     _isPinSet = false;
     await _storageService.delete(key: SecureStorageKeys.kVaultPin);
-    await resetAuthenticationState();
+    await resetAuthenticationState(preservePermanentLock: preservePermanentLock);
+    notifyListeners();
+  }
+
+  Future<void> clearPermanentLock() async {
+    if (_isDisposed) return;
+
+    _currentTurn = 0;
+    await _sharedPrefs.deleteSharedPrefsWithKey(turnKey);
     notifyListeners();
   }
 
@@ -356,16 +362,20 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> resetAuthenticationState() async {
+  Future<void> resetAuthenticationState({bool preservePermanentLock = false}) async {
     if (_isDisposed) return;
 
     _currentAttemptInTurn = 0;
-    _currentTurn = 0;
+    if (!preservePermanentLock) {
+      _currentTurn = 0;
+    }
     _unlockAvailableAtInString = '';
 
     await _sharedPrefs.deleteSharedPrefsWithKey(unlockAvailableAtKey);
     await _sharedPrefs.deleteSharedPrefsWithKey(currentAttemptKey);
-    await _sharedPrefs.deleteSharedPrefsWithKey(turnKey);
+    if (!preservePermanentLock) {
+      await _sharedPrefs.deleteSharedPrefsWithKey(turnKey);
+    }
   }
 
   @override

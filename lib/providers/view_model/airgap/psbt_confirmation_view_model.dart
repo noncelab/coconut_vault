@@ -48,7 +48,11 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
   List<int?> get inputs => _inputs;
   List<PsbtOutput> get outputs => _outputs;
 
-  int? get totalAmount => _psbt != null ? _psbt!.sendingAmount + _psbt!.fee : null;
+  bool isChangeOutput(PsbtOutput output) => output.isChange(_wallet);
+
+  int? get totalAmount => _psbt != null ? (_sendingAmount ?? _psbt!.sendingAmount(_wallet)) + _psbt!.fee : null;
+
+  WalletBase get _wallet => _signProvider.vaultListItem!.coconutVault;
 
   void setTxInfo() {
     _psbt = Psbt.parse(_unsignedPsbtBase64);
@@ -67,9 +71,9 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
     List<PsbtOutput> outputToMyChangeAddress = [];
     List<PsbtOutput> outputsToOther = [];
     for (var output in outputs) {
-      if (output.bip32Derivation == null) {
+      if (!output.isOwnedBy(_wallet)) {
         outputsToOther.add(output);
-      } else if (output.isChange) {
+      } else if (output.isChange(_wallet)) {
         outputToMyChangeAddress.add(output);
       } else {
         outputToMyReceivingAddress.add(output);
@@ -95,7 +99,7 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
           recipientAmounts[output.outAddress] = UnitUtil.convertSatoshiToBitcoin(output.outAmount!);
         }
       }
-      _sendingAmount = _psbt!.sendingAmount;
+      _sendingAmount = _psbt!.sendingAmount(_wallet);
       _recipientAddresses.addAll(
         recipientAmounts.entries.map((e) {
           if (_visibilityProvider.isBtcUnit) {
@@ -125,7 +129,7 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
         _isSendingToMyAddress = true;
       }
 
-      _sendingAmount = sendingAmountWhenAddressIsMyChange ?? _psbt!.sendingAmount;
+      _sendingAmount = sendingAmountWhenAddressIsMyChange ?? _psbt!.sendingAmount(_wallet);
       if (output != null) {
         _recipientAddresses.add(output.outAddress);
       }

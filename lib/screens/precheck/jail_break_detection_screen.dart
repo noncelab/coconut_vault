@@ -7,6 +7,7 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/usecases/reset_credentials_and_wallets_usecase.dart';
+import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -23,6 +24,7 @@ class JailBreakDetectionScreen extends StatefulWidget {
 }
 
 class _JailBreakDetectionScreenState extends State<JailBreakDetectionScreen> {
+  bool _isResetting = false;
   @override
   void initState() {
     super.initState();
@@ -41,84 +43,89 @@ class _JailBreakDetectionScreenState extends State<JailBreakDetectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<VisibilityProvider>(
-      builder: (context, visibilityProvider, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-          child: Scaffold(
-            backgroundColor: CoconutColors.white,
-            body: SafeArea(
-              child: SizedBox(
-                width: double.infinity,
-                height: MediaQuery.sizeOf(context).height,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      top: 0,
-                      child: SingleChildScrollView(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              CoconutLayout.spacing_1600h,
-                              SvgPicture.asset('assets/svg/warning-hexagon.svg', width: 48, height: 48),
-                              CoconutLayout.spacing_400h,
-                              Text(
-                                t.jail_break_detection_screen.title,
-                                style: CoconutTypography.heading3_21_Bold,
-                                textAlign: TextAlign.center,
-                              ),
-                              CoconutLayout.spacing_300h,
-                              Text(
-                                t.jail_break_detection_screen.description,
-                                style: CoconutTypography.body1_16,
-                                textAlign: TextAlign.center,
-                              ),
-                              Text(
-                                t.jail_break_detection_screen.description2,
-                                style: CoconutTypography.body1_16_Bold,
-                                textAlign: TextAlign.center,
-                              ),
-                              CoconutLayout.spacing_900h,
-                              Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: CoconutColors.gray150,
-                                  borderRadius: BorderRadius.circular(12),
+    return PopScope(
+      canPop: !_isResetting,
+      child: Consumer<VisibilityProvider>(
+        builder: (context, visibilityProvider, child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+            child: Scaffold(
+              backgroundColor: CoconutColors.white,
+              body: SafeArea(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: MediaQuery.sizeOf(context).height,
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        top: 0,
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                CoconutLayout.spacing_1600h,
+                                SvgPicture.asset('assets/svg/warning-hexagon.svg', width: 48, height: 48),
+                                CoconutLayout.spacing_400h,
+                                Text(
+                                  t.jail_break_detection_screen.title,
+                                  style: CoconutTypography.heading3_21_Bold,
+                                  textAlign: TextAlign.center,
                                 ),
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      t.jail_break_detection_screen.jail_break_guide_title,
-                                      style: CoconutTypography.body1_16_Bold,
-                                    ),
-                                    CoconutLayout.spacing_200h,
-                                    Text(
-                                      t.jail_break_detection_screen.jail_break_guide_description,
-                                      style: CoconutTypography.body1_16,
-                                    ),
-                                  ],
+                                CoconutLayout.spacing_300h,
+                                Text(
+                                  t.jail_break_detection_screen.description,
+                                  style: CoconutTypography.body1_16,
+                                  textAlign: TextAlign.center,
                                 ),
-                              ),
-                            ],
+                                Text(
+                                  t.jail_break_detection_screen.description2,
+                                  style: CoconutTypography.body1_16_Bold,
+                                  textAlign: TextAlign.center,
+                                ),
+                                CoconutLayout.spacing_900h,
+                                Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: CoconutColors.gray150,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        t.jail_break_detection_screen.jail_break_guide_title,
+                                        style: CoconutTypography.body1_16_Bold,
+                                      ),
+                                      CoconutLayout.spacing_200h,
+                                      Text(
+                                        t.jail_break_detection_screen.jail_break_guide_description,
+                                        style: CoconutTypography.body1_16,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    _buildBottomButton(),
-                  ],
+                      _buildBottomButton(),
+                      if (_isResetting)
+                        const Positioned.fill(child: AbsorbPointer(child: Center(child: CoconutCircularIndicator()))),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -162,30 +169,41 @@ class _JailBreakDetectionScreenState extends State<JailBreakDetectionScreen> {
           },
         ),
       ),
-      isActive: true,
+      isActive: !_isResetting,
       onButtonClicked: () async {
+        if (_isResetting) return;
+        setState(() => _isResetting = true);
         WalletProvider? walletProvider;
         try {
           walletProvider = context.read<WalletProvider>();
         } catch (_) {
           // ignore
         }
+        final authProvider = context.read<AuthProvider>();
         final visibilityProvider = context.read<VisibilityProvider>();
         final preferenceProvider = context.read<PreferenceProvider>();
-        try {
-          await ResetCredentialsAndWalletsUsecase.execute(
-            walletProvider: walletProvider,
-            authProvider: context.read<AuthProvider>(),
-            preferenceProvider: preferenceProvider,
-          );
-          await walletProvider?.reloadRelatedToVault();
-          visibilityProvider.reloadRelatedToVault();
-          preferenceProvider.reloadRelatedToVault();
-        } catch (_) {
-          return;
+        while (mounted) {
+          try {
+            await ResetCredentialsAndWalletsUsecase.execute(
+              walletProvider: walletProvider,
+              authProvider: authProvider,
+              preferenceProvider: preferenceProvider,
+            );
+            await walletProvider?.reloadRelatedToVault();
+            visibilityProvider.reloadRelatedToVault();
+            preferenceProvider.reloadRelatedToVault();
+            if (!mounted) return;
+            setState(() => _isResetting = false);
+            widget.onReset?.call();
+            return;
+          } catch (e) {
+            if (!mounted) return;
+            final shouldRetry = await showResetFailureRetryPopup(context, e);
+            if (shouldRetry) continue;
+            if (mounted) setState(() => _isResetting = false);
+            return;
+          }
         }
-        if (!mounted) return;
-        widget.onReset?.call();
       },
       text: t.jail_break_detection_screen.delete_data,
     );

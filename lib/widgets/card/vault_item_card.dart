@@ -9,9 +9,9 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/wallet_info/account_number_settings_bottom_sheet.dart';
 import 'package:coconut_vault/screens/wallet_info/passphrase_check_bottom_sheet.dart';
 import 'package:coconut_vault/utils/colors_util.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/button/tooltip_button.dart';
 import 'package:coconut_vault/widgets/icon/vault_icon.dart';
+import 'package:coconut_vault/widgets/text/mfp_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -24,7 +24,8 @@ import 'package:provider/provider.dart';
 class VaultItemCard extends StatefulWidget {
   final VaultListItemBase vaultItem;
   final VoidCallback onTooltipClicked;
-  final VoidCallback onNameChangeClicked;
+  // null이면 이름/아이콘 편집 탭과 편집 배지를 비활성화합니다 (라이트 빌드)
+  final VoidCallback? onNameChangeClicked;
   final GlobalKey tooltipKey;
 
   const VaultItemCard({
@@ -84,12 +85,15 @@ class _VaultItemCardState extends State<VaultItemCard> {
           children: [
             Expanded(
               child: GestureDetector(
-                onTapDown: (_) => setState(() => _isItemTapped = true),
-                onTapCancel: () => setState(() => _isItemTapped = false),
-                onTap: () {
-                  widget.onNameChangeClicked();
-                  setState(() => _isItemTapped = false);
-                },
+                onTapDown: widget.onNameChangeClicked != null ? (_) => setState(() => _isItemTapped = true) : null,
+                onTapCancel: widget.onNameChangeClicked != null ? () => setState(() => _isItemTapped = false) : null,
+                onTap:
+                    widget.onNameChangeClicked != null
+                        ? () {
+                          widget.onNameChangeClicked!();
+                          setState(() => _isItemTapped = false);
+                        }
+                        : null,
                 child: Row(
                   children: [
                     _buildIcon(),
@@ -143,15 +147,14 @@ class _VaultItemCardState extends State<VaultItemCard> {
                   )
                   : TooltipButton(
                     isSelected: false,
-                    text: rightText,
                     isLeft: true,
                     iconkey: widget.tooltipKey,
                     containerMargin: EdgeInsets.zero,
                     onTapDown: (_) => widget.onTooltipClicked(),
-                    textStyle: CoconutTypography.heading4_18_NumberBold,
                     iconColor: CoconutColors.black,
                     iconSize: 18,
                     isIconBold: true,
+                    child: MfpText(mfp: rightText, style: CoconutTypography.heading4_18_NumberBold),
                   ),
         );
       },
@@ -226,38 +229,15 @@ class _VaultItemCardState extends State<VaultItemCard> {
     final int colorIndex = widget.vaultItem.colorIndex;
     final int iconIndex = widget.vaultItem.iconIndex;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        VaultIcon(iconIndex: iconIndex, colorIndex: colorIndex),
-        Positioned(
-          right: -3,
-          bottom: -3,
-          child: Container(
-            padding: const EdgeInsets.all(4.3),
-            decoration: BoxDecoration(
-              color: _isItemTapped ? CoconutColors.gray300 : CoconutColors.gray150,
-              shape: BoxShape.circle,
-              boxShadow: const [
-                BoxShadow(color: CoconutColors.gray300, offset: Offset(2, 2), blurRadius: 10, spreadRadius: 0),
-              ],
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(1),
-              decoration: BoxDecoration(
-                color: _isItemTapped ? CoconutColors.gray300 : CoconutColors.gray150,
-                shape: BoxShape.circle,
-              ),
-              child: SvgPicture.asset(
-                'assets/svg/edit-outlined.svg',
-                width: 10,
-                colorFilter: const ColorFilter.mode(CoconutColors.gray700, BlendMode.srcIn),
-              ),
-            ),
-          ),
-        ),
-      ],
+    final icon = Container(
+      decoration: const BoxDecoration(color: CoconutColors.white, borderRadius: BorderRadius.all(Radius.circular(12))),
+      child: VaultIcon(iconIndex: iconIndex, colorIndex: colorIndex),
     );
+
+    if (widget.onNameChangeClicked == null) {
+      return icon;
+    }
+    return VaultIconEditBadge(isTapped: _isItemTapped, child: icon);
   }
 
   Future<void> _handleAccountEditTap(int currentAccount) async {

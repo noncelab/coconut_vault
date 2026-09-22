@@ -90,7 +90,7 @@ class _CopyTextContainerState extends State<CopyTextContainer> {
         });
       },
       child: Container(
-        width: MediaQuery.sizeOf(context).width,
+        width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(CoconutStyles.radius_400),

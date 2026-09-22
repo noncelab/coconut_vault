@@ -9,14 +9,22 @@ import 'package:intl/intl.dart';
 class TaprootVaultItemCard extends StatefulWidget {
   final VaultListItemBase vaultItem;
   final bool showTaprootWalletInfo;
+  final VoidCallback? onNameChangeClicked;
 
-  const TaprootVaultItemCard({super.key, required this.vaultItem, required this.showTaprootWalletInfo});
+  const TaprootVaultItemCard({
+    super.key,
+    required this.vaultItem,
+    required this.showTaprootWalletInfo,
+    this.onNameChangeClicked,
+  });
 
   @override
   State<TaprootVaultItemCard> createState() => _TaprootVaultItemCardState();
 }
 
 class _TaprootVaultItemCardState extends State<TaprootVaultItemCard> {
+  bool _isItemTapped = false;
+
   @override
   Widget build(BuildContext context) {
     assert(widget.vaultItem is TaprootVaultListItem, 'vaultItem must be of type TaprootVaultListItem');
@@ -59,26 +67,38 @@ class _TaprootVaultItemCardState extends State<TaprootVaultItemCard> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
-                  child: Row(
-                    children: [
-                      _buildIcon(),
-                      CoconutLayout.spacing_300w,
-                      Expanded(
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            return ConstrainedBox(
-                              constraints: BoxConstraints(maxWidth: constraints.maxWidth),
-                              child: Text(
-                                widget.vaultItem.name,
-                                style: CoconutTypography.body2_14_Bold,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            );
-                          },
+                  child: GestureDetector(
+                    onTapDown: widget.onNameChangeClicked != null ? (_) => setState(() => _isItemTapped = true) : null,
+                    onTapCancel:
+                        widget.onNameChangeClicked != null ? () => setState(() => _isItemTapped = false) : null,
+                    onTap:
+                        widget.onNameChangeClicked != null
+                            ? () {
+                              widget.onNameChangeClicked!();
+                              setState(() => _isItemTapped = false);
+                            }
+                            : null,
+                    child: Row(
+                      children: [
+                        _buildIcon(),
+                        CoconutLayout.spacing_300w,
+                        Expanded(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              return ConstrainedBox(
+                                constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                                child: Text(
+                                  widget.vaultItem.name,
+                                  style: CoconutTypography.body2_14_Bold,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 if (widget.showTaprootWalletInfo) ...[
@@ -141,9 +161,15 @@ class _TaprootVaultItemCardState extends State<TaprootVaultItemCard> {
     final int colorIndex = widget.vaultItem.colorIndex;
     final int iconIndex = widget.vaultItem.iconIndex;
 
-    return Container(
+    final icon = Container(
       decoration: const BoxDecoration(color: CoconutColors.white, borderRadius: BorderRadius.all(Radius.circular(12))),
       child: VaultIcon(iconIndex: iconIndex, colorIndex: colorIndex),
     );
+
+    if (widget.onNameChangeClicked == null) {
+      return icon;
+    }
+
+    return VaultIconEditBadge(isTapped: _isItemTapped, child: icon);
   }
 }

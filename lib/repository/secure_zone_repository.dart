@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:coconut_vault/services/secure_zone/ios/secure_enclave_keystore.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_keystore.dart';
 import 'package:coconut_vault/services/secure_zone/android/hardware_backed_keystore.dart';
+import 'package:coconut_vault/utils/deletion_failure_injector.dart';
 
 class EncryptResult {
   final Uint8List ciphertext;
@@ -71,7 +72,7 @@ class EncryptResult {
 abstract class SecureZoneRepositoryContract {
   Future<void> generateKey({required String alias, bool userAuthRequired = false, bool perUseAuth = false});
   Future<void> deleteKey({required String alias});
-  Future<void> deleteKeys({required List<String> aliasList});
+  Future<List<String>> deleteKeys({required List<String> aliasList});
   Future<EncryptResult> encrypt({required String alias, required Uint8List plaintext});
   Future<Uint8List?> decrypt({
     required String alias,
@@ -103,11 +104,12 @@ class SecureZoneRepository implements SecureZoneRepositoryContract {
 
   @override
   Future<void> deleteKey({required String alias}) async {
+    DeletionFailureInjector.throwIfConfigured('secure_zone', alias);
     return await _secureZoneKeystore.deleteKey(alias: alias);
   }
 
   @override
-  Future<void> deleteKeys({required List<String> aliasList}) async {
+  Future<List<String>> deleteKeys({required List<String> aliasList}) async {
     return await _secureZoneKeystore.deleteKeys(aliasList: aliasList);
   }
 
