@@ -691,6 +691,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
                                     child: _buildMfpAndDerivationPath(
                                       signer.keyStore.masterFingerprint,
                                       signer.getSignerDerivationPath(),
+                                      showMfp: !kIsLiteBuild,
                                     ),
                                   ),
                                 ],
@@ -724,11 +725,17 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
     return Text(name ?? '', style: CoconutTypography.body2_14, maxLines: 1, overflow: TextOverflow.ellipsis);
   }
 
-  Widget _buildMfpAndDerivationPath(String mfp, String derivationPath, {String? memo, bool isLeftAlign = false}) {
+  Widget _buildMfpAndDerivationPath(
+    String mfp,
+    String derivationPath, {
+    String? memo,
+    bool isLeftAlign = false,
+    bool showMfp = true,
+  }) {
     return Column(
       crossAxisAlignment: isLeftAlign ? CrossAxisAlignment.start : CrossAxisAlignment.end,
       children: [
-        MfpText(mfp: mfp, style: CoconutTypography.body2_14_Number),
+        if (showMfp) MfpText(mfp: mfp, style: CoconutTypography.body2_14_Number),
         memo != null && memo.isNotEmpty
             ? Row(
               mainAxisAlignment: isLeftAlign ? MainAxisAlignment.start : MainAxisAlignment.end,
