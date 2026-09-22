@@ -231,7 +231,7 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
     return CoconutAppBar.buildHomeAppbar(
       context: context,
       leadingSvgAsset:
-          !kIsLiteBuild
+          kIsLiteBuild
               ? Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 decoration: BoxDecoration(color: CoconutColors.gray800, borderRadius: BorderRadius.circular(14)),
