@@ -18,7 +18,7 @@ import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_che
 import 'package:coconut_vault/utils/alert_util.dart';
 import 'package:coconut_vault/utils/icon_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
-import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
+import 'package:coconut_vault/widgets/button/assignable_pill_button.dart';
 import 'package:coconut_vault/widgets/card/information_item_card.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/indicator/message_activity_indicator.dart';
@@ -389,58 +389,17 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
 
     return Column(
       children: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return ShrinkAnimationButton(
-              onPressed: () {
-                if (_viewModel.isSignerApproved) {
-                  return;
-                }
-                _sign();
-              },
-              defaultColor:
-                  _viewModel.isSignerApproved
-                      ? CoconutColors.backgroundColorPaletteLight[colorIndex]
-                      : CoconutColors.white,
-              pressedColor:
-                  _viewModel.isSignerApproved
-                      ? CoconutColors.backgroundColorPaletteLight[colorIndex].withAlpha(70)
-                      : CoconutColors.gray150,
-              borderRadius: 100,
-              borderWidth: 1,
-              border: Border.all(
-                color:
-                    _viewModel.isSignerApproved
-                        ? CoconutColors.backgroundColorPaletteLight[colorIndex].withAlpha(70)
-                        : CoconutColors.gray300,
-                width: 1,
-              ),
-              child: SizedBox(
-                width: 210,
-                height: 64,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CoconutLayout.spacing_400w,
-                    SvgPicture.asset(
-                      CustomIcons.getPathByIndex(iconIndex),
-                      colorFilter: ColorFilter.mode(CoconutColors.colorPalette[colorIndex], BlendMode.srcIn),
-                      width: 14.0,
-                    ),
-                    CoconutLayout.spacing_300w,
-                    MediaQuery(
-                      data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-                      child: Text(
-                        '$name - ${_viewModel.isSignerApproved ? t.sign_completion : t.sign}',
-                        style: CoconutTypography.body1_16,
-                      ),
-                    ),
-                    CoconutLayout.spacing_400w,
-                  ],
-                ),
-              ),
-            );
-          },
+        AssignablePillButton(
+          width: MediaQuery.sizeOf(context).width * 0.9,
+          isAssigned: _viewModel.isSignerApproved,
+          iconWidget: SvgPicture.asset(
+            CustomIcons.getPathByIndex(iconIndex),
+            colorFilter: ColorFilter.mode(CoconutColors.colorPalette[colorIndex], BlendMode.srcIn),
+            width: 20.0,
+          ),
+          text: '$name - ${_viewModel.isSignerApproved ? t.sign_completion : t.sign}',
+          activeColor: CoconutColors.backgroundColorPaletteLight[colorIndex],
+          onPressed: _viewModel.isSignerApproved ? null : _sign,
         ),
         CoconutLayout.spacing_500h,
       ],

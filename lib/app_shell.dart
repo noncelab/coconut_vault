@@ -110,11 +110,11 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
     super.initState();
     _navigatorObserver = _RouteObserver(
       onRouteChanged: (routeName) {
-        if (routeName == null || routeName == '/' || routeName == AppRoutes.vaultModeSelection) {
-          _routeNotifierHasShow.value = false;
-        } else {
-          _routeNotifierHasShow.value = true;
-        }
+        _routeNotifierHasShow.value =
+            routeName != null &&
+            routeName != '/' &&
+            routeName != AppRoutes.vaultModeSelection &&
+            !AppRoutes.walletCreationRoutes.contains(routeName);
       },
     );
   }
