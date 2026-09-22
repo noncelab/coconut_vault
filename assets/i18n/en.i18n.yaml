@@ -298,7 +298,7 @@ multisig:
 
 # lib/screens/airgap
 psbt_confirmation_screen:
-  title: "Scan Info Confirmation"
+  title: "Review Transaction"
   guide: "Please verify that the information scanned from the wallet is correct."
   self_sending: "This is a transaction sending to my own wallet."
   warning: "⚠️ This may not be a psbt created with this wallet. Or it may be a transaction with no balance."

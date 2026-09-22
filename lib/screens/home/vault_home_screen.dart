@@ -230,31 +230,38 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
 
     return CoconutAppBar.buildHomeAppbar(
       context: context,
-      leadingSvgAsset: Row(
-        children: [
-          SvgPicture.asset(
-            isSigningOnlyMode ? 'assets/svg/signing-mode.svg' : 'assets/svg/storage-mode.svg',
-            height: 20,
-          ),
-          CoconutLayout.spacing_150w,
-          ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: maxTextWidth),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: MediaQuery(
-                data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-                child: Text(
-                  isSigningOnlyMode
-                      ? t.vault_mode_selection_screen.signing_only_mode
-                      : t.vault_mode_selection_screen.secure_storage_mode,
-                  style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.gray800),
-                ),
+      leadingSvgAsset:
+          !kIsLiteBuild
+              ? Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                decoration: BoxDecoration(color: CoconutColors.gray800, borderRadius: BorderRadius.circular(14)),
+                child: Text('LITE', style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.white)),
+              )
+              : Row(
+                children: [
+                  SvgPicture.asset(
+                    isSigningOnlyMode ? 'assets/svg/signing-mode.svg' : 'assets/svg/storage-mode.svg',
+                    height: 20,
+                  ),
+                  CoconutLayout.spacing_150w,
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: maxTextWidth),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: MediaQuery(
+                        data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
+                        child: Text(
+                          isSigningOnlyMode
+                              ? t.vault_mode_selection_screen.signing_only_mode
+                              : t.vault_mode_selection_screen.secure_storage_mode,
+                          style: CoconutTypography.heading4_18_Bold.setColor(CoconutColors.gray800),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ),
-        ],
-      ),
       appTitle: '',
       actionButtonList: [
         Opacity(
