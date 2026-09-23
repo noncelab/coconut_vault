@@ -192,6 +192,7 @@ flutter:
     - assets/png/state/developer_on.png
     - assets/png/welcome1.png
     - assets/png/welcome2.png
+    - assets/png/lite-onboarding/
     - assets/svg/github-logo-white.svg
     - assets/svg/github-logo.svg
     - assets/files/LICENSE
@@ -235,8 +236,7 @@ flutter:
     - assets/svg/settings-guide-icons/developer-mode.svg
     - assets/svg/settings-guide-icons/bluetooth-off.svg
     - assets/svg/settings-guide-icons/not-connected.svg
-    - assets/svg/coconut-mainnet.svg
-    - assets/svg/coconut-regtest.svg
+    - assets/svg/coconut/
     - assets/png/password-required.png
     - assets/svg/bluetooth.svg
     - assets/png/keychain-inaccessible.png
@@ -249,8 +249,6 @@ flutter:
     - assets/svg/multisig-category/balanced.svg
     - assets/svg/multisig-category/high-security.svg
     - assets/svg/add-circle-outlined.svg
-    - assets/svg/coconut-vault.svg
-    - assets/svg/coconut-vault-regtest.svg
     - assets/svg/keystone.svg
     - assets/svg/seed-signer.svg
     - assets/svg/jade.svg

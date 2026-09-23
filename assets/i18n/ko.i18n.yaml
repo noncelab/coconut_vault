@@ -499,6 +499,22 @@ settings_screen:
     disable_change_account_btn: "확인"
 
 # lib/screens/start_guide
+lite_onboarding_screen:
+  skip: "건너뛰기"
+  start: "시작하기"
+  image_placeholder: "이미지 준비 중"
+  page_1:
+    label: "LOAD"
+    title: "서명할 지갑을 불러오세요"
+    description: "지갑 정보를 불러와 서명을 준비합니다"
+  page_2:
+    label: "SIGN"
+    title: "확인하고 서명하세요"
+    description: "거래 내용을 확인한 뒤 서명합니다"
+  page_3:
+    label: "ERASE"
+    title: "서명이 끝나면 지우세요"
+    description: "불러온 지갑 정보는 언제든 삭제할 수 있어요"
 welcome_screen:
   screen_1_title: "안전한 환경에서 시작하세요"
   screen_1_description: "안전한 사용을 위해\n모든 무선 연결을 차단해야 합니다"

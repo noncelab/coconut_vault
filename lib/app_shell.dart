@@ -20,6 +20,7 @@ import 'package:coconut_vault/screens/common/splash_screen.dart';
 import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/precheck/device_password_checker_screen.dart';
 import 'package:coconut_vault/screens/precheck/jail_break_detection_screen.dart';
+import 'package:coconut_vault/screens/start_guide/lite_onboarding_screen.dart';
 import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
@@ -300,7 +301,10 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
           },
         );
       case AppEntryFlow.firstLaunch:
-        if (!widget.isLiteBuild && NetworkType.currentNetworkType.isTestnet && widget.firstLaunchExtraBuilder != null) {
+        if (widget.isLiteBuild) {
+          return LiteStartGuideScreen(onComplete: _onWelcomeComplete);
+        }
+        if (NetworkType.currentNetworkType.isTestnet && widget.firstLaunchExtraBuilder != null) {
           return widget.firstLaunchExtraBuilder!(context);
         }
         return WelcomeScreen(onComplete: _onWelcomeComplete);

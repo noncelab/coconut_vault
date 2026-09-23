@@ -5,9 +5,10 @@ const kSeedSignerIconPath = 'assets/svg/seed-signer.svg';
 const kJadeIconPath = 'assets/svg/jade.svg';
 const kColdCardIconPath = 'assets/svg/coldcard.svg';
 const kKruxIconPath = 'assets/svg/krux.svg';
-const kCoconutVaultIconPath = 'assets/svg/coconut-vault.svg';
-const kCoconutVaultRegtestIconPath = 'assets/svg/coconut-vault-regtest.svg';
+const kCoconutVaultIconPath = 'assets/svg/coconut/coconut-vault.svg';
+const kCoconutVaultRegtestIconPath = 'assets/svg/coconut/coconut-vault-regtest.svg';
 const kAddCircleOutlinedIconPath = 'assets/svg/add-circle-outlined.svg';
+const kLiteIconPath = 'assets/svg/coconut/coconut-vault-lite.svg';
 
 const Gradient kCoconutMainnetLogoGradient = LinearGradient(
   begin: Alignment.topLeft,
