@@ -105,13 +105,16 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return MediaQuery(
+    // 앱 최초 실행 시(onComplete != null)에는 보안 검사 이후 진입하므로 뒤로가기(버튼/시스템 뒤로가기/백스와이프) 차단
+    final isFirstLaunch = widget.onComplete != null;
+    final screen = MediaQuery(
       data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
       child: Scaffold(
         backgroundColor: CoconutColors.white,
         appBar: CoconutAppBar.build(
           context: context,
           title: t.vault_mode_selection_screen.select_mode,
+          isLeadingVisible: !isFirstLaunch,
           onBackPressed: () {
             Navigator.pop(context);
           },
@@ -282,6 +285,7 @@ class _VaultModeSelectionScreenState extends State<VaultModeSelectionScreen> {
         ),
       ),
     );
+    return PopScope(canPop: !isFirstLaunch, child: screen);
   }
 
   Future<void> _changeVaultMode() async {

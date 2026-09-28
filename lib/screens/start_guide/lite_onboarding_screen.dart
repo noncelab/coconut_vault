@@ -4,7 +4,7 @@ import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-const _accentColor = Color(0x80A364D9);
+const _accentColor = Color.fromRGBO(103, 125, 247, 1);
 const _pageBottomInset = 76.0;
 const _indicatorBottom = 140.0;
 const _indicatorSize = 7.0;
@@ -53,6 +53,7 @@ class _LiteOnboardingScreenState extends State<LiteOnboardingScreen> {
       description: t.lite_onboarding_screen.page_1.description,
       iconPath: 'assets/svg/wallet-plus.svg',
       imagePath: 'assets/png/lite-onboarding/load-wallet.png',
+      iconShiftX: 2,
     ),
     _OnboardingPageData(
       label: t.lite_onboarding_screen.page_2.label,
@@ -144,28 +145,36 @@ class _OnboardingPage extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            width: 48,
-            height: 48,
-            decoration: const BoxDecoration(color: CoconutColors.gray150, shape: BoxShape.circle),
+            width: 63,
+            height: 63,
+            decoration: const BoxDecoration(color: CoconutColors.gray200, shape: BoxShape.circle),
             child: Padding(
-              padding: const EdgeInsets.all(11.5),
+              padding: EdgeInsets.fromLTRB(16 + data.iconShiftX, 16, 16 - data.iconShiftX, 16),
               child: SvgPicture.asset(
                 data.iconPath,
                 colorFilter: const ColorFilter.mode(CoconutColors.gray800, BlendMode.srcIn),
               ),
             ),
           ),
-          const SizedBox(height: 14),
-          Text(data.label, style: CoconutTypography.body2_14_Bold.setColor(_accentColor), textAlign: TextAlign.center),
-          const SizedBox(height: 12),
-          Text(data.title, style: CoconutTypography.heading3_21_Bold, textAlign: TextAlign.center),
+          const SizedBox(height: 10),
+          Text(
+            data.label,
+            style: CoconutTypography.heading4_18_Bold.setColor(_accentColor),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            data.title,
+            style: CoconutTypography.heading2_28_Bold.copyWith(fontSize: 24),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 10),
           Text(
             data.description,
-            style: CoconutTypography.body3_12.setColor(CoconutColors.gray700),
+            style: CoconutTypography.body2_14.setColor(CoconutColors.gray700),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 28),
           Expanded(
             child: Center(
               child: ConstrainedBox(
@@ -220,7 +229,7 @@ class _TextNavigationButton extends StatelessWidget {
       style: TextButton.styleFrom(
         foregroundColor: CoconutColors.gray900,
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
-        textStyle: CoconutTypography.body2_14,
+        textStyle: CoconutTypography.body2_14_Bold,
       ),
       child: Text(text),
     );
@@ -250,6 +259,7 @@ class _OnboardingPageData {
   final String description;
   final String iconPath;
   final String imagePath;
+  final double iconShiftX;
 
   const _OnboardingPageData({
     required this.label,
@@ -257,5 +267,6 @@ class _OnboardingPageData {
     required this.description,
     required this.iconPath,
     required this.imagePath,
+    this.iconShiftX = 0,
   });
 }

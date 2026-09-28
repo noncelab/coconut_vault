@@ -45,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
       await Future.delayed(const Duration(seconds: 2));
       if (!_viewModel.hasSeenGuide) {
         /// iOS 블루투스 권한을 Tutorial 단계에서 확인하므로 그 전까지 connectivityState가 null
-        widget.onComplete(AppEntryFlow.securityPrecheck);
+        widget.onComplete(AppEntryFlow.firstLaunch);
         return;
       }
 
