@@ -39,6 +39,7 @@ class CoconutVaultApp extends StatelessWidget {
           onPermanentLockReset: onPermanentLockReset,
         );
       },
+      vaultModeSelectionScreenBuilder: (context, onComplete) => VaultModeSelectionScreen(onComplete: onComplete),
     );
   }
 }
@@ -72,12 +73,6 @@ Map<String, WidgetBuilder> _buildFullRoutes(VoidCallback onWelcomeComplete) => {
   AppRoutes.vaultModeSelection: (context) => const VaultModeSelectionScreen(),
 };
 
-Map<String, WidgetBuilder> _buildFullFallbackRoutes(
-  VoidCallback onWelcomeComplete,
-  VoidCallback onModeSelectionComplete,
-) => {
+Map<String, WidgetBuilder> _buildFullFallbackRoutes(VoidCallback onWelcomeComplete) => {
   AppRoutes.welcome: (context) => WelcomeScreen(onComplete: onWelcomeComplete),
-  AppRoutes.vaultModeSelection:
-      (context) =>
-          buildScreenWithArguments(context, (args) => VaultModeSelectionScreen(onComplete: onModeSelectionComplete)),
 };

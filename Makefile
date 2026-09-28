@@ -25,11 +25,19 @@ ios-lite-mainnet:
 aos-lite-mainnet:
 	fvm flutter build appbundle --flavor liteMainnet --release -t lib/main_lite.dart
 
+# 로컬 테스트용: 연결된 기기에 lite mainnet debug 앱 설치 및 실행
+aos-lite-mainnet-run:
+	fvm flutter run --flavor liteMainnet -t lib/main_lite.dart
+
 ios-lite-regtest:
 	fvm flutter build ios --flavor liteRegtest --release -t lib/main_lite.dart
 
 aos-lite-regtest:
 	fvm flutter build appbundle --flavor liteRegtest --release -t lib/main_lite.dart
+
+# 로컬 테스트용: 연결된 기기에 lite regtest debug 앱 설치 및 실행
+aos-lite-regtest-run:
+	fvm flutter run --flavor liteRegtest -t lib/main_lite.dart
 
 # lite 빌드 트리쉐이킹 검증 (lite에 포함되면 안 되는 코드가 없는지 확인)
 verify-lite-treeshake:

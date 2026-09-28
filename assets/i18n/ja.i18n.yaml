@@ -500,6 +500,22 @@ settings_screen:
     disable_change_account_btn: "確認"
 
 # lib/screens/start_guide
+lite_onboarding_screen:
+  skip: "スキップ"
+  start: "始める"
+  image_placeholder: "画像準備中"
+  page_1:
+    label: "LOAD"
+    title: "署名するウォレットを読み込む"
+    description: "ウォレット情報を読み込み、署名の準備をします"
+  page_2:
+    label: "SIGN"
+    title: "確認して署名する"
+    description: "取引内容を確認してから署名します"
+  page_3:
+    label: "ERASE"
+    title: "署名が終わったら消去"
+    description: "読み込んだウォレット情報はいつでも消去できます"
 welcome_screen:
   screen_1_title: "安全な環境で開始"
   screen_1_description: "安全な使用のため\nネットワークとBluetoothをOFFにしてください"

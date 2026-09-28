@@ -498,6 +498,22 @@ settings_screen:
     disable_change_account_btn: "Confirm"
 
 # lib/screens/start_guide
+lite_onboarding_screen:
+  skip: "Skip"
+  start: "Get started"
+  image_placeholder: "Image coming soon"
+  page_1:
+    label: "LOAD"
+    title: "Load the wallet to sign"
+    description: "Load your wallet information and get ready to sign."
+  page_2:
+    label: "SIGN"
+    title: "Review and sign"
+    description: "Review the transaction details, then sign."
+  page_3:
+    label: "ERASE"
+    title: "Erase when you're done"
+    description: "You can erase loaded wallet information at any time."
 welcome_screen:
   screen_1_title: "Start in a safe environment"
   screen_1_description: "To use safely, you need to\nblock connections with the outside"
