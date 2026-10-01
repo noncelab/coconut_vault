@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
@@ -8,6 +7,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/import_passphrase_resolver.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
@@ -17,6 +17,7 @@ import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
+import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +34,9 @@ class SeedQrConfirmationScreen extends StatefulWidget {
   final VoidCallback? onCompleted;
   final FutureOr<void> Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
 
+  /// [MnemonicImportScreen.passphraseMatcher] 참고
+  final ImportPassphraseMatcher? passphraseMatcher;
+
   const SeedQrConfirmationScreen({
     super.key,
     required this.scannedData, // 필수 매개변수로 설정
@@ -43,6 +47,7 @@ class SeedQrConfirmationScreen extends StatefulWidget {
     this.showPassphraseWarningSubWidget = false,
     this.onCompleted,
     this.onMnemonicConfirmationRequested,
+    this.passphraseMatcher,
   });
 
   @override
@@ -228,10 +233,36 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   Future<void> _handleNextButton() async {
     try {
       final secret = widget.scannedData;
-      final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
       final externalSigner = widget.externalSigner;
+      final resolution = await resolveImportPassphrase(
+        context,
+        secret: secret,
+        passphrase: _usePassphrase ? _passphrase : '',
+        matcher:
+            externalSigner != null
+                ? ImportPassphraseMatcher(
+                  (secret, passphrase) => _isSignerMfpMatched(externalSigner, secret, passphrase),
+                )
+                : widget.passphraseMatcher,
+      );
+      if (!mounted) return;
+      final Uint8List passphrase;
+      switch (resolution) {
+        case ImportPassphraseSelected(passphrase: final selected):
+          passphrase = selected;
+        case ImportPassphraseNoMatch():
+          CoconutToast.showToast(context: context, text: t.errors.different_wallet, isVisibleIcon: true);
+          return;
+        case ImportPassphraseCancelled():
+          return;
+      }
+
+      // 최종 확인 화면에서 입력한 모양 그대로 보여주기 위한 원문
+      final passphraseInput = _usePassphrase ? _passphrase : null;
+      _walletCreationProvider.setPassphraseInput(passphraseInput);
 
       if (widget.isTaproot) {
+        context.read<TaprootWalletCreationProvider>().setPassphraseInput(passphraseInput);
         _walletCreationProvider.setSecretAndPassphrase(Uint8List.fromList(secret), Uint8List.fromList(passphrase));
 
         final onMnemonicConfirmationRequested = widget.onMnemonicConfirmationRequested;
@@ -246,18 +277,6 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
 
         widget.onCompleted?.call();
         return;
-      }
-
-      if (externalSigner != null) {
-        if (!mounted) return;
-        context.loaderOverlay.show();
-        final isMfpMatched = await _isSignerMfpMatched(externalSigner, secret, passphrase);
-        if (!isMfpMatched) {
-          if (!mounted) return;
-          context.loaderOverlay.hide();
-          CoconutToast.showToast(context: context, text: t.errors.different_wallet, isVisibleIcon: true);
-          return;
-        }
       }
 
       if (_walletProvider.isSeedDuplicated(secret, passphrase)) {

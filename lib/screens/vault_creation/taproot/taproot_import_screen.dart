@@ -9,6 +9,7 @@ import 'package:coconut_vault/providers/view_model/vault_creation/taproot/taproo
 import 'package:coconut_vault/providers/view_model/vault_creation/vault_name_and_icon_setup_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/import_passphrase_resolver.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
@@ -441,6 +442,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
         requirePassphraseConfirmation: true,
         showPassphraseWarningSubWidget: true,
         onMnemonicConfirmationRequested: _setImportedSeed,
+        passphraseMatcher: _importRoleMatcher,
       ),
       ImportMode.scan => _buildSeedQrImportScreen(),
     };
@@ -459,6 +461,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
             requirePassphraseConfirmation: true,
             showPassphraseWarningSubWidget: true,
             onMnemonicConfirmationRequested: _setImportedSeedFromSeedQr,
+            passphraseMatcher: _importRoleMatcher,
           ),
         );
       },
@@ -517,6 +520,13 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
       ],
     );
   }
+
+  /// 디스크립터로 가져올 키가 정해져 있으므로, 패스프레이즈 정규화 방식은 UI 없이 일치하는 쪽으로 고른다.
+  /// 둘 다 맞지 않으면 NFKD로 진행해 결과 단계에서 불일치를 안내한다.
+  ImportPassphraseMatcher get _importRoleMatcher => ImportPassphraseMatcher(
+    (secret, passphrase) => _viewModel.isImportRoleMatched(secret: secret, passphrase: passphrase),
+    proceedWithNfkdWhenNoMatch: true,
+  );
 
   void _setImportedSeed(Uint8List secret, Uint8List? passphrase) {
     unawaited(_setImportedSeedAsync(secret, passphrase));

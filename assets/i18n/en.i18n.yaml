@@ -845,8 +845,9 @@ mnemonic_generate_screen:
   backup_guide: "Please backup your mnemonic in a safe place"
   backup_complete: "Backup Complete"
   warning: "Keep your passphrase safe and private"
-  passphrase_warning: "$words may not be accepted by other wallets."
+  passphrase_warning: "Contains characters other hardware wallets may not accept: $words"
   passphrase_warning_space: "Spaces are included."
+  passphrase_warning_normalization: "Some apps may restore a different wallet."
   regenerate: "Regenerate"
 passphrase_textfield:
   title: "Enter passphrase"
@@ -859,6 +860,12 @@ entropy_bits_bottom_sheet:
     binary: "Valid entropy values → Binary [0-1] "
   select_option: "and verify your values."
   
+passphrase_wallet_selection:
+  title: "Which wallet are you looking for?"
+  description: "This passphrase may be handled differently by each app."
+  option_standard: "Same as other wallet apps like Sparrow (default)"
+  option_legacy: "Wallet created in Coconut Vault $version or earlier"
+
 mnemonic_import_screen:
   title: "Restore Wallet"
   enter_mnemonic_phrase: "Enter mnemonic phrase"
@@ -1351,7 +1358,7 @@ toast:
   name_already_used: "You can't change to a name that's already in use."
   name_already_used2: "You can't use a name that's already taken."
   name_multisig_in_use: "This wallet is used in a multisig wallet and can't be deleted."
-  mnemonic_already_added: "This mnemonic has already been added."
+  mnemonic_already_added: "This wallet has already been added."
   mnemonic_copied: "Mnemonic phrase copied"
   multisig_already_added: "This multisig wallet has already been added. ($name)"
   home_vault_min_one: "At least one wallet must remain on the home screen."

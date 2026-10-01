@@ -322,6 +322,44 @@ class WalletIsolates {
     return addressList;
   }
 
+  /// 같은 니모닉에 패스프레이즈 후보를 하나씩 적용해 각각의 masterFingerprint를 반환
+  static Future<List<String>> deriveMasterFingerprints(Map<String, dynamic> args) async {
+    setNetworkType();
+
+    final Uint8List mnemonic = args['mnemonic'];
+    final List<Uint8List> passphrases = args['passphrases'];
+
+    try {
+      return [
+        for (final passphrase in passphrases)
+          _deriveMasterFingerprint(
+            Uint8List.fromList(mnemonic),
+            passphrase.isEmpty ? null : Uint8List.fromList(passphrase),
+          ),
+      ];
+    } finally {
+      mnemonic.wipe();
+      for (final passphrase in passphrases) {
+        passphrase.wipe();
+      }
+    }
+  }
+
+  static String _deriveMasterFingerprint(Uint8List mnemonic, Uint8List? passphrase) {
+    Seed? seed;
+    KeyStore? keyStore;
+    try {
+      seed = Seed.fromMnemonic(mnemonic, passphrase: passphrase);
+      keyStore = KeyStore.fromSeed(seed, AddressType.p2wpkh);
+      return keyStore.masterFingerprint.toUpperCase();
+    } finally {
+      keyStore?.wipeSeed();
+      seed?.wipe();
+      mnemonic.wipe();
+      passphrase?.wipe();
+    }
+  }
+
   /// 니모닉으로부터 KeyStore를 생성하고 masterFingerprint를 반환
   static Future<Map<String, dynamic>> verifyMnemonicMfp(Map<String, dynamic> args) async {
     setNetworkType();

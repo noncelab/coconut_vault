@@ -11,6 +11,7 @@ import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/base_entropy_screen.dart';
 import 'package:coconut_vault/utils/conversion_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
+import 'package:coconut_vault/utils/nfkd_util.dart';
 import 'package:coconut_vault/utils/passphrase_warning_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
@@ -168,7 +169,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
   }
 
   String _getWarningMessage(String passphrase) {
-    return PassphraseWarningUtil.warningMessage(passphrase);
+    return PassphraseWarningUtil.warningMessage(passphrase, warnNormalization: true);
   }
 
   // 공통 메서드
@@ -234,7 +235,7 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
 
     if (!widget.usePassphrase && step == 0) {
       if (widget.entropyType == EntropyType.auto) {
-        _passphrase = utf8.encode(_passphraseController.text);
+        _passphrase = NfkdUtil.encodeNfkd(_passphraseController.text);
         _saveSecretAndPassphrase();
       }
       return;
@@ -242,8 +243,9 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
 
     // 패스프레이즈 사용함 | 패스프레이즈 입력 화면
     if (widget.usePassphrase && step == 1) {
-      _passphrase = utf8.encode(_passphraseController.text);
-      _passphraseConfirm = utf8.encode(_passphraseConfirmController.text);
+      // 새 지갑은 항상 NFKD로 정규화한 패스프레이즈로 만든다
+      _passphrase = NfkdUtil.encodeNfkd(_passphraseController.text);
+      _passphraseConfirm = NfkdUtil.encodeNfkd(_passphraseConfirmController.text);
       assert(_passphrase.isNotEmpty);
       assert(_passphraseConfirm.isNotEmpty);
       assert(listEquals(_passphrase, _passphraseConfirm));
@@ -294,13 +296,16 @@ abstract class BaseEntropyWidgetState<T extends BaseEntropyWidget> extends State
   }
 
   void _saveSecretAndPassphrase() {
+    // 최종 확인 화면에서 입력한 모양 그대로 보여주기 위한 원문
+    final passphraseInput = widget.usePassphrase ? _passphraseController.text : null;
     if (widget.isTaproot) {
-      Provider.of<TaprootWalletCreationProvider>(
-        context,
-        listen: false,
-      ).setSecretAndPassphrase(Uint8List.fromList(_mnemonic), Uint8List.fromList(_passphrase));
+      Provider.of<TaprootWalletCreationProvider>(context, listen: false)
+        ..setSecretAndPassphrase(Uint8List.fromList(_mnemonic), Uint8List.fromList(_passphrase))
+        ..setPassphraseInput(passphraseInput);
     } else {
-      Provider.of<WalletCreationProvider>(context, listen: false).setSecretAndPassphrase(_mnemonic, _passphrase);
+      Provider.of<WalletCreationProvider>(context, listen: false)
+        ..setSecretAndPassphrase(_mnemonic, _passphrase)
+        ..setPassphraseInput(passphraseInput);
     }
   }
 

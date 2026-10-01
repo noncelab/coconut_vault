@@ -141,7 +141,7 @@ class MnemonicViewScreenState extends State<MnemonicViewScreen> with TickerProvi
     return PassphraseWarningUtil.warningMessages([
       _passphrase,
       if (widget.requirePassphraseConfirmation) _passphraseConfirm,
-    ]).join('\n');
+    ], warnNormalization: true).join('\n');
   }
 
   void _handlePassphraseFocusChanged() async {
