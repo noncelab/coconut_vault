@@ -103,7 +103,7 @@ void main() {
       expect(_selectedBytes(result), nfkdBytes);
     });
 
-    testWidgets('이전 방식 지갑을 지원하지 않는 빌드에서는 선택 없이 NFKD를 쓴다', (tester) async {
+    testWidgets('이전 방식 버전 정보가 없는 실행(flavor 없음)에서는 선택 없이 NFKD를 쓴다', (tester) async {
       // 테스트 실행은 flavor가 없으므로 kLastUnnormalizedPassphraseVersion이 null이다.
       final result = await _resolve(tester, passphrase: koreanPassphrase);
 

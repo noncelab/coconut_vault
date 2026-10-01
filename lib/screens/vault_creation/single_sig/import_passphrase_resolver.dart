@@ -46,8 +46,8 @@ final class ImportPassphraseCancelled extends ImportPassphraseResult {
 /// NFKD 정규화로 바뀌지 않는 패스프레이즈는 두 방식의 결과가 같으므로 그대로 쓴다.
 /// 바뀌는 경우 NFKD(표준)와 정규화하지 않은 UTF-8(3.2.0 이하 코코넛 볼트) 중 하나를 고른다.
 /// - [matcher]가 있으면 맞는 후보를 자동으로 고른다. NFKD를 먼저 확인한다.
-/// - 이전 방식 지갑이 있을 수 있는 full 빌드에서는 두 지갑의 MFP를 보여주고 사용자가 고르게 한다.
-/// - 그 외(lite 등)에는 NFKD를 쓴다.
+/// - 그 외에는 두 지갑의 MFP를 보여주고 사용자가 고르게 한다(full, lite 모두).
+/// - 이전 방식 버전 정보가 없는 실행(flavor 없음)에서는 NFKD를 쓴다.
 Future<ImportPassphraseResult> resolveImportPassphrase(
   BuildContext context, {
   required Uint8List secret,
