@@ -31,6 +31,14 @@ Build Android MAINNET and create an unsubmitted production draft with localized 
 
 Build Android REGTEST and create an unsubmitted production draft with localized release notes
 
+### android prepare_android_lite_mainnet_production
+
+```sh
+[bundle exec] fastlane android prepare_android_lite_mainnet_production
+```
+
+Build Android LITE MAINNET and create an unsubmitted production draft with localized release notes
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.

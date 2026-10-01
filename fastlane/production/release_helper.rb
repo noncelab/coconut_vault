@@ -6,10 +6,22 @@ module ProductionReleaseHelper
   UI = FastlaneCore::UI
   IOS_LOCALES = %w[ko en-US ja].freeze
   ANDROID_LOCALES = %w[ko-KR en-US ja-JP].freeze
+  # Coconut Vault Lite has no Japanese store listing, so it ships only Korean and English.
+  IOS_LOCALES_BY_FLAVOR = {
+    "mainnet" => %w[ko en-US ja].freeze,
+    "regtest" => %w[ko en-US ja].freeze,
+    "liteMainnet" => %w[ko en-US].freeze,
+  }.freeze
+  ANDROID_LOCALES_BY_FLAVOR = {
+    "mainnet" => %w[ko-KR en-US ja-JP].freeze,
+    "regtest" => %w[ko-KR en-US ja-JP].freeze,
+    "liteMainnet" => %w[ko-KR en-US].freeze,
+  }.freeze
   MAX_RELEASE_NOTE_CHARACTERS = 500
 
   def self.validate_metadata!(root:, platform:, flavor:, version_code: nil)
-    locales = platform == "ios" ? IOS_LOCALES : ANDROID_LOCALES
+    locales_by_flavor = platform == "ios" ? IOS_LOCALES_BY_FLAVOR : ANDROID_LOCALES_BY_FLAVOR
+    locales = locales_by_flavor.fetch(flavor)
     base = File.join(root, "fastlane", "store_metadata", "generated", platform, flavor)
 
     paths = locales.map do |locale|

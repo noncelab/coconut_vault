@@ -1,6 +1,6 @@
 ---
 name: generate-store-release-notes
-description: Generate localized App Store and Google Play release-note metadata from user-authored Korean source notes in coconut_vault. Use when the user asks to translate, prepare, create, refresh, or validate mainnet or regtest store release notes. Never upload builds, submit reviews, or edit Fastfile or Makefile as part of this skill.
+description: Generate localized App Store and Google Play release-note metadata from user-authored Korean source notes in coconut_vault. Use when the user asks to translate, prepare, create, refresh, or validate mainnet, regtest, or liteMainnet store release notes. Never upload builds, submit reviews, or edit Fastfile or Makefile as part of this skill.
 ---
 
 # Generate store release notes
@@ -9,14 +9,14 @@ Generate store-ready release-note files from the Korean source without inferring
 
 ## Workflow
 
-1. Require exactly one flavor: `mainnet` or `regtest`. Ask only when the request does not identify it.
+1. Require exactly one flavor: `mainnet`, `regtest`, or `liteMainnet`. Ask only when the request does not identify it.
 2. Read `fastlane/store_metadata/source/<flavor>/release_notes.ko.md` relative to the repository root. Treat it as the complete source of truth.
 3. Stop and ask the user to write the source when it is missing, empty, or contains only an HTML comment.
 4. Ignore every HTML comment (`<!-- ... -->`) in the Korean source. Never translate or include comments in generated metadata.
 5. Read [references/locales.md](references/locales.md) for the exact locale and output mapping.
 6. Preserve facts, feature scope, bullet structure, product names, and technical terms. Do not add features, benefits, fixes, dates, versions, headings, emoji, or marketing claims that are absent from the Korean source.
 7. Lightly polish the Korean text only when needed for natural store copy. Keep the user's meaning and level of certainty.
-8. Translate into US English and Japanese. Prefer natural app-update language over literal word order. Keep established names such as `Coconut Vault`, `Bitcoin`, `PSBT`, `Mainnet`, and `Regtest` unchanged unless the source explicitly localizes them.
+8. Translate into US English and, for `mainnet` and `regtest` only, Japanese. `liteMainnet` ships only Korean and English (no Japanese store listing). Prefer natural app-update language over literal word order. Keep established names such as `Coconut Vault`, `Bitcoin`, `PSBT`, `Mainnet`, and `Regtest` unchanged unless the source explicitly localizes them.
 9. Keep every locale at 500 Unicode characters or fewer so the same content is accepted by Google Play. If faithful content cannot fit, stop and propose a shorter Korean source instead of silently omitting information.
 10. Read the next Android version code and expected paths by running:
 

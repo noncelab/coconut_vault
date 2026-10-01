@@ -84,4 +84,10 @@ fastlane-production-regtest:
 	(cd android/fastlane_production && caffeinate -dimsu bundle exec fastlane prepare_android_regtest_production) && \
 	(cd ios/fastlane_production && caffeinate -dimsu bundle exec fastlane prepare_ios_regtest_production skip_prep:true)
 
+fastlane-production-lite-mainnet:
+	@$(ASK_APPLE_ID) \
+	$(PRODUCTION_PREP_COMMAND) && \
+	(cd android/fastlane_production && caffeinate -dimsu bundle exec fastlane prepare_android_lite_mainnet_production) && \
+	(cd ios/fastlane_production && caffeinate -dimsu bundle exec fastlane prepare_ios_lite_mainnet_production skip_prep:true)
+
 include Makefile.test
