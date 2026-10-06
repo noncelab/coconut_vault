@@ -94,7 +94,11 @@ Future<ImportPassphraseResult> resolveImportPassphrase(
     return ImportPassphraseSelected(nfkd);
   }
 
-  if (!context.mounted) return const ImportPassphraseCancelled();
+  if (!context.mounted) {
+    nfkd.wipe();
+    legacy.wipe();
+    return const ImportPassphraseCancelled();
+  }
   context.loaderOverlay.show();
   final List<String> masterFingerprints;
   try {
@@ -106,7 +110,11 @@ Future<ImportPassphraseResult> resolveImportPassphrase(
     if (context.mounted) context.loaderOverlay.hide();
   }
 
-  if (!context.mounted) return const ImportPassphraseCancelled();
+  if (!context.mounted) {
+    nfkd.wipe();
+    legacy.wipe();
+    return const ImportPassphraseCancelled();
+  }
   final selected = await MyBottomSheet.showBottomSheet_ratio<PassphraseEncoding>(
     context: context,
     ratio: 0.5,
