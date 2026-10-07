@@ -8,8 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 
-const _mnemonic =
-    'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+const _mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 
 Uint8List _secret() => Uint8List.fromList(utf8.encode(_mnemonic));
 

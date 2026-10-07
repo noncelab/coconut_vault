@@ -7,8 +7,7 @@ import 'package:coconut_vault/utils/nfkd_util.dart';
 import 'package:coconut_vault/utils/reentered_passphrase_verifier.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-const _mnemonic =
-    'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
+const _mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about';
 
 Uint8List _mnemonicBytes() => Uint8List.fromList(utf8.encode(_mnemonic));
 

@@ -33,7 +33,11 @@ def prepare_ios_production(flavor:, opts:)
     platform: "ios",
     flavor: flavor
   )
-  review_attachment = ProductionReleaseHelper.review_attachment!(root: ROOT_DIR, flavor: flavor)
+  review_attachment = ProductionReleaseHelper.review_attachment!(
+    root: ROOT_DIR,
+    flavor: flavor,
+    required: flavor != "regtest"
+  )
 
   begin
     cocoapods(

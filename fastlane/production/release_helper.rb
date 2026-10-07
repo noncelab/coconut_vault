@@ -46,11 +46,13 @@ module ProductionReleaseHelper
     base
   end
 
-  def self.review_attachment!(root:, flavor:)
+  def self.review_attachment!(root:, flavor:, required: true)
     directory = File.join(root, "ios", "fastlane", "store_metadata", "review_attachments", flavor)
-    files = Dir[File.join(directory, "*")].select { |path| File.file?(path) }
+    return unless Dir.exist?(directory) || required
 
     UI.user_error!("App review attachment directory not found: #{directory}") unless Dir.exist?(directory)
+
+    files = Dir[File.join(directory, "*")].select { |path| File.file?(path) }
     UI.user_error!("Exactly one App Store review attachment is allowed in #{directory}; found #{files.length}.") if files.length > 1
 
     files.first

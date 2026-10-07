@@ -1,4 +1,3 @@
-
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
