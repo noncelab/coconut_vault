@@ -61,7 +61,15 @@ class _NumberFormatBottomSheetState extends State<NumberFormatBottomSheet> {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [Text(title, style: CoconutTypography.body2_14_Bold.setColor(CoconutColors.black))],
+                children: [
+                  Text(
+                    title,
+                    style: CoconutTypography.body2_14_Bold.copyWith(
+                      color: CoconutColors.black,
+                      fontFamily: 'SpaceGrotesk',
+                    ),
+                  ),
+                ],
               ),
             ),
             if (isChecked)

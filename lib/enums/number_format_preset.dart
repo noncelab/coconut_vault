@@ -5,17 +5,17 @@ import 'package:intl/intl.dart';
 /// 소수점 구분자와 천 단위 구분자 조합을 미리 정의합니다.
 /// 향후 지역(locale)이 추가되면 해당 preset을 확장하면 됩니다.
 enum NumberFormatPreset {
-  /// 1,234.56789012 형식 (미국, 한국, 일본 등)
-  dotDecimal(displayLabel: '1,234.56789012', decimalSeparator: '.', groupingSeparator: ','),
+  /// 1,234.5678 9012 형식 (미국, 한국, 일본 등)
+  dotDecimal(displayLabel: '1,234.5678 9012', decimalSeparator: '.', groupingSeparator: ','),
 
-  /// 1.234,56789012 형식 (독일, 스페인 등)
-  commaDecimal(displayLabel: '1.234,56789012', decimalSeparator: ',', groupingSeparator: '.'),
+  /// 1.234,5678 9012 형식 (독일, 스페인 등)
+  commaDecimal(displayLabel: '1.234,5678 9012', decimalSeparator: ',', groupingSeparator: '.'),
 
-  /// 1'234.56789012 형식 (스위스)
-  swiss(displayLabel: "1'234.56789012", decimalSeparator: '.', groupingSeparator: '\u2019'),
+  /// 1'234.5678 9012 형식 (스위스)
+  swiss(displayLabel: "1'234.5678 9012", decimalSeparator: '.', groupingSeparator: '\u2019'),
 
-  /// 1 234,56789012 형식 (프랑스 등)
-  frenchSpace(displayLabel: '1 234,56789012', decimalSeparator: ',', groupingSeparator: ' ');
+  /// 1 234,5678 9012 형식 (프랑스 등)
+  frenchSpace(displayLabel: '1 234,5678 9012', decimalSeparator: ',', groupingSeparator: ' ');
 
   /// 예시 문자열 (설정 화면 등에서 사용자에게 보여줄 때 사용)
   final String displayLabel;
