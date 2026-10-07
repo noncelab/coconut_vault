@@ -1424,7 +1424,6 @@ tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."
 
 language:
-  language: "Language"
   korean: "한국어"
   english: "English"
   japanese: "日本語"
@@ -1435,3 +1434,8 @@ language:
   italian: "Italiano"
   portuguese: "Português"
   russian: "Русский"
+
+language_and_format:
+  title: "Language & Format"
+  language: "Language"
+  number_format: "Number Format"

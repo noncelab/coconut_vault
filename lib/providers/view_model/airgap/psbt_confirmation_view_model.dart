@@ -7,6 +7,7 @@ import 'package:coconut_vault/extensions/int_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/utils/balance_format_util.dart';
 import 'package:coconut_vault/utils/unit_utils.dart';
 import 'package:flutter/foundation.dart';
 
@@ -102,10 +103,11 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
       _sendingAmount = _psbt!.sendingAmount(_wallet);
       _recipientAddresses.addAll(
         recipientAmounts.entries.map((e) {
+          final amountSatoshi = UnitUtil.convertBitcoinToSatoshi(e.value);
           if (_visibilityProvider.isBtcUnit) {
-            return '${e.key} (${e.value} ${t.btc})';
+            return '${e.key} (${BalanceFormatUtil.formatSatoshiToReadableBitcoin(amountSatoshi)} ${t.btc})';
           }
-          return '${e.key} (${UnitUtil.convertBitcoinToSatoshi(e.value).toThousandsSeparatedString()} ${t.sats})';
+          return '${e.key} (${amountSatoshi.toThousandsSeparatedString()} ${t.sats})';
         }),
       );
       _updateSignProviderForBatch(_psbt!, recipientAmounts, _sendingAmount!);

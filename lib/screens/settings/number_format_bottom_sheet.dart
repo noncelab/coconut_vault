@@ -1,28 +1,28 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
+import 'package:coconut_vault/enums/number_format_preset.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/constants/app_language.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
-class LanguageBottomSheet extends StatefulWidget {
-  const LanguageBottomSheet({super.key});
+class NumberFormatBottomSheet extends StatefulWidget {
+  const NumberFormatBottomSheet({super.key});
 
   @override
-  State<LanguageBottomSheet> createState() => _LanguageBottomSheetState();
+  State<NumberFormatBottomSheet> createState() => _NumberFormatBottomSheetState();
 }
 
-class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
+class _NumberFormatBottomSheetState extends State<NumberFormatBottomSheet> {
   @override
   Widget build(BuildContext context) {
-    return Selector<VisibilityProvider, AppLanguage>(
-      selector: (_, viewModel) => viewModel.appLanguage,
-      builder: (context, language, child) {
+    return Selector<VisibilityProvider, NumberFormatPreset>(
+      selector: (_, provider) => provider.numberFormatPreset,
+      builder: (context, preset, child) {
         return Scaffold(
           backgroundColor: CoconutColors.white,
           appBar: CoconutAppBar.build(
-            title: t.language_and_format.language,
+            title: t.language_and_format.number_format,
             context: context,
             onBackPressed: null,
             isBottom: true,
@@ -30,17 +30,14 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
           body: Padding(
             padding: const EdgeInsets.only(left: Sizes.size16, right: Sizes.size16),
             child: ListView.separated(
-              itemCount: AppLanguage.displayValues.length,
+              itemCount: NumberFormatPreset.values.length,
               itemBuilder: (context, index) {
-                final lang = AppLanguage.displayValues[index];
-                return _buildUnitItem(lang.displayName, language == lang, () async {
-                  // 언어 변경 전에 BottomSheet를 먼저 닫기
+                final item = NumberFormatPreset.values[index];
+                return _buildUnitItem(item.displayLabel, preset == item, () async {
                   if (context.mounted) {
                     Navigator.of(context).pop();
-                    Navigator.of(context).pop();
                   }
-                  // 언어 변경은 BottomSheet가 닫힌 후에 실행 (UI 블락 방지)
-                  await context.read<VisibilityProvider>().changeLanguage(lang);
+                  await context.read<VisibilityProvider>().changeNumberFormatPreset(item);
                 });
               },
               separatorBuilder: (context, index) {
