@@ -48,4 +48,29 @@ class AppRoutes {
   static const String taprootSetupInfo = '/taproot-setting';
   static const String taprootSyncView = '/taproot-sync';
   static const String developer = '/developer';
+
+  /// 지갑 생성 플로우에 해당하는 라우트들.
+  /// 서명 전용 모드의 지우개 패널(SigningModeEdgePanel)이 이 화면들에서는 표시되지 않습니다.
+  static const Set<String> walletCreationRoutes = {
+    vaultTypeSelection,
+    vaultCreationOptions,
+    mnemonicImport,
+    seedQrImport,
+    mnemonicVerify,
+    mnemonicConfirmation,
+    mnemonicAutoGen,
+    mnemonicCoinflip,
+    mnemonicDiceRoll,
+    securitySelfCheck,
+    multisigCreationOptions,
+    multisigQuorumSelection,
+    coordinatorBsmsConfigScanner,
+    bsmsPaste,
+    signerAssignment,
+    vaultNameSetup,
+    taprootCreationOptions,
+    taprootParentCreation,
+    taprootChildCreation,
+    taprootPreparedCreation,
+  };
 }

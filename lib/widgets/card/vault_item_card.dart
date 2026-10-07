@@ -1,5 +1,6 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/multisig/multisig_vault_list_item.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_vault_list_item.dart';
@@ -122,7 +123,7 @@ class _VaultItemCardState extends State<VaultItemCard> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
-              children: [_buildMfpContent(rightText), _buildBottomRightContent()],
+              children: [if (_isMultisig || !kIsLiteBuild) _buildMfpContent(rightText), _buildBottomRightContent()],
             ),
           ],
         ),

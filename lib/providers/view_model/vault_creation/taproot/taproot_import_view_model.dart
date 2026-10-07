@@ -261,6 +261,18 @@ class TaprootImportViewModel extends ChangeNotifier {
     return _applyPrimaryImportResult(result, secret, passphrase);
   }
 
+  /// [passphrase]로 파생한 키가 현재 가져오는 역할의 키와 일치하는지 확인한다. 상태는 바꾸지 않는다.
+  Future<bool> isImportRoleMatched({required Uint8List secret, required Uint8List passphrase}) async {
+    final walletSyncData = _walletSyncData;
+    final importRole = _isImportingExtra ? _extraImportRole : _selectedRole;
+    if (walletSyncData == null || importRole == TaprootImportRole.none) {
+      return false;
+    }
+
+    final result = await _deriveImportedSeed(walletSyncData, importRole, secret, passphrase);
+    return result.isSelectedRoleMatch;
+  }
+
   Future<TaprootImportSaveResult> saveImportedWallet() async {
     final walletCreateDto = createWalletCreateDto();
 

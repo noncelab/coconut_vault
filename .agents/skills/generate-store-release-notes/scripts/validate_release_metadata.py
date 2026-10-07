@@ -9,12 +9,22 @@ import sys
 from pathlib import Path
 
 
-APP_STORE_LOCALES = ("ko", "en-US", "ja")
-PLAY_STORE_LOCALES = ("ko-KR", "en-US", "ja-JP")
+# Coconut Vault Lite has no Japanese store listing, so it ships only Korean and English.
+APP_STORE_LOCALES_BY_FLAVOR = {
+    "mainnet": ("ko", "en-US", "ja"),
+    "regtest": ("ko", "en-US", "ja"),
+    "liteMainnet": ("ko", "en-US"),
+}
+PLAY_STORE_LOCALES_BY_FLAVOR = {
+    "mainnet": ("ko-KR", "en-US", "ja-JP"),
+    "regtest": ("ko-KR", "en-US", "ja-JP"),
+    "liteMainnet": ("ko-KR", "en-US"),
+}
 MAX_CHARACTERS = 500
 ANDROID_VERSION_KEYS = {
     "mainnet": "aos_fullMainnet",
     "regtest": "aos_fullRegtest",
+    "liteMainnet": "aos_liteMainnet",
 }
 
 
@@ -38,10 +48,12 @@ def source_path(root: Path, flavor: str) -> Path:
 
 def output_paths(root: Path, flavor: str, version_code: int) -> list[Path]:
     generated = root / "fastlane" / "store_metadata" / "generated"
-    ios = [generated / "ios" / flavor / locale / "release_notes.txt" for locale in APP_STORE_LOCALES]
+    ios_locales = APP_STORE_LOCALES_BY_FLAVOR[flavor]
+    android_locales = PLAY_STORE_LOCALES_BY_FLAVOR[flavor]
+    ios = [generated / "ios" / flavor / locale / "release_notes.txt" for locale in ios_locales]
     android = [
         generated / "android" / flavor / locale / "changelogs" / f"{version_code}.txt"
-        for locale in PLAY_STORE_LOCALES
+        for locale in android_locales
     ]
     return ios + android
 
@@ -78,8 +90,8 @@ def validate_outputs(paths: list[Path]) -> list[str]:
 def validate_locale_directories(root: Path, flavor: str) -> list[str]:
     generated = root / "fastlane" / "store_metadata" / "generated"
     expected_by_platform = {
-        "ios": set(APP_STORE_LOCALES),
-        "android": set(PLAY_STORE_LOCALES),
+        "ios": set(APP_STORE_LOCALES_BY_FLAVOR[flavor]),
+        "android": set(PLAY_STORE_LOCALES_BY_FLAVOR[flavor]),
     }
     errors: list[str] = []
 
@@ -97,7 +109,7 @@ def validate_locale_directories(root: Path, flavor: str) -> list[str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--flavor", choices=("mainnet", "regtest"), required=True)
+    parser.add_argument("--flavor", choices=("mainnet", "regtest", "liteMainnet"), required=True)
     parser.add_argument("--print-plan", action="store_true")
     args = parser.parse_args()
 

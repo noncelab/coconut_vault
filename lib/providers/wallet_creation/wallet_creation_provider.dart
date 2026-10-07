@@ -15,6 +15,7 @@ class WalletCreationProvider {
   ({Uint8List secret, Uint8List? passphrase}) _keyData = (secret: Uint8List(0), passphrase: Uint8List(0));
   MultisigSigner? _externalSigner; // 멀티시그 지갑에서 외부지갑 키 추가 시
   int? _multisigVaultIdOfExternalSigner; // 멀티시그 지갑에서 외부지갑 키 추가 시 호출한 화면의 vault id
+  String? _passphraseInput;
   String? _singleSigCreationOption; // 현재는 'mnemonicAutoGen'일 때만 할당하고 있음. 'mnemonicCoinflip' or 'mnemonicDiceRoll'은 생략
 
   /// multisig
@@ -75,6 +76,14 @@ class WalletCreationProvider {
     _keyData = (secret: secret, passphrase: passphrase ?? Uint8List(0));
   }
 
+  /// 사용자가 입력한 패스프레이즈 원문. 최종 확인 화면에서 입력한 모양 그대로 보여주는 데만 쓴다.
+  /// 지갑 파생에는 쓰지 않으며, 화면은 이 값이 실제 패스프레이즈 바이트를 만든 경우에만 사용한다.
+  String? get passphraseInput => _passphraseInput;
+
+  void setPassphraseInput(String? input) {
+    _passphraseInput = input;
+  }
+
   void setSingleSigCreationOption(String routeName) {
     _singleSigCreationOption = routeName;
   }
@@ -84,6 +93,7 @@ class WalletCreationProvider {
     _keyData.secret.wipe();
     _keyData.passphrase?.wipe();
     _keyData = (secret: Uint8List(0), passphrase: Uint8List(0));
+    _passphraseInput = null;
     _singleSigCreationOption = null;
   }
 

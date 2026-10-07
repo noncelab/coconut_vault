@@ -22,7 +22,7 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
       title: t.watch_only_options.coconut_wallet,
       iconPath:
           NetworkType.currentNetworkType.isTestnet
-              ? "assets/svg/coconut-regtest.svg"
+              ? "assets/svg/coconut/coconut-regtest.svg"
               : "assets/svg/watch-only-icons/coconut.svg",
       format: WalletExportFormatEnum.coconut,
     ),

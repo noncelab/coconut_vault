@@ -298,7 +298,7 @@ multisig:
 
 # lib/screens/airgap
 psbt_confirmation_screen:
-  title: "Scan Info Confirmation"
+  title: "Review Transaction"
   guide: "Please verify that the information scanned from the wallet is correct."
   self_sending: "This is a transaction sending to my own wallet."
   warning: "⚠️ This may not be a psbt created with this wallet. Or it may be a transaction with no balance."
@@ -498,6 +498,22 @@ settings_screen:
     disable_change_account_btn: "Confirm"
 
 # lib/screens/start_guide
+lite_onboarding_screen:
+  skip: "Skip"
+  start: "Get started"
+  image_placeholder: "Image coming soon"
+  page_1:
+    label: "LOAD"
+    title: "Load the wallet to sign"
+    description: "Load your wallet information and get ready to sign."
+  page_2:
+    label: "SIGN"
+    title: "Review and sign"
+    description: "Review the transaction details, then sign."
+  page_3:
+    label: "ERASE"
+    title: "Erase when you're done"
+    description: "You can erase loaded wallet information at any time."
 welcome_screen:
   screen_1_title: "Start in a safe environment"
   screen_1_description: "To use safely, you need to\nblock connections with the outside"
@@ -829,8 +845,9 @@ mnemonic_generate_screen:
   backup_guide: "Please backup your mnemonic in a safe place"
   backup_complete: "Backup Complete"
   warning: "Keep your passphrase safe and private"
-  passphrase_warning: "$words may not be accepted by other wallets."
+  passphrase_warning: "Contains characters other hardware wallets may not accept: $words"
   passphrase_warning_space: "Spaces are included."
+  passphrase_warning_normalization: "Some apps may restore a different wallet."
   regenerate: "Regenerate"
 passphrase_textfield:
   title: "Enter passphrase"
@@ -843,6 +860,12 @@ entropy_bits_bottom_sheet:
     binary: "Valid entropy values → Binary [0-1] "
   select_option: "and verify your values."
   
+passphrase_wallet_selection:
+  title: "Which wallet are you looking for?"
+  description: "This passphrase may be handled differently by each app."
+  option_standard: "Same as other wallet apps like Sparrow (default)"
+  option_legacy: "Wallet created in Coconut Vault $version or earlier"
+
 mnemonic_import_screen:
   title: "Restore Wallet"
   enter_mnemonic_phrase: "Enter mnemonic phrase"
@@ -1335,7 +1358,7 @@ toast:
   name_already_used: "You can't change to a name that's already in use."
   name_already_used2: "You can't use a name that's already taken."
   name_multisig_in_use: "This wallet is used in a multisig wallet and can't be deleted."
-  mnemonic_already_added: "This mnemonic has already been added."
+  mnemonic_already_added: "This wallet has already been added."
   mnemonic_copied: "Mnemonic phrase copied"
   multisig_already_added: "This multisig wallet has already been added. ($name)"
   home_vault_min_one: "At least one wallet must remain on the home screen."

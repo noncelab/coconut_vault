@@ -1,9 +1,6 @@
-import 'dart:convert';
-
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
-import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
@@ -15,6 +12,7 @@ import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:coconut_vault/utils/reentered_passphrase_verifier.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -284,14 +282,15 @@ class _PassphraseVerificationBottomSheetState extends State<PassphraseVerificati
         return;
       }
 
-      final passphrase = utf8.encode(_controller.text);
-
-      final result = await compute(WalletIsolates.verifyPassphrase, {
-        'mnemonic': mnemonic,
-        'passphrase': passphrase,
-        'vaultListItem': vaultListItem,
-        'targetXpub': widget.targetXpub,
-      });
+      // 계정 변경에는 저장된 지갑과 일치한 방식(NFKD 또는 이전 방식)의 바이트를 넘긴다.
+      final verification = await verifyReenteredPassphrase(
+        mnemonic: mnemonic,
+        passphrase: _controller.text,
+        vaultListItem: vaultListItem,
+        targetXpub: widget.targetXpub,
+      );
+      final passphrase = verification.passphrase;
+      final result = verification.result;
 
       mnemonic.wipe();
 

@@ -500,6 +500,22 @@ settings_screen:
     disable_change_account_btn: "確認"
 
 # lib/screens/start_guide
+lite_onboarding_screen:
+  skip: "スキップ"
+  start: "始める"
+  image_placeholder: "画像準備中"
+  page_1:
+    label: "LOAD"
+    title: "署名するウォレットを読み込む"
+    description: "ウォレット情報を読み込み、署名の準備をします"
+  page_2:
+    label: "SIGN"
+    title: "確認して署名する"
+    description: "取引内容を確認してから署名します"
+  page_3:
+    label: "ERASE"
+    title: "署名が終わったら消去"
+    description: "読み込んだウォレット情報はいつでも消去できます"
 welcome_screen:
   screen_1_title: "安全な環境で開始"
   screen_1_description: "安全な使用のため\nネットワークとBluetoothをOFFにしてください"
@@ -831,8 +847,9 @@ mnemonic_generate_screen:
   backup_guide: "ニーモニックを安全な場所にバックアップしてください"
   backup_complete: "バックアップ完了"
   warning: "パスフレーズの保管・流出にご注意ください"
-  passphrase_warning: "$words は他のウォレットで利用できない可能性があります。"
+  passphrase_warning: "他のハードウェアウォレットで入力できない文字が含まれています: $words"
   passphrase_warning_space: "スペースが含まれています。"
+  passphrase_warning_normalization: "アプリによって別のウォレットとして復元される場合があります。"
   regenerate: "再生成"
 passphrase_textfield:
   title: "パスフレーズを入力してください"
@@ -844,6 +861,12 @@ entropy_bits_bottom_sheet:
     dice: "Valid entropy values → Dice [1-6] "
     binary: "Valid entropy values → Binary [0-1] "
   select_option: "を選択し、値を確認してください。"
+
+passphrase_wallet_selection:
+  title: "どのウォレットをお探しですか？"
+  description: "このパスフレーズはアプリによって処理が異なる場合があります。"
+  option_standard: "Sparrowなど他のウォレットアプリと同じ方式（デフォルト）"
+  option_legacy: "Coconut Vault $version 以前で作成したウォレット"
 
 mnemonic_import_screen:
   title: "復元"
@@ -1336,7 +1359,7 @@ toast:
   name_already_used: "既に使用されている名前に変更できません"
   name_already_used2: "既に使用されている名前は設定できません"
   name_multisig_in_use: "マルチシグウォレットで使用中のため削除できません"
-  mnemonic_already_added: "既に追加されたニーモニック"
+  mnemonic_already_added: "既に追加されたウォレットです"
   mnemonic_copied: "ニーモニックフレーズをコピーしました"
   multisig_already_added: "既に追加されたマルチシグウォレット。($name)"
   home_vault_min_one: "ホーム画面に表示されるウォレットは最低1つ必要です"

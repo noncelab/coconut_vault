@@ -15,6 +15,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:permission_handler/permission_handler.dart' hide openAppSettings;
 import 'package:provider/provider.dart';
 
+/// 라이트 모드에서는 2번째 단계부터 시작합니다.
 class WelcomeScreen extends StatefulWidget {
   final VoidCallback onComplete;
   const WelcomeScreen({super.key, required this.onComplete});
@@ -41,7 +42,7 @@ class ScreenItem {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   late ConnectivityProvider _connectivityProvider;
-  int _currentScreenIndex = 0;
+  int _currentScreenIndex = kIsLiteBuild ? 1 : 0;
 
   final List<ScreenItem> _screenItems = [];
 
@@ -51,6 +52,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     _connectivityProvider = Provider.of<ConnectivityProvider>(context, listen: false);
 
     _initScreenItems();
+    if (kIsLiteBuild) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _handleEnvironmentCheckPressed());
+    }
   }
 
   void _initScreenItems() {
@@ -63,7 +67,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         onButtonPressed: () => _handleEnvironmentCheckPressed(),
       ),
       ScreenItem(
-        title: t.welcome_screen.screen_2_title,
+        title: kIsLiteBuild ? t.welcome_screen.screen_1_title : t.welcome_screen.screen_2_title,
         descriptionText: t.welcome_screen.screen_2_description,
         buttonText: t.welcome_screen.screen_2_button,
         onButtonPressed: () {
@@ -81,6 +85,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           if (kIsLiteBuild) {
             // 라이트 빌드는 서명 전용 모드로 고정되어 모드 선택을 건너뜀
             // (트리쉐이킹용 const 가드이기도 함: 아래 VaultModeSelectionScreen 경로가 dead code가 됨)
+            widget.onComplete();
+            return;
+          }
+          if (!context.read<VisibilityProvider>().hasSeenGuide) {
+            // 앱 최초 실행 시: 보안 검사를 먼저 수행한 뒤 모드 선택 화면으로 이동
             widget.onComplete();
             return;
           }

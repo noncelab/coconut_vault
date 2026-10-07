@@ -9,6 +9,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/import_passphrase_resolver.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_confirmation_screen.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
@@ -32,6 +33,9 @@ class SeedQrImportScreen extends StatefulWidget {
   final VoidCallback? onCompleted;
   final FutureOr<void> Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
 
+  /// [MnemonicImportScreen.passphraseMatcher] 참고
+  final ImportPassphraseMatcher? passphraseMatcher;
+
   const SeedQrImportScreen({
     super.key,
     this.externalSigner,
@@ -42,6 +46,7 @@ class SeedQrImportScreen extends StatefulWidget {
     this.showPassphraseWarningSubWidget = false,
     this.onCompleted,
     this.onMnemonicConfirmationRequested,
+    this.passphraseMatcher,
   });
 
   @override
@@ -269,6 +274,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
                     showPassphraseWarningSubWidget: widget.showPassphraseWarningSubWidget,
                     onCompleted: widget.onCompleted,
                     onMnemonicConfirmationRequested: widget.onMnemonicConfirmationRequested,
+                    passphraseMatcher: widget.passphraseMatcher,
                   ),
             ),
           ).then((result) {

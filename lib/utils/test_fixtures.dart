@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:flutter/foundation.dart';
 
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/model/taproot/creation/inheritance_leaf.dart';
@@ -67,6 +68,8 @@ Future<void> loadTestWallets(WalletProvider walletProvider, {bool includeStandal
     2,
     isImported: true,
   );
+
+  if (kIsLiteBuild) return;
 
   // --- Taproot MuSig2 inheritance ---
   await walletProvider.addTaprootVault(

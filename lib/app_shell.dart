@@ -20,6 +20,7 @@ import 'package:coconut_vault/screens/common/splash_screen.dart';
 import 'package:coconut_vault/screens/home/vault_home_screen.dart';
 import 'package:coconut_vault/screens/precheck/device_password_checker_screen.dart';
 import 'package:coconut_vault/screens/precheck/jail_break_detection_screen.dart';
+import 'package:coconut_vault/screens/start_guide/lite_onboarding_screen.dart';
 import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
@@ -67,8 +68,9 @@ typedef PinCheckScreenBuilder =
       VoidCallback onPermanentLockReset,
     );
 
-typedef FallbackRoutesBuilder =
-    Map<String, WidgetBuilder> Function(VoidCallback onWelcomeComplete, VoidCallback onModeSelectionComplete);
+typedef FallbackRoutesBuilder = Map<String, WidgetBuilder> Function(VoidCallback onWelcomeComplete);
+
+typedef VaultModeSelectionScreenBuilder = Widget Function(BuildContext context, VoidCallback onComplete);
 
 class VaultApp extends StatefulWidget {
   final bool isLiteBuild;
@@ -76,6 +78,7 @@ class VaultApp extends StatefulWidget {
   final FallbackRoutesBuilder fallbackRoutesBuilder;
   final WidgetBuilder? firstLaunchExtraBuilder;
   final PinCheckScreenBuilder? pinCheckScreenBuilder;
+  final VaultModeSelectionScreenBuilder? vaultModeSelectionScreenBuilder;
 
   const VaultApp({
     super.key,
@@ -84,6 +87,7 @@ class VaultApp extends StatefulWidget {
     required this.fallbackRoutesBuilder,
     this.firstLaunchExtraBuilder,
     this.pinCheckScreenBuilder,
+    this.vaultModeSelectionScreenBuilder,
   });
 
   @override
@@ -93,6 +97,8 @@ class VaultApp extends StatefulWidget {
 class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin {
   AppEntryFlow _appEntryFlow = AppEntryFlow.splash;
   bool _shouldShowPrivacyScreen = false;
+  // 앱 최초 실행 시 WelcomeScreen 완료 여부 (full 버전: 보안 검사 후 모드 선택으로 이동하기 위해 사용)
+  bool _hasCompletedWelcome = false;
   late final authProvider = AuthProvider();
   late final preferenceProvider = PreferenceProvider();
   late final visibilityProvider = VisibilityProvider(isSigningOnlyMode: preferenceProvider.isSigningOnlyMode);
@@ -104,17 +110,19 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
   // 현재 라우트 추적
   late _RouteObserver _navigatorObserver;
   final ValueNotifier<bool> _routeNotifierHasShow = ValueNotifier<bool>(false);
+  bool _isInWalletCreationRoute = false;
 
   @override
   void initState() {
     super.initState();
     _navigatorObserver = _RouteObserver(
       onRouteChanged: (routeName) {
-        if (routeName == null || routeName == '/' || routeName == AppRoutes.vaultModeSelection) {
-          _routeNotifierHasShow.value = false;
-        } else {
-          _routeNotifierHasShow.value = true;
-        }
+        _isInWalletCreationRoute = routeName != null && AppRoutes.walletCreationRoutes.contains(routeName);
+        _routeNotifierHasShow.value =
+            routeName != null &&
+            routeName != '/' &&
+            routeName != AppRoutes.vaultModeSelection &&
+            !_isInWalletCreationRoute;
       },
     );
   }
@@ -185,6 +193,14 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
       return;
     }
 
+    if (_isInWalletCreationRoute && (widget.isLiteBuild || preferenceProvider.isSigningOnlyMode)) {
+      // 서명전용/라이트 모드에서 지갑 생성 중에는 privacy screen만 숨기고 홈 화면으로 이동하지 않는다.
+      setState(() {
+        _shouldShowPrivacyScreen = false;
+      });
+      return;
+    }
+
     if (lifecycleProvider.shouldIgnoreLifecycleEvent) {
       return;
     }
@@ -197,17 +213,30 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
     _updateEntryFlow(AppEntryFlow.securityPrecheck);
   }
 
-  /// 라이트 버전 온보딩 완료: 모드 선택 없이 가이드 확인 처리 후 홈으로 이동
+  /// 라이트 버전 온보딩 완료: 모드 선택 없이 가이드 확인 처리 후 이동
   void _completeLiteOnboarding() {
+    final isFirstLaunch = !visibilityProvider.hasSeenGuide;
     visibilityProvider.setHasSeenGuide().then((_) {
       if (mounted) {
-        _updateEntryFlow(AppEntryFlow.vaultHome);
+        _updateEntryFlow(isFirstLaunch ? AppEntryFlow.securityPrecheck : AppEntryFlow.vaultHome);
       }
     });
   }
 
-  VoidCallback get _onWelcomeComplete =>
-      widget.isLiteBuild ? _completeLiteOnboarding : () => _updateEntryFlow(AppEntryFlow.vaultHome);
+  /// full 버전 최초 실행 WelcomeScreen 완료: 보안 검사 후 모드 선택으로 이동
+  void _completeFullWelcome() {
+    _hasCompletedWelcome = true;
+    _updateEntryFlow(AppEntryFlow.securityPrecheck);
+  }
+
+  VoidCallback get _onWelcomeComplete => widget.isLiteBuild ? _completeLiteOnboarding : _completeFullWelcome;
+
+  /// WelcomeScreen을 이미 완료한 경우(탈옥 감지/기기 비밀번호 화면에서 스플래시로 복귀) 온보딩을 반복하지 않고 보안 검사로 이동
+  void _onSplashComplete(AppEntryFlow appEntryFlow) {
+    _updateEntryFlow(
+      appEntryFlow == AppEntryFlow.firstLaunch && _hasCompletedWelcome ? AppEntryFlow.securityPrecheck : appEntryFlow,
+    );
+  }
 
   WalletProvider _ensureWalletProvider(
     VisibilityProvider visibilityProvider,
@@ -221,7 +250,7 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
   Widget _getHomeScreenRoute(AppEntryFlow appEntry, BuildContext context) {
     switch (appEntry) {
       case AppEntryFlow.splash:
-        return SplashScreen(onComplete: _updateEntryFlow);
+        return SplashScreen(onComplete: _onSplashComplete);
 
       case AppEntryFlow.securityPrecheck:
         return FutureBuilder<SecurityCheckResult>(
@@ -259,7 +288,10 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
                     Logger.log('--> case SecurityCheckStatus.secure:');
                     // 한번도 튜토리얼을 보지 않은 경우
                     if (!visibilityProvider.hasSeenGuide) {
-                      _updateEntryFlow(AppEntryFlow.firstLaunch);
+                      // full 버전 최초 실행: WelcomeScreen 완료 후 보안 검사를 통과했으면 모드 선택으로 이동
+                      _updateEntryFlow(
+                        _hasCompletedWelcome ? AppEntryFlow.vaultModeSelection : AppEntryFlow.firstLaunch,
+                      );
                       return;
                     }
 
@@ -300,10 +332,17 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
           },
         );
       case AppEntryFlow.firstLaunch:
-        if (!widget.isLiteBuild && NetworkType.currentNetworkType.isTestnet && widget.firstLaunchExtraBuilder != null) {
+        if (widget.isLiteBuild) {
+          return LiteStartGuideScreen(onComplete: _onWelcomeComplete);
+        }
+        if (NetworkType.currentNetworkType.isTestnet && widget.firstLaunchExtraBuilder != null) {
           return widget.firstLaunchExtraBuilder!(context);
         }
         return WelcomeScreen(onComplete: _onWelcomeComplete);
+      case AppEntryFlow.vaultModeSelection:
+        // 라이트 빌드는 서명 전용 모드로 고정되어 도달하지 않음
+        if (widget.isLiteBuild || widget.vaultModeSelectionScreenBuilder == null) return const SizedBox.shrink();
+        return widget.vaultModeSelectionScreenBuilder!(context, () => _updateEntryFlow(AppEntryFlow.vaultHome));
       case AppEntryFlow.pinCheck:
         // 라이트 빌드에서는 PIN 잠금이 없어 도달하지 않음
         if (widget.isLiteBuild || widget.pinCheckScreenBuilder == null) return const SizedBox.shrink();
@@ -371,7 +410,7 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
     final routes =
         _appEntryFlow == AppEntryFlow.vaultHome
             ? widget.routesBuilder(_onWelcomeComplete)
-            : widget.fallbackRoutesBuilder(_onWelcomeComplete, () => _updateEntryFlow(AppEntryFlow.vaultHome));
+            : widget.fallbackRoutesBuilder(_onWelcomeComplete);
 
     return MultiProvider(
       providers: [

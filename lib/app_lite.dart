@@ -29,7 +29,6 @@ Map<String, WidgetBuilder> buildLiteRoutes({required VoidCallback onWelcomeCompl
   return buildCommonRoutes(onWelcomeComplete: onWelcomeComplete);
 }
 
-Map<String, WidgetBuilder> _buildLiteFallbackRoutes(
-  VoidCallback onWelcomeComplete,
-  VoidCallback onModeSelectionComplete,
-) => {AppRoutes.welcome: (context) => WelcomeScreen(onComplete: onWelcomeComplete)};
+Map<String, WidgetBuilder> _buildLiteFallbackRoutes(VoidCallback onWelcomeComplete) => {
+  AppRoutes.welcome: (context) => WelcomeScreen(onComplete: onWelcomeComplete),
+};
