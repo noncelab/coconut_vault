@@ -1435,7 +1435,7 @@ language:
   portuguese: "Português"
   russian: "Русский"
 
-language_and_format:
-  title: "Language & Format"
+general:
+  title: "General"
   language: "Language"
   number_format: "Number Format"

@@ -468,14 +468,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: [
         Container(
           padding: const EdgeInsets.only(bottom: 16),
-          child: Text(t.language_and_format.title, style: CoconutTypography.body1_16_Bold),
+          child: Text(t.general.title, style: CoconutTypography.body1_16_Bold),
         ),
         Consumer<VisibilityProvider>(
           builder: (context, provider, child) {
             return MultiButton(
               children: [
                 _buildAnimatedButton(
-                  title: t.language_and_format.language,
+                  title: t.general.language,
                   subtitle: _getCurrentLanguageDisplayName(provider.appLanguage),
                   buttonPosition: SingleButtonPosition.top,
                   onPressed: () async {
@@ -488,7 +488,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 _buildAnimatedButton(
-                  title: t.language_and_format.number_format,
+                  title: t.general.number_format,
                   subtitle: provider.numberFormatPreset.displayLabel,
                   buttonPosition: SingleButtonPosition.bottom,
                   onPressed: () async {

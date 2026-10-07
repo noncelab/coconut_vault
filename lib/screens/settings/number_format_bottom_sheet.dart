@@ -22,7 +22,7 @@ class _NumberFormatBottomSheetState extends State<NumberFormatBottomSheet> {
         return Scaffold(
           backgroundColor: CoconutColors.white,
           appBar: CoconutAppBar.build(
-            title: t.language_and_format.number_format,
+            title: t.general.number_format,
             context: context,
             onBackPressed: null,
             isBottom: true,

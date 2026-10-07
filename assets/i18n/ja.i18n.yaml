@@ -1436,7 +1436,7 @@ language:
   portuguese: "Português"
   russian: "Русский"
 
-language_and_format:
-  title: "言語と書式"
+general:
+  title: "一般"
   language: "言語"
   number_format: "数値形式"

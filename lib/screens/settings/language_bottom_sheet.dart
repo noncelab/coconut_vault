@@ -21,12 +21,7 @@ class _LanguageBottomSheetState extends State<LanguageBottomSheet> {
       builder: (context, language, child) {
         return Scaffold(
           backgroundColor: CoconutColors.white,
-          appBar: CoconutAppBar.build(
-            title: t.language_and_format.language,
-            context: context,
-            onBackPressed: null,
-            isBottom: true,
-          ),
+          appBar: CoconutAppBar.build(title: t.general.language, context: context, onBackPressed: null, isBottom: true),
           body: Padding(
             padding: const EdgeInsets.only(left: Sizes.size16, right: Sizes.size16),
             child: ListView.separated(
