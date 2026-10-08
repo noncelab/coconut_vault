@@ -11,6 +11,7 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/settings/language_bottom_sheet.dart';
+import 'package:coconut_vault/screens/settings/number_format_bottom_sheet.dart';
 import 'package:coconut_vault/screens/settings/unit_bottm_sheet.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -275,10 +276,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Widget _buildAnimatedButton({required String title, required VoidCallback onPressed, String? subtitle}) {
+  SingleButton _buildAnimatedButton({
+    required String title,
+    required VoidCallback onPressed,
+    String? subtitle,
+    SingleButtonPosition buttonPosition = SingleButtonPosition.none,
+  }) {
     return SingleButton(
       enableShrinkAnim: true,
       animationEndValue: 0.97,
+      buttonPosition: buttonPosition,
       title: title,
       subtitle: subtitle,
       onPressed: onPressed,
@@ -461,16 +468,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
       children: [
         Container(
           padding: const EdgeInsets.only(bottom: 16),
-          child: Text(t.language.language, style: CoconutTypography.body1_16_Bold),
+          child: Text(t.general.title, style: CoconutTypography.body1_16_Bold),
         ),
         Consumer<VisibilityProvider>(
           builder: (context, provider, child) {
-            return Selector<VisibilityProvider, AppLanguage>(
-              selector: (_, provider) => provider.appLanguage,
-              builder: (context, language, child) {
-                return _buildAnimatedButton(
-                  title: t.language.language,
-                  subtitle: _getCurrentLanguageDisplayName(language),
+            return MultiButton(
+              children: [
+                _buildAnimatedButton(
+                  title: t.general.language,
+                  subtitle: _getCurrentLanguageDisplayName(provider.appLanguage),
+                  buttonPosition: SingleButtonPosition.top,
                   onPressed: () async {
                     MyBottomSheet.showBottomSheet_ratio(
                       ratio: 0.5,
@@ -479,8 +486,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       showDragHandle: true,
                     );
                   },
-                );
-              },
+                ),
+                _buildAnimatedButton(
+                  title: t.general.number_format,
+                  subtitle: provider.numberFormatPreset.displayLabel,
+                  buttonPosition: SingleButtonPosition.bottom,
+                  onPressed: () async {
+                    MyBottomSheet.showBottomSheet_ratio(
+                      ratio: 0.5,
+                      context: context,
+                      child: const NumberFormatBottomSheet(),
+                      showDragHandle: true,
+                    );
+                  },
+                ),
+              ],
             );
           },
         ),

@@ -19,6 +19,7 @@ class SharedPrefsKeys {
   static const String kChangeAccountEnabled = "CHANGE_ACCOUNT_ENABLED";
   static const String kIsBtcUnit = "IS_BTC_UNIT";
   static const String kLanguage = "LANGUAGE";
+  static const String kNumberFormatPreset = "NUMBER_FORMAT_PRESET";
 
   static const String kVaultMode = "VAULT_MODE"; // 볼트 모드 (Secure Storage Mode, Signing-Only Mode)
   static const String kVaultModeTransitionMarker = "VAULT_MODE_TRANSITION_MARKER"; // 모드 전환 중 마커

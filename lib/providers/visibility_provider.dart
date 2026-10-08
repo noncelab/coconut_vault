@@ -1,12 +1,15 @@
 import 'dart:ui';
 
+import 'package:coconut_vault/config/number_format_config.dart';
 import 'package:coconut_vault/constants/app_language.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/currency_enum.dart';
+import 'package:coconut_vault/enums/number_format_preset.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class VisibilityProvider extends ChangeNotifier {
   late bool _isSigningOnlyMode;
@@ -16,6 +19,7 @@ class VisibilityProvider extends ChangeNotifier {
   late bool _isAccountEditEnabled;
   late AppLanguage _language;
   late bool _isBtcUnit;
+  late NumberFormatPreset _numberFormatPreset;
 
   bool get hasSeenGuide => _hasSeenGuide;
   bool get isPassphraseUseEnabled => _isPassphraseUseEnabled;
@@ -25,6 +29,9 @@ class VisibilityProvider extends ChangeNotifier {
 
   bool get isBtcUnit => _isBtcUnit;
   BitcoinUnit get currentUnit => _isBtcUnit ? BitcoinUnit.btc : BitcoinUnit.sats;
+  NumberFormatPreset get numberFormatPreset => _numberFormatPreset;
+  String get decimalSeparator => _numberFormatPreset.decimalSeparator;
+  String get groupingSeparator => _numberFormatPreset.groupingSeparator;
 
   VisibilityProvider({required bool isSigningOnlyMode}) {
     final prefs = SharedPrefsRepository();
@@ -44,6 +51,7 @@ class VisibilityProvider extends ChangeNotifier {
 
     _language = _initializeLanguageFromOS(prefs);
     _isBtcUnit = prefs.getBool(SharedPrefsKeys.kIsBtcUnit) ?? true;
+    _initializeNumberFormatFromLocale(prefs);
     _initializeLanguage();
   }
 
@@ -77,19 +85,27 @@ class VisibilityProvider extends ChangeNotifier {
     // 이미 저장된 언어 설정이 있으면 사용
     if (prefs.isContainsKey(SharedPrefsKeys.kLanguage)) {
       final savedLanguageCode = prefs.getString(SharedPrefsKeys.kLanguage);
-      return AppLanguage.fromCode(savedLanguageCode);
+      return _toSupportedAppLanguage(savedLanguageCode);
     }
 
     // OS 언어 감지 (Flutter의 표준 방식 사용)
     try {
       final String languageCode = PlatformDispatcher.instance.locale.languageCode.toLowerCase();
-      // 지원하는 언어인지 확인
-      return AppLanguage.fromCode(languageCode);
+      return _toSupportedAppLanguage(languageCode);
     } catch (e) {
       Logger.error('OS language detection failed: $e');
     }
 
     // 기본값은 영어
+    return AppLanguage.en;
+  }
+
+  /// UI에 실제 번역이 존재하는 언어인지 확인하고, 지원하지 않으면 영어로 fallback 합니다.
+  AppLanguage _toSupportedAppLanguage(String languageCode) {
+    final language = AppLanguage.fromCode(languageCode);
+    if (AppLanguage.displayValues.contains(language)) {
+      return language;
+    }
     return AppLanguage.en;
   }
 
@@ -109,6 +125,34 @@ class VisibilityProvider extends ChangeNotifier {
         rethrow;
       }
     });
+  }
+
+  /// OS locale을 기반으로 숫자 포맷 preset을 초기화합니다.
+  /// 이미 저장된 값이 있으면 해당 값을 사용하고, 없으면 시스템 locale에서 유추하여 저장합니다.
+  void _initializeNumberFormatFromLocale(SharedPrefsRepository prefs) {
+    NumberFormatPreset preset;
+
+    if (prefs.isContainsKey(SharedPrefsKeys.kNumberFormatPreset)) {
+      preset = NumberFormatPreset.fromCode(prefs.getString(SharedPrefsKeys.kNumberFormatPreset));
+    } else {
+      final locale = PlatformDispatcher.instance.locale;
+      final localeName = Intl.canonicalizedLocale(locale.toLanguageTag());
+      preset = NumberFormatPreset.fromLocale(localeName);
+      prefs.setString(SharedPrefsKeys.kNumberFormatPreset, preset.name);
+    }
+
+    _numberFormatPreset = preset;
+    NumberFormatConfig.instance.applyPreset(preset);
+  }
+
+  /// 설정 화면에서 사용자가 숫자 포맷 preset을 변경할 때 사용합니다.
+  Future<void> changeNumberFormatPreset(NumberFormatPreset preset) async {
+    _numberFormatPreset = preset;
+    NumberFormatConfig.instance.applyPreset(preset);
+
+    final prefs = SharedPrefsRepository();
+    await prefs.setString(SharedPrefsKeys.kNumberFormatPreset, preset.name);
+    notifyListeners();
   }
 
   Future<void> changeLanguage(AppLanguage language) async {

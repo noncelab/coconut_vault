@@ -1,3 +1,6 @@
+import 'package:coconut_vault/config/number_format_config.dart';
+import 'package:coconut_vault/enums/number_format_preset.dart';
+import 'package:coconut_vault/extensions/int_extensions.dart';
 import 'package:coconut_vault/utils/balance_format_util.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -108,6 +111,34 @@ void main() {
       expect(BalanceFormatUtil.formatSatoshiToReadableBitcoin(-1000), '-0.0000 1000');
       expect(BalanceFormatUtil.formatSatoshiToReadableBitcoin(-123456), '-0.0012 3456');
       expect(BalanceFormatUtil.formatSatoshiToReadableBitcoin(-12345678), '-0.1234 5678');
+    });
+  });
+
+  group('NumberFormatConfig-aware formatting', () {
+    tearDown(() {
+      NumberFormatConfig.instance.applyPreset(NumberFormatPreset.dotDecimal);
+    });
+
+    test('commaDecimal preset uses , as decimal and . as grouping', () {
+      NumberFormatConfig.instance.applyPreset(NumberFormatPreset.commaDecimal);
+
+      expect(BalanceFormatUtil.formatSatoshiToReadableBitcoin(1234567), '0,0123 4567');
+      expect(
+        BalanceFormatUtil.formatSatoshiToReadableBitcoin(100000000000, forceEightDecimals: true),
+        '1.000,0000 0000',
+      );
+      expect(1000000.toThousandsSeparatedString(), '1.000.000');
+    });
+
+    test('dotDecimal preset uses . as decimal and , as grouping', () {
+      NumberFormatConfig.instance.applyPreset(NumberFormatPreset.dotDecimal);
+
+      expect(BalanceFormatUtil.formatSatoshiToReadableBitcoin(1234567), '0.0123 4567');
+      expect(
+        BalanceFormatUtil.formatSatoshiToReadableBitcoin(100000000000, forceEightDecimals: true),
+        '1,000.0000 0000',
+      );
+      expect(1000000.toThousandsSeparatedString(), '1,000,000');
     });
   });
 }
