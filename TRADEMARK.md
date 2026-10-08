@@ -3,6 +3,12 @@
 The names **“Nonce Lab”**, **“Coconut”**, and **“Coconut Vault”** are trademarks
 and service marks owned by **Nonce Lab Inc.** (the “Company”).
 
+This policy is independent of the software license. The [LICENSE](./LICENSE)
+grants rights to use, copy, modify, and distribute the Coconut Vault source
+code — it does **not** grant any right to use the names or marks above. This
+restriction applies regardless of the license terms and survives independently
+of any change to the LICENSE file.
+
 ## Permitted Use
 You may:
 - Refer to the original software factually (e.g., “built with Coconut Vault”),
@@ -17,7 +23,7 @@ You **may not**:
 
 ## Legal Notice
 Unauthorized use of these marks constitutes trademark infringement and may
-result in legal action. All rights reserved © 2025 Nonce Lab Inc.
+result in legal action. All rights reserved © 2025–2026 Nonce Lab Inc.
 
 ----
 
@@ -25,6 +31,11 @@ result in legal action. All rights reserved © 2025 Nonce Lab Inc.
 
 **“Nonce Lab”**, **“Coconut”**, **“Coconut Vault”**의 명칭은  
 **논스랩(Nonce Lab Inc.)**(이하 “회사”)이 보유한 상표 및 서비스표입니다.
+
+이 정책은 소프트웨어 라이선스와 별개로 적용됩니다. [LICENSE](./LICENSE)는
+Coconut Vault 소스 코드의 사용·복제·수정·배포에 대한 권한을 부여하지만,
+위 명칭이나 상표에 대한 권한은 포함하지 **않습니다**. 이 제한은 라이선스
+조건과 무관하게 적용되며, LICENSE 파일의 변경과도 무관하게 유지됩니다.
 
 ## 허용되는 사용
 
@@ -44,4 +55,4 @@ result in legal action. All rights reserved © 2025 Nonce Lab Inc.
 ## 법적 고지
 
 무단으로 상표를 사용하는 행위는 상표권 침해에 해당하며, 법적 조치를 받을 수 있습니다. 
-모든 권리는 © 2025 Nonce Lab Inc.에 있습니다.
+모든 권리는 © 2025–2026 Nonce Lab Inc.에 있습니다.

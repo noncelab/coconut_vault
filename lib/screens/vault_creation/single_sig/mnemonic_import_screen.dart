@@ -11,6 +11,7 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
+import 'package:coconut_vault/screens/vault_creation/single_sig/import_passphrase_resolver.dart';
 import 'package:coconut_vault/utils/passphrase_warning_util.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
@@ -36,6 +37,10 @@ class MnemonicImportScreen extends StatefulWidget {
   final VoidCallback? onCompleted;
   final void Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
 
+  /// 가져올 지갑이 이미 정해져 있으면 패스프레이즈 후보가 그 지갑을 만드는지 판정한다.
+  /// 주어지면 정규화 방식 선택 UI 없이 맞는 후보를 고른다. [externalSigner]가 있으면 MFP로 판정한다.
+  final ImportPassphraseMatcher? passphraseMatcher;
+
   const MnemonicImportScreen({
     super.key,
     this.externalSigner,
@@ -46,6 +51,7 @@ class MnemonicImportScreen extends StatefulWidget {
     this.showPassphraseWarningSubWidget = false,
     this.onCompleted,
     this.onMnemonicConfirmationRequested,
+    this.passphraseMatcher,
   });
 
   @override
@@ -624,35 +630,48 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   Future<void> _handleNextButton() async {
     try {
       final secret = _buildMnemonicSecret();
-      final passphrase = utf8.encode(_usePassphrase ? _passphrase : '');
       final externalSigner = widget.externalSigner;
+      final resolution = await resolveImportPassphrase(
+        context,
+        secret: secret,
+        passphrase: _usePassphrase ? _passphrase : '',
+        matcher:
+            externalSigner != null
+                ? ImportPassphraseMatcher(
+                  (secret, passphrase) => _isSignerMfpMatched(externalSigner, secret, passphrase),
+                )
+                : widget.passphraseMatcher,
+      );
+      if (!mounted) return;
+      final Uint8List passphrase;
+      switch (resolution) {
+        case ImportPassphraseSelected(passphrase: final selected):
+          passphrase = selected;
+        case ImportPassphraseNoMatch():
+          CoconutToast.showToast(context: context, text: t.errors.different_wallet, isVisibleIcon: true);
+          return;
+        case ImportPassphraseCancelled():
+          return;
+      }
+
+      // 최종 확인 화면에서 입력한 모양 그대로 보여주기 위한 원문
+      final passphraseInput = _usePassphrase ? _passphrase : null;
+      _walletCreationProvider.setPassphraseInput(passphraseInput);
 
       if (widget.isTaprootCreationChild) {
+        final taprootWalletCreationProvider =
+            context.read<TaprootWalletCreationProvider>()..setPassphraseInput(passphraseInput);
         final onMnemonicConfirmationRequested = widget.onMnemonicConfirmationRequested;
         if (onMnemonicConfirmationRequested != null) {
           onMnemonicConfirmationRequested(secret, passphrase);
           return;
         }
 
-        final taprootWalletCreationProvider = context.read<TaprootWalletCreationProvider>();
-
         taprootWalletCreationProvider.setSecretAndPassphrase(secret, passphrase);
         _walletCreationProvider.setSecretAndPassphrase(Uint8List.fromList(secret), Uint8List.fromList(passphrase));
 
         widget.onCompleted?.call();
         return;
-      }
-
-      if (externalSigner != null) {
-        if (!mounted) return;
-        context.loaderOverlay.show();
-        final isMfpMatched = await _isSignerMfpMatched(externalSigner, secret, passphrase);
-        if (!isMfpMatched) {
-          if (!mounted) return;
-          context.loaderOverlay.hide();
-          CoconutToast.showToast(context: context, text: t.errors.different_wallet, isVisibleIcon: true);
-          return;
-        }
       }
 
       if (_walletProvider.isSeedDuplicated(secret, passphrase)) {

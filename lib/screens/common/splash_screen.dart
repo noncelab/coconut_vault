@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app_entry_flow.dart';
+import 'package:coconut_vault/constants/method_channel.dart';
 import 'package:coconut_vault/providers/connectivity_provider.dart';
 import 'package:coconut_vault/providers/view_model/splash_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
@@ -24,6 +25,8 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  static const MethodChannel _osChannel = MethodChannel(methodChannelOS);
+
   late SplashViewModel _viewModel;
   bool _hasSplashDelayFinished = false;
   bool _hasCompleted = false;
@@ -45,25 +48,38 @@ class _SplashScreenState extends State<SplashScreen> {
       await Future.delayed(const Duration(seconds: 2));
       if (!_viewModel.hasSeenGuide) {
         /// iOS 블루투스 권한을 Tutorial 단계에서 확인하므로 그 전까지 connectivityState가 null
-        widget.onComplete(AppEntryFlow.firstLaunch);
+        await _complete(AppEntryFlow.firstLaunch);
         return;
       }
 
       _hasSplashDelayFinished = true;
 
-      if (_viewModel.connectivityState != null && !_hasCompleted) {
-        _hasCompleted = true;
-        widget.onComplete(AppEntryFlow.securityPrecheck);
+      if (_viewModel.connectivityState != null) {
+        await _complete(AppEntryFlow.securityPrecheck);
         return;
       }
     });
   }
 
   void _onConnectivityStateChanged() {
-    if (_viewModel.connectivityState != null && _hasSplashDelayFinished && !_hasCompleted) {
-      _hasCompleted = true;
-      widget.onComplete(AppEntryFlow.securityPrecheck);
+    if (_viewModel.connectivityState != null && _hasSplashDelayFinished) {
+      unawaited(_complete(AppEntryFlow.securityPrecheck));
     }
+  }
+
+  Future<void> _complete(AppEntryFlow appEntryFlow) async {
+    if (_hasCompleted) return;
+    _hasCompleted = true;
+
+    if (Platform.isAndroid) {
+      try {
+        await _osChannel.invokeMethod<void>('removeNativeSplash');
+      } on Exception {
+        if (!mounted) return;
+      }
+    }
+
+    if (mounted) widget.onComplete(appEntryFlow);
   }
 
   @override

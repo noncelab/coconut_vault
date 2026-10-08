@@ -9,6 +9,7 @@ import android.view.WindowManager   // FLAG_SECURE에 필요
 import android.provider.Settings
 import android.provider.Settings.Global.DEVELOPMENT_SETTINGS_ENABLED
 import androidx.annotation.NonNull
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
@@ -25,8 +26,12 @@ import android.util.Log
 class MainActivity: FlutterFragmentActivity() {
     private val CHANNEL = "onl.coconut.vault/os"
     private val CHANNEL_OPEN_APP_SETTINGS = "app-settings"
+    private var keepSplashScreen = true
     
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepOnScreenCondition { keepSplashScreen }
+        Handler(Looper.getMainLooper()).postDelayed({ keepSplashScreen = false }, 10000)
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         // 🔒 앱 화면 스크린샷/최근앱 썸네일 차단
@@ -47,6 +52,10 @@ class MainActivity: FlutterFragmentActivity() {
                 }
                 "getSdkVersion" -> {
                     result.success(Build.VERSION.SDK_INT)
+                }
+                "removeNativeSplash" -> {
+                    keepSplashScreen = false
+                    result.success(null)
                 }
                 "isDeveloperModeEnabled" -> {
                     result.success(isDeveloperModeEnabled())

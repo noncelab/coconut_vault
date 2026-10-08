@@ -31,6 +31,14 @@ Build iOS MAINNET and prepare App Store Connect metadata without submitting for 
 
 Build iOS REGTEST and prepare App Store Connect metadata without submitting for review
 
+### ios prepare_ios_lite_mainnet_production
+
+```sh
+[bundle exec] fastlane ios prepare_ios_lite_mainnet_production
+```
+
+Build iOS LITE MAINNET and prepare App Store Connect metadata without submitting for review
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.

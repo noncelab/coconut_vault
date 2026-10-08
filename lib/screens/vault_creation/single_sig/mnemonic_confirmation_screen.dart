@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
@@ -11,6 +10,7 @@ import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:coconut_vault/widgets/list/mnemonic_list.dart';
+import 'package:coconut_vault/utils/passphrase_display_util.dart';
 import 'package:flutter/material.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
@@ -41,6 +41,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
   final ScrollController _scrollController = ScrollController();
   late Uint8List _mnemonic;
   Uint8List? _passphrase;
+  String? _passphraseInput;
   bool _isWarningVisible = true;
   bool _isSaving = false;
 
@@ -56,6 +57,10 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
         widget.isTaproot
             ? Provider.of<TaprootWalletCreationProvider>(context, listen: false).passphrase
             : Provider.of<WalletCreationProvider>(context, listen: false).passphrase;
+    _passphraseInput =
+        widget.isTaproot
+            ? Provider.of<TaprootWalletCreationProvider>(context, listen: false).passphraseInput
+            : Provider.of<WalletCreationProvider>(context, listen: false).passphraseInput;
 
     _mnemonic = Uint8List.fromList(secret);
     step = 0;
@@ -210,16 +215,17 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
     final passphrase = _passphrase;
     if (passphrase == null) return Container();
 
-    final decodedPassphrase = utf8.decode(passphrase);
+    // 지갑 파생에는 NFKD 바이트를 쓰므로, 화면에는 사용자가 입력한 모양대로 한 글자(grapheme)씩 보여준다.
+    final displayCharacters = PassphraseDisplayUtil.displayCharacters(passphrase, input: _passphraseInput);
     return GridView.count(
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 10,
       crossAxisSpacing: 3.0,
       mainAxisSpacing: 10.0,
       shrinkWrap: true,
-      children: List.generate((decodedPassphrase.length + 20), (index) {
+      children: List.generate((displayCharacters.length + 20), (index) {
         // 가장 아래에 빈 공간을 배치하기 위한 조건문
-        if (index < decodedPassphrase.length) {
+        if (index < displayCharacters.length) {
           return MediaQuery(
             data: const MediaQueryData(textScaler: TextScaler.linear(1.0)),
             child: Container(
@@ -251,7 +257,7 @@ class _MnemonicConfirmationScreenState extends State<MnemonicConfirmationScreen>
                     height: double.infinity,
                     child: Center(
                       child: Text(
-                        decodedPassphrase[index],
+                        displayCharacters[index],
                         style: const TextStyle(color: CoconutColors.black, fontWeight: FontWeight.bold),
                       ),
                     ),

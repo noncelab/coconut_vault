@@ -1,9 +1,6 @@
-import 'dart:convert';
-
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
-import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
@@ -18,6 +15,8 @@ import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_button.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:coconut_vault/utils/reentered_passphrase_verifier.dart';
+import 'package:coconut_vault/widgets/text/mfp_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -198,14 +197,14 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
           mnemonic = await walletProvider.getSecret(widget.id);
         }
 
-        passphrase = utf8.encode(_inputController.text);
-
-        final result = await compute(WalletIsolates.verifyPassphrase, {
-          'mnemonic': mnemonic,
-          'passphrase': passphrase,
-          'vaultListItem': vaultListItem,
-          'targetXpub': targetXpub,
-        });
+        final verification = await verifyReenteredPassphrase(
+          mnemonic: mnemonic,
+          passphrase: _inputController.text,
+          vaultListItem: vaultListItem,
+          targetXpub: targetXpub,
+        );
+        passphrase = verification.passphrase;
+        final result = verification.result;
 
         _previousInput = _inputController.text;
 
@@ -329,7 +328,7 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
 
   Widget _buildVerificationResultCard() {
     return Container(
-      padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(color: CoconutColors.gray150, borderRadius: BorderRadius.circular(12)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,10 +375,9 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerRight,
-                  child: Text(
-                    _savedMfp ?? '',
+                  child: MfpText(
+                    mfp: _savedMfp ?? '',
                     style: CoconutTypography.body2_14_NumberBold.setColor(CoconutColors.black),
-                    textAlign: TextAlign.end,
                   ),
                 ),
               ),
@@ -396,14 +394,20 @@ class _PassphraseVerificationScreenState extends State<PassphraseVerificationScr
                 style: CoconutTypography.body2_14.setColor(CoconutColors.gray850),
               ),
               Expanded(
-                child: Text(
-                  textAlign: TextAlign.end,
-                  _isVerificationResultSuccess ? _extendedPublicKey ?? '' : _recoveredMfp ?? '',
-                  style: CoconutTypography.body2_14_Number.copyWith(
-                    color: _isVerificationResultSuccess ? CoconutColors.black : CoconutColors.hotPink,
-                    fontWeight: _isVerificationResultSuccess ? FontWeight.w400 : FontWeight.w700,
-                  ),
-                ),
+                child:
+                    _isVerificationResultSuccess
+                        ? Text(
+                          textAlign: TextAlign.end,
+                          _extendedPublicKey ?? '',
+                          style: CoconutTypography.body2_14_Number.setColor(CoconutColors.black),
+                        )
+                        : Align(
+                          alignment: Alignment.centerRight,
+                          child: MfpText(
+                            mfp: _recoveredMfp ?? '',
+                            style: CoconutTypography.body2_14_NumberBold.setColor(CoconutColors.hotPink),
+                          ),
+                        ),
               ),
             ],
           ),

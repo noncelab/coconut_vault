@@ -236,7 +236,8 @@ String _masterFingerprintName(Uint8List secret, {Uint8List? passphrase}) {
   try {
     seed = Seed.fromMnemonic(secret, passphrase: passphrase);
     keyStore = KeyStore.fromSeed(seed, AddressType.p2wpkh);
-    return keyStore.masterFingerprint.toUpperCase();
+    final mfp = keyStore.masterFingerprint.toUpperCase();
+    return '${mfp.substring(0, 4)} ${mfp.substring(4)}';
   } finally {
     keyStore?.wipeSeed();
     seed?.wipe();

@@ -1,9 +1,6 @@
-import 'dart:convert';
-
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
-import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/user_canceled_auth_exception.dart';
 import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
@@ -16,6 +13,8 @@ import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/custom_dialog.dart';
 import 'package:coconut_vault/widgets/custom_loading_overlay.dart';
+import 'package:coconut_vault/extensions/uint8list_extensions.dart';
+import 'package:coconut_vault/utils/reentered_passphrase_verifier.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -177,7 +176,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
     CustomDialogs.showLoadingDialog(context, t.verify_passphrase_screen.loading_description);
 
     try {
-      Seed? seed = await _verifyPassphrase(utf8.encode(_inputController.text));
+      Seed? seed = await _verifyPassphrase(_inputController.text);
       if (!mounted) return;
       Navigator.pop(context); // hide loading dialog
 
@@ -247,7 +246,7 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
     );
   }
 
-  Future<Seed?> _verifyPassphrase(Uint8List passphrase) async {
+  Future<Seed?> _verifyPassphrase(String passphrase) async {
     final walletProvider = context.read<WalletProvider>();
     final vaultListItem = walletProvider.getVaultById(widget.id);
     Uint8List secret;
@@ -264,17 +263,19 @@ class _PassphraseCheckScreen extends State<PassphraseCheckScreen> {
       secret = await walletProvider.getSecret(widget.id);
     }
 
-    final result = await compute(WalletIsolates.verifyPassphrase, {
-      'mnemonic': secret,
-      'passphrase': passphrase,
-      'vaultListItem': vaultListItem,
-      'targetXpub': widget.targetXpub,
-    });
+    final verification = await verifyReenteredPassphrase(
+      mnemonic: secret,
+      passphrase: passphrase,
+      vaultListItem: vaultListItem,
+      targetXpub: widget.targetXpub,
+    );
 
-    if (result['success'] == true) {
-      return Seed.fromMnemonic(secret, passphrase: passphrase);
+    if (verification.result['success'] == true) {
+      // 서명에는 저장된 지갑과 일치한 방식(NFKD 또는 이전 방식)의 바이트를 쓴다.
+      return Seed.fromMnemonic(secret, passphrase: verification.passphrase);
     }
 
+    verification.passphrase.wipe();
     return null;
   }
 }

@@ -7,5 +7,6 @@
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/ic_launcher_regtest_background</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/custom_icon_regtest</item>
+        <item name="postSplashScreenTheme">@style/NormalTheme</item>
     </style>
 </resources>

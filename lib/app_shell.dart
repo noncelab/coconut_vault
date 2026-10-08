@@ -110,17 +110,19 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
   // 현재 라우트 추적
   late _RouteObserver _navigatorObserver;
   final ValueNotifier<bool> _routeNotifierHasShow = ValueNotifier<bool>(false);
+  bool _isInWalletCreationRoute = false;
 
   @override
   void initState() {
     super.initState();
     _navigatorObserver = _RouteObserver(
       onRouteChanged: (routeName) {
+        _isInWalletCreationRoute = routeName != null && AppRoutes.walletCreationRoutes.contains(routeName);
         _routeNotifierHasShow.value =
             routeName != null &&
             routeName != '/' &&
             routeName != AppRoutes.vaultModeSelection &&
-            !AppRoutes.walletCreationRoutes.contains(routeName);
+            !_isInWalletCreationRoute;
       },
     );
   }
@@ -188,6 +190,14 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
     // Android: 기기 비밀번호 해제 감지를 위해 항상 실행
     if (Platform.isIOS && _shouldShowPrivacyScreen == false && _appEntryFlow == AppEntryFlow.vaultHome) {
       // iOS에서 이미 _appEntryFlow가 vaultHome로 이동한 경우 무한 반복 방지
+      return;
+    }
+
+    if (_isInWalletCreationRoute && (widget.isLiteBuild || preferenceProvider.isSigningOnlyMode)) {
+      // 서명전용/라이트 모드에서 지갑 생성 중에는 privacy screen만 숨기고 홈 화면으로 이동하지 않는다.
+      setState(() {
+        _shouldShowPrivacyScreen = false;
+      });
       return;
     }
 

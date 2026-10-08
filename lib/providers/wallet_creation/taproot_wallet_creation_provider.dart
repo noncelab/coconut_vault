@@ -8,6 +8,7 @@ class TaprootWalletCreationProvider {
   ({Uint8List secret, Uint8List? passphrase}) _childKeyData = (secret: Uint8List(0), passphrase: Uint8List(0));
 
   TaprootCreationType _creationType = TaprootCreationType.parent;
+  String? _passphraseInput;
 
   TaprootCreationType get creationType => _creationType;
 
@@ -17,6 +18,14 @@ class TaprootWalletCreationProvider {
     final passphrase =
         _creationType == TaprootCreationType.parent ? _parentKeyData.passphrase : _childKeyData.passphrase;
     return passphrase != null && passphrase.isNotEmpty ? passphrase : null;
+  }
+
+  /// 사용자가 입력한 패스프레이즈 원문. 최종 확인 화면에서 입력한 모양 그대로 보여주는 데만 쓴다.
+  /// 지갑 파생에는 쓰지 않으며, 화면은 이 값이 실제 패스프레이즈 바이트를 만든 경우에만 사용한다.
+  String? get passphraseInput => _passphraseInput;
+
+  void setPassphraseInput(String? input) {
+    _passphraseInput = input;
   }
 
   void setCreationType(TaprootCreationType type) {
@@ -46,6 +55,7 @@ class TaprootWalletCreationProvider {
 
   void resetAll() {
     _creationType = TaprootCreationType.parent;
+    _passphraseInput = null;
     _parentKeyData.secret.wipe();
     _parentKeyData.passphrase?.wipe();
     _parentKeyData = (secret: Uint8List(0), passphrase: Uint8List(0));

@@ -11,12 +11,13 @@ require_relative "../../../fastlane/production/release_helper"
 ROOT_DIR = File.expand_path("../../..", __dir__)
 ANDROID_PACKAGES = {
   "mainnet" => "onl.coconut.vault.mainnet",
-  "regtest" => "onl.coconut.vault.regtest"
+  "regtest" => "onl.coconut.vault.regtest",
+  "liteMainnet" => "onl.coconut.vault.lite"
 }.freeze
 
 def prepare_android_production(flavor:, opts:)
   platform_ = "aos"
-  build_flavor = "full#{flavor.capitalize}" # flavor는 메타데이터/keystore 키, build_flavor는 --flavor 인자이자 pubspec 키
+  build_flavor = flavor.start_with?("lite") ? flavor : "full#{flavor.capitalize}" # flavor는 메타데이터/keystore 키, build_flavor는 --flavor 인자이자 pubspec 키
   package = ANDROID_PACKAGES.fetch(flavor)
   skip_prep = UtilHelper.truthy?(opts[:skip_prep] || ENV["SKIP_PREP"])
   skip_clean = UtilHelper.truthy?(opts[:skip_clean] || ENV["SKIP_CLEAN"])
@@ -38,12 +39,16 @@ def prepare_android_production(flavor:, opts:)
     prep_cmds << "fvm flutter clean" unless skip_prep || skip_clean
     prep_cmds << "fvm flutter pub get" unless skip_prep || skip_pubget
 
+    # 라이트 빌드는 별도 엔트리포인트 사용
+    target_arg = flavor.start_with?("lite") ? "-t lib/main_lite.dart" : ""
+
     sh <<~SHELL
       cd #{Shellwords.escape(ROOT_DIR)} &&
       #{prep_cmds.empty? ? "true" : prep_cmds.join(" &&\n") } &&
       fvm flutter build appbundle \
         --flavor #{build_flavor} \
         --release \
+        #{target_arg} \
         --build-name=#{Shellwords.escape(marketing)} \
         --build-number=#{new_build}
     SHELL
@@ -92,5 +97,10 @@ platform :android do
   desc "Build Android REGTEST and create an unsubmitted production draft with localized release notes"
   lane :prepare_android_regtest_production do |opts|
     prepare_android_production(flavor: "regtest", opts: opts || {})
+  end
+
+  desc "Build Android LITE MAINNET and create an unsubmitted production draft with localized release notes"
+  lane :prepare_android_lite_mainnet_production do |opts|
+    prepare_android_production(flavor: "liteMainnet", opts: opts || {})
   end
 end

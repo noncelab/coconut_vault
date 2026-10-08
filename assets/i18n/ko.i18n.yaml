@@ -846,8 +846,9 @@ mnemonic_generate_screen:
   backup_guide: "안전한 장소에서 니모닉 문구를 백업해 주세요"
   backup_complete: "백업 완료"
   warning: "입력하신 패스프레이즈는 보관과 유출에 유의해 주세요"
-  passphrase_warning: "$words 는 다른 하드월렛에서 입력이 안될 수 있어 주의가 필요해요."
+  passphrase_warning: "다른 하드월렛에서 입력할 수 없는 문자가 포함되어 있어요: $words"
   passphrase_warning_space: "띄어쓰기가 포함되어 있어요."
+  passphrase_warning_normalization: "앱에 따라 다른 지갑으로 복원될 수 있어요."
   regenerate: "재생성"
 passphrase_textfield:
   title: "패스프레이즈를 입력해 주세요"
@@ -860,6 +861,12 @@ entropy_bits_bottom_sheet:
     binary: "Valid entropy values → Binary [0-1] "
   select_option: "옵션 선택 후 값을 확인하세요."
   
+passphrase_wallet_selection:
+  title: "어느 지갑을 찾고 계신가요?"
+  description: "이 패스프레이즈는 앱마다 다르게 처리될 수 있어요."
+  option_standard: "다른 지갑 앱(Sparrow 등)과 같은 방식(기본값)"
+  option_legacy: "코코넛 볼트 $version 이하에서 만든 지갑"
+
 mnemonic_import_screen:
   title: "복원하기"
   enter_mnemonic_phrase: "니모닉 문구를 입력해 주세요"
@@ -1352,7 +1359,7 @@ toast:
   name_already_used: "이미 사용하고 있는 이름으로는 바꿀 수 없어요"
   name_already_used2: "이미 사용 중인 이름은 설정할 수 없어요"
   name_multisig_in_use: "다중 서명 지갑에 사용되고 있어 삭제할 수 없어요"
-  mnemonic_already_added: "이미 추가되어 있는 니모닉이에요"
+  mnemonic_already_added: "이미 추가되어 있는 지갑이에요"
   mnemonic_copied: "니모닉 문구가 복사됐어요"
   multisig_already_added: "이미 추가되어 있는 다중 서명 지갑이에요. ($name)"
   home_vault_min_one: "홈 화면에 보이는 지갑은 최소 1개는 있어야 해요"

@@ -160,3 +160,4 @@ coconut-fastlane-supply.json
 report.xml
 */fastlane_production/fastlane/report.xml
 /fastlane/store_metadata/generated/
+/ios/fastlane/store_metadata/review_attachments/liteMainnet/*

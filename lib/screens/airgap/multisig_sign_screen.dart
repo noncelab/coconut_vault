@@ -705,7 +705,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
               final signer = _viewModel.signers[index];
               final isInnerWallet = signer.innerVaultId != null;
               final name = signer.name ?? t.external_wallet;
-              final nameText = name.length > 6 ? '${name.substring(0, 6)}...' : name;
+              final nameText = name.length > 9 ? '${name.substring(0, 9)}...' : name;
               final iconIndex = signer.iconIndex ?? 0;
               final isSignerApproved = _viewModel.signersApproved[index];
               var hwwType = _viewModel.getSignerHwwType(index);
