@@ -9,34 +9,34 @@ Generate store-ready release-note files from the Korean source without inferring
 
 ## Workflow
 
-1. Require exactly one flavor: `mainnet`, `regtest`, or `liteMainnet`. Ask only when the request does not identify it.
-2. Read `fastlane/store_metadata/source/<flavor>/release_notes.ko.md` relative to the repository root. Treat it as the complete source of truth.
-3. Stop and ask the user to write the source when it is missing, empty, or contains only an HTML comment.
+1. Accept one or more flavors from `mainnet`, `regtest`, and `liteMainnet`. Treat `all` or "모두" as all supported flavors. Ask only when the request identifies no flavor.
+2. For every selected flavor, read `fastlane/store_metadata/source/<flavor>/release_notes.ko.md` relative to the repository root. Treat each file as the complete source of truth for that flavor.
+3. Before modifying any output, check every selected flavor. If any source is missing, empty, or contains only an HTML comment, stop and ask the user to write it; do not generate any flavor.
 4. Ignore every HTML comment (`<!-- ... -->`) in the Korean source. Never translate or include comments in generated metadata.
 5. Read [references/locales.md](references/locales.md) for the exact locale and output mapping.
 6. Preserve facts, feature scope, bullet structure, product names, and technical terms. Do not add features, benefits, fixes, dates, versions, headings, emoji, or marketing claims that are absent from the Korean source.
 7. Lightly polish the Korean text only when needed for natural store copy. Keep the user's meaning and level of certainty.
 8. Translate into US English and, for `mainnet` and `regtest` only, Japanese. `liteMainnet` ships only Korean and English (no Japanese store listing). Prefer natural app-update language over literal word order. Keep established names such as `Coconut Vault`, `Bitcoin`, `PSBT`, `Mainnet`, and `Regtest` unchanged unless the source explicitly localizes them.
 9. Keep every locale at 500 Unicode characters or fewer so the same content is accepted by Google Play. If faithful content cannot fit, stop and propose a shorter Korean source instead of silently omitting information.
-10. Read the next Android version code and expected paths by running:
+10. For every selected flavor, read the next Android version code and expected paths by running the following command once per flavor. Complete this preflight for all selected flavors before modifying any output:
 
    ```bash
    python3 .agents/skills/generate-store-release-notes/scripts/validate_release_metadata.py --flavor <flavor> --print-plan
    ```
 
-11. Before writing, ensure the target flavor contains only the locale directories listed in [references/locales.md](references/locales.md). Remove unsupported locale directories only when they are empty. If an unsupported locale directory contains files, stop and report it instead of deleting its contents.
-12. Write UTF-8 files with one trailing newline to every planned iOS and Android path. Use identical text for the corresponding iOS and Android language; only locale directory names differ. Never create output for an unlisted locale.
-13. Validate all generated files:
+11. Process each selected flavor independently. Before writing that flavor, ensure it contains only the locale directories listed in [references/locales.md](references/locales.md). Remove unsupported locale directories only when they are empty. If an unsupported locale directory contains files, stop and report it instead of deleting its contents.
+12. For each selected flavor, write UTF-8 files with one trailing newline to every planned iOS and Android path. Use identical text for the corresponding iOS and Android language; only locale directory names differ. Never create output for an unlisted locale.
+13. Validate each selected flavor after writing it:
 
    ```bash
    python3 .agents/skills/generate-store-release-notes/scripts/validate_release_metadata.py --flavor <flavor>
    ```
 
-14. Report the flavor, Android version code, generated paths, and validation result. Remind the user to review translations before deployment.
+14. Report each flavor's Android version code, generated paths, and validation result separately. Remind the user to review translations before deployment.
 
 ## Boundaries
 
-- Modify only `fastlane/store_metadata/generated/<platform>/<flavor>/` for generated output.
+- Modify only `fastlane/store_metadata/generated/<platform>/<flavor>/` for the selected flavors' generated output.
 - Do not modify the Korean source unless the user explicitly asks for editing.
 - Do not delete older Android changelog files.
 - Do not modify `Makefile`, either platform's `Fastfile`, credentials, or review attachments.
