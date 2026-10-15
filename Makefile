@@ -39,6 +39,9 @@ aos-lite-regtest:
 aos-lite-regtest-run:
 	fvm flutter run --flavor liteRegtest -t lib/main_lite.dart
 
+aos-release:
+	./android/scripts/build_android_release.sh
+
 # lite 빌드 트리쉐이킹 검증 (lite에 포함되면 안 되는 코드가 없는지 확인)
 verify-lite-treeshake:
 	./tool/verify_lite_treeshake.sh

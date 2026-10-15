@@ -7030,15 +7030,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   dependencies: [PackageRef('meta')],
 );
 
-/// qr_code_scanner_plus 2.0.14
+/// qr_code_scanner_plus 2.1.2
 const _qr_code_scanner_plus = Package(
   name: 'qr_code_scanner_plus',
-  description:
-      'QR code scanner that can be embedded inside flutter. It uses zxing in Android and MTBBarcode scanner in iOS.',
+  description: 'QR code scanner that can be embedded inside flutter. It uses zxing in Android and AVFoundation in iOS.',
   homepage: 'https://vespr.xyz',
   repository: 'https://github.com/vespr-wallet/qr_code_scanner_plus',
   authors: [],
-  version: '2.0.14',
+  version: '2.1.2',
   license: '''Copyright 2018 Julius Canute
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
