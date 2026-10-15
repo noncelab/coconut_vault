@@ -194,9 +194,6 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
     int outputIndex = 0;
     for (final output in viewModel.outputs) {
       final isChange = viewModel.isChangeOutput(output);
-      if (!isChange) {
-        outputIndex += 1;
-      }
       detailItems.add(
         OutputDetailItem(
           label: isChange ? t.change : t.psbt_confirmation_screen.flow_output_title(index: outputIndex),
@@ -205,6 +202,9 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
           isChange: isChange,
         ),
       );
+      if (!isChange) {
+        outputIndex += 1;
+      }
     }
 
     return SendOutputDetailCard(items: detailItems, currentUnit: _currentUnit);
