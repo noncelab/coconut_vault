@@ -57,8 +57,7 @@ Map<String, WidgetBuilder> buildCommonRoutes({required VoidCallback onWelcomeCom
         (context) => buildScreenWithArguments(
           context,
           (args) => MnemonicImportScreen(
-            externalSigner: args['externalSigner'],
-            multisigVaultIdOfExternalSigner: args['multisigVaultIdOfExternalSigner'],
+            externalSignerContext: args['externalSignerContext'],
             isTaprootCreationChild: args['isTaproot'] ?? false,
           ),
         ),
@@ -66,8 +65,7 @@ Map<String, WidgetBuilder> buildCommonRoutes({required VoidCallback onWelcomeCom
         (context) => buildScreenWithArguments(
           context,
           (args) => SeedQrImportScreen(
-            externalSigner: args['externalSigner'],
-            multisigVaultIdOfExternalSigner: args['multisigVaultIdOfExternalSigner'],
+            externalSignerContext: args['externalSignerContext'],
             isTaproot: args['isTaproot'] ?? false,
             requirePassphraseConfirmation: args['requirePassphraseConfirmation'] ?? true,
           ),

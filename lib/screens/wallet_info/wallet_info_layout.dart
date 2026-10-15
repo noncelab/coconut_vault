@@ -7,6 +7,7 @@ import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/constants/icon_path.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/multisig/external_signer_context.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/view_model/wallet_info/wallet_info_view_model.dart';
@@ -775,7 +776,9 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
           minChildSize: 0.2,
           initialChildSize: 0.45,
           childBuilder:
-              (context) => MultisigAddKeyOptionBottomSheet(signer: signer, multisigVaultIdOfExternalSigner: widget.id),
+              (context) => MultisigAddKeyOptionBottomSheet(
+                externalSignerContext: ExternalSignerContext(signer: signer, multisigVaultId: widget.id),
+              ),
         );
 
         if (result != null) {
@@ -783,10 +786,7 @@ class _WalletInfoLayoutState extends State<WalletInfoLayout> {
           Navigator.pushNamed(
             context,
             result.nextRoute,
-            arguments: {
-              'externalSigner': result.externalSigner,
-              'multisigVaultIdOfExternalSigner': result.multisigVaultIdOfExternalSigner,
-            },
+            arguments: {'externalSignerContext': result.externalSignerContext},
           );
         }
       },
@@ -829,9 +829,8 @@ class SingleButtonData {
 }
 
 class AddKeyArgs {
-  final MultisigSigner externalSigner;
-  final int? multisigVaultIdOfExternalSigner;
+  final ExternalSignerContext externalSignerContext;
   final String nextRoute;
 
-  const AddKeyArgs({required this.externalSigner, this.multisigVaultIdOfExternalSigner, required this.nextRoute});
+  const AddKeyArgs({required this.externalSignerContext, required this.nextRoute});
 }

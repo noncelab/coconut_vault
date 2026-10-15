@@ -4,6 +4,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/multisig/external_signer_context.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/settings/settings_screen.dart';
@@ -26,8 +27,7 @@ import 'package:provider/provider.dart';
 
 class SeedQrConfirmationScreen extends StatefulWidget {
   final Uint8List scannedData;
-  final MultisigSigner? externalSigner;
-  final int? multisigVaultIdOfExternalSigner;
+  final ExternalSignerContext? externalSignerContext;
   final bool isTaproot;
   final bool requirePassphraseConfirmation;
   final bool showPassphraseWarningSubWidget;
@@ -40,8 +40,7 @@ class SeedQrConfirmationScreen extends StatefulWidget {
   const SeedQrConfirmationScreen({
     super.key,
     required this.scannedData, // 필수 매개변수로 설정
-    this.externalSigner,
-    this.multisigVaultIdOfExternalSigner,
+    this.externalSignerContext,
     this.isTaproot = false,
     this.requirePassphraseConfirmation = false,
     this.showPassphraseWarningSubWidget = false,
@@ -79,16 +78,6 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
     _initListeners();
     _walletProvider = Provider.of<WalletProvider>(context, listen: false);
     _walletCreationProvider = Provider.of<WalletCreationProvider>(context, listen: false)..resetAll();
-
-    /// TODO: `[START]` handleNextButton에서 세팅하므로 아래 코드는 제거해도 되는지 확인 필요
-    if (widget.externalSigner != null) {
-      _walletCreationProvider.setExternalSigner(widget.externalSigner!);
-    }
-    if (widget.multisigVaultIdOfExternalSigner != null) {
-      _walletCreationProvider.setMultisigVaultIdOfExternalSigner(widget.multisigVaultIdOfExternalSigner);
-    }
-
-    /// TODO: `[END]` handleNextButton에서 세팅하므로 아래 코드는 제거해도 되는지 확인 필요
   }
 
   @override
@@ -233,7 +222,8 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
   Future<void> _handleNextButton() async {
     try {
       final secret = widget.scannedData;
-      final externalSigner = widget.externalSigner;
+      final externalSignerContext = widget.externalSignerContext;
+      final externalSigner = externalSignerContext?.signer;
       final resolution = await resolveImportPassphrase(
         context,
         secret: secret,
@@ -287,9 +277,8 @@ class _SeedQrConfirmationScreenState extends State<SeedQrConfirmationScreen> {
       }
       // INFO: secret, passphrase 복제해서 넣어줘야 뒤로가기로 화면 재진입 시 값 유지 가능
       _walletCreationProvider.setSecretAndPassphrase(Uint8List.fromList(secret), Uint8List.fromList(passphrase));
-      if (externalSigner != null) {
-        _walletCreationProvider.setExternalSigner(externalSigner);
-        _walletCreationProvider.setMultisigVaultIdOfExternalSigner(widget.multisigVaultIdOfExternalSigner);
+      if (externalSignerContext != null) {
+        _walletCreationProvider.setExternalSignerContext(externalSignerContext);
       }
 
       if (mounted) {
