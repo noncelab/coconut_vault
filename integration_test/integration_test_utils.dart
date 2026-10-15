@@ -10,7 +10,6 @@ import 'package:coconut_vault/model/multisig/multisig_wallet.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/repository/secure_storage_repository.dart';
-import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -157,7 +156,6 @@ Future<int> addSingleSigWallets({WalletProvider? walletProvider}) async {
     WalletRepository walletRepository = WalletRepository();
     await walletRepository.addSinglesigWallet(singleSig2);
     await walletRepository.addSinglesigWallet(singleSig3);
-    await SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, walletRepository.vaultList.length);
   }
   return 2;
 }
@@ -213,7 +211,6 @@ BSMS 1.0
     WalletRepository walletRepository = WalletRepository();
     await walletRepository.addSinglesigWallet(singleSig);
     await walletRepository.addMultisigWallet(MultisigWallet(null, "Test Wallet2", 0, 0, signers, 2));
-    await SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, walletRepository.vaultList.length);
   }
   return 2;
 }

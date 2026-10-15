@@ -180,7 +180,6 @@ class _JailBreakDetectionScreenState extends State<JailBreakDetectionScreen> {
           // ignore
         }
         final authProvider = context.read<AuthProvider>();
-        final visibilityProvider = context.read<VisibilityProvider>();
         final preferenceProvider = context.read<PreferenceProvider>();
         while (mounted) {
           try {
@@ -190,7 +189,6 @@ class _JailBreakDetectionScreenState extends State<JailBreakDetectionScreen> {
               preferenceProvider: preferenceProvider,
             );
             await walletProvider?.reloadRelatedToVault();
-            visibilityProvider.reloadRelatedToVault();
             preferenceProvider.reloadRelatedToVault();
             if (!mounted) return;
             setState(() => _isResetting = false);
