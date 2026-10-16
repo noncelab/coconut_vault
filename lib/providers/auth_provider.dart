@@ -3,13 +3,12 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:coconut_vault/constants/pin_constants.dart';
-import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
-import 'package:coconut_vault/repository/secure_storage_repository.dart';
+import 'package:coconut_vault/services/security/pin_auth_service.dart';
+import 'package:coconut_vault/services/security/first_launch_secure_storage_cleanup.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
-import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -25,7 +24,40 @@ class AuthProvider extends ChangeNotifier {
   static String currentAttemptKey = SharedPrefsKeys.kPinInputCurrentAttemptCount;
 
   final SharedPrefsRepository _sharedPrefs = SharedPrefsRepository();
-  final SecureStorageRepository _storageService = SecureStorageRepository();
+  final PinAuthService _pinAuth;
+  late final Future<void> ready;
+  bool _authenticationUnavailable = true;
+  bool get authenticationUnavailable => _authenticationUnavailable;
+
+  Future<void> _initializeAuthentication() async {
+    try {
+      await FirstLaunchSecureStorageCleanup.run();
+      final metadata = await _pinAuth.initialize();
+      final hasPin = await _pinAuth.hasPin();
+      if (metadata != null || hasPin) {
+        _isPinSet = hasPin;
+        if (hasPin && metadata != null) _isPinCharacter = metadata['character'] as bool;
+        await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, _isPinSet);
+        await _sharedPrefs.setBool(SharedPrefsKeys.isPinCharacter, _isPinCharacter);
+      }
+      _syncLockState();
+      _authenticationUnavailable = false;
+    } catch (_) {
+      _authenticationUnavailable = true;
+    }
+    if (!_isDisposed) notifyListeners();
+  }
+
+  Future<void> _ensureReady() async {
+    await ready;
+    if (_authenticationUnavailable) throw const PinAuthException();
+  }
+
+  void _syncLockState() {
+    _currentTurn = _pinAuth.state.turn;
+    _currentAttemptInTurn = _pinAuth.state.attempts;
+    _unlockAvailableAtInString = _pinAuth.state.unlockAt;
+  }
 
   final LocalAuthentication _auth = LocalAuthentication();
 
@@ -86,13 +118,16 @@ class AuthProvider extends ChangeNotifier {
   int get remainingAttemptCount => kMaxAttemptPerTurn - _currentAttemptInTurn;
 
   bool get isPermanentlyLocked => _currentTurn == kMaxTurn;
-  bool get isUnlockAvailable => unlockAvailableAt?.isBefore(DateTime.now()) ?? true;
+  bool get isUnlockAvailable =>
+      !_authenticationUnavailable && !isPermanentlyLocked && (unlockAvailableAt?.isBefore(DateTime.now()) ?? true);
 
   FutureOr<void> Function()? onAuthenticationSuccess;
 
-  AuthProvider() {
-    updateDeviceBiometricAvailability();
+  AuthProvider({PinAuthService? pinAuth, bool initializeDeviceBiometrics = true})
+    : _pinAuth = pinAuth ?? PinAuthService.instance {
+    if (initializeDeviceBiometrics) updateDeviceBiometricAvailability();
     setInitState();
+    ready = _initializeAuthentication();
   }
 
   /// 생체인증 성공했는지 여부 반환
@@ -115,7 +150,6 @@ class AuthProvider extends ChangeNotifier {
     _isPinSet = _sharedPrefs.getBool(SharedPrefsKeys.isPinEnabled) == true;
     _isPinCharacter = _sharedPrefs.getBool(SharedPrefsKeys.isPinCharacter) == true;
     _loadBiometricState();
-    _loadUnlockState();
     notifyListeners();
   }
 
@@ -124,18 +158,9 @@ class AuthProvider extends ChangeNotifier {
     _hasAlreadyRequestedBioPermission = _sharedPrefs.getBool(SharedPrefsKeys.hasAlreadyRequestedBioPermission) == true;
   }
 
-  void _loadUnlockState() {
-    final pinInputAttemptCount = _sharedPrefs.getString(currentAttemptKey);
-    final totalAttemptCount = _sharedPrefs.getString(turnKey);
-    final lockoutEndDateTimeString = _sharedPrefs.getString(unlockAvailableAtKey);
-
-    _currentAttemptInTurn = pinInputAttemptCount.isEmpty ? 0 : int.parse(pinInputAttemptCount);
-    _currentTurn = totalAttemptCount.isEmpty ? 0 : int.parse(totalAttemptCount);
-    _unlockAvailableAtInString = totalAttemptCount.isEmpty ? '' : lockoutEndDateTimeString;
-  }
-
   /// 생체인증 진행 후 성공 여부 반환
   Future<bool> authenticateWithBiometrics({BuildContext? context, bool isSaved = false}) async {
+    await _ensureReady();
     bool authenticated = false;
     _lifecycleProvider.startOperation(AppLifecycleOperations.biometricAuthentication);
     try {
@@ -155,7 +180,7 @@ class AuthProvider extends ChangeNotifier {
         await _setHasAlreadyRequestedBioPermissionTrue();
       }
     } on PlatformException catch (e) {
-      Logger.log(e);
+      Logger.log('Biometric authentication unavailable');
 
       /// iOS는 생체인증 권한을 요청하기 때문에 사용자가 거절할 수 있음
       /// 거절하면 _auth.getAvailableBiometrics() 결과는 빈 배열이 반환되므로 직접 수정
@@ -204,7 +229,7 @@ class AuthProvider extends ChangeNotifier {
       }
     } catch (e) {
       // 생체 인식 기능 비활성화, 사용자가 권한 거부, 기기 하드웨어에 문제가 있는 경우, 기기 호환성 문제, 플랫폼 제한
-      Logger.error(e);
+      Logger.error('Biometric availability check failed');
       _isBiometricSupportedByDevice = false;
       _isBiometricEnabled = false;
     } finally {
@@ -228,10 +253,10 @@ class AuthProvider extends ChangeNotifier {
   Future<void> verifyBiometric(BuildContext context) async {
     bool isAuthenticated = await authenticateWithBiometrics(context: context);
     if (isAuthenticated) {
+      await resetAuthenticationState();
       if (onAuthenticationSuccess != null) {
         await onAuthenticationSuccess!();
       }
-      await resetAuthenticationState();
     }
   }
 
@@ -250,18 +275,12 @@ class AuthProvider extends ChangeNotifier {
 
   /// 비밀번호 검증
   Future<bool> verifyPin(String inputPin, {bool isAppLaunchScreen = false}) async {
-    String hashedInput = hashString(inputPin);
-    final savedPin = await _storageService.read(key: SecureStorageKeys.kVaultPin);
-
-    if (savedPin == hashedInput) {
-      await resetAuthenticationState();
-      return true;
+    await _ensureReady();
+    try {
+      return await _pinAuth.verify(inputPin, countFailure: isAppLaunchScreen, character: _isPinCharacter);
+    } finally {
+      _syncLockState();
     }
-
-    if (isAppLaunchScreen) {
-      await increaseCurrentAttemptAndTurn();
-    }
-    return false;
   }
 
   /// 비밀번호 및 유형 저장
@@ -273,8 +292,8 @@ class AuthProvider extends ChangeNotifier {
       await _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, true);
     }
 
-    String hashed = hashString(pin);
-    await _storageService.write(key: SecureStorageKeys.kVaultPin, value: hashed);
+    await _ensureReady();
+    await _pinAuth.savePin(pin, isCharacter);
     _isPinSet = true;
     _isPinCharacter = isCharacter;
     await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, true);
@@ -288,94 +307,54 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> resetCredentials({bool preservePermanentLock = false}) async {
+  Future<void> resetCredentials({bool preservePermanentLock = false, bool afterWalletDeletion = false}) async {
     if (_isDisposed) return;
 
+    await ready;
+    if (afterWalletDeletion) {
+      await _pinAuth.resetAfterWalletDeletion(preservePermanentLock: preservePermanentLock);
+    } else {
+      await _pinAuth.disable(preservePermanentLock: preservePermanentLock);
+    }
+    _syncLockState();
+    _authenticationUnavailable = false;
     await _sharedPrefs.setBool(SharedPrefsKeys.isBiometricEnabled, false);
     _isBiometricEnabled = false;
     await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
     _isPinSet = false;
-    await _storageService.delete(key: SecureStorageKeys.kVaultPin);
-    await resetAuthenticationState(preservePermanentLock: preservePermanentLock);
     notifyListeners();
   }
 
   Future<void> clearPermanentLock() async {
     if (_isDisposed) return;
 
-    _currentTurn = 0;
-    await _sharedPrefs.deleteSharedPrefsWithKey(turnKey);
+    await _ensureReady();
+    await _pinAuth.reset();
+    _syncLockState();
     notifyListeners();
   }
 
   Future<void> resetPinData() async {
-    await _storageService.delete(key: SecureStorageKeys.kVaultPin);
+    await _ensureReady();
+    await _pinAuth.disable();
+    _syncLockState();
     _isPinSet = false;
     await _sharedPrefs.setBool(SharedPrefsKeys.isPinEnabled, false);
-    await resetAuthenticationState();
     notifyListeners();
   }
 
-  // TODO: 딜레이 발생 이유
-  /// 총 비밀번호 입력 시도 횟수, 다음 입력 가능 시간 저장
-  Future<void> _setTurn(int turn) async {
-    if (_isDisposed) return;
-
-    await _sharedPrefs.setString(turnKey, turn.toString());
-
-    if (turn == kMaxTurn) {
-      await _sharedPrefs.setString(unlockAvailableAtKey, kPinInputDelayInfinite.toString());
-      return;
-    }
-
-    /// INFO: 디버그 모드일 때는 잠금 시도 실패 횟수 별 딜레이를 늘리지 않습니다.
-    final unlockableDateTime = DateTime.now().add(
-      kDebugMode ? const Duration(seconds: kDebugPinInputDelay) : Duration(minutes: kLockoutDurationsPerTurn[turn - 1]),
-    );
-
-    _unlockAvailableAtInString = unlockableDateTime.toIso8601String();
-    await _sharedPrefs.setString(unlockAvailableAtKey, _unlockAvailableAtInString);
-  }
-
-  /// 비밀번호 입력 시도 횟수 -> shared preference 저장할 필요가 없음.
-  Future<void> _setCurrentAttempt(int attmept) async {
-    if (_isDisposed) return;
-
-    final attemptCount = attmept.toString();
-    await _sharedPrefs.setString(currentAttemptKey, attemptCount);
-  }
-
-  /// 비밀번호 입력 시도 횟수 증가
-  /// 최대 횟수 도달 시, 잠금 해제 시도 횟수, 다음 시도 시간 저장, 시도 횟수 초기화
   Future<void> increaseCurrentAttemptAndTurn() async {
     if (_isDisposed) return;
-
-    _currentAttemptInTurn++;
-    await _setCurrentAttempt(_currentAttemptInTurn);
-
-    if (_currentAttemptInTurn == kMaxAttemptPerTurn) {
-      _currentTurn++;
-      await _setTurn(_currentTurn);
-
-      _currentAttemptInTurn = 0;
-      await _setCurrentAttempt(_currentAttemptInTurn);
-    }
+    await _ensureReady();
+    await _pinAuth.increase();
+    _syncLockState();
   }
 
   Future<void> resetAuthenticationState({bool preservePermanentLock = false}) async {
     if (_isDisposed) return;
-
-    _currentAttemptInTurn = 0;
-    if (!preservePermanentLock) {
-      _currentTurn = 0;
-    }
-    _unlockAvailableAtInString = '';
-
-    await _sharedPrefs.deleteSharedPrefsWithKey(unlockAvailableAtKey);
-    await _sharedPrefs.deleteSharedPrefsWithKey(currentAttemptKey);
-    if (!preservePermanentLock) {
-      await _sharedPrefs.deleteSharedPrefsWithKey(turnKey);
-    }
+    await _ensureReady();
+    await _pinAuth.reset(preservePermanentLock: preservePermanentLock);
+    _syncLockState();
   }
 
   @override
