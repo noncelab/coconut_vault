@@ -1,7 +1,8 @@
 import 'dart:io';
 
+import 'package:coconut_vault/services/security/first_launch_secure_storage_cleanup.dart';
+
 import 'package:coconut_vault/providers/connectivity_provider.dart';
-import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:flutter/foundation.dart';
 
 class SplashViewModel extends ChangeNotifier {
@@ -18,11 +19,8 @@ class SplashViewModel extends ChangeNotifier {
   // }
 
   SplashViewModel(this._connectivityProvider, this._hasSeenGuide) {
-    if (!_hasSeenGuide) {
-      // iOS는 앱을 삭제해도 secure storage에 데이터가 남아있음
-      SecureStorageRepository().deleteAll();
-    }
-
+    // AuthProvider awaits the same cleanup and fails closed if it fails.
+    FirstLaunchSecureStorageCleanup.run().catchError((Object _) {});
     updateConnectivityState();
   }
 

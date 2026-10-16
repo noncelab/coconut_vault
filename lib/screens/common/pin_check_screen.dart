@@ -9,7 +9,6 @@ import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/usecases/reset_credentials_and_wallets_usecase.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
@@ -88,6 +87,16 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   }
 
   Future<void> _initializeLockState() async {
+    await _authProvider.ready;
+    if (!mounted) return;
+    if (_authProvider.authenticationUnavailable) {
+      setState(() {
+        _isPinInputLocked = true;
+        _errorMessage = t.errors.pin_processing_error;
+      });
+      return;
+    }
+    _pinType = _authProvider.isPinCharacter ? PinType.character : PinType.number;
     if (!_isAppLaunched) {
       setState(() {
         _isPinInputLocked = false;
@@ -99,6 +108,8 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       setState(() {
         _isPinInputLocked = true;
       });
+      // Resume deletion if the app stopped after persisting the final failure.
+      if (_authProvider.isPinSet) await _handlePermanentLockout();
       return;
     }
 
@@ -122,11 +133,15 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
       });
     }
 
-    final authenticated = await _authenticateWithBiometricsIfEligible();
-    if (authenticated) {
-      await _handleAuthenticationSuccess();
-    } else if (_shouldDelayKeyboard) {
-      _handleKeyboardFocus();
+    try {
+      final authenticated = await _authenticateWithBiometricsIfEligible();
+      if (authenticated) {
+        await _handleAuthenticationSuccess();
+      } else if (_shouldDelayKeyboard) {
+        _handleKeyboardFocus();
+      }
+    } catch (_) {
+      if (mounted) setState(() => _errorMessage = t.errors.pin_processing_error);
     }
   }
 
@@ -163,12 +178,12 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   }
 
   void _onKeyTap(String value) async {
-    if (_isPinInputLocked != false) {
+    if (_isPinInputLocked != false || _isVerifyingPin || _isResetting) {
       return;
     }
 
     if (value == kBiometricIdentifier) {
-      _authProvider.verifyBiometric(context);
+      _verifyBiometric();
       return;
     }
 
@@ -200,6 +215,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
   Future<void> _handleAuthenticationSuccess() async {
     await _authProvider.resetAuthenticationState();
+    if (!mounted) return;
 
     switch (widget.pinCheckContext) {
       case PinCheckContextEnum.pinChange:
@@ -212,18 +228,48 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     }
   }
 
+  Future<void> _verifyBiometric() async {
+    setState(() => _isVerifyingPin = true);
+    try {
+      await _authProvider.verifyBiometric(context);
+    } catch (_) {
+      if (mounted) setState(() => _errorMessage = t.errors.pin_processing_error);
+    } finally {
+      if (mounted) setState(() => _isVerifyingPin = false);
+    }
+  }
+
   void _verifyPin() async {
+    if (_isVerifyingPin) return;
     setState(() {
       _isVerifyingPin = true;
     });
-    bool isAuthenticated = await _authProvider.verifyPin(_pin, isAppLaunchScreen: _isAppLaunched);
+    bool isAuthenticated;
+    try {
+      isAuthenticated = await _authProvider.verifyPin(_pin, isAppLaunchScreen: _isAppLaunched);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isVerifyingPin = false;
+          _pin = '';
+          _errorMessage = t.errors.pin_processing_error;
+        });
+      }
+      return;
+    }
+    _pin = '';
+    if (!mounted) return;
     if (mounted) {
       setState(() {
         _isVerifyingPin = false;
       });
     }
     if (isAuthenticated) {
-      await _handleAuthenticationSuccess();
+      try {
+        await _handleAuthenticationSuccess();
+      } catch (_) {
+        if (mounted) setState(() => _errorMessage = t.errors.pin_processing_error);
+      }
       return;
     }
 
@@ -233,7 +279,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   void _handleAuthenticationFailure() {
     if (_isAppLaunched) {
       if (_authProvider.isPermanentlyLocked) {
-        Logger.log('1 - _handlePermanentLockout');
         vibrateMedium();
         _handlePermanentLockout();
         return;
@@ -253,7 +298,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         setState(() {
           _errorMessage = '';
           _isPinInputLocked = true;
-          Logger.log('--> set _isPinInputLocked to true');
         });
 
         final nextUnlockTime = _authProvider.unlockAvailableAt;
@@ -287,7 +331,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
         setState(() {
           _errorMessage = '';
           _isPinInputLocked = false;
-          Logger.log('--> set _isPinInputLocked to false');
           _isLastChanceToTry = _authProvider.currentTurn + 1 == kMaxTurn;
         });
       } else {
@@ -453,9 +496,6 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   }
 
   Widget _pinInputScreen({isOnReset = false}) {
-    Logger.log(
-      '--> PinInputScreen isPermanantlyLocked: ${_authProvider.isPermanentlyLocked} / isPinInputLocked: $_isPinInputLocked',
-    );
     return Selector<AuthProvider, bool>(
       selector: (_, authProvider) => authProvider.isPermanentlyLocked,
       builder: (context, isPermanentlyLocked, child) {

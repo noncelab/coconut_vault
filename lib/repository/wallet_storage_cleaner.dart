@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:coconut_vault/services/security/pin_auth_service.dart';
+import 'package:coconut_vault/constants/secure_storage_keys.dart';
+
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
@@ -16,6 +19,7 @@ import 'package:coconut_vault/utils/logger.dart';
 /// 전용 클래스로 분리되었습니다.
 class WalletStorageCleaner {
   WalletStorageCleaner._();
+  static const _authenticationKeys = {PinAuthService.lockKey, PinAuthService.verifierKey, SecureStorageKeys.kVaultPin};
 
   /// 저장된 모든 wallet 데이터(SZR 키, FSS 항목, SharedPrefs 메타)를 삭제합니다.
   ///
@@ -47,7 +51,7 @@ class WalletStorageCleaner {
     // wallet list를 복구할 수 없는 경우(서명전용모드 재시작 등), FSS에 남아있는
     // 모든 키를 SZR alias로 추가 삭제 시도합니다.
     if (wallets == null && keys.isEmpty) {
-      keys = await storage.getAllKeys();
+      keys = (await storage.getAllKeys()).where((key) => !_authenticationKeys.contains(key)).toList();
       Logger.log('--> [WalletStorageCleaner] clearAll: fallback to FSS keys=$keys');
     }
 
@@ -150,7 +154,14 @@ class WalletStorageCleaner {
     final storage = storageService ?? SecureStorageRepository();
     for (var attempt = 1; attempt <= 3; attempt++) {
       try {
-        await storage.deleteAll();
+        // Credentials are removed by AuthProvider after wallet deletion. Keep the
+        // secure lock state throughout permanent-lock cleanup, including restart.
+        for (final key in await storage.getAllKeys()) {
+          if (_authenticationKeys.contains(key)) {
+            continue;
+          }
+          await storage.delete(key: key);
+        }
         return;
       } catch (e) {
         if (attempt == 3) {

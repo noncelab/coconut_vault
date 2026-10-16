@@ -90,6 +90,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
   }
 
   void _onKeyTap(String value) async {
+    if (_isProcessing) return;
     if (_currentPinType == PinType.character) {
       // 문자 입력 모드에서 'Done' 버튼을 누르는 경우
       _onPressDoneKey(value);
@@ -115,6 +116,8 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
   }
 
   void _proceedToNextStep() async {
+    if (_isProcessing) return;
+    setState(() => _isProcessing = true);
     try {
       bool isAlreadyUsingPin = await _comparePin(pin);
       if (!mounted) return;
@@ -129,6 +132,7 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
       return;
     }
     setState(() {
+      _isProcessing = false;
       step = 1;
       errorMessage = '';
       if (_currentPinType == PinType.number) {
@@ -229,6 +233,15 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
   }
 
   Future<void> _savePin() async {
+    try {
+      await _authProvider.savePin(pinConfirm, _currentPinType == PinType.character);
+    } catch (_) {
+      if (mounted) returnToBackSequence(t.errors.pin_processing_error, isError: true, firstSequence: true);
+      return;
+    }
+    pin = '';
+    pinConfirm = '';
+    if (!mounted) return;
     vibrateLight();
     showGeneralDialog(
       context: context,
@@ -255,7 +268,6 @@ class _PinSettingScreenState extends State<PinSettingScreen> {
 
     await Future.delayed(const Duration(seconds: 3));
     widget.onComplete?.call();
-    await _authProvider.savePin(pinConfirm, _currentPinType == PinType.character ? true : false);
 
     if (!mounted) {
       return;

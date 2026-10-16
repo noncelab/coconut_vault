@@ -301,6 +301,13 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
                       return;
                     }
 
+                    await authProvider.ready;
+                    if (!mounted) return;
+                    if (authProvider.authenticationUnavailable) {
+                      _updateEntryFlow(AppEntryFlow.pinCheck);
+                      return;
+                    }
+
                     // 영구 잠금 상태 - 이미 데이터는 초기화되었지만 PinCheck화면에서 t.errors.restart_vault 버튼을 누르지 않고 앱을 종료한 경우
                     if (authProvider.isPermanentlyLocked) {
                       _updateEntryFlow(AppEntryFlow.pinCheck);

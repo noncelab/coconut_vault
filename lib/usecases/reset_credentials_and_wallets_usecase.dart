@@ -36,6 +36,6 @@ class ResetCredentialsAndWalletsUsecase {
       await WalletStorageCleaner.clearAll();
     }
     await preferenceProvider.resetVaultOrderAndFavorites();
-    await authProvider.resetCredentials(preservePermanentLock: preservePermanentLock);
+    await authProvider.resetCredentials(preservePermanentLock: preservePermanentLock, afterWalletDeletion: true);
   }
 }

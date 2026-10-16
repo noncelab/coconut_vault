@@ -44,6 +44,12 @@ class MainActivity: FlutterFragmentActivity() {
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         flutterEngine.plugins.add(HardwareBackedKeystorePlugin())
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            "onl.coconut.vault/pin_auth_storage",
+            io.flutter.plugin.common.StandardMethodCodec.INSTANCE,
+            flutterEngine.dartExecutor.binaryMessenger.makeBackgroundTaskQueue()
+        ).setMethodCallHandler(PinAuthStorageHandler(applicationContext))
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
