@@ -1399,7 +1399,6 @@ errors:
   psbt_parsing_error: "PSBT解析に失敗しました: $error"
   not_related_multisig_wallet_error: "このウォレットをキーとして使用するマルチシグウォレットではありません"
   vault_not_found_error: "署名できるウォレットがありません"
-  extended_public_key_not_found_error: "直接使用したいウォレットを選択してマルチシグ機能を使用してください"
   user_cancelled_auth: "ユーザーがデバイス認証をキャンセルしました。"
   unexpected_error_title: "エラーが発生しました"
   sign_failed: "署名に失敗しました"

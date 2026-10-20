@@ -1399,7 +1399,6 @@ errors:
   psbt_parsing_error: "psbt 파싱 실패: $error"
   not_related_multisig_wallet_error: "이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다"
   vault_not_found_error: "서명할 수 있는 지갑이 없어요"
-  extended_public_key_not_found_error: "직접 사용하려는 지갑을 선택해 다중 서명하기 기능을 사용해주세요"
   user_cancelled_auth: "사용자가 기기 인증을 취소했습니다."
   unexpected_error_title: "오류 발생"
   sign_failed: "서명 실패"
