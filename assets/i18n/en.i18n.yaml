@@ -1418,6 +1418,7 @@ exceptions:
     already_signed: "This transaction is already fully signed."
     muSig2:
       already_has_nonce_with_this: "A nonce has already been added with this wallet."
+  unsupported_psbt_state: "This PSBT state is not supported."
 
 tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."

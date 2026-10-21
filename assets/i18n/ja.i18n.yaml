@@ -1419,6 +1419,7 @@ exceptions:
     already_signed: "このトランザクションは既に完全に署名されています。"
     muSig2:
       already_has_nonce_with_this: "このウォレットではすでにノンスが追加されています。"
+  unsupported_psbt_state: "サポートされていないPSBTの状態です。"
 
 tooltip:
   mfp: "ウォレットの固有値。\nマスターフィンガープリント(MFP)とも呼ばれます。"

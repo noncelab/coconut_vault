@@ -24,12 +24,12 @@ import 'package:flutter_test/flutter_test.dart';
 /// 1. 타사 지갑(Sparrow/BlueWallet/Nunchuk)에서 같은 니모닉으로 watch-only 지갑 생성
 /// 2. 타사 지갑에서 PSBT 생성 (unsigned)
 /// 3. PSBT base64 문자열을 아래 fixture에 입력
-/// 4. 니모닉은 test/test.env 파일의 TEST_MNEMONIC으로 전달 (싱글시그/멀티시그 모두 동일 니모닉 사용)
+/// 4. 니모닉은 test/test.env 파일의 SKIRT_MNEMONIC으로 전달 (싱글시그/멀티시그 모두 동일 니모닉 사용)
 ///    - 니모닉은 보안상 커밋/푸시하지 않도록 하세요.
 /// 5. 네트워크(mainnet/regtest)를 맞춰서 설정
 ///
 /// ## 니모닉 설정
-/// - `test/test.env` 파일에 `TEST_MNEMONIC`으로 설정합니다. (멀티시그 두 서명자 모두 동일 니모닉 사용)
+/// - `test/test.env` 파일에 `SKIRT_MNEMONIC`으로 설정합니다. (멀티시그 두 서명자 모두 동일 니모닉 사용)
 /// - 파일이 없거나 값이 비어 있으면 에러 메시지와 함께 테스트가 실패합니다.
 String? _getMnemonic() {
   final envFile = File('test/test.env');
@@ -40,7 +40,7 @@ String? _getMnemonic() {
       final eqIndex = trimmed.indexOf('=');
       if (eqIndex <= 0) continue;
       final key = trimmed.substring(0, eqIndex).trim();
-      if (key == 'TEST_MNEMONIC') {
+      if (key == 'SKIRT_MNEMONIC') {
         var value = trimmed.substring(eqIndex + 1).trim();
         // 따옴표 제거
         if ((value.startsWith("'") && value.endsWith("'")) || (value.startsWith('"') && value.endsWith('"'))) {
@@ -64,7 +64,7 @@ void main() {
     print('  ⚠️  니모닉이 설정되지 않았습니다.');
     print('');
     print('  test/test.env 파일을 생성하고 아래 내용을 넣으세요:');
-    print("    TEST_MNEMONIC='단어1 단어2 ... 단어12'");
+    print("    SKIRT_MNEMONIC='단어1 단어2 ... 단어12'");
     print('  (test/test.env는 .gitignore에 추가되어 커밋되지 않습니다.)');
     print('');
     print('  니모닉은 보안상 커밋/푸시하지 마세요.');
@@ -168,7 +168,7 @@ void _singleSigCompatTest({
 }) {
   test(testName, () async {
     if (mnemonic == null || mnemonic.trim().isEmpty) {
-      markTestSkipped('test/test.env에 TEST_MNEMONIC이 설정되지 않음');
+      markTestSkipped('test/test.env에 SKIRT_MNEMONIC이 설정되지 않음');
       return;
     }
     if (psbtBase64.isEmpty) {
@@ -310,7 +310,7 @@ void _multisigCompatTest({
 }) {
   test(testName, () async {
     if (mnemonics.any((m) => m == null || m.trim().isEmpty)) {
-      markTestSkipped('test/test.env에 TEST_MNEMONIC이 설정되지 않음');
+      markTestSkipped('test/test.env에 SKIRT_MNEMONIC이 설정되지 않음');
       return;
     }
     if (psbtBase64.isEmpty) {
