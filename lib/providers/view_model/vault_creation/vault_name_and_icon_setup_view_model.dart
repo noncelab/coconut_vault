@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
-import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/model/single_sig/single_sig_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
@@ -109,9 +108,9 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
       ),
     );
 
-    final MultisigSigner? externalSigner = _walletCreationProvider.externalSigner;
-    if (externalSigner != null) {
-      final multisigVaultId = _walletCreationProvider.multisigVaultIdOfExternalSigner;
+    final externalSignerContext = _walletCreationProvider.externalSignerContext;
+    if (externalSignerContext != null) {
+      final multisigVaultId = externalSignerContext.multisigVaultId;
       _walletCreationProvider.resetAll();
       return VaultNameAndIconSetupSaveResult.navigateToMultisigSetupInfo(multisigVaultId: multisigVaultId);
     }

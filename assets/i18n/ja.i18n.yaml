@@ -380,7 +380,7 @@ signer_qr_bottom_sheet:
   krux_text4: "Kruxでスキャンが完了したら、以下の"
   krux_text5: "次へ"
   krux_text6: "ボタンを押してください。"
-  select: "選択"
+  select: "を選択"
   low_density_qr: "単純なQR"
   high_density_qr: "複雑なQR"
   view_bbqr: "BBQR 表示"
@@ -1004,7 +1004,7 @@ coordinator_bsms_config_scanner_screen:
 bsms_scanner_screen:
   import_bsms: "BSMSインポート"
   import_multisig_wallet: "マルチシグウォレットインポート"
-  select: "選択"
+  select: "を選択"
   press_button: "ボタンを押す"
   guide1_1: "他のボルトで作成されたマルチシグウォレットをインポートできます。"
   guide1_2: "別のボールトのホーム画面で、"
@@ -1399,7 +1399,6 @@ errors:
   psbt_parsing_error: "PSBT解析に失敗しました: $error"
   not_related_multisig_wallet_error: "このウォレットをキーとして使用するマルチシグウォレットではありません"
   vault_not_found_error: "署名できるウォレットがありません"
-  extended_public_key_not_found_error: "直接使用したいウォレットを選択してマルチシグ機能を使用してください"
   user_cancelled_auth: "ユーザーがデバイス認証をキャンセルしました。"
   unexpected_error_title: "エラーが発生しました"
   sign_failed: "署名に失敗しました"
@@ -1420,6 +1419,7 @@ exceptions:
     already_signed: "このトランザクションは既に完全に署名されています。"
     muSig2:
       already_has_nonce_with_this: "このウォレットではすでにノンスが追加されています。"
+  unsupported_psbt_state: "サポートされていないPSBTの状態です。"
 
 tooltip:
   mfp: "ウォレットの固有値。\nマスターフィンガープリント(MFP)とも呼ばれます。"

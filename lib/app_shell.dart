@@ -24,7 +24,6 @@ import 'package:coconut_vault/screens/start_guide/lite_onboarding_screen.dart';
 import 'package:coconut_vault/screens/start_guide/welcome_screen.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/services/security_prechecker.dart';
-import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/widgets/icon/coconut_vault_logo.dart';
 import 'package:coconut_vault/widgets/overlays/signing_mode_edge_panel.dart';
 import 'package:flutter/cupertino.dart';
@@ -170,9 +169,8 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
     // 안전 저장 모드일 때
     _walletProvider?.dispose();
     _walletProvider = null;
-    final walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-    if (walletCount > 0) {
-      Logger.log('--> _handleAppGoBackgroundOfMainRoute: walletCount > 0 / pinCheck화면으로 이동');
+    if (SharedPrefsRepository().hasPublicVaultList()) {
+      Logger.log('--> _handleAppGoBackgroundOfMainRoute: hasPublicVaultList / pinCheck화면으로 이동');
       _updateEntryFlow(AppEntryFlow.pinCheck);
     }
   }
@@ -239,11 +237,10 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
   }
 
   WalletProvider _ensureWalletProvider(
-    VisibilityProvider visibilityProvider,
     PreferenceProvider preferenceProvider,
     AppLifecycleStateProvider lifecycleProvider,
   ) {
-    _walletProvider ??= WalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider);
+    _walletProvider ??= WalletProvider(preferenceProvider, lifecycleProvider);
     return _walletProvider!;
   }
 
@@ -317,8 +314,7 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
                       }
                     }
 
-                    final walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-                    if (walletCount > 0) {
+                    if (SharedPrefsRepository().hasPublicVaultList()) {
                       _updateEntryFlow(AppEntryFlow.pinCheck);
                       return;
                     }
@@ -432,9 +428,7 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
           Provider<WalletCreationProvider>(create: (_) => WalletCreationProvider()),
           Provider<TaprootWalletCreationProvider>(create: (_) => TaprootWalletCreationProvider()),
           Provider<SignProvider>(create: (_) => SignProvider()),
-          ChangeNotifierProvider.value(
-            value: _ensureWalletProvider(visibilityProvider, preferenceProvider, lifecycleProvider),
-          ),
+          ChangeNotifierProvider.value(value: _ensureWalletProvider(preferenceProvider, lifecycleProvider)),
         ],
       ],
       child: Directionality(

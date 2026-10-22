@@ -14,7 +14,6 @@ import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
-import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/services/wallet/wallet_service.dart';
 import 'package:coconut_vault/utils/bip/normalized_multisig_config.dart';
@@ -27,11 +26,11 @@ class WalletProvider extends ChangeNotifier {
   late final WalletQueryService _query;
 
   // 2) 생성자
-  WalletProvider(VisibilityProvider visibility, PreferenceProvider preference, AppLifecycleStateProvider lifecycle) {
+  WalletProvider(PreferenceProvider preference, AppLifecycleStateProvider lifecycle) {
     _isSigningOnlyMode = preference.isSigningOnlyMode;
     final repo = WalletRepository(isSigningOnlyMode: _isSigningOnlyMode);
     _query = WalletQueryService(() => _vaultList);
-    _service = WalletService(repo: repo, query: _query, pref: preference, lifecycle: lifecycle, visibility: visibility);
+    _service = WalletService(repo: repo, query: _query, pref: preference, lifecycle: lifecycle);
 
     if (_isSigningOnlyMode) {
       _service.reset();
