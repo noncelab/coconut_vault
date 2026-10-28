@@ -128,17 +128,17 @@ void main() {
     }
 
     // 외부 코디네이터가 만든 PSBT는 거스름돈이 어느 위치에나, 여러 개 있을 수 있다.
-    // 번호는 거스름돈을 제외한 외부 출력의 표시 순서이고(#408), 거스름돈 행은 원래 위치에 번호 없이 남는다.
+    // 번호는 월렛과 같은 실제 출력 인덱스(vout)이고, 거스름돈 행은 원래 위치에 번호 없이 남는다.
     for (final layout in [
-      (name: 'change first', change: [true, false, false], flow: [0, 1], details: [null, 0, 1]),
-      (name: 'change in the middle', change: [false, true, false], flow: [0, 1], details: [0, null, 1]),
+      (name: 'change first', change: [true, false, false], flow: [1, 2], details: [null, 1, 2]),
+      (name: 'change in the middle', change: [false, true, false], flow: [0, 2], details: [0, null, 2]),
       (name: 'change last', change: [false, false, true], flow: [0, 1], details: [0, 1, null]),
-      (name: 'two change outputs', change: [true, false, true, false], flow: [0, 1], details: [null, 0, null, 1]),
+      (name: 'two change outputs', change: [true, false, true, false], flow: [1, 3], details: [null, 1, null, 3]),
       (
         name: 'collapsed outputs after change',
         change: [true, false, false, false, false],
-        flow: [0, 3],
-        details: [null, 0, 1, 2, 3],
+        flow: [1, 4],
+        details: [null, 1, 2, 3, 4],
       ),
     ]) {
       testWidgets('${locale.name}: ${layout.name} keeps output order and change unnumbered', (tester) async {

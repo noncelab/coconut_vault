@@ -183,6 +183,10 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
     return SendTransactionFlowCard(
       inputAmounts: inputAmounts,
       externalOutputAmounts: externalOutputAmounts,
+      externalOutputIndexes: [
+        for (final (index, output) in viewModel.outputs.indexed)
+          if (!viewModel.isChangeOutput(output)) index,
+      ],
       changeOutputAmounts: changeOutputAmounts,
       fee: viewModel.estimatedFee,
       currentUnit: _currentUnit,
@@ -191,8 +195,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
 
   Widget _buildOutputDetailCard(PsbtConfirmationViewModel viewModel) {
     final detailItems = <OutputDetailItem>[];
-    int outputIndex = 0;
-    for (final output in viewModel.outputs) {
+    for (final (outputIndex, output) in viewModel.outputs.indexed) {
       final isChange = viewModel.isChangeOutput(output);
       detailItems.add(
         OutputDetailItem(
@@ -202,9 +205,6 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
           isChange: isChange,
         ),
       );
-      if (!isChange) {
-        outputIndex += 1;
-      }
     }
 
     return SendOutputDetailCard(items: detailItems, currentUnit: _currentUnit);

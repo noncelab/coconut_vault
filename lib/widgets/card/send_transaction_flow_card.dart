@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 class SendTransactionFlowCard extends StatefulWidget {
   final List<int?> inputAmounts;
   final List<int> externalOutputAmounts;
+  final List<int> externalOutputIndexes;
   final List<int> changeOutputAmounts;
   final int? fee;
   final BitcoinUnit currentUnit;
@@ -17,6 +18,7 @@ class SendTransactionFlowCard extends StatefulWidget {
     super.key,
     required this.inputAmounts,
     required this.externalOutputAmounts,
+    required this.externalOutputIndexes,
     required this.changeOutputAmounts,
     required this.fee,
     required this.currentUnit,
@@ -265,7 +267,7 @@ class _SendTransactionFlowCardState extends State<SendTransactionFlowCard> with 
         nodes.add(
           _FlowNode(
             type: _FlowNodeType.output,
-            title: _localizedOutputTitle(context, i),
+            title: _localizedOutputTitle(context, widget.externalOutputIndexes[i]),
             amount: widget.externalOutputAmounts[i],
           ),
         );
@@ -274,7 +276,7 @@ class _SendTransactionFlowCardState extends State<SendTransactionFlowCard> with 
       nodes.add(
         _FlowNode(
           type: _FlowNodeType.output,
-          title: _localizedOutputTitle(context, 0),
+          title: _localizedOutputTitle(context, widget.externalOutputIndexes.first),
           amount: widget.externalOutputAmounts.first,
         ),
       );
@@ -282,7 +284,7 @@ class _SendTransactionFlowCardState extends State<SendTransactionFlowCard> with 
       nodes.add(
         _FlowNode(
           type: _FlowNodeType.output,
-          title: _localizedOutputTitle(context, widget.externalOutputAmounts.length - 1),
+          title: _localizedOutputTitle(context, widget.externalOutputIndexes.last),
           amount: widget.externalOutputAmounts.last,
         ),
       );
