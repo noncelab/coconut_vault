@@ -1296,8 +1296,8 @@ alert:
     title: "Go back"
     description: "All info entered so far will be deleted.\nReally go back?"
   empty_vault:
-    title: "No keys stored in vault"
-    description: "Create single signature wallet first to use keys?"
+    title: "No keys available"
+    description: "Create a new single signature wallet to use?"
   quit_creating_mutisig_wallet:
     title: "Stop Creating Multisig Wallet"
     description: "Really stop wallet creation?"

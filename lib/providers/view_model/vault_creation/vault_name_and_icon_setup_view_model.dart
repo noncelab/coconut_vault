@@ -116,6 +116,13 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
       return VaultNameAndIconSetupSaveResult.navigateToMultisigSetupInfo(multisigVaultId: multisigVaultId);
     }
 
+    // addSingleSigVault 중에 키 배정 화면이 새 지갑을 배정하므로, 플래그는 여기서 읽고 끈다
+    if (_walletCreationProvider.isCreatingSignerForMultisig) {
+      _walletCreationProvider.setCreatingSignerForMultisig(false);
+      _walletCreationProvider.resetAll();
+      return VaultNameAndIconSetupSaveResult.navigateToSignerAssignment(addedWalletId: vault.id);
+    }
+
     _walletCreationProvider.resetAll();
     return VaultNameAndIconSetupSaveResult.navigateToHome(addedWalletId: vault.id);
   }
@@ -190,7 +197,12 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
   }
 }
 
-enum VaultNameAndIconSetupSaveStatus { duplicateName, navigateHome, navigateMultisigSetupInfo }
+enum VaultNameAndIconSetupSaveStatus {
+  duplicateName,
+  navigateHome,
+  navigateMultisigSetupInfo,
+  navigateSignerAssignment,
+}
 
 class VaultNameAndIconSetupSaveResult {
   final VaultNameAndIconSetupSaveStatus status;
@@ -218,6 +230,9 @@ class VaultNameAndIconSetupSaveResult {
 
   const VaultNameAndIconSetupSaveResult.navigateToMultisigSetupInfo({required int? multisigVaultId})
     : this._(status: VaultNameAndIconSetupSaveStatus.navigateMultisigSetupInfo, multisigVaultId: multisigVaultId);
+
+  const VaultNameAndIconSetupSaveResult.navigateToSignerAssignment({required int addedWalletId})
+    : this._(status: VaultNameAndIconSetupSaveStatus.navigateSignerAssignment, addedWalletId: addedWalletId);
 }
 
 class TaprootVaultCreationTimelineInfo {

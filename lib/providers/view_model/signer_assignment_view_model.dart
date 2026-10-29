@@ -30,6 +30,7 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   String _loadingMessage = '';
   MultisignatureVault? _newMultisigVault;
   bool _isInitializing = true;
+  int? _pendingSignerIndex; // 단일 서명 지갑을 만들러 간 키 자리. 새 지갑이 추가되면 이 자리에 배정한다
 
   SignerAssignmentViewModel(this._walletProvider, this._walletCreationProvider) {
     _totalSignatureCount = _walletCreationProvider.totalSignatureCount!;
@@ -55,6 +56,8 @@ class SignerAssignmentViewModel extends ChangeNotifier {
         notifyListeners();
       });
     });
+
+    _walletProvider.addListener(_onVaultListChanged);
   }
   String get loadingMessage => _loadingMessage;
   int get totalSignatureCount => _totalSignatureCount;
@@ -185,7 +188,57 @@ class SignerAssignmentViewModel extends ChangeNotifier {
   }
 
   void saveSignersToProvider(List<MultisigSigner> signers) {
+    // 도중에 단일 서명 지갑을 만들었다면 생성 화면의 resetAll로 정족수가 지워져 있다
+    _walletCreationProvider.setQuorumRequirement(_requiredSignatureCount, _totalSignatureCount);
     _walletCreationProvider.setSigners(signers);
+  }
+
+  /// 키 자리 [signerIndex]에 쓸 단일 서명 지갑을 만들러 가기 전에 호출한다.
+  void prepareSignerCreation(int signerIndex) {
+    _pendingSignerIndex = signerIndex;
+    _walletCreationProvider.resetAll();
+    _walletCreationProvider.setCreatingSignerForMultisig(true);
+  }
+
+  void _onVaultListChanged() {
+    final knownIds = _signerOptions.map((option) => option.singlesigVaultListItem.id).toSet();
+    final addedVaults =
+        _walletProvider
+            .getVaults()
+            .where((vault) => vault.vaultType == WalletType.singleSignature && !knownIds.contains(vault.id))
+            .map((vault) => vault as SingleSigVaultListItem)
+            .toList();
+    if (addedVaults.isEmpty) return;
+
+    for (final vault in addedVaults) {
+      final option = SignerOption(
+        vault,
+        SignerBsms.parse(vault.getSignerBsmsByAddressType(AddressType.p2wsh, withLabel: false)),
+      );
+      _singlesigVaultList.add(vault);
+      _signerOptions.add(option);
+      _unselectedSignerOptions.add(option);
+    }
+    _assignPendingSigner(addedVaults.last);
+    notifyListeners();
+  }
+
+  void _assignPendingSigner(SingleSigVaultListItem vault) {
+    final signerIndex = _pendingSignerIndex;
+    _pendingSignerIndex = null;
+    if (signerIndex == null || _assignedVaultList[signerIndex].importKeyType != null) return;
+
+    final optionIndex = _unselectedSignerOptions.indexWhere((option) => option.singlesigVaultListItem.id == vault.id);
+    // 같은 키를 다른 자리에 외부 키로 이미 가져온 경우에는 배정하지 않는다
+    if (optionIndex == -1 || isAlreadyImported(_unselectedSignerOptions[optionIndex].signerBsms)) return;
+    assignInternalSigner(optionIndex, signerIndex);
+  }
+
+  @override
+  void dispose() {
+    _walletProvider.removeListener(_onVaultListChanged);
+    _walletCreationProvider.setCreatingSignerForMultisig(false);
+    super.dispose();
   }
 
   void resetWalletCreationProvider() {

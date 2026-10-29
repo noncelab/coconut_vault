@@ -443,7 +443,7 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
 
   void _onUseInternalKeyPressed(int index) {
     if (_viewModel.unselectedSignerOptions.isEmpty) {
-      _showDialog(DialogType.notAvailable);
+      _showDialog(DialogType.notAvailable, keyIndex: index);
       return;
     }
     MyBottomSheet.showDraggableBottomSheet(
@@ -733,11 +733,11 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           message = t.alert.empty_vault.description;
           confirmButtonColor = CoconutColors.black;
           onConfirm = () {
-            Navigator.pushNamedAndRemoveUntil(
-              context,
-              AppRoutes.vaultCreationOptions,
-              (Route<dynamic> route) => route.settings.name == AppRoutes.vaultTypeSelection,
-            );
+            // 키 배정 화면을 스택에 남겨 두고 단일 서명 지갑을 만든다. 저장하면 이 화면으로 돌아와 keyIndex 자리에 배정된다.
+            _viewModel.prepareSignerCreation(keyIndex);
+            Navigator.pop(context); // 다이얼로그 닫기
+            Navigator.pop(context); // 키 종류 선택 바텀시트 닫기
+            Navigator.pushNamed(context, AppRoutes.vaultCreationOptions);
           };
           break;
         }
