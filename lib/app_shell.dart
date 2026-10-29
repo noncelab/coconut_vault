@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/app_entry_flow.dart';
+import 'package:coconut_vault/usecases/resolve_authenticated_entry_flow_usecase.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
@@ -301,36 +302,14 @@ class _VaultAppState extends State<VaultApp> with SingleTickerProviderStateMixin
                       return;
                     }
 
-                    await authProvider.ready;
+                    final nextFlow = await ResolveAuthenticatedEntryFlowUsecase.execute(
+                      authProvider: authProvider,
+                      isIos: Platform.isIOS,
+                      walletCount: SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0,
+                      verifyIosKeychainValidity: () => SecureZoneManager().verifyIosKeychainValidity(),
+                    );
                     if (!mounted) return;
-                    if (authProvider.authenticationUnavailable) {
-                      _updateEntryFlow(AppEntryFlow.pinCheck);
-                      return;
-                    }
-
-                    // 영구 잠금 상태 - 이미 데이터는 초기화되었지만 PinCheck화면에서 t.errors.restart_vault 버튼을 누르지 않고 앱을 종료한 경우
-                    if (authProvider.isPermanentlyLocked) {
-                      _updateEntryFlow(AppEntryFlow.pinCheck);
-                      return;
-                    }
-
-                    // 저장 모드 && PinSet
-                    if (Platform.isIOS && authProvider.isPinSet) {
-                      // 기기 패스코드 삭제 여부 확인
-                      final isKeychainValid = await SecureZoneManager().verifyIosKeychainValidity();
-                      if (!isKeychainValid) {
-                        _updateEntryFlow(AppEntryFlow.cannotAccessToSecureZone);
-                        return;
-                      }
-                    }
-
-                    final walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-                    if (walletCount > 0) {
-                      _updateEntryFlow(AppEntryFlow.pinCheck);
-                      return;
-                    }
-
-                    _updateEntryFlow(AppEntryFlow.vaultHome);
+                    _updateEntryFlow(nextFlow);
                   });
                 case SecurityCheckStatus.error:
               }
