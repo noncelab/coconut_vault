@@ -7,6 +7,7 @@ import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/services/security/pin_auth_service.dart';
+import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
 import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:crypto/crypto.dart';
 import 'package:cryptography/cryptography.dart' as cryptography;
@@ -603,6 +604,75 @@ void main() {
     kdf.gate!.complete();
     expect(await pending, false);
     expect(await service.hasPin(), true);
+  });
+
+  test('app resume Keychain check waits for PIN verification instead of reporting inaccessible storage', () async {
+    SharedPreferences.setMockInitialValues({SharedPrefsKeys.hasShownStartGuide: true});
+    await SharedPrefsRepository().init();
+    await service.savePin('012345', false);
+    final provider = AuthProvider(pinAuth: service, initializeDeviceBiometrics: false);
+    addTearDown(provider.dispose);
+    await provider.ready;
+    expect(provider.isPinSet, true);
+
+    kdf.gate = Completer<void>();
+    final verification = provider.verifyPin('012345', isAppLaunchScreen: true);
+    await Future<void>.delayed(Duration.zero);
+    // AppShell awaits ready again on resume, but it is already complete.
+    await provider.ready;
+    var checkCompleted = false;
+    final check = SecureZoneManager().verifyIosKeychainValidity(pinAuth: service).then((valid) {
+      checkCompleted = true;
+      return valid;
+    });
+    await Future<void>.delayed(Duration.zero);
+    expect(checkCompleted, false);
+    kdf.gate!.complete();
+    expect(await verification, true);
+    expect(await check, true);
+  });
+
+  test('multiple PIN status reads wait without colliding with each other', () async {
+    await service.savePin('012345', false);
+    kdf.gate = Completer<void>();
+    final verification = verify('999999');
+    await Future<void>.delayed(Duration.zero);
+    final reads = List.generate(3, (_) => service.hasPin());
+    // Mutation requests still fail immediately; only status reads wait.
+    await expectLater(verify('012345'), authError);
+    kdf.gate!.complete();
+    expect(await verification, false);
+    expect(await Future.wait(reads), [true, true, true]);
+  });
+
+  test('waiting Keychain check still rejects uncertain state after a verification write failure', () async {
+    SharedPreferences.setMockInitialValues({SharedPrefsKeys.isPinEnabled: true});
+    await SharedPrefsRepository().init();
+    await service.savePin('012345', false);
+    kdf.gate = Completer<void>();
+    final verification = verify('012345');
+    final failure = expectLater(verification, authError);
+    await Future<void>.delayed(Duration.zero);
+    final check = SecureZoneManager().verifyIosKeychainValidity(pinAuth: service);
+    storage.failWrite = PinAuthService.lockKey;
+    kdf.gate!.complete();
+    await failure;
+    expect(await check, false);
+    await expectLater(service.hasPin(), authError);
+  });
+
+  test('waiting Keychain check still rejects actual verifier read failure', () async {
+    SharedPreferences.setMockInitialValues({SharedPrefsKeys.isPinEnabled: true});
+    await SharedPrefsRepository().init();
+    await service.savePin('012345', false);
+    kdf.gate = Completer<void>();
+    final verification = verify('012345');
+    await Future<void>.delayed(Duration.zero);
+    final check = SecureZoneManager().verifyIosKeychainValidity(pinAuth: service);
+    storage.failRead = PinAuthService.verifierKey;
+    kdf.gate!.complete();
+    expect(await verification, true);
+    expect(await check, false);
   });
 
   test('provider full reset recovers failed startup only after secure reset completes', () async {

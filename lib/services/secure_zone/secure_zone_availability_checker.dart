@@ -15,15 +15,14 @@ class SecureZoneManager {
   factory SecureZoneManager() => _instance;
   SecureZoneManager._internal();
 
-  Future<bool> verifyIosKeychainValidity() async {
-    assert(Platform.isIOS);
+  Future<bool> verifyIosKeychainValidity({PinAuthService? pinAuth}) async {
     try {
       final sharedPrefs = SharedPrefsRepository();
 
       final isPinEnabled = sharedPrefs.getBool(SharedPrefsKeys.isPinEnabled) ?? false;
       if (!isPinEnabled) return true;
 
-      return await PinAuthService.instance.hasPin();
+      return await (pinAuth ?? PinAuthService.instance).hasPin();
     } catch (e) {
       return false;
     }

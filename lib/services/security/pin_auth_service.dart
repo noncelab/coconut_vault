@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -105,6 +106,7 @@ class PinAuthService {
   final PinLockState Function() legacyState;
   final Future<void> Function() removeLegacyState;
   bool _busy = false;
+  Completer<void>? _operationCompleted;
   bool _uncertain = false;
   PinLockState state = const PinLockState();
 
@@ -145,15 +147,30 @@ class PinAuthService {
     }
   }
 
-  Future<T> _exclusive<T>(Future<T> Function() action, {bool allowUncertain = false}) async {
+  Future<T> _exclusive<T>(
+    Future<T> Function() action, {
+    bool allowUncertain = false,
+    bool waitForOperation = false,
+  }) async {
+    // Lifecycle status reads must observe the committed authentication state,
+    // rather than mistake an in-flight verification for unavailable storage.
+    // Recheck after waking: another operation may have acquired the lock first.
+    while (waitForOperation && _busy) {
+      await _operationCompleted!.future;
+    }
     if (_busy || (_uncertain && !allowUncertain)) throw const PinAuthException();
     _busy = true;
+    final completed = _operationCompleted = Completer<void>();
     try {
       return await action();
     } catch (_) {
       throw const PinAuthException();
     } finally {
       _busy = false;
+      _operationCompleted = null;
+      // Signal completion even on failure. Waiting reads check _uncertain and
+      // perform their own storage validation after acquiring the lock.
+      completed.complete();
     }
   }
 
@@ -203,7 +220,7 @@ class PinAuthService {
   Future<bool> hasPin() => _exclusive(() async {
     final record = await _verifier();
     return record == null ? await storage.read(SecureStorageKeys.kVaultPin) != null : record['disabled'] != true;
-  });
+  }, waitForOperation: true);
 
   Future<Map<String, dynamic>?> _verifier() async {
     final raw = await storage.read(verifierKey);
