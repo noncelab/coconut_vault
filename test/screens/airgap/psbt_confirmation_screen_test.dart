@@ -140,6 +140,12 @@ void main() {
         flow: [1, 4],
         details: [null, 1, 2, 3, 4],
       ),
+      (
+        name: 'collapsed outputs with interleaved change',
+        change: [false, true, false, false, true, false],
+        flow: [0, 5],
+        details: [0, null, 2, 3, null, 5],
+      ),
     ]) {
       testWidgets('${locale.name}: ${layout.name} keeps output order and change unnumbered', (tester) async {
         final vault = await prepare(locale);
@@ -192,10 +198,17 @@ void main() {
           [for (final (index, output) in outputs.indexed) (output.getAddress(), output.amount, layout.change[index])],
         );
         final flowCard = tester.widget<SendTransactionFlowCard>(find.byType(SendTransactionFlowCard));
-        expect(flowCard.externalOutputAmounts, [
-          for (final (index, output) in outputs.indexed)
-            if (!layout.change[index]) output.amount,
-        ]);
+        expect(flowCard.externalOutputIndexes.length, flowCard.externalOutputAmounts.length);
+        expect(
+          [
+            for (final (index, amount) in flowCard.externalOutputAmounts.indexed)
+              (flowCard.externalOutputIndexes[index], amount),
+          ],
+          [
+            for (final (index, output) in outputs.indexed)
+              if (!layout.change[index]) (index, output.amount),
+          ],
+        );
         expect(flowCard.changeOutputAmounts, [
           for (final (index, output) in outputs.indexed)
             if (layout.change[index]) output.amount,

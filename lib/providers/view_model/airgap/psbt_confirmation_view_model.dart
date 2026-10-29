@@ -11,6 +11,8 @@ import 'package:coconut_vault/utils/balance_format_util.dart';
 import 'package:coconut_vault/utils/unit_utils.dart';
 import 'package:flutter/foundation.dart';
 
+typedef PsbtConfirmationOutput = ({int vout, String address, int amount, bool isChange});
+
 class PsbtConfirmationViewModel extends ChangeNotifier {
   late final SignProvider _signProvider;
   late final VisibilityProvider _visibilityProvider;
@@ -21,7 +23,7 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
   final List<String> _recipientAddresses = [];
   int? _sendingAmount;
   List<int?> _inputs = [];
-  List<PsbtOutput> _outputs = [];
+  List<PsbtConfirmationOutput> _outputs = [];
   // 현재 사용하지 않지만 관련 UI가 존재
   final bool _hasWarning = false;
 
@@ -47,9 +49,7 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
   int? get estimatedFee => _psbt?.fee;
   bool get hasWarning => _hasWarning;
   List<int?> get inputs => _inputs;
-  List<PsbtOutput> get outputs => _outputs;
-
-  bool isChangeOutput(PsbtOutput output) => output.isChange(_wallet);
+  List<PsbtConfirmationOutput> get outputs => _outputs;
 
   int? get totalAmount => _psbt != null ? (_sendingAmount ?? _psbt!.sendingAmount(_wallet)) + _psbt!.fee : null;
 
@@ -59,7 +59,10 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
     _psbt = Psbt.parse(_unsignedPsbtBase64);
 
     _inputs = _psbt!.inputs.map((input) => input.witnessUtxo?.amount).toList();
-    _outputs = _psbt!.outputs;
+    _outputs = [
+      for (final (vout, output) in _psbt!.outputs.indexed)
+        (vout: vout, address: output.outAddress, amount: output.outAmount!, isChange: output.isChange(_wallet)),
+    ];
 
     List<PsbtOutput> outputs = _psbt!.outputs;
 
