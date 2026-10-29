@@ -220,5 +220,81 @@ void main() {
         visibilityProvider.dispose();
       });
     }
+
+    for (final scenario in [
+      (name: 'without change hints', spoofChange: false),
+      (name: 'with spoofed change hints', spoofChange: true),
+    ]) {
+      testWidgets('${locale.name}: non-owned output ${scenario.name} stays numbered and amount-paired', (tester) async {
+        final vault = await prepare(locale);
+        // 공개 BIP39 테스트 벡터의 다른 지갑으로 보내는 출력은 이 볼트의 거스름돈이 아니다.
+        final stranger = SingleSignatureVault.fromMnemonic(
+          utf8.encode('zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo wrong'),
+        );
+        final utxos = utxosFor(vault, 1);
+        final changePath = '${vault.derivationPath}/1/0';
+        final changeAddress = vault.getAddressWithDerivationPath(changePath);
+        final foreignAddress = stranger.getAddress(0);
+        final receivingAddress = vault.getAddress(10);
+        final transaction =
+            Transaction.withInputsAndOutputs(
+                [for (final utxo in utxos) TransactionInput.forPayment(utxo.transactionHash, utxo.index)],
+                [
+                  TransactionOutput.forPayment(50000, changeAddress, derivationPath: changePath, isChangeOutput: true),
+                  // 외부 스크립트에 볼트의 change 경로·공개키 힌트를 붙여도 소유 출력이 되지 않는다.
+                  TransactionOutput.forPayment(
+                    20001,
+                    foreignAddress,
+                    derivationPath: scenario.spoofChange ? changePath : null,
+                    isChangeOutput: scenario.spoofChange,
+                  ),
+                  TransactionOutput.forPayment(15002, receivingAddress),
+                ],
+                vault.addressType,
+              )
+              ..utxoList.addAll(utxos)
+              ..changeAddressDerivationPath = changePath;
+        final psbtBase64 = Psbt.fromTransaction(transaction, vault).serialize();
+        final parsed = Psbt.parse(psbtBase64);
+        expect(parsed.outputs[1].outAddress, foreignAddress);
+        expect(parsed.outputs[1].isOwnedBy(vault), isFalse);
+        expect(
+          parsed.outputs[1].bip32Derivations.map((hint) => hint.path).toList(),
+          scenario.spoofChange ? [changePath] : isEmpty,
+        );
+        if (scenario.spoofChange) {
+          expect(
+            parsed.outputs[1].bip32Derivations.single.publicKey,
+            parsed.outputs[0].bip32Derivations.single.publicKey,
+          );
+        }
+
+        final (signProvider, visibilityProvider) = await pumpConfirmation(tester, vault, psbtBase64);
+        final flowCard = tester.widget<SendTransactionFlowCard>(find.byType(SendTransactionFlowCard));
+        expect(flowCard.externalOutputIndexes, [1, 2]);
+        expect(flowCard.externalOutputAmounts, [20001, 15002]);
+        expect(flowCard.changeOutputAmounts, [50000]);
+        expect(labelsIn(tester, SendTransactionFlowCard), [
+          t.psbt_confirmation_screen.flow_input_title(index: 0),
+          t.psbt_confirmation_screen.flow_output_title(index: 1),
+          t.psbt_confirmation_screen.flow_output_title(index: 2),
+          t.change,
+        ]);
+        final items = tester.widget<SendOutputDetailCard>(find.byType(SendOutputDetailCard)).items;
+        expect(
+          [for (final item in items) (item.label, item.address, item.amountSats, item.isChange)],
+          [
+            (t.change, changeAddress, 50000, true),
+            (t.psbt_confirmation_screen.flow_output_title(index: 1), foreignAddress, 20001, false),
+            (t.psbt_confirmation_screen.flow_output_title(index: 2), receivingAddress, 15002, false),
+          ],
+        );
+        expect(signProvider.unsignedPsbtBase64, psbtBase64);
+        expect(signProvider.psbt!.serialize(), psbtBase64);
+
+        await tester.pumpWidget(const SizedBox());
+        visibilityProvider.dispose();
+      });
+    }
   }
 }
