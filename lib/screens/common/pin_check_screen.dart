@@ -394,9 +394,15 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
   Future<void> _clearPermanentLockAndGoHome() async {
     if (_isResetting) return;
     setState(() => _isResetting = true);
-    await _authProvider.clearPermanentLock();
+    try {
+      await _authProvider.clearPermanentLock();
+    } catch (_) {
+      if (mounted) setState(() => _errorMessage = t.errors.pin_processing_error);
+      return;
+    } finally {
+      if (mounted) setState(() => _isResetting = false);
+    }
     if (!mounted) return;
-    setState(() => _isResetting = false);
     await widget.onPermanentLockReset?.call();
   }
 
