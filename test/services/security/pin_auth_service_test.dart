@@ -472,6 +472,88 @@ void main() {
     expect(SharedPrefsRepository().isContainsKey(SharedPrefsKeys.kUnlockAvailableAt), false);
   });
 
+  for (final scenario in [
+    (name: 'turn saved without deadline', turn: '2', attempts: '0', expectedTurn: 2, expectedAttempts: 0),
+    (name: 'third attempt saved without turn', turn: '', attempts: '3', expectedTurn: 1, expectedAttempts: 0),
+    (name: 'overflow attempts with existing turn', turn: '2', attempts: '7', expectedTurn: 4, expectedAttempts: 1),
+    (name: 'negative counters', turn: '-2', attempts: '-1', expectedTurn: 1, expectedAttempts: 0),
+    (name: 'malformed counters', turn: 'invalid', attempts: 'invalid', expectedTurn: 1, expectedAttempts: 0),
+  ]) {
+    test('legacy partial state: ${scenario.name} waits then permits correct PIN without deleting wallets', () async {
+      SharedPreferences.setMockInitialValues({
+        SharedPrefsKeys.hasShownStartGuide: true,
+        SharedPrefsKeys.kPinInputTurn: scenario.turn,
+        SharedPrefsKeys.kPinInputCurrentAttemptCount: scenario.attempts,
+        SharedPrefsKeys.kVaultListField: 'test-only-wallet-list',
+      });
+      await SharedPrefsRepository().init();
+      legacyPin();
+      service = PinAuthService(storage: storage, kdf: kdf, now: () => clock, debugDelay: false);
+      final provider = AuthProvider(pinAuth: service, initializeDeviceBiometrics: false);
+      await provider.ready;
+      expect(provider.authenticationUnavailable, false);
+      expect(provider.isPinSet, true);
+      provider.dispose();
+      expect(service.state.turn, scenario.expectedTurn);
+      expect(service.state.attempts, scenario.expectedAttempts);
+      final deadline = clock.add(Duration(minutes: kLockoutDurationsPerTurn[scenario.expectedTurn - 1]));
+      expect(service.state.unlockAt, deadline.toIso8601String());
+      expect(await verify('012345'), false);
+      final committed = storage.values[PinAuthService.lockKey];
+      expect(SharedPrefsRepository().isContainsKey(SharedPrefsKeys.kPinInputTurn), false);
+      expect(SharedPrefsRepository().isContainsKey(SharedPrefsKeys.kPinInputCurrentAttemptCount), false);
+
+      // Restart uses the committed deadline rather than starting a new delay.
+      clock = clock.add(const Duration(seconds: 10));
+      service = PinAuthService(storage: storage, kdf: kdf, now: () => clock, debugDelay: false);
+      await service.initialize();
+      expect(storage.values[PinAuthService.lockKey], committed);
+      expect(service.state.unlockAt, deadline.toIso8601String());
+      clock = deadline.add(const Duration(seconds: 1));
+      expect(await verify('012345'), true);
+      expect(await service.hasPin(), true);
+      expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), 'test-only-wallet-list');
+    });
+  }
+
+  test('legacy reconstruction preserves longer deadlines and permanent lock markers', () async {
+    final later = clock.add(const Duration(days: 1)).toIso8601String();
+    for (final (turn, attempts, at, expectedTurn, expectedAt) in [
+      ('1', '3', later, 2, later),
+      ('0', '0', '-1', kMaxTurn, '-1'),
+      ('8', '0', '', kMaxTurn, '-1'),
+      ('99', '99', '', kMaxTurn, '-1'),
+      ('7', '3', '', kMaxTurn, '-1'),
+    ]) {
+      storage.values.clear();
+      SharedPreferences.setMockInitialValues({
+        SharedPrefsKeys.kPinInputTurn: turn,
+        SharedPrefsKeys.kPinInputCurrentAttemptCount: attempts,
+        SharedPrefsKeys.kUnlockAvailableAt: at,
+      });
+      await SharedPrefsRepository().init();
+      service = PinAuthService(storage: storage, kdf: kdf, now: () => clock, debugDelay: false);
+      await service.initialize();
+      expect(service.state.turn, expectedTurn);
+      expect(service.state.unlockAt, expectedAt);
+      expect(
+        PinLockState.parse(jsonDecode(storage.values[PinAuthService.lockKey]!) as Map<String, dynamic>).turn,
+        expectedTurn,
+      );
+    }
+  });
+
+  test('legacy missing deadline uses debug delay and rejects corrupted committed records', () async {
+    SharedPreferences.setMockInitialValues({SharedPrefsKeys.kPinInputTurn: '2'});
+    await SharedPrefsRepository().init();
+    service = PinAuthService(storage: storage, kdf: kdf, now: () => clock, debugDelay: true);
+    await service.initialize();
+    expect(service.state.unlockAt, clock.add(const Duration(seconds: kDebugPinInputDelay)).toIso8601String());
+    storage.values[PinAuthService.lockKey] = jsonEncode({'version': 1, 'turn': 2, 'attempts': 0, 'unlockAt': ''});
+    service = PinAuthService(storage: storage, kdf: kdf, now: () => clock);
+    await expectLater(service.initialize(), authError);
+  });
+
   test('provider startup read failure never permits authentication', () async {
     SharedPreferences.setMockInitialValues({SharedPrefsKeys.hasShownStartGuide: true});
     await SharedPrefsRepository().init();

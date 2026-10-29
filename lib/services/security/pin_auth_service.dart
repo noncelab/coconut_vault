@@ -103,7 +103,7 @@ class PinAuthService {
   final PinKdf kdf;
   final DateTime Function() now;
   final bool debugDelay;
-  final PinLockState Function() legacyState;
+  final PinLockState Function()? legacyState;
   final Future<void> Function() removeLegacyState;
   bool _busy = false;
   Completer<void>? _operationCompleted;
@@ -115,26 +115,51 @@ class PinAuthService {
     PinKdf? kdf,
     DateTime Function()? now,
     this.debugDelay = kDebugMode,
-    PinLockState Function()? legacyState,
+    this.legacyState,
     Future<void> Function()? removeLegacyState,
   }) : storage = storage ?? SecurePinAuthStorage(),
        kdf = kdf ?? const Argon2PinKdf(),
        now = now ?? DateTime.now,
-       legacyState = legacyState ?? _readLegacyState,
        removeLegacyState = removeLegacyState ?? _removeLegacyState;
 
-  static PinLockState _readLegacyState() {
+  PinLockState _readLegacyState() {
     final prefs = SharedPrefsRepository();
-    final turn = prefs.getString(SharedPrefsKeys.kPinInputTurn);
-    return PinLockState.parse({
-      'version': 1,
-      'turn': turn.isEmpty ? 0 : int.parse(turn),
-      'attempts':
-          int.tryParse(prefs.getString(SharedPrefsKeys.kPinInputCurrentAttemptCount)) ??
-          (prefs.getString(SharedPrefsKeys.kPinInputCurrentAttemptCount).isEmpty ? 0 : -1),
-      'unlockAt': turn.isEmpty ? '' : prefs.getString(SharedPrefsKeys.kUnlockAvailableAt),
-    });
+    // Older releases wrote these fields separately. Normalize only this legacy
+    // input; committed secure records must still pass PinLockState.parse.
+    String read(String key) => prefs.sharedPrefs.get(key)?.toString() ?? '';
+    final rawTurn = read(SharedPrefsKeys.kPinInputTurn);
+    final rawAttempts = read(SharedPrefsKeys.kPinInputCurrentAttemptCount);
+    final rawAt = read(SharedPrefsKeys.kUnlockAvailableAt);
+    final parsedTurn = int.tryParse(rawTurn);
+    final parsedAttempts = int.tryParse(rawAttempts);
+    var turn = (parsedTurn ?? 0).clamp(0, kMaxTurn);
+    var attempts = max(0, parsedAttempts ?? 0);
+    final overflow = attempts ~/ kMaxAttemptPerTurn;
+    turn = min(kMaxTurn, turn + overflow);
+    attempts %= kMaxAttemptPerTurn;
+
+    // Preserve permanent locks even when their companion field was not saved.
+    if (turn == kMaxTurn || rawAt == '-1') {
+      return const PinLockState(turn: kMaxTurn, unlockAt: '-1');
+    }
+    final malformedCounter =
+        (rawTurn.isNotEmpty && (parsedTurn == null || parsedTurn < 0)) ||
+        (rawAttempts.isNotEmpty && (parsedAttempts == null || parsedAttempts < 0));
+    final deadline = DateTime.tryParse(rawAt);
+    final needsDeadline =
+        overflow > 0 || malformedCounter || (turn > 0 && deadline == null) || (rawAt.isNotEmpty && deadline == null);
+    if (needsDeadline) {
+      turn = max(1, turn);
+      final reconstructed = now().add(_lockoutDuration(turn));
+      // Never shorten an already persisted future deadline.
+      final at = deadline != null && deadline.isAfter(reconstructed) ? rawAt : reconstructed.toIso8601String();
+      return PinLockState(turn: turn, attempts: attempts, unlockAt: at);
+    }
+    return PinLockState(turn: turn, attempts: attempts, unlockAt: rawAt);
   }
+
+  Duration _lockoutDuration(int turn) =>
+      debugDelay ? const Duration(seconds: kDebugPinInputDelay) : Duration(minutes: kLockoutDurationsPerTurn[turn - 1]);
 
   static Future<void> _removeLegacyState() async {
     for (final key in [
@@ -197,7 +222,7 @@ class PinAuthService {
       state = PinLockState.parse(_decode(raw));
     } else {
       if (await storage.read(verifierKey) != null) throw const PinAuthException();
-      final imported = legacyState();
+      final imported = legacyState?.call() ?? _readLegacyState();
       await _save(lockKey, imported.toJson());
       state = imported;
       await removeLegacyState();
@@ -333,16 +358,7 @@ class PinAuthService {
     if (attempts == kMaxAttemptPerTurn) {
       attempts = 0;
       turn++;
-      at =
-          turn == kMaxTurn
-              ? '-1'
-              : now()
-                  .add(
-                    debugDelay
-                        ? const Duration(seconds: kDebugPinInputDelay)
-                        : Duration(minutes: kLockoutDurationsPerTurn[turn - 1]),
-                  )
-                  .toIso8601String();
+      at = turn == kMaxTurn ? '-1' : now().add(_lockoutDuration(turn)).toIso8601String();
     }
     await _setState(PinLockState(turn: turn, attempts: attempts, unlockAt: at));
   }
