@@ -147,6 +147,7 @@ class WalletStorageCleaner {
       Logger.log('--> ✅ SZR deleteKeys 성공: ${walletKeys.length}개 삭제 완료');
     } else {
       Logger.error('--> ⚠️ SZR deleteKeys 일부 실패: ${failed.length}개 실패 $failed');
+      throw StateError('Secure Zone wallet deletion failed');
     }
   }
 
@@ -162,11 +163,14 @@ class WalletStorageCleaner {
           }
           await storage.delete(key: key);
         }
+        if ((await storage.getAllKeys()).any((key) => !_authenticationKeys.contains(key))) {
+          throw StateError('Secure storage wallet deletion incomplete');
+        }
         return;
       } catch (e) {
         if (attempt == 3) {
           Logger.error('--> ❌ FSS deleteAll 실패 after $attempt attempts: ${e.toString()}');
-          return;
+          rethrow;
         }
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }

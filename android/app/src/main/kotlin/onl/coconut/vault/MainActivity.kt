@@ -46,6 +46,12 @@ class MainActivity: FlutterFragmentActivity() {
         flutterEngine.plugins.add(HardwareBackedKeystorePlugin())
         MethodChannel(
             flutterEngine.dartExecutor.binaryMessenger,
+            "onl.coconut.vault/secure_storage_keys",
+            io.flutter.plugin.common.StandardMethodCodec.INSTANCE,
+            flutterEngine.dartExecutor.binaryMessenger.makeBackgroundTaskQueue()
+        ).setMethodCallHandler(SecureStorageKeysHandler(applicationContext))
+        MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
             "onl.coconut.vault/pin_auth_storage",
             io.flutter.plugin.common.StandardMethodCodec.INSTANCE,
             flutterEngine.dartExecutor.binaryMessenger.makeBackgroundTaskQueue()

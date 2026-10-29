@@ -78,6 +78,7 @@ android {
         targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -135,6 +136,10 @@ flutter {
 }
 
 dependencies {
+    implementation "androidx.security:security-crypto:1.1.0-alpha06"
+    implementation "com.google.crypto.tink:tink-android:1.8.0"
+    androidTestImplementation "androidx.test:runner:1.2.0"
+    androidTestImplementation "junit:junit:4.12"
     implementation "androidx.core:core-splashscreen:1.0.0"
     implementation "androidx.biometric:biometric:1.1.0"
 }

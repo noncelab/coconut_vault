@@ -3,6 +3,7 @@ import Flutter
 import LocalAuthentication
 import Foundation
 import Darwin
+import Security
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
@@ -19,6 +20,37 @@ import Darwin
         let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
         let osChannel = FlutterMethodChannel(name: "onl.coconut.vault/os", binaryMessenger: controller.binaryMessenger)
         let teeChannel = FlutterMethodChannel(name: "onl.coconut.vault/secure_module", binaryMessenger: controller.binaryMessenger)
+        let storageKeysChannel = FlutterMethodChannel(name: "onl.coconut.vault/secure_storage_keys", binaryMessenger: controller.binaryMessenger)
+        storageKeysChannel.setMethodCallHandler { call, result in
+            guard call.method == "getAllKeys" else {
+                result(FlutterMethodNotImplemented)
+                return
+            }
+            // Match SecureStorageRepository.iosOptions without requesting values.
+            let query: [CFString: Any] = [
+                kSecClass: kSecClassGenericPassword,
+                kSecAttrService: "flutter_secure_storage_service",
+                kSecAttrAccessible: kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly,
+                kSecAttrSynchronizable: false,
+                kSecMatchLimit: kSecMatchLimitAll,
+                kSecReturnAttributes: true,
+                kSecReturnData: false
+            ]
+            var items: CFTypeRef?
+            let status = SecItemCopyMatching(query as CFDictionary, &items)
+            if status == errSecItemNotFound {
+                result([String]())
+            } else if status == errSecSuccess, let records = items as? [[String: Any]] {
+                let keys = records.compactMap { $0[kSecAttrAccount as String] as? String }
+                guard keys.count == records.count else {
+                    result(FlutterError(code: "SECURE_STORAGE_KEYS_UNAVAILABLE", message: "Invalid keychain attributes", details: nil))
+                    return
+                }
+                result(keys)
+            } else {
+                result(FlutterError(code: "SECURE_STORAGE_KEYS_UNAVAILABLE", message: "Secure storage key enumeration failed", details: nil))
+            }
+        }
         
         osChannel.setMethodCallHandler { call, result in
             switch call.method {

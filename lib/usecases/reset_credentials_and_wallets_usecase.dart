@@ -35,6 +35,7 @@ class ResetCredentialsAndWalletsUsecase {
     } else {
       await WalletStorageCleaner.clearAll();
     }
+    // Cleaner failures must propagate before removing retry metadata or PIN state.
     await preferenceProvider.resetVaultOrderAndFavorites();
     await authProvider.resetCredentials(preservePermanentLock: preservePermanentLock, afterWalletDeletion: true);
   }
