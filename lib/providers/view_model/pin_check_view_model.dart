@@ -343,6 +343,21 @@ class PinCheckViewModel extends ChangeNotifier {
     if (_isResetting) return;
     _update(() => _isResetting = true);
     try {
+      // A previous automatic cleanup may have failed or been cancelled. Always
+      // finish wallet and credential deletion before releasing the durable lock.
+      while (mounted) {
+        try {
+          await ResetCredentialsAndWalletsUsecase.execute(
+            authProvider: _authProvider,
+            preferenceProvider: getPreferenceProvider(),
+            preservePermanentLock: true,
+          );
+          break;
+        } catch (e) {
+          if (!mounted || !await onResetFailure(e)) return;
+        }
+      }
+      if (!mounted) return;
       await _authProvider.clearPermanentLock();
     } catch (_) {
       if (mounted) _update(() => _errorMessage = t.errors.pin_processing_error);

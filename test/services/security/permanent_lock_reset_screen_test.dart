@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/services/security/pin_auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,6 +38,9 @@ class LockedAuth extends ChangeNotifier implements AuthProvider {
   }
 
   @override
+  Future<void> resetCredentials({bool preservePermanentLock = false, bool afterWalletDeletion = false}) async {}
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => null;
 }
 
@@ -47,12 +52,17 @@ void main() {
     addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({});
     await SharedPrefsRepository().init();
+    const keyChannel = MethodChannel('onl.coconut.vault/secure_storage_keys');
+    final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(keyChannel, (_) async => <String>[]);
+    addTearDown(() => messenger.setMockMethodCallHandler(keyChannel, null));
     final auth = LockedAuth();
     final visibility = VisibilityProvider(isSigningOnlyMode: false);
     var completed = 0;
     await tester.pumpWidget(
       MultiProvider(
         providers: [
+          ChangeNotifierProvider<PreferenceProvider>(create: (_) => PreferenceProvider()),
           ChangeNotifierProvider<AuthProvider>.value(value: auth),
           ChangeNotifierProvider<VisibilityProvider>.value(value: visibility),
         ],

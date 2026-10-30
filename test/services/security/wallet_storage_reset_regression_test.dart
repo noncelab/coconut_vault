@@ -1,4 +1,7 @@
 import 'package:coconut_vault/constants/secure_storage_keys.dart';
+import 'package:coconut_vault/constants/method_channel.dart';
+import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/providers/view_model/pin_check_view_model.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
@@ -146,6 +149,62 @@ void main() {
     auth.dispose();
     messenger.setMockMethodCallHandler(keyChannel, null);
     messenger.setMockMethodCallHandler(valueChannel, null);
+    messenger.setMockMethodCallHandler(const MethodChannel(methodChannelSecureModule), null);
+  });
+
+  test('permanent lock deletion failure, cancel and restart cannot bypass cleanup', () async {
+    // Persist a real permanent lock and reload the provider as on app launch.
+    values[PinAuthService.lockKey] = '{"version":1,"turn":8,"attempts":0,"unlockAt":"-1"}';
+    auth.dispose();
+    pin = PinAuthService(storage: RepositoryPinStorage(), kdf: TestKdf());
+    auth = AuthProvider(pinAuth: pin, initializeDeviceBiometrics: false);
+    await auth.ready;
+    expect(auth.isPermanentlyLocked, true);
+    var failZone = true;
+    var deletionCalls = 0;
+    var failures = 0;
+    var homeEntries = 0;
+    messenger.setMockMethodCallHandler(const MethodChannel(methodChannelSecureModule), (call) async {
+      expect(call.method, 'deleteKeys');
+      deletionCalls++;
+      return failZone ? call.arguments['aliasList'] : <String>[];
+    });
+    final model = PinCheckViewModel(
+      authProvider: auth,
+      pinCheckContext: PinCheckContextEnum.appLaunch,
+      onSuccess: () async => fail('Authentication must not succeed'),
+      onKeyboardFocus: () async {},
+      verifyBiometrics: () async => fail('Biometrics must stay blocked'),
+      onReset: () async => fail('Unexpected ordinary reset'),
+      onPermanentlyLocked: () async {},
+      onPermanentLockReset: () async {
+        homeEntries++;
+      },
+      onResetFailure: (_) async {
+        failures++;
+        return false;
+      },
+      getPreferenceProvider: () => ResetPreferences(events),
+    );
+    addTearDown(model.dispose);
+    await model.initialize();
+    expect(failures, 1);
+    await model.confirmReset();
+    expect(deletionCalls, 2);
+    expect(failures, 2);
+    expect(homeEntries, 0);
+    expect(auth.isPermanentlyLocked, true);
+    expect(auth.isPinSet, true);
+    expect(await pin.hasPin(), true);
+    expect(prefs.getString(SharedPrefsKeys.kVaultListField), publicList);
+    expect(model.isResetting, false);
+
+    failZone = false;
+    await model.confirmReset();
+    expect(deletionCalls, 3);
+    expect(homeEntries, 1);
+    expect(auth.isPermanentlyLocked, false);
+    await expectReset();
   });
 
   test('unreadable wallet values are deleted without reading them; credentials survive cleaner', () async {
