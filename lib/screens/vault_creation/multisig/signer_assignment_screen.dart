@@ -442,7 +442,8 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
   }
 
   void _onUseInternalKeyPressed(int index) {
-    if (_viewModel.unselectedSignerOptions.isEmpty) {
+    final assignableOptions = _viewModel.assignableSignerOptions;
+    if (assignableOptions.isEmpty) {
       _showDialog(DialogType.notAvailable, keyIndex: index);
       return;
     }
@@ -456,11 +457,12 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           (scrollController) => KeyListBottomSheet(
             // 키 옵션 중 하나 선택했을 때
             onPressed: (int vaultIndex) {
-              _viewModel.assignInternalSigner(vaultIndex, index);
+              final option = assignableOptions[vaultIndex];
+              _viewModel.assignInternalSigner(_viewModel.unselectedSignerOptions.indexOf(option), index);
               Navigator.pop(context); // 이 볼트에 있는 키 사용하기 다이얼로그 닫기
               Navigator.pop(context); // 키 종류 선택 다이얼로그 닫기
             },
-            vaultList: _viewModel.unselectedSignerOptions.map((o) => o.singlesigVaultListItem).toList(),
+            vaultList: assignableOptions.map((o) => o.singlesigVaultListItem).toList(),
             scrollController: scrollController,
           ),
     );
@@ -732,12 +734,15 @@ class _SignerAssignmentScreenState extends State<SignerAssignmentScreen> {
           title = t.alert.empty_vault.title;
           message = t.alert.empty_vault.description;
           confirmButtonColor = CoconutColors.black;
-          onConfirm = () {
+          onConfirm = () async {
             // 키 배정 화면을 스택에 남겨 두고 단일 서명 지갑을 만든다. 저장하면 이 화면으로 돌아와 keyIndex 자리에 배정된다.
             _viewModel.prepareSignerCreation(keyIndex);
             Navigator.pop(context); // 다이얼로그 닫기
             Navigator.pop(context); // 키 종류 선택 바텀시트 닫기
-            Navigator.pushNamed(context, AppRoutes.vaultCreationOptions);
+            // 저장하고 돌아오든 도중에 뒤로 나오든 이 화면으로 돌아오면 끝난다
+            await Navigator.pushNamed(context, AppRoutes.vaultCreationOptions);
+            final isDuplicated = _viewModel.finishSignerCreation();
+            if (isDuplicated && mounted) _showDialog(DialogType.alreadyExist);
           };
           break;
         }
