@@ -33,9 +33,7 @@ class WalletProvider extends ChangeNotifier {
     _query = WalletQueryService(() => _vaultList);
     _service = WalletService(repo: repo, query: _query, pref: preference, lifecycle: lifecycle, visibility: visibility);
 
-    if (_isSigningOnlyMode) {
-      _service.reset();
-    }
+    _needsSigningOnlyCleanup = _isSigningOnlyMode;
     vaultListNotifier = ValueNotifier(_vaultList);
   }
 
@@ -53,6 +51,7 @@ class WalletProvider extends ChangeNotifier {
   late final ValueNotifier<List<VaultListItemBase>> vaultListNotifier;
   bool _isDisposed = false;
   late bool _isSigningOnlyMode;
+  late bool _needsSigningOnlyCleanup;
 
   // 4) Getter
   List<VaultListItemBase> get vaultList => vaultListNotifier.value;
@@ -233,6 +232,12 @@ class WalletProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // Startup cleanup must finish before loading wallets or accepting a
+      // successful initialization. Keep it pending on failure for the next load.
+      if (_needsSigningOnlyCleanup) {
+        await _service.reset();
+        _needsSigningOnlyCleanup = false;
+      }
       _vaultList.clear();
       _setVaultList([]);
 

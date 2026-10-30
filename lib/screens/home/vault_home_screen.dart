@@ -72,7 +72,17 @@ class _VaultHomeScreenState extends State<VaultHomeScreen> with TickerProviderSt
       if (_viewModel.isVaultsLoaded) {
         return;
       }
-      await _viewModel.loadVaults();
+      while (mounted) {
+        try {
+          await _viewModel.loadVaults();
+          break;
+        } catch (e) {
+          if (!mounted) return;
+          if (!_viewModel.isSigningOnlyMode) rethrow;
+          final shouldRetry = await showResetFailureRetryPopup(context, e);
+          if (!shouldRetry) return;
+        }
+      }
 
       if (!mounted) return;
 
