@@ -12,6 +12,8 @@ abstract class SecureStorageRepositoryContract {
   Future<void> writeBytes({required String key, required Uint8List value});
   Future<Uint8List?> readBytes({required String key});
   Future<void> delete({required String key});
+
+  /// Enumerates key names without reading/decrypting their stored values.
   Future<List<String>> getAllKeys();
   Future<void> deleteAll();
 }
@@ -28,6 +30,7 @@ class SecureStorageRepository implements SecureStorageRepositoryContract {
   static const IOSOptions iosOptions = IOSOptions(accessibility: KeychainAccessibility.passcode, synchronizable: false);
 
   static const FlutterSecureStorage _storage = FlutterSecureStorage(aOptions: androidOptions, iOptions: iosOptions);
+  static const _keyChannel = MethodChannel('onl.coconut.vault/secure_storage_keys');
 
   factory SecureStorageRepository() {
     return _instance;
@@ -96,8 +99,11 @@ class SecureStorageRepository implements SecureStorageRepositoryContract {
 
   @override
   Future<List<String>> getAllKeys() async {
-    final Map<String, String> allValues = await _storage.readAll();
-    return allValues.keys.toList();
+    // Enumerate names only: a damaged wallet value must not prevent its deletion.
+    // Do not fall back to readAll(), which decrypts every stored value.
+    final keys = await _keyChannel.invokeListMethod<String>('getAllKeys');
+    if (keys == null) throw StateError('Secure storage key enumeration failed');
+    return keys;
   }
 
   @override

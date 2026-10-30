@@ -1,12 +1,11 @@
 import 'dart:io';
 
-import 'package:coconut_vault/constants/secure_storage_keys.dart';
+import 'package:coconut_vault/services/security/pin_auth_service.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/model/exception/seed_invalidated_exception.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
-import 'package:coconut_vault/repository/secure_storage_repository.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
@@ -16,18 +15,14 @@ class SecureZoneManager {
   factory SecureZoneManager() => _instance;
   SecureZoneManager._internal();
 
-  Future<bool> verifyIosKeychainValidity() async {
-    assert(Platform.isIOS);
+  Future<bool> verifyIosKeychainValidity({PinAuthService? pinAuth}) async {
     try {
       final sharedPrefs = SharedPrefsRepository();
 
       final isPinEnabled = sharedPrefs.getBool(SharedPrefsKeys.isPinEnabled) ?? false;
       if (!isPinEnabled) return true;
 
-      final secureStorageRepository = SecureStorageRepository();
-      final vaultPin = await secureStorageRepository.read(key: SecureStorageKeys.kVaultPin);
-      if (vaultPin == null) return false;
-      return true;
+      return await (pinAuth ?? PinAuthService.instance).hasPin();
     } catch (e) {
       return false;
     }

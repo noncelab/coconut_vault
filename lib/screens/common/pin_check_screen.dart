@@ -1,22 +1,19 @@
+import 'package:coconut_vault/providers/view_model/pin_check_view_model.dart';
 import 'dart:async';
 import 'dart:io';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
-import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
-import 'package:coconut_vault/usecases/reset_credentials_and_wallets_usecase.dart';
-import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/utils/popup_util.dart';
 import 'package:coconut_vault/widgets/pin/pin_length_toggle_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:coconut_vault/screens/settings/pin_setting_screen.dart';
-import 'package:coconut_vault/utils/vibration_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:provider/provider.dart';
 
@@ -41,278 +38,63 @@ class PinCheckScreen extends StatefulWidget {
   State<PinCheckScreen> createState() => _PinCheckScreenState();
 }
 
-class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObserver {
-  late final bool _isAppLaunched;
-  late String _pin;
-  late String _errorMessage;
-  late PinType _pinType;
-  late bool _shouldDelayKeyboard = false;
-
-  late AuthProvider _authProvider;
-  late List<String> _shuffledPinNumbers;
-
-  DateTime? _lastPressedAt;
-  bool? _isPinInputLocked;
-  bool _isLastChanceToTry = false;
-  bool _isVerifyingPin = false;
-  bool _isResetting = false;
-
+class _PinCheckScreenState extends State<PinCheckScreen> {
+  late final PinCheckViewModel _viewModel;
   final FocusNode _characterFocusNode = FocusNode();
+  DateTime? _lastPressedAt;
+  bool get _isAppLaunched => widget.pinCheckContext == PinCheckContextEnum.appLaunch;
 
   @override
   void initState() {
     super.initState();
-
-    _pin = '';
-    _errorMessage = '';
-
-    _isAppLaunched = widget.pinCheckContext == PinCheckContextEnum.appLaunch;
-    _authProvider = Provider.of<AuthProvider>(context, listen: false);
-    _pinType = _authProvider.isPinCharacter ? PinType.character : PinType.number;
-    if (_isAppLaunched && _authProvider.isBiometricEnabled && _pinType == PinType.character) {
-      _shouldDelayKeyboard = true;
-    }
-
-    Future.microtask(() {
-      _authProvider.onAuthenticationSuccess = _handleAuthenticationSuccess;
-    });
-
-    WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _initializeLockState());
-
-    _shuffledPinNumbers = _authProvider.getShuffledNumberList();
-
-    if (_isAppLaunched && _authProvider.isPermanentlyLocked) {
-      _errorMessage = t.errors.pin_max_attempts_exceeded_error;
-    }
-  }
-
-  Future<void> _initializeLockState() async {
-    if (!_isAppLaunched) {
-      setState(() {
-        _isPinInputLocked = false;
-      });
-      return;
-    }
-
-    if (_authProvider.isPermanentlyLocked) {
-      setState(() {
-        _isPinInputLocked = true;
-      });
-      return;
-    }
-
-    if (!_authProvider.isUnlockAvailable) {
-      setState(() {
-        _isPinInputLocked = true;
-        if (_authProvider.unlockAvailableAt != null) {
-          _startCountdownTimerUntil(_authProvider.unlockAvailableAt!);
-        }
-      });
-    } else {
-      setState(() {
-        _isPinInputLocked = false;
-        _isLastChanceToTry = _authProvider.currentTurn + 1 == kMaxTurn;
-
-        if (_isLastChanceToTry) {
-          _errorMessage = t.errors.remaining_times_away_from_reset_error(
-            count: kMaxAttemptPerTurn - _authProvider.currentAttemptInTurn,
-          );
-        }
-      });
-    }
-
-    final authenticated = await _authenticateWithBiometricsIfEligible();
-    if (authenticated) {
-      await _handleAuthenticationSuccess();
-    } else if (_shouldDelayKeyboard) {
-      _handleKeyboardFocus();
-    }
-  }
-
-  void _handleKeyboardFocus() async {
-    setState(() {
-      _shouldDelayKeyboard = false;
-    });
-
-    if (_pinType == PinType.character) {
-      if (mounted) {
-        FocusScope.of(context).unfocus();
-
-        if (mounted && _characterFocusNode.canRequestFocus) {
-          _characterFocusNode.requestFocus();
-
-          if (Platform.isAndroid) {
-            await Future.delayed(const Duration(milliseconds: 100));
-            SystemChannels.textInput.invokeMethod('TextInput.show');
-          }
-        }
-      }
-    }
-  }
-
-  Future<bool> _authenticateWithBiometricsIfEligible() async {
-    if (!_isAppLaunched ||
-        _authProvider.isPermanentlyLocked ||
-        _isPinInputLocked == true ||
-        !_authProvider.isBiometricEnabled) {
-      return false;
-    }
-
-    return await _authProvider.authenticateWithBiometrics();
-  }
-
-  void _onKeyTap(String value) async {
-    if (_isPinInputLocked != false) {
-      return;
-    }
-
-    if (value == kBiometricIdentifier) {
-      _authProvider.verifyBiometric(context);
-      return;
-    }
-
-    setState(() {
-      // 문자 입력 모드
-      if (_pinType == PinType.character) {
-        _pin = value;
-        if (_pin.isNotEmpty) {
-          _verifyPin();
-        }
-        return;
-      }
-
-      // 6-digit PIN 입력 모드
-      if (value == kDeleteBtnIdentifier) {
-        if (_pin.isNotEmpty) {
-          _pin = _pin.substring(0, _pin.length - 1);
-        }
-      } else if (_pin.length < kExpectedPinLength) {
-        _pin += value;
-        vibrateExtraLight();
-      }
-
-      if (_pin.length == kExpectedPinLength) {
-        _verifyPin();
-      }
+    final auth = context.read<AuthProvider>();
+    _viewModel = PinCheckViewModel(
+      authProvider: auth,
+      pinCheckContext: widget.pinCheckContext,
+      onSuccess: _navigateAfterAuthentication,
+      onKeyboardFocus: _focusKeyboard,
+      verifyBiometrics: () async {
+        if (mounted) await auth.verifyBiometric(context);
+      },
+      onReset: () async {
+        if (mounted) await widget.onReset?.call();
+      },
+      onPermanentlyLocked: () async {
+        if (mounted) await widget.onPermanentlyLocked?.call();
+      },
+      onPermanentLockReset: () async {
+        if (mounted) await widget.onPermanentLockReset?.call();
+      },
+      onResetFailure: (error) async => mounted ? showResetFailureRetryPopup(context, error) : false,
+      getPreferenceProvider: () => context.read<PreferenceProvider>(),
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _viewModel.initialize();
     });
   }
 
-  Future<void> _handleAuthenticationSuccess() async {
-    await _authProvider.resetAuthenticationState();
-
+  Future<void> _navigateAfterAuthentication() async {
+    if (!mounted) return;
     switch (widget.pinCheckContext) {
       case PinCheckContextEnum.pinChange:
         Navigator.pop(context);
         MyBottomSheet.showBottomSheet_90(context: context, child: const PinSettingScreen());
         break;
-      case PinCheckContextEnum.appLaunch:
-      default: // vaultInfo
+      default:
         await widget.onSuccess?.call();
     }
   }
 
-  void _verifyPin() async {
-    setState(() {
-      _isVerifyingPin = true;
-    });
-    bool isAuthenticated = await _authProvider.verifyPin(_pin, isAppLaunchScreen: _isAppLaunched);
-    if (mounted) {
-      setState(() {
-        _isVerifyingPin = false;
-      });
-    }
-    if (isAuthenticated) {
-      await _handleAuthenticationSuccess();
-      return;
-    }
-
-    _handleAuthenticationFailure();
-  }
-
-  void _handleAuthenticationFailure() {
-    if (_isAppLaunched) {
-      if (_authProvider.isPermanentlyLocked) {
-        Logger.log('1 - _handlePermanentLockout');
-        vibrateMedium();
-        _handlePermanentLockout();
-        return;
+  Future<void> _focusKeyboard() async {
+    if (!mounted || _viewModel.pinType != PinType.character) return;
+    FocusScope.of(context).unfocus();
+    if (_characterFocusNode.canRequestFocus) {
+      _characterFocusNode.requestFocus();
+      if (Platform.isAndroid) {
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+        if (mounted) SystemChannels.textInput.invokeMethod('TextInput.show');
       }
-
-      if (_authProvider.remainingAttemptCount > 0 && _authProvider.remainingAttemptCount < kMaxAttemptPerTurn) {
-        vibrateLightDouble();
-        setState(() {
-          final remainingTimes = _authProvider.remainingAttemptCount;
-          _errorMessage =
-              _isLastChanceToTry
-                  ? t.errors.remaining_times_away_from_reset_error(count: remainingTimes)
-                  : t.errors.pin_incorrect_with_remaining_attempts_error(count: remainingTimes);
-        });
-      } else {
-        vibrateMedium();
-        setState(() {
-          _errorMessage = '';
-          _isPinInputLocked = true;
-          Logger.log('--> set _isPinInputLocked to true');
-        });
-
-        final nextUnlockTime = _authProvider.unlockAvailableAt;
-        if (nextUnlockTime != null) _startCountdownTimerUntil(nextUnlockTime);
-      }
-    } else {
-      vibrateLightDouble();
-      setState(() {
-        _errorMessage = t.errors.pin_incorrect_error;
-      });
     }
-
-    setState(() {
-      _pin = '';
-      _shuffledPinNumbers = _authProvider.getShuffledNumberList();
-    });
-  }
-
-  void _startCountdownTimerUntil(DateTime lockoutEndTime) {
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-
-      final remainingDuration = lockoutEndTime.difference(DateTime.now());
-      final remainingSeconds = remainingDuration.inSeconds > 0 ? remainingDuration.inSeconds : 0;
-
-      if (remainingSeconds == 0) {
-        timer.cancel();
-        setState(() {
-          _errorMessage = '';
-          _isPinInputLocked = false;
-          Logger.log('--> set _isPinInputLocked to false');
-          _isLastChanceToTry = _authProvider.currentTurn + 1 == kMaxTurn;
-        });
-      } else {
-        final formattedTime = _formatRemainingTime(remainingSeconds);
-        setState(() {
-          _errorMessage = t.errors.retry_after(time: formattedTime);
-        });
-      }
-    });
-  }
-
-  String _formatRemainingTime(int remainingSeconds) {
-    final hours = remainingSeconds ~/ 3600;
-    final minutes = (remainingSeconds % 3600) ~/ 60;
-    final seconds = remainingSeconds % 60;
-
-    List<String> timeComponents = [];
-
-    if (hours > 0) timeComponents.add('$hours${t.hour}');
-    if (minutes > 0) timeComponents.add('$minutes${t.minute}');
-    if (seconds > 0 || timeComponents.isEmpty) {
-      timeComponents.add('$seconds${t.second}');
-    }
-
-    return timeComponents.join(' ');
   }
 
   void _showResetDialog() {
@@ -323,11 +105,15 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           languageCode: context.read<VisibilityProvider>().appLanguage.code,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title:
-              !_authProvider.isPermanentlyLocked
+              _viewModel.authenticationRecoveryRequired
+                  ? t.errors.pin_storage_reset_button
+                  : !_viewModel.isPermanentlyLocked
                   ? t.alert.forgot_password.title
                   : t.pin_check_screen.dialog.restart.title,
           description:
-              !_authProvider.isPermanentlyLocked
+              _viewModel.authenticationRecoveryRequired
+                  ? t.errors.pin_storage_reset_warning
+                  : !_viewModel.isPermanentlyLocked
                   ? t.alert.forgot_password.description1
                   : t.pin_check_screen.dialog.restart.description,
           leftButtonText: t.no,
@@ -336,11 +122,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           rightButtonColor: CoconutColors.warningText,
           onTapRight: () {
             Navigator.pop(context);
-            if (_isAppLaunched && _authProvider.isPermanentlyLocked) {
-              _clearPermanentLockAndGoHome();
-            } else {
-              _reset();
-            }
+            _viewModel.confirmReset();
           },
           onTapLeft: () => Navigator.pop(context),
         );
@@ -348,75 +130,15 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
     );
   }
 
-  Future<void> _clearPermanentLockAndGoHome() async {
-    if (_isResetting) return;
-    setState(() => _isResetting = true);
-    await _authProvider.clearPermanentLock();
-    if (!mounted) return;
-    setState(() => _isResetting = false);
-    await widget.onPermanentLockReset?.call();
-  }
-
-  Future<void> _reset() async {
-    if (_isResetting) return;
-    setState(() => _isResetting = true);
-    // PinCheckScreen은 appLaunch 플로우에서 사용되어 WalletProvider가 아직 트리에 없으므로 walletProvider 전달하지 않음.
-    final preferenceProvider = context.read<PreferenceProvider>();
-    while (mounted) {
-      try {
-        await ResetCredentialsAndWalletsUsecase.execute(
-          authProvider: _authProvider,
-          preferenceProvider: preferenceProvider,
-        );
-
-        if (!mounted) return;
-        setState(() => _isResetting = false);
-        await widget.onReset?.call();
-        return;
-      } catch (e) {
-        if (!mounted) return;
-        final shouldRetry = await showResetFailureRetryPopup(context, e);
-        if (shouldRetry) continue;
-        if (mounted) setState(() => _isResetting = false);
-        return;
-      }
-    }
-  }
-
-  Future<void> _handlePermanentLockout() async {
-    if (_isResetting) return;
-    setState(() {
-      _isLastChanceToTry = false;
-      _errorMessage = t.errors.pin_max_attempts_exceeded_error;
-      _isPinInputLocked = true;
-      _isResetting = true;
-    });
-    // PinCheckScreen은 appLaunch 플로우에서 사용되어 WalletProvider가 아직 트리에 없으므로 walletProvider 전달하지 않음.
-    final preferenceProvider = context.read<PreferenceProvider>();
-    while (mounted) {
-      try {
-        await ResetCredentialsAndWalletsUsecase.execute(
-          authProvider: _authProvider,
-          preferenceProvider: preferenceProvider,
-          preservePermanentLock: true,
-        );
-
-        if (!mounted) return;
-        setState(() => _isResetting = false);
-        widget.onPermanentlyLocked?.call();
-        return;
-      } catch (e) {
-        if (!mounted) return;
-        final shouldRetry = await showResetFailureRetryPopup(context, e);
-        if (shouldRetry) continue;
-        if (mounted) setState(() => _isResetting = false);
-        return;
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    return ChangeNotifierProvider<PinCheckViewModel>.value(
+      value: _viewModel,
+      child: Consumer<PinCheckViewModel>(builder: (context, model, _) => _buildScreen(context)),
+    );
+  }
+
+  Widget _buildScreen(BuildContext context) {
     return _isAppLaunched
         ? Material(
           color: CoconutColors.white,
@@ -442,20 +164,17 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
               body: Stack(
                 children: [
                   Center(child: _pinInputScreen(isOnReset: true)),
-                  if (_isResetting)
+                  if (_viewModel.isResetting)
                     const Positioned.fill(child: AbsorbPointer(child: Center(child: CoconutCircularIndicator()))),
                 ],
               ),
             ),
           ),
         )
-        : PopScope(canPop: !_isResetting, child: _pinInputScreen());
+        : PopScope(canPop: !_viewModel.isResetting, child: _pinInputScreen());
   }
 
   Widget _pinInputScreen({isOnReset = false}) {
-    Logger.log(
-      '--> PinInputScreen isPermanantlyLocked: ${_authProvider.isPermanentlyLocked} / isPinInputLocked: $_isPinInputLocked',
-    );
     return Selector<AuthProvider, bool>(
       selector: (_, authProvider) => authProvider.isPermanentlyLocked,
       builder: (context, isPermanentlyLocked, child) {
@@ -463,31 +182,28 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
           canChangePinType: false,
           appBarVisible: _isAppLaunched ? false : true,
           title: _isAppLaunched ? '' : t.pin_check_screen.enter_password,
-          pin: _pin,
-          errorMessage: _errorMessage,
-          onKeyTap: _onKeyTap,
-          pinType: context.read<AuthProvider>().isPinCharacter ? PinType.character : PinType.number,
-          pinShuffleNumbers: _shuffledPinNumbers,
-          onPinClear: () {
-            setState(() {
-              _pin = '';
-              _errorMessage = '';
-            });
-          },
+          pin: _viewModel.pin,
+          errorMessage: _viewModel.errorMessage,
+          onKeyTap: _viewModel.onKeyTap,
+          pinType: _viewModel.pinType,
+          pinShuffleNumbers: _viewModel.shuffledPinNumbers,
+          onPinClear: _viewModel.clearPin,
           bottomTextButtonLabel:
               _isAppLaunched
-                  ? isPermanentlyLocked
+                  ? _viewModel.authenticationRecoveryRequired
+                      ? t.errors.pin_storage_reset_button
+                      : isPermanentlyLocked
                       ? t.errors.restart_vault
                       : t.forgot_password
                   : null,
           onPressedBottomTextButton: _showResetDialog,
           step: 0,
-          lastChance: _isLastChanceToTry,
+          lastChance: _viewModel.isLastChanceToTry,
           lastChanceMessage: t.pin_check_screen.warning,
-          disabled: isPermanentlyLocked || _isPinInputLocked == true || _isVerifyingPin || _isResetting,
+          disabled: _viewModel.disabled,
           characterFocusNode: _characterFocusNode,
-          isLoading: _isVerifyingPin,
-          shouldDelayKeyboard: _shouldDelayKeyboard,
+          isLoading: _viewModel.isVerifyingPin,
+          shouldDelayKeyboard: _viewModel.shouldDelayKeyboard,
         );
       },
     );
@@ -495,7 +211,7 @@ class _PinCheckScreenState extends State<PinCheckScreen> with WidgetsBindingObse
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    _viewModel.dispose();
     _characterFocusNode.dispose();
     super.dispose();
   }
