@@ -27,7 +27,9 @@ class MultisigSignViewModel extends ChangeNotifier {
   bool _isRawTransactionValidated = false;
   bool _signStateInitialized = false;
   final bool _isSigningOnlyMode;
-  Map<String, String>? _input0PubkeyBySigner;
+  // input[0]에서 각 signer가 사용하는 공개키 (signer 인덱스 순서).
+  // 동일 MFP signer가 있을 수 있으므로 MFP 대신 파생 공개키로 매칭한다.
+  List<String>? _input0PubkeysBySigner;
 
   MultisigSignViewModel(this._walletProvider, this._signProvider, this._isSigningOnlyMode) {
     _vaultListItem = _signProvider.vaultListItem! as MultisigVaultListItem;
@@ -83,18 +85,27 @@ class MultisigSignViewModel extends ChangeNotifier {
     }
 
     if (_signProvider.vaultType == WalletType.multiSignature) {
-      Map<String, String> input0PubkeyMap = {};
       final unsignedPsbt = Psbt.parse(unsignedPsbtBase64);
       final keystoreList = (_vaultListItem.coconutVault as MultisignatureVault).keyStoreList;
       final input0DerivationPaths = unsignedPsbt.inputs[0].bip32Derivation!;
+      final input0PubkeyList = List<String>.filled(keystoreList.length, '');
 
-      for (int i = 0; i < keystoreList.length; i++) {
-        input0PubkeyMap[keystoreList[i].masterFingerprint] =
-            input0DerivationPaths.firstWhere((element) {
-              return element.masterFingerprint.toUpperCase() == keystoreList[i].masterFingerprint.toUpperCase();
-            }).publicKey;
+      // derivation.path 예: "m/48'/1'/0'/2'/0/8" → branch=0, index=8
+      for (final derivation in input0DerivationPaths) {
+        final pathParts = derivation.path.split('/');
+        if (pathParts.length < 2) continue;
+        final branch = int.tryParse(pathParts[pathParts.length - 2]);
+        final addressIndex = int.tryParse(pathParts[pathParts.length - 1]);
+        if (branch == null || addressIndex == null) continue;
+
+        for (int i = 0; i < keystoreList.length; i++) {
+          if (keystoreList[i].getPublicKey(addressIndex, isChange: branch == 1) == derivation.publicKey) {
+            input0PubkeyList[i] = derivation.publicKey;
+            break;
+          }
+        }
       }
-      _input0PubkeyBySigner = input0PubkeyMap;
+      _input0PubkeysBySigner = input0PubkeyList;
     }
   }
 
@@ -423,12 +434,37 @@ class MultisigSignViewModel extends ChangeNotifier {
           currentInput.partialSig?.removeWhere((existingSig) => !signaturePubKeySet.contains(existingSig.publicKey));
         }
 
+        // 이 input에서 유효한 서명자 공개키 목록 (각 input마다 derivation path가 다름).
+        // bip32Derivation이 없으면 vault keyStore에서 파생한다.
+        Set<String> validPubkeysForInput;
+        if (currentInput.bip32Derivation != null && currentInput.bip32Derivation!.isNotEmpty) {
+          validPubkeysForInput = currentInput.bip32Derivation!.map((d) => d.publicKey).toSet();
+        } else {
+          validPubkeysForInput = {};
+          final path = currentInput.derivationPathList.isNotEmpty ? currentInput.derivationPathList.first.path : null;
+          if (path != null) {
+            final pathParts = path.split('/');
+            final branch = int.tryParse(pathParts[pathParts.length - 2]);
+            final addressIndex = int.tryParse(pathParts[pathParts.length - 1]);
+            if (branch != null && addressIndex != null) {
+              for (final keyStore in _coconutVault.keyStoreList) {
+                validPubkeysForInput.add(keyStore.getPublicKey(addressIndex, isChange: branch == 1));
+              }
+            }
+          }
+        }
+
         for (var sig in scannedInput.partialSig!) {
           // 이미 존재하는 서명인지 확인 (중복 방지)
           bool alreadyExists =
               currentInput.partialSig?.any((existingSig) => existingSig.publicKey == sig.publicKey) ?? false;
 
           if (alreadyExists) continue;
+
+          // 서명 공개키가 이 input의 vault 서명자 것인지 확인
+          if (!validPubkeysForInput.contains(sig.publicKey)) {
+            throw FormatException(exceptionMessages.invalid_sign_error);
+          }
 
           if (!currentPsbt.validateSignature(i, sig.signature, sig.publicKey)) {
             throw FormatException(exceptionMessages.invalid_sign_error);
@@ -452,7 +488,7 @@ class MultisigSignViewModel extends ChangeNotifier {
     } on FormatException catch (_) {
       rethrow;
     } catch (e) {
-      Logger.error('validateRawSignedTransaction error: $e');
+      Logger.error('onScannedPsbt error: $e');
       throw FormatException(exceptionMessages.invalid_sign_error);
     }
   }
@@ -467,9 +503,11 @@ class MultisigSignViewModel extends ChangeNotifier {
     for (int i = 0; i < currentPsbt.inputs[0].partialSig!.length; i++) {
       // 서명자 인덱스를 찾아서 _signerApproved 업데이트
       final publicKey = currentPsbt.inputs[0].partialSig![i].publicKey;
-      final signerIndex = _input0PubkeyBySigner!.values.toList().indexOf(publicKey);
+      final signerIndex = _input0PubkeysBySigner!.indexOf(publicKey);
 
-      assert(signerIndex != -1);
+      if (signerIndex == -1) {
+        throw FormatException(t.multisig_sign_screen.exception.invalid_sign_error);
+      }
 
       newSignerApproved[signerIndex] = true;
     }

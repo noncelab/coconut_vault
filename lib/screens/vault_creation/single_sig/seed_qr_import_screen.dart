@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/model/multisig/external_signer_context.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/import_passphrase_resolver.dart';
@@ -24,8 +24,7 @@ import 'package:permission_handler/permission_handler.dart';
 /// mobile_scanner 이슈로
 /// 이 화면만 qr_code_scanner_plus 사용
 class SeedQrImportScreen extends StatefulWidget {
-  final MultisigSigner? externalSigner;
-  final int? multisigVaultIdOfExternalSigner;
+  final ExternalSignerContext? externalSignerContext;
   final bool isEmbedded;
   final bool isTaproot;
   final bool requirePassphraseConfirmation;
@@ -38,8 +37,7 @@ class SeedQrImportScreen extends StatefulWidget {
 
   const SeedQrImportScreen({
     super.key,
-    this.externalSigner,
-    this.multisigVaultIdOfExternalSigner,
+    this.externalSignerContext,
     this.isEmbedded = false,
     this.isTaproot = false,
     this.requirePassphraseConfirmation = false,
@@ -267,8 +265,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
               builder:
                   (context) => SeedQrConfirmationScreen(
                     scannedData: secret,
-                    externalSigner: widget.externalSigner,
-                    multisigVaultIdOfExternalSigner: widget.multisigVaultIdOfExternalSigner,
+                    externalSignerContext: widget.externalSignerContext,
                     isTaproot: widget.isTaproot,
                     requirePassphraseConfirmation: widget.requirePassphraseConfirmation,
                     showPassphraseWarningSubWidget: widget.showPassphraseWarningSubWidget,

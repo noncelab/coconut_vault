@@ -7,7 +7,7 @@ import 'package:coconut_vault/repository/wallet_storage_cleaner.dart';
 ///
 /// 정리 대상:
 /// - 모든 vault 데이터: SecureZone alias, FlutterSecureStorage, SharedPrefs vault 메타
-///   (`kVaultListField`, `vaultListLength`, `kNextIdField`)
+///   (`kVaultListField`, `kNextIdField`)
 /// - 인증 상태: PIN, biometric 토글, lockout 기록
 /// - vault 정렬 정보: vault 순서, 즐겨찾기
 ///

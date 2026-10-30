@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
+import 'package:coconut_vault/model/multisig/external_signer_context.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/utils/coconut/multisig_utils.dart';
 
@@ -13,8 +14,7 @@ class WalletCreationProvider {
 
   /// singleSig
   ({Uint8List secret, Uint8List? passphrase}) _keyData = (secret: Uint8List(0), passphrase: Uint8List(0));
-  MultisigSigner? _externalSigner; // 멀티시그 지갑에서 외부지갑 키 추가 시
-  int? _multisigVaultIdOfExternalSigner; // 멀티시그 지갑에서 외부지갑 키 추가 시 호출한 화면의 vault id
+  ExternalSignerContext? _externalSignerContext; // 멀티시그 지갑에서 외부지갑 키 추가 시
   String? _passphraseInput;
   String? _singleSigCreationOption; // 현재는 'mnemonicAutoGen'일 때만 할당하고 있음. 'mnemonicCoinflip' or 'mnemonicDiceRoll'은 생략
 
@@ -27,8 +27,7 @@ class WalletCreationProvider {
   Uint8List get secret => _keyData.secret;
   Uint8List? get passphrase =>
       _keyData.passphrase != null && _keyData.passphrase!.isNotEmpty ? _keyData.passphrase : null;
-  MultisigSigner? get externalSigner => _externalSigner;
-  int? get multisigVaultIdOfExternalSigner => _multisigVaultIdOfExternalSigner;
+  ExternalSignerContext? get externalSignerContext => _externalSignerContext;
   String? get singleSigCreationOption => _singleSigCreationOption;
 
   WalletType get walletType {
@@ -63,12 +62,8 @@ class WalletCreationProvider {
     _signers = signers;
   }
 
-  void setExternalSigner(MultisigSigner externalSigner) {
-    _externalSigner = externalSigner;
-  }
-
-  void setMultisigVaultIdOfExternalSigner(int? vaultId) {
-    _multisigVaultIdOfExternalSigner = vaultId;
+  void setExternalSignerContext(ExternalSignerContext context) {
+    _externalSignerContext = context;
   }
 
   /// SingleSig
@@ -108,7 +103,6 @@ class WalletCreationProvider {
 
     /// multisig
     _requiredSignatureCount =
-        _totalSignatureCount =
-            _signers = _externalSigner = _multisigVaultIdOfExternalSigner = _singleSigCreationOption = null;
+        _totalSignatureCount = _signers = _externalSignerContext = _singleSigCreationOption = null;
   }
 }
