@@ -6,6 +6,8 @@ import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+enum WalletApp { coconut, sparrow, nunchuk, bluewallet }
+
 class SelectSyncOptionBottomSheet extends StatefulWidget {
   final Function(SyncOption) onSyncOptionSelected;
   final ScrollController? scrollController;
@@ -19,6 +21,7 @@ class SelectSyncOptionBottomSheet extends StatefulWidget {
 class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomSheet> {
   final List<SyncOption> _syncOptions = [
     SyncOption(
+      app: WalletApp.coconut,
       title: t.watch_only_options.coconut_wallet,
       iconPath:
           NetworkType.currentNetworkType.isTestnet
@@ -27,16 +30,19 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
       format: WalletExportFormatEnum.coconut,
     ),
     SyncOption(
+      app: WalletApp.sparrow,
       title: t.watch_only_options.sparrow,
       iconPath: "assets/svg/watch-only-icons/sparrow.svg",
       format: WalletExportFormatEnum.bcUr,
     ),
     SyncOption(
+      app: WalletApp.nunchuk,
       title: t.watch_only_options.nunchuk,
       iconPath: "assets/svg/watch-only-icons/nunchuk.svg",
       format: WalletExportFormatEnum.bcUr,
     ),
     SyncOption(
+      app: WalletApp.bluewallet,
       title: t.watch_only_options.bluewallet,
       iconPath: "assets/svg/watch-only-icons/bluewallet.svg",
       format: WalletExportFormatEnum.descriptor,
@@ -124,8 +130,9 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
 
 class SyncOption {
   final String title;
+  final WalletApp? app;
   final String iconPath;
   final WalletExportFormatEnum format;
 
-  SyncOption({required this.title, required this.iconPath, required this.format});
+  SyncOption({required this.title, required this.iconPath, required this.format, this.app});
 }

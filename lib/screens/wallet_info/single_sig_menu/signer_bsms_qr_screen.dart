@@ -3,6 +3,9 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/multisig_signer_bsms_export_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
+import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
+import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
 import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/qr_with_copy_text_screen.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +13,9 @@ import 'package:provider/provider.dart';
 
 class SignerBsmsQrScreen extends StatefulWidget {
   final int id;
+  final WalletApp app;
 
-  const SignerBsmsQrScreen({super.key, required this.id});
+  const SignerBsmsQrScreen({super.key, required this.id, this.app = WalletApp.coconut});
 
   @override
   State<SignerBsmsQrScreen> createState() => _SignerBsmsQrScreenState();
@@ -19,6 +23,7 @@ class SignerBsmsQrScreen extends StatefulWidget {
 
 class _SignerBsmsQrScreenState extends State<SignerBsmsQrScreen> {
   late MultisigSignerBsmsExportViewModel _viewModel;
+  late final BcUrQrViewHandler? _sparrowQr;
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +35,11 @@ class _SignerBsmsQrScreenState extends State<SignerBsmsQrScreen> {
             children: [
               QrWithCopyTextScreen(
                 title: viewModel.name,
-                qrData: viewModel.qrData,
+                qrData: _sparrowQr != null ? null : _exportText,
+                qrViewDataHandler: _sparrowQr,
+                textData: _exportText,
                 tooltipDescription: _buildDescription(),
-                textRichText: _getCopyTextRichText(),
+                textRichText: widget.app == WalletApp.coconut ? _getCopyTextRichText() : null,
               ),
               Visibility(
                 visible: viewModel.isLoading,
@@ -50,26 +57,29 @@ class _SignerBsmsQrScreenState extends State<SignerBsmsQrScreen> {
     );
   }
 
+  String get _exportText => switch (widget.app) {
+    WalletApp.coconut => _viewModel.qrData,
+    WalletApp.bluewallet => _viewModel.blueWalletCosigner,
+    WalletApp.nunchuk || WalletApp.sparrow => _viewModel.signerDescriptor,
+  };
+
+  String get _appGuide => switch (widget.app) {
+    WalletApp.coconut => t.signer_bsms_screen.coconut_guide,
+    WalletApp.nunchuk => t.signer_bsms_screen.nunchuk_guide,
+    WalletApp.sparrow => t.signer_bsms_screen.sparrow_guide,
+    WalletApp.bluewallet => t.signer_bsms_screen.bluewallet_guide,
+  };
+
   Widget _buildDescription() {
     return CustomTooltip.buildInfoTooltip(
       context,
       richText: RichText(
         text: TextSpan(
           style: CoconutTypography.body2_14.setColor(CoconutColors.black),
-          children: _getTooltipRichText(),
+          children: [TextSpan(text: _appGuide)],
         ),
       ),
     );
-  }
-
-  List<TextSpan> _getTooltipRichText() {
-    final basicStyle = CoconutTypography.body2_14.setColor(CoconutColors.black);
-
-    return [
-      TextSpan(text: t.signer_bsms_screen.guide1_1, style: basicStyle),
-      const TextSpan(text: ' '),
-      TextSpan(text: t.signer_bsms_screen.guide1_2, style: basicStyle),
-    ];
   }
 
   RichText _getCopyTextRichText() {
@@ -100,6 +110,10 @@ class _SignerBsmsQrScreenState extends State<SignerBsmsQrScreen> {
   void initState() {
     super.initState();
     _viewModel = MultisigSignerBsmsExportViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id);
+    _sparrowQr =
+        widget.app == WalletApp.sparrow && _viewModel.bsms != null
+            ? BcUrQrViewHandler(_viewModel.sparrowAccount, UrType.cryptoAccount)
+            : null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_viewModel.errorMessage.isNotEmpty) {
         showDialog(
