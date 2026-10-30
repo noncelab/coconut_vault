@@ -5,6 +5,8 @@ import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/constants/secure_storage_keys.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
 import 'package:coconut_vault/providers/auth_provider.dart';
+import 'package:coconut_vault/enums/pin_check_context_enum.dart';
+import 'package:coconut_vault/providers/view_model/pin_check_view_model.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/services/security/pin_auth_service.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_availability_checker.dart';
@@ -562,11 +564,67 @@ void main() {
     });
   }
 
+  for (final savedTurn in [null, '0']) {
+    test(
+      'legacy cleared turn $savedTurn with stale infinite deadline requires PIN without automatic deletion',
+      () async {
+        clock = DateTime.now();
+        SharedPreferences.setMockInitialValues({
+          SharedPrefsKeys.hasShownStartGuide: true,
+          if (savedTurn != null) SharedPrefsKeys.kPinInputTurn: savedTurn,
+          SharedPrefsKeys.kPinInputCurrentAttemptCount: '0',
+          SharedPrefsKeys.kUnlockAvailableAt: '-1',
+          SharedPrefsKeys.kVaultListField: 'test-only-wallet-list',
+        });
+        await SharedPrefsRepository().init();
+        legacyPin();
+        service = PinAuthService(storage: storage, kdf: kdf, now: () => clock, debugDelay: false);
+        final provider = AuthProvider(pinAuth: service, initializeDeviceBiometrics: false);
+        await provider.ready;
+        final model = PinCheckViewModel(
+          authProvider: provider,
+          pinCheckContext: PinCheckContextEnum.appLaunch,
+          onSuccess: () async => fail('Must require authentication'),
+          onKeyboardFocus: () async {},
+          verifyBiometrics: () async => fail('Must wait for lockout'),
+          onReset: () async => fail('Must not reset wallets'),
+          onPermanentlyLocked: () async => fail('Must not restore permanent lock'),
+          onPermanentLockReset: () async => fail('Must not bypass authentication'),
+          onResetFailure: (_) async => fail('Must not attempt deletion'),
+          getPreferenceProvider: () => throw StateError('Must not attempt deletion'),
+        );
+        await model.initialize();
+        expect(provider.authenticationUnavailable, false);
+        expect(provider.isPermanentlyLocked, false);
+        expect(provider.isPinSet, true);
+        expect(model.disabled, true);
+        final deadline = clock.add(Duration(minutes: kLockoutDurationsPerTurn[0]));
+        expect(service.state.turn, 1);
+        expect(service.state.unlockAt, deadline.toIso8601String());
+        model.dispose();
+        provider.dispose();
+
+        // The replacement state survives restart without restoring '-1' or
+        // extending the delay, and a correct PIN is still necessary afterward.
+        service = PinAuthService(storage: storage, kdf: kdf, now: () => clock, debugDelay: false);
+        await service.initialize();
+        expect(service.state.turn, 1);
+        expect(service.state.unlockAt, deadline.toIso8601String());
+        expect(await verify('012345'), false);
+        clock = deadline.add(const Duration(seconds: 1));
+        expect(await verify('wrong'), false);
+        expect(await verify('012345'), true);
+        expect(await service.hasPin(), true);
+        expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), 'test-only-wallet-list');
+      },
+    );
+  }
+
   test('legacy reconstruction preserves longer deadlines and permanent lock markers', () async {
     final later = clock.add(const Duration(days: 1)).toIso8601String();
     for (final (turn, attempts, at, expectedTurn, expectedAt) in [
       ('1', '3', later, 1, later),
-      ('0', '0', '-1', kMaxTurn, '-1'),
+      ('0', '0', '-1', 1, clock.add(Duration(minutes: kLockoutDurationsPerTurn[0])).toIso8601String()),
       ('8', '0', '', kMaxTurn, '-1'),
       ('99', '99', '', kMaxTurn, '-1'),
       ('8', '3', '', kMaxTurn, '-1'),

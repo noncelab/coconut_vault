@@ -142,8 +142,11 @@ class PinAuthService {
     final incompleteAttemptBatch = attempts >= kMaxAttemptPerTurn;
     if (incompleteAttemptBatch) attempts = 0;
 
-    // Preserve permanent locks even when their companion field was not saved.
-    if (turn == kMaxTurn || rawAt == '-1') {
+    // Old clearPermanentLock removed only the turn key, leaving '-1' behind.
+    // Without a saved turn this marker is ambiguous: require a delay and PIN
+    // authentication instead of restoring a lock that automatically wipes wallets.
+    final clearedLegacyTurn = rawTurn.isEmpty || parsedTurn == 0;
+    if (turn == kMaxTurn || (rawAt == '-1' && !clearedLegacyTurn)) {
       return const PinLockState(turn: kMaxTurn, unlockAt: '-1');
     }
     final malformedCounter =
