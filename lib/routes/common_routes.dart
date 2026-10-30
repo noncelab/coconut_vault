@@ -1,3 +1,4 @@
+import 'package:coconut_vault/screens/home/select_sync_option_bottom_sheet.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
 import 'package:coconut_vault/screens/airgap/multisig_sign_screen.dart';
@@ -126,7 +127,10 @@ Map<String, WidgetBuilder> buildCommonRoutes({required VoidCallback onWelcomeCom
           (args) => SyncToWalletScreen(id: args['id'], syncOption: args['syncOption']),
         ),
     AppRoutes.multisigSignerBsmsExport:
-        (context) => buildScreenWithArguments(context, (args) => SignerBsmsQrScreen(id: args['id'])),
+        (context) => buildScreenWithArguments(
+          context,
+          (args) => SignerBsmsQrScreen(id: args['id'], app: args['app'] ?? WalletApp.coconut),
+        ),
     AppRoutes.vaultExportOptions:
         (context) => buildScreenWithArguments(
           context,
