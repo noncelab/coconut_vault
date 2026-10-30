@@ -119,6 +119,12 @@ Future<void> _createVaultInLiteBuild(BuildContext context, {bool isImported = fa
       return;
     }
 
+    if (result.status == VaultNameAndIconSetupSaveStatus.navigateSignerAssignment) {
+      // 키 배정 화면이 새 지갑을 감지해 배정한다
+      Navigator.popUntil(context, (route) => route.settings.name == AppRoutes.signerAssignment || route.isFirst);
+      return;
+    }
+
     Navigator.pushNamedAndRemoveUntil(
       context,
       '/',

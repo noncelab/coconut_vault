@@ -18,6 +18,10 @@ class WalletCreationProvider {
   String? _passphraseInput;
   String? _singleSigCreationOption; // 현재는 'mnemonicAutoGen'일 때만 할당하고 있음. 'mnemonicCoinflip' or 'mnemonicDiceRoll'은 생략
 
+  /// 멀티시그 키 배정 화면에서 단일 서명 지갑을 만들러 간 경우. 저장 후 키 배정 화면으로 돌아간다.
+  /// 생성 화면들이 진입 시 resetAll을 하므로 resetAll로 지우지 않고, 키 배정 화면이 켜고 끈다.
+  bool _isCreatingSignerForMultisig = false;
+
   /// multisig
   int? get requiredSignatureCount => _requiredSignatureCount;
   int? get totalSignatureCount => _totalSignatureCount;
@@ -30,6 +34,7 @@ class WalletCreationProvider {
   MultisigSigner? get externalSigner => _externalSigner;
   int? get multisigVaultIdOfExternalSigner => _multisigVaultIdOfExternalSigner;
   String? get singleSigCreationOption => _singleSigCreationOption;
+  bool get isCreatingSignerForMultisig => _isCreatingSignerForMultisig;
 
   WalletType get walletType {
     if (_requiredSignatureCount != null &&
@@ -69,6 +74,10 @@ class WalletCreationProvider {
 
   void setMultisigVaultIdOfExternalSigner(int? vaultId) {
     _multisigVaultIdOfExternalSigner = vaultId;
+  }
+
+  void setCreatingSignerForMultisig(bool value) {
+    _isCreatingSignerForMultisig = value;
   }
 
   /// SingleSig

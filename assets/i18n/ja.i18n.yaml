@@ -1297,8 +1297,8 @@ alert:
     title: "前の画面に戻る"
     description: "これまでに入力したすべての情報が削除されます。\n本当に前の画面に戻りますか？"
   empty_vault:
-    title: "ボルトにキーが保存されていません"
-    description: "キーを使用するためにまずシングルシグウォレットを作成しますか？"
+    title: "使用できるキーがありません"
+    description: "新しいシングルシグウォレットを作成して使用しますか？"
   quit_creating_mutisig_wallet:
     title: "マルチシグウォレット作成を停止"
     description: "本当にウォレット作成を停止しますか？"

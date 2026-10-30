@@ -28,6 +28,7 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
   int _selectedColorIndex;
   bool _showLoading = false;
   bool _poppedByBack = false;
+  bool _isSaved = false;
 
   VaultNameAndIconSetupViewModel(
     this._walletProvider,
@@ -116,7 +117,16 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
       return VaultNameAndIconSetupSaveResult.navigateToMultisigSetupInfo(multisigVaultId: multisigVaultId);
     }
 
+    // addSingleSigVault 중에 키 배정 화면이 새 지갑을 배정하므로, 플래그는 여기서 읽고 끈다
+    if (_walletCreationProvider.isCreatingSignerForMultisig) {
+      _walletCreationProvider.setCreatingSignerForMultisig(false);
+      _walletCreationProvider.resetAll();
+      _isSaved = true;
+      return VaultNameAndIconSetupSaveResult.navigateToSignerAssignment(addedWalletId: vault.id);
+    }
+
     _walletCreationProvider.resetAll();
+    _isSaved = true;
     return VaultNameAndIconSetupSaveResult.navigateToHome(addedWalletId: vault.id);
   }
 
@@ -173,6 +183,8 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
   }
 
   void handleDisposeReset() {
+    // 저장 후 popUntil로 돌아가면 이 화면도 뒤로 가기처럼 pop되므로, 비워진 상태의 walletType을 읽지 않게 먼저 거른다
+    if (_isSaved) return;
     if (!_poppedByBack) {
       _walletCreationProvider.resetAll();
     } else if (_walletCreationProvider.walletType == WalletType.singleSignature &&
@@ -190,7 +202,12 @@ class VaultNameAndIconSetupViewModel extends ChangeNotifier {
   }
 }
 
-enum VaultNameAndIconSetupSaveStatus { duplicateName, navigateHome, navigateMultisigSetupInfo }
+enum VaultNameAndIconSetupSaveStatus {
+  duplicateName,
+  navigateHome,
+  navigateMultisigSetupInfo,
+  navigateSignerAssignment,
+}
 
 class VaultNameAndIconSetupSaveResult {
   final VaultNameAndIconSetupSaveStatus status;
@@ -218,6 +235,9 @@ class VaultNameAndIconSetupSaveResult {
 
   const VaultNameAndIconSetupSaveResult.navigateToMultisigSetupInfo({required int? multisigVaultId})
     : this._(status: VaultNameAndIconSetupSaveStatus.navigateMultisigSetupInfo, multisigVaultId: multisigVaultId);
+
+  const VaultNameAndIconSetupSaveResult.navigateToSignerAssignment({required int addedWalletId})
+    : this._(status: VaultNameAndIconSetupSaveStatus.navigateSignerAssignment, addedWalletId: addedWalletId);
 }
 
 class TaprootVaultCreationTimelineInfo {

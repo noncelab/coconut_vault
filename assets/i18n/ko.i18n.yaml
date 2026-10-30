@@ -1296,8 +1296,8 @@ alert:
     title: "이전 화면으로 돌아가기"
     description: "입력 정보가 모두 사라져요.\n정말 이전 화면으로 가시겠어요?"
   empty_vault:
-    title: "볼트에 저장된 키가 없어요"
-    description: "키를 사용하기 위해 단일 서명 지갑을 먼저 만드시겠어요?"
+    title: "사용할 수 있는 키가 없어요"
+    description: "단일 서명 지갑을 새로 만들어 사용하시겠어요?"
   quit_creating_mutisig_wallet:
     title: "다중 서명 지갑 만들기 중단"
     description: "정말 지갑 생성을 그만하시겠어요?"
