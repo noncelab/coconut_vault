@@ -142,12 +142,12 @@ void main() {
     auth.authenticationUnavailable = true;
     ready.complete();
     await initialize;
-    expect(model.errorMessage, t.errors.pin_processing_error);
+    expect(model.errorMessage, t.errors.pin_storage_unavailable);
     expect(model.disabled, true);
     model.dispose();
   });
 
-  test('PIN verification is exclusive and recovers processing state after failure', () async {
+  test('PIN verification failure blocks further input and requires restart', () async {
     final gate = Completer<bool>();
     auth.verify = () => gate.future;
     final model = check();
@@ -162,8 +162,14 @@ void main() {
     gate.completeError(const PinAuthException());
     await pending;
     expect(model.isVerifyingPin, false);
-    expect(model.errorMessage, t.errors.pin_processing_error);
+    expect(model.errorMessage, t.errors.pin_storage_unavailable);
     expect(model.pin, isEmpty);
+    expect(model.authenticationRecoveryRequired, true);
+    expect(model.disabled, true);
+    model.clearPin();
+    expect(model.errorMessage, t.errors.pin_storage_unavailable);
+    await model.onKeyTap('1');
+    expect(auth.verifyCalls, 1);
     expect(success, 0);
     model.dispose();
   });
@@ -206,7 +212,7 @@ void main() {
     await model.initialize();
     final pending = model.onKeyTap(kBiometricIdentifier);
     expect(model.isVerifyingPin, true);
-    gate.completeError(const PinAuthException());
+    gate.completeError(StateError('biometric failure'));
     await pending;
     expect(model.errorMessage, t.errors.pin_processing_error);
     expect(model.disabled, false);

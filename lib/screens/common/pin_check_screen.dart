@@ -105,9 +105,15 @@ class _PinCheckScreenState extends State<PinCheckScreen> {
           languageCode: context.read<VisibilityProvider>().appLanguage.code,
           insetPadding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.15),
           title:
-              !_viewModel.isPermanentlyLocked ? t.alert.forgot_password.title : t.pin_check_screen.dialog.restart.title,
+              _viewModel.authenticationRecoveryRequired
+                  ? t.errors.pin_storage_reset_button
+                  : !_viewModel.isPermanentlyLocked
+                  ? t.alert.forgot_password.title
+                  : t.pin_check_screen.dialog.restart.title,
           description:
-              !_viewModel.isPermanentlyLocked
+              _viewModel.authenticationRecoveryRequired
+                  ? t.errors.pin_storage_reset_warning
+                  : !_viewModel.isPermanentlyLocked
                   ? t.alert.forgot_password.description1
                   : t.pin_check_screen.dialog.restart.description,
           leftButtonText: t.no,
@@ -184,7 +190,9 @@ class _PinCheckScreenState extends State<PinCheckScreen> {
           onPinClear: _viewModel.clearPin,
           bottomTextButtonLabel:
               _isAppLaunched
-                  ? isPermanentlyLocked
+                  ? _viewModel.authenticationRecoveryRequired
+                      ? t.errors.pin_storage_reset_button
+                      : isPermanentlyLocked
                       ? t.errors.restart_vault
                       : t.forgot_password
                   : null,

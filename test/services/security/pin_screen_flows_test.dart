@@ -30,7 +30,9 @@ void main() {
     await tester.runAsync(() => LocaleSettings.setLocale(AppLocale.en));
   }
 
-  testWidgets('unavailable authentication blocks PIN entry but forgot-password reset remains usable', (tester) async {
+  testWidgets('unavailable authentication recommends restart and requires confirmation before wallet reset', (
+    tester,
+  ) async {
     await prepare(tester);
     final auth = ViewModelAuth()..authenticationUnavailable = true;
     final visibility = VisibilityProvider(isSigningOnlyMode: false);
@@ -55,16 +57,24 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text(t.errors.pin_processing_error), findsOneWidget);
+    expect(find.text(t.errors.pin_storage_unavailable), findsOneWidget);
     expect(tester.widget<PinInputScreen>(find.byType(PinInputScreen)).disabled, true);
     await tester.tap(find.text('1'), warnIfMissed: false);
     await tester.pump();
     expect(auth.verifyCalls, 0);
     expect(tester.widget<PinInputScreen>(find.byType(PinInputScreen)).pin, isEmpty);
 
-    await tester.tap(find.text(t.forgot_password));
+    await tester.tap(find.text(t.errors.pin_storage_reset_button));
     await tester.pumpAndSettle();
-    expect(find.text(t.alert.forgot_password.title), findsWidgets);
+    expect(find.text(t.errors.pin_storage_reset_warning), findsOneWidget);
+    expect(auth.credentialResets, isEmpty);
+    expect(events, isEmpty);
+    await tester.tap(find.text(t.no));
+    await tester.pumpAndSettle();
+    expect(completed, 0);
+    expect(auth.credentialResets, isEmpty);
+    await tester.tap(find.text(t.errors.pin_storage_reset_button));
+    await tester.pumpAndSettle();
     expect(find.text(t.yes), findsOneWidget);
     await tester.tap(find.text(t.yes));
     await tester.pumpAndSettle();

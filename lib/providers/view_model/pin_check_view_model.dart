@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:coconut_vault/services/security/pin_auth_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:coconut_vault/constants/pin_constants.dart';
 import 'package:coconut_vault/enums/pin_check_context_enum.dart';
@@ -33,6 +34,18 @@ class PinCheckViewModel extends ChangeNotifier {
   bool _isLastChanceToTry = false;
   bool _isVerifyingPin = false;
   bool _isResetting = false;
+  bool _authenticationRecoveryRequired = false;
+  bool get authenticationRecoveryRequired => _authenticationRecoveryRequired;
+
+  void _requireAuthenticationRecovery() {
+    _countdown?.cancel();
+    _update(() {
+      _authenticationRecoveryRequired = true;
+      _isPinInputLocked = true;
+      _pin = '';
+      _errorMessage = t.errors.pin_storage_unavailable;
+    });
+  }
 
   PinCheckViewModel({
     required AuthProvider authProvider,
@@ -74,7 +87,7 @@ class PinCheckViewModel extends ChangeNotifier {
   Future<void> onKeyTap(String value) => _onKeyTap(value);
   void clearPin() => _update(() {
     _pin = '';
-    _errorMessage = '';
+    if (!_authenticationRecoveryRequired) _errorMessage = '';
   });
   Future<void> confirmReset() async {
     if (_disposed) return;
@@ -95,10 +108,7 @@ class PinCheckViewModel extends ChangeNotifier {
     await _authProvider.ready;
     if (!mounted) return;
     if (_authProvider.authenticationUnavailable) {
-      _update(() {
-        _isPinInputLocked = true;
-        _errorMessage = t.errors.pin_processing_error;
-      });
+      _requireAuthenticationRecovery();
       return;
     }
     _pinType = _authProvider.isPinCharacter ? PinType.character : PinType.number;
@@ -147,6 +157,8 @@ class PinCheckViewModel extends ChangeNotifier {
       } else if (_shouldDelayKeyboard) {
         await _handleKeyboardFocus();
       }
+    } on PinAuthException {
+      if (mounted) _requireAuthenticationRecovery();
     } catch (_) {
       if (mounted) _update(() => _errorMessage = t.errors.pin_processing_error);
     } finally {
@@ -212,6 +224,8 @@ class PinCheckViewModel extends ChangeNotifier {
     _update(() => _isVerifyingPin = true);
     try {
       await verifyBiometrics();
+    } on PinAuthException {
+      if (mounted) _requireAuthenticationRecovery();
     } catch (_) {
       if (mounted) _update(() => _errorMessage = t.errors.pin_processing_error);
     } finally {
@@ -227,6 +241,12 @@ class PinCheckViewModel extends ChangeNotifier {
     bool isAuthenticated;
     try {
       isAuthenticated = await _authProvider.verifyPin(_pin, isAppLaunchScreen: _isAppLaunched);
+    } on PinAuthException {
+      if (mounted) {
+        _requireAuthenticationRecovery();
+        _update(() => _isVerifyingPin = false);
+      }
+      return;
     } catch (_) {
       if (mounted) {
         _update(() {
@@ -247,6 +267,8 @@ class PinCheckViewModel extends ChangeNotifier {
     if (isAuthenticated) {
       try {
         await _handleAuthenticationSuccess();
+      } on PinAuthException {
+        if (mounted) _requireAuthenticationRecovery();
       } catch (_) {
         if (mounted) _update(() => _errorMessage = t.errors.pin_processing_error);
       }
