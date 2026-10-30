@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 class SendTransactionFlowCard extends StatefulWidget {
   final List<int?> inputAmounts;
   final List<int> externalOutputAmounts;
+  final List<int> externalOutputIndexes;
   final List<int> changeOutputAmounts;
   final int? fee;
   final BitcoinUnit currentUnit;
@@ -17,6 +18,7 @@ class SendTransactionFlowCard extends StatefulWidget {
     super.key,
     required this.inputAmounts,
     required this.externalOutputAmounts,
+    required this.externalOutputIndexes,
     required this.changeOutputAmounts,
     required this.fee,
     required this.currentUnit,
@@ -234,20 +236,20 @@ class _SendTransactionFlowCardState extends State<SendTransactionFlowCard> with 
         widget.inputAmounts.length,
         (index) => _FlowNode(
           type: _FlowNodeType.input,
-          title: _localizedInputTitle(context, index + 1),
+          title: _localizedInputTitle(context, index),
           amount: widget.inputAmounts[index],
         ),
       );
     }
 
     return [
-      _FlowNode(type: _FlowNodeType.input, title: _localizedInputTitle(context, 1), amount: widget.inputAmounts[0]),
-      _FlowNode(type: _FlowNodeType.input, title: _localizedInputTitle(context, 2), amount: widget.inputAmounts[1]),
-      _FlowNode(type: _FlowNodeType.input, title: _localizedInputTitle(context, 3), amount: widget.inputAmounts[2]),
+      _FlowNode(type: _FlowNodeType.input, title: _localizedInputTitle(context, 0), amount: widget.inputAmounts[0]),
+      _FlowNode(type: _FlowNodeType.input, title: _localizedInputTitle(context, 1), amount: widget.inputAmounts[1]),
+      _FlowNode(type: _FlowNodeType.input, title: _localizedInputTitle(context, 2), amount: widget.inputAmounts[2]),
       const _FlowNode(type: _FlowNodeType.ellipsis, title: '...', amount: null),
       _FlowNode(
         type: _FlowNodeType.input,
-        title: _localizedInputTitle(context, widget.inputAmounts.length),
+        title: _localizedInputTitle(context, widget.inputAmounts.length - 1),
         amount: widget.inputAmounts.last,
       ),
     ];
@@ -265,7 +267,7 @@ class _SendTransactionFlowCardState extends State<SendTransactionFlowCard> with 
         nodes.add(
           _FlowNode(
             type: _FlowNodeType.output,
-            title: _localizedOutputTitle(context, i + 1),
+            title: _localizedOutputTitle(context, widget.externalOutputIndexes[i]),
             amount: widget.externalOutputAmounts[i],
           ),
         );
@@ -274,7 +276,7 @@ class _SendTransactionFlowCardState extends State<SendTransactionFlowCard> with 
       nodes.add(
         _FlowNode(
           type: _FlowNodeType.output,
-          title: _localizedOutputTitle(context, 1),
+          title: _localizedOutputTitle(context, widget.externalOutputIndexes.first),
           amount: widget.externalOutputAmounts.first,
         ),
       );
@@ -282,7 +284,7 @@ class _SendTransactionFlowCardState extends State<SendTransactionFlowCard> with 
       nodes.add(
         _FlowNode(
           type: _FlowNodeType.output,
-          title: _localizedOutputTitle(context, widget.externalOutputAmounts.length),
+          title: _localizedOutputTitle(context, widget.externalOutputIndexes.last),
           amount: widget.externalOutputAmounts.last,
         ),
       );

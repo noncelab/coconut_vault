@@ -172,17 +172,14 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
   Widget _buildTransactionFlowCard(PsbtConfirmationViewModel viewModel) {
     final List<int?> inputAmounts = viewModel.inputs;
 
-    final externalOutputAmounts =
-        viewModel.outputs
-            .where((output) => !viewModel.isChangeOutput(output))
-            .map((output) => output.outAmount!)
-            .toList();
+    final externalOutputs = viewModel.outputs.where((output) => !output.isChange).toList();
     final changeOutputAmounts =
-        viewModel.outputs.where(viewModel.isChangeOutput).map((output) => output.outAmount!).toList();
+        viewModel.outputs.where((output) => output.isChange).map((output) => output.amount).toList();
 
     return SendTransactionFlowCard(
       inputAmounts: inputAmounts,
-      externalOutputAmounts: externalOutputAmounts,
+      externalOutputAmounts: externalOutputs.map((output) => output.amount).toList(),
+      externalOutputIndexes: externalOutputs.map((output) => output.vout).toList(),
       changeOutputAmounts: changeOutputAmounts,
       fee: viewModel.estimatedFee,
       currentUnit: _currentUnit,
@@ -191,18 +188,13 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
 
   Widget _buildOutputDetailCard(PsbtConfirmationViewModel viewModel) {
     final detailItems = <OutputDetailItem>[];
-    int outputIndex = 0;
     for (final output in viewModel.outputs) {
-      final isChange = viewModel.isChangeOutput(output);
-      if (!isChange) {
-        outputIndex += 1;
-      }
       detailItems.add(
         OutputDetailItem(
-          label: isChange ? t.change : t.psbt_confirmation_screen.flow_output_title(index: outputIndex),
-          address: output.outAddress,
-          amountSats: output.outAmount!,
-          isChange: isChange,
+          label: output.isChange ? t.change : t.psbt_confirmation_screen.flow_output_title(index: output.vout),
+          address: output.address,
+          amountSats: output.amount,
+          isChange: output.isChange,
         ),
       );
     }
