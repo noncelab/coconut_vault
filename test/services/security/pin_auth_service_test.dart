@@ -475,7 +475,7 @@ void main() {
   for (final scenario in [
     (name: 'turn saved without deadline', turn: '2', attempts: '0', expectedTurn: 2, expectedAttempts: 0),
     (name: 'third attempt saved without turn', turn: '', attempts: '3', expectedTurn: 1, expectedAttempts: 0),
-    (name: 'overflow attempts with existing turn', turn: '2', attempts: '7', expectedTurn: 4, expectedAttempts: 1),
+    (name: 'overflow attempts with existing turn', turn: '2', attempts: '7', expectedTurn: 2, expectedAttempts: 0),
     (name: 'negative counters', turn: '-2', attempts: '-1', expectedTurn: 1, expectedAttempts: 0),
     (name: 'malformed counters', turn: 'invalid', attempts: 'invalid', expectedTurn: 1, expectedAttempts: 0),
   ]) {
@@ -516,14 +516,62 @@ void main() {
     });
   }
 
+  for (final stage in ['before turn write', 'before deadline write', 'before attempts reset', 'after attempts reset']) {
+    test('legacy seventh turn crash $stage preserves PIN and remaining attempts across restart', () async {
+      final savedTurn = stage == 'before turn write' ? 6 : 7;
+      final savedAttempts = stage == 'after attempts reset' ? 0 : 3;
+      final savedDeadline =
+          stage == 'before turn write' || stage == 'before deadline write'
+              ? clock.subtract(const Duration(minutes: 1))
+              : clock.add(Duration(minutes: kLockoutDurationsPerTurn[6]));
+      SharedPreferences.setMockInitialValues({
+        SharedPrefsKeys.hasShownStartGuide: true,
+        SharedPrefsKeys.kPinInputTurn: '$savedTurn',
+        SharedPrefsKeys.kPinInputCurrentAttemptCount: '$savedAttempts',
+        SharedPrefsKeys.kUnlockAvailableAt: savedDeadline.toIso8601String(),
+        SharedPrefsKeys.kVaultListField: 'test-only-wallet-list',
+      });
+      await SharedPrefsRepository().init();
+      legacyPin();
+      service = PinAuthService(storage: storage, kdf: kdf, now: () => clock, debugDelay: false);
+      final provider = AuthProvider(pinAuth: service, initializeDeviceBiometrics: false);
+      await provider.ready;
+      expect(provider.authenticationUnavailable, false);
+      expect(provider.currentTurn, savedTurn);
+      expect(provider.isPermanentlyLocked, false);
+      expect(provider.isPinSet, true);
+      provider.dispose();
+      expect(service.state.attempts, 0);
+      final deadline = DateTime.parse(service.state.unlockAt);
+      expect(deadline.isAfter(clock), true);
+      expect(await verify('012345'), false);
+
+      // Migration is committed once; restarting must not count the batch again.
+      service = PinAuthService(storage: storage, kdf: kdf, now: () => clock, debugDelay: false);
+      await service.initialize();
+      expect(service.state.turn, savedTurn);
+      expect(service.state.unlockAt, deadline.toIso8601String());
+      clock = deadline.add(const Duration(seconds: 1));
+      expect(await verify('wrong'), false);
+      expect(await verify('wrong'), false);
+      expect(service.state.turn, savedTurn);
+      expect(service.state.attempts, 2);
+      expect(await verify('012345'), true);
+      expect(await service.hasPin(), true);
+      expect(SharedPrefsRepository().getString(SharedPrefsKeys.kVaultListField), 'test-only-wallet-list');
+    });
+  }
+
   test('legacy reconstruction preserves longer deadlines and permanent lock markers', () async {
     final later = clock.add(const Duration(days: 1)).toIso8601String();
     for (final (turn, attempts, at, expectedTurn, expectedAt) in [
-      ('1', '3', later, 2, later),
+      ('1', '3', later, 1, later),
       ('0', '0', '-1', kMaxTurn, '-1'),
       ('8', '0', '', kMaxTurn, '-1'),
       ('99', '99', '', kMaxTurn, '-1'),
-      ('7', '3', '', kMaxTurn, '-1'),
+      ('8', '3', '', kMaxTurn, '-1'),
+      ('7', '3', '-1', kMaxTurn, '-1'),
+      ('7', '3', '', 7, clock.add(Duration(minutes: kLockoutDurationsPerTurn[6])).toIso8601String()),
     ]) {
       storage.values.clear();
       SharedPreferences.setMockInitialValues({

@@ -134,9 +134,13 @@ class PinAuthService {
     final parsedAttempts = int.tryParse(rawAttempts);
     var turn = (parsedTurn ?? 0).clamp(0, kMaxTurn);
     var attempts = max(0, parsedAttempts ?? 0);
-    final overflow = attempts ~/ kMaxAttemptPerTurn;
-    turn = min(kMaxTurn, turn + overflow);
-    attempts %= kMaxAttemptPerTurn;
+    // Legacy writes were: attempts=3, turn++, deadline, attempts=0. A
+    // completed attempt batch may already be included in the saved turn.
+    // The fields cannot distinguish those crash points, so keep the saved
+    // turn and restore a delay rather than inventing a permanent lock (and
+    // deleting wallets). No legacy overflow count proves additional turns.
+    final incompleteAttemptBatch = attempts >= kMaxAttemptPerTurn;
+    if (incompleteAttemptBatch) attempts = 0;
 
     // Preserve permanent locks even when their companion field was not saved.
     if (turn == kMaxTurn || rawAt == '-1') {
@@ -147,7 +151,10 @@ class PinAuthService {
         (rawAttempts.isNotEmpty && (parsedAttempts == null || parsedAttempts < 0));
     final deadline = DateTime.tryParse(rawAt);
     final needsDeadline =
-        overflow > 0 || malformedCounter || (turn > 0 && deadline == null) || (rawAt.isNotEmpty && deadline == null);
+        incompleteAttemptBatch ||
+        malformedCounter ||
+        (turn > 0 && deadline == null) ||
+        (rawAt.isNotEmpty && deadline == null);
     if (needsDeadline) {
       turn = max(1, turn);
       final reconstructed = now().add(_lockoutDuration(turn));
