@@ -1116,7 +1116,7 @@ multi_sig_setting_screen:
 select_export_type_screen:
   title: "エクスポート"
 signer_bsms_screen:
-  coconut_guide: "Coconut Walletでマルチシグウォレットを構成する際に、このQRを読み取ってください。このキーの公開BSMS情報を登録します。ニーモニックや秘密キーは含みません。"
+  coconut_guide: "別のCoconut Vaultのマルチシグウォレット作成 → キー情報のインポート画面で、このQRを読み取ってください。このキーの公開BSMS情報を登録します。ニーモニックや秘密キーは含みません。"
   nunchuk_guide: "Nunchukの下部ナビゲーションバーでKeys → キー追加（+）→ Generic Airgap → Continue → Scan QRの順に選択し、下のQRコードを読み取ってください。"
   sparrow_guide: "SparrowでMulti Signature・Native Segwitウォレットを作成し、キーストアのxPub / Watch Only Wallet → ScanでこのQRを読み取ってください。公開キーと派生情報を登録します。ニーモニックや秘密キーは含みません。"
   bluewallet_guide: "BlueWalletでNative Segwitマルチシグウォレットを作成し、Vault Key → Import → ScanでこのQRを読み取ってください。公開キーと派生情報を登録します。ニーモニックや秘密キーは含みません。"

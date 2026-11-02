@@ -122,6 +122,44 @@ void main() {
     });
   }
 
+  testWidgets('watch-only selection keeps Coconut Wallet and its original export format', (tester) async {
+    SyncOption? selected;
+    await tester.pumpWidget(
+      MaterialApp(home: SelectSyncOptionBottomSheet(onSyncOptionSelected: (option) => selected = option)),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(t.watch_only_options.title), findsOneWidget);
+    expect(find.text(t.multi_sig_setting_screen.add_signer.coconut_vault), findsNothing);
+    await tester.tap(find.text(t.watch_only_options.coconut_wallet));
+    await tester.pumpAndSettle();
+    expect(selected?.app, WalletApp.coconut);
+    expect(selected?.iconPath, 'assets/svg/watch-only-icons/coconut.svg');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  for (final network in [NetworkType.mainnet, NetworkType.testnet, NetworkType.regtest]) {
+    testWidgets('signer selection restricts BlueWallet on $network', (tester) async {
+      NetworkType.setNetworkType(network);
+      final wallets = ExportWallets(makeWallet());
+      await tester.pumpWidget(
+        ChangeNotifierProvider<WalletProvider>.value(
+          value: wallets,
+          child: const MaterialApp(home: VaultExportOptionsScreen(id: 1, walletType: WalletType.singleSignature)),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(t.vault_menu_screen.title.use_as_multisig_signer));
+      await tester.pumpAndSettle();
+      expect(find.text(t.watch_only_options.bluewallet), network.isTestnet ? findsNothing : findsOneWidget);
+      expect(find.text(t.watch_only_options.sparrow), findsOneWidget);
+      expect(find.text(t.watch_only_options.nunchuk), findsOneWidget);
+      expect(find.text(t.multi_sig_setting_screen.add_signer.coconut_vault), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+      wallets.dispose();
+    });
+  }
+
   for (final app in WalletApp.values) {
     testWidgets('$app selection opens the correct signer QR without a format toggle', (tester) async {
       NetworkType.setNetworkType(NetworkType.mainnet);
@@ -148,9 +186,11 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text(t.vault_menu_screen.title.use_as_multisig_signer));
       await tester.pumpAndSettle();
-      expect(find.text(t.watch_only_options.title), findsOneWidget);
+      expect(find.text(t.watch_only_options.title), findsNothing);
+      expect(find.text(t.multi_sig_setting_screen.add_signer.coconut_vault), findsOneWidget);
+      expect(find.text(t.watch_only_options.coconut_wallet), findsNothing);
       final label = switch (app) {
-        WalletApp.coconut => t.watch_only_options.coconut_wallet,
+        WalletApp.coconut => t.multi_sig_setting_screen.add_signer.coconut_vault,
         WalletApp.sparrow => t.watch_only_options.sparrow,
         WalletApp.nunchuk => t.watch_only_options.nunchuk,
         WalletApp.bluewallet => t.watch_only_options.bluewallet,

@@ -1115,7 +1115,7 @@ multi_sig_setting_screen:
 select_export_type_screen:
   title: "Export to Watch-Only Wallet"
 signer_bsms_screen:
-  coconut_guide: "Scan this QR when configuring a multisig wallet in Coconut Wallet. It registers this key’s public signer BSMS information, without a seed phrase or private key."
+  coconut_guide: "Scan this QR in another Coconut Vault under Create multisig wallet → Import key information. It registers this key’s public signer BSMS information, without a seed phrase or private key."
   nunchuk_guide: "In Nunchuk, open Keys in the bottom navigation bar → Add key (+) → Generic Airgap → Continue → Scan QR, then scan the QR code below."
   sparrow_guide: "Create a Multi Signature · Native Segwit wallet in Sparrow, then scan this QR using the keystore’s xPub / Watch Only Wallet → Scan. It registers this key’s public key and origin information, without a seed phrase or private key."
   bluewallet_guide: "Create a Native Segwit multisig wallet in BlueWallet, then scan this QR using Vault Key → Import → Scan. It registers this key’s public key and origin information, without a seed phrase or private key."

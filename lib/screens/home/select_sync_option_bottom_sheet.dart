@@ -11,15 +11,40 @@ enum WalletApp { coconut, sparrow, nunchuk, bluewallet }
 class SelectSyncOptionBottomSheet extends StatefulWidget {
   final Function(SyncOption) onSyncOptionSelected;
   final ScrollController? scrollController;
+  final List<SyncOption>? options;
+  final String? title;
 
-  const SelectSyncOptionBottomSheet({super.key, required this.onSyncOptionSelected, this.scrollController});
+  const SelectSyncOptionBottomSheet({
+    super.key,
+    required this.onSyncOptionSelected,
+    this.scrollController,
+    this.options,
+    this.title,
+  });
+
+  static List<SyncOption> get signerOptions => [
+    SyncOption(
+      app: WalletApp.coconut,
+      title: t.multi_sig_setting_screen.add_signer.coconut_vault,
+      iconPath:
+          NetworkType.currentNetworkType.isTestnet
+              ? 'assets/svg/coconut/coconut-vault-regtest.svg'
+              : 'assets/svg/coconut/coconut-vault.svg',
+      format: WalletExportFormatEnum.coconut,
+    ),
+    ..._SelectSyncOptionBottomSheetState.defaultSyncOptions
+        .skip(1)
+        .where((option) => !NetworkType.currentNetworkType.isTestnet || option.app != WalletApp.bluewallet),
+  ];
 
   @override
   State<SelectSyncOptionBottomSheet> createState() => _SelectSyncOptionBottomSheetState();
 }
 
 class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomSheet> {
-  final List<SyncOption> _syncOptions = [
+  List<SyncOption> get _syncOptions => widget.options ?? defaultSyncOptions;
+
+  static List<SyncOption> get defaultSyncOptions => [
     SyncOption(
       app: WalletApp.coconut,
       title: t.watch_only_options.coconut_wallet,
@@ -54,7 +79,7 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
     return Scaffold(
       backgroundColor: CoconutColors.white,
       appBar: CoconutAppBar.build(
-        title: t.watch_only_options.title,
+        title: widget.title ?? t.watch_only_options.title,
         context: context,
         onBackPressed: null,
         isBottom: true,
@@ -64,22 +89,19 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Expanded(child: _buildSyncOptionItem(_syncOptions[0])),
-                Expanded(child: _buildSyncOptionItem(_syncOptions[1])),
-                Expanded(child: _buildSyncOptionItem(_syncOptions[2])),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Expanded(child: _buildSyncOptionItem(_syncOptions[3])),
-                const Expanded(child: SizedBox()),
-                const Expanded(child: SizedBox()),
-              ],
-            ),
+            for (var row = 0; row < _syncOptions.length; row += 3)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  for (var column = 0; column < 3; column++)
+                    Expanded(
+                      child:
+                          row + column < _syncOptions.length
+                              ? _buildSyncOptionItem(_syncOptions[row + column])
+                              : const SizedBox(),
+                    ),
+                ],
+              ),
           ],
         ),
       ),
@@ -109,7 +131,7 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
                   child: SvgPicture.asset(option.iconPath),
                 )
               else
-                SvgPicture.asset(option.iconPath),
+                SizedBox(width: 36, height: 36, child: SvgPicture.asset(option.iconPath)),
               CoconutLayout.spacing_200h,
               MediaQuery(
                 data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
