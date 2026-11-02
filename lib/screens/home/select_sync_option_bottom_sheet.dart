@@ -32,9 +32,7 @@ class SelectSyncOptionBottomSheet extends StatefulWidget {
               : 'assets/svg/coconut/coconut-vault.svg',
       format: WalletExportFormatEnum.coconut,
     ),
-    ..._SelectSyncOptionBottomSheetState.defaultSyncOptions
-        .skip(1)
-        .where((option) => !NetworkType.currentNetworkType.isTestnet || option.app != WalletApp.bluewallet),
+    ..._SelectSyncOptionBottomSheetState.defaultSyncOptions.skip(1),
   ];
 
   @override
@@ -66,12 +64,13 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
       iconPath: "assets/svg/watch-only-icons/nunchuk.svg",
       format: WalletExportFormatEnum.bcUr,
     ),
-    SyncOption(
-      app: WalletApp.bluewallet,
-      title: t.watch_only_options.bluewallet,
-      iconPath: "assets/svg/watch-only-icons/bluewallet.svg",
-      format: WalletExportFormatEnum.descriptor,
-    ),
+    if (!NetworkType.currentNetworkType.isTestnet)
+      SyncOption(
+        app: WalletApp.bluewallet,
+        title: t.watch_only_options.bluewallet,
+        iconPath: "assets/svg/watch-only-icons/bluewallet.svg",
+        format: WalletExportFormatEnum.descriptor,
+      ),
   ];
 
   @override

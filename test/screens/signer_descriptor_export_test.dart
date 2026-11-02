@@ -138,6 +138,18 @@ void main() {
   });
 
   for (final network in [NetworkType.mainnet, NetworkType.testnet, NetworkType.regtest]) {
+    testWidgets('watch-only selection restricts BlueWallet on $network', (tester) async {
+      NetworkType.setNetworkType(network);
+      await tester.pumpWidget(MaterialApp(home: SelectSyncOptionBottomSheet(onSyncOptionSelected: (_) {})));
+      await tester.pumpAndSettle();
+      expect(find.text(t.watch_only_options.bluewallet), network.isTestnet ? findsNothing : findsOneWidget);
+      expect(find.text(t.watch_only_options.coconut_wallet), findsOneWidget);
+      expect(find.text(t.watch_only_options.sparrow), findsOneWidget);
+      expect(find.text(t.watch_only_options.nunchuk), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
     testWidgets('signer selection restricts BlueWallet on $network', (tester) async {
       NetworkType.setNetworkType(network);
       final wallets = ExportWallets(makeWallet());
