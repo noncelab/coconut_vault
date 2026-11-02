@@ -121,7 +121,17 @@ class _SelectSyncOptionBottomSheetState extends State<SelectSyncOptionBottomShee
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
           child: Column(
             children: [
-              if (isCoconutWalletRegtest)
+              if (option.iconPath == 'assets/svg/coconut/coconut-vault-regtest.svg')
+                Container(
+                  width: 36,
+                  height: 36,
+                  padding: const EdgeInsets.all(4),
+                  child: SvgPicture.asset(
+                    option.iconPath,
+                    colorFilter: const ColorFilter.mode(CoconutColors.black, BlendMode.srcIn),
+                  ),
+                )
+              else if (isCoconutWalletRegtest)
                 Container(
                   width: 36,
                   height: 36,
