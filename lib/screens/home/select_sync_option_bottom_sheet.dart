@@ -1,12 +1,13 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_export_format_enum.dart';
+import 'package:coconut_vault/enums/wallet_app.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-enum WalletApp { coconut, sparrow, nunchuk, bluewallet }
+export 'package:coconut_vault/enums/wallet_app.dart';
 
 class SelectSyncOptionBottomSheet extends StatefulWidget {
   final Function(SyncOption) onSyncOptionSelected;

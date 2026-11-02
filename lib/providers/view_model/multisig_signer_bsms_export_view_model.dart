@@ -1,4 +1,9 @@
 import 'dart:convert';
+import 'package:coconut_vault/enums/wallet_app.dart';
+import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/services/blockchain_commons/ur_type.dart';
+import 'package:coconut_vault/widgets/animated_qr/view_data_handler/bc_ur_qr_view_handler.dart';
+import 'package:coconut_vault/widgets/animated_qr/view_data_handler/i_qr_view_data_handler.dart';
 
 import 'package:coconut_vault/packages/bc-ur-dart/lib/cbor_lite.dart';
 import 'package:coconut_lib/coconut_lib.dart';
@@ -15,8 +20,10 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
   late bool _isLoading;
   late SingleSigVaultListItem _singleSigVaultListItem;
   Bsms? _bsms;
+  final WalletApp app;
+  IQrViewDataHandler? _qrViewDataHandler;
 
-  MultisigSignerBsmsExportViewModel(this._walletProvider, id) {
+  MultisigSignerBsmsExportViewModel(this._walletProvider, id, {this.app = WalletApp.coconut}) {
     _qrData = '';
     _errorMessage = '';
     _isLoading = true;
@@ -28,6 +35,22 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
   String get errorMessage => _errorMessage;
   bool get isLoading => _isLoading;
   Bsms? get bsms => _bsms;
+  bool get usesBsmsText => app == WalletApp.coconut;
+  IQrViewDataHandler? get qrViewDataHandler => _qrViewDataHandler;
+  String? get displayQrData => _qrViewDataHandler == null ? exportText : null;
+
+  String get exportText => switch (app) {
+    WalletApp.coconut => qrData,
+    WalletApp.bluewallet => blueWalletCosigner,
+    WalletApp.nunchuk || WalletApp.sparrow => signerDescriptor,
+  };
+
+  String get guideText => switch (app) {
+    WalletApp.coconut => t.signer_bsms_screen.coconut_guide,
+    WalletApp.nunchuk => t.signer_bsms_screen.nunchuk_guide,
+    WalletApp.sparrow => t.signer_bsms_screen.sparrow_guide,
+    WalletApp.bluewallet => t.signer_bsms_screen.bluewallet_guide,
+  };
 
   /// Key origin expression for registering one signer, not a wallet descriptor.
   /// Reuse the BIP48 key from signer BSMS, never the singlesig BIP84 key.
@@ -103,6 +126,9 @@ class MultisigSignerBsmsExportViewModel extends ChangeNotifier {
     try {
       _qrData = _singleSigVaultListItem.getSignerBsmsByAddressType(AddressType.p2wsh);
       _bsms = Bsms.parseSigner(_qrData);
+      if (app == WalletApp.sparrow) {
+        _qrViewDataHandler = BcUrQrViewHandler(sparrowAccount, UrType.cryptoAccount);
+      }
     } catch (e) {
       Logger.error('setSignerBsms error: $e');
       _errorMessage = e.toString();
