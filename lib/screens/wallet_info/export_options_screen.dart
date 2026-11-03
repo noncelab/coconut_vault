@@ -66,7 +66,23 @@ class _VaultExportOptionsScreenState extends State<VaultExportOptionsScreen> {
   }
 
   void onTapUseAsMultisigSigner() {
-    Navigator.pushReplacementNamed(context, AppRoutes.multisigSignerBsmsExport, arguments: {'id': widget.id});
+    MyBottomSheet.showBottomSheet_ratio(
+      context: context,
+      ratio: 0.5,
+      child: SelectSyncOptionBottomSheet(
+        options: SelectSyncOptionBottomSheet.signerOptions,
+        title: t.vault_menu_screen.title.use_as_multisig_signer,
+        onSyncOptionSelected: (option) {
+          if (!context.mounted) return;
+          Navigator.pop(context);
+          Navigator.pushReplacementNamed(
+            context,
+            AppRoutes.multisigSignerBsmsExport,
+            arguments: {'id': widget.id, 'app': option.app},
+          );
+        },
+      ),
+    );
   }
 
   void _showSyncOptionBottomSheet(int walletId, BuildContext context) {
