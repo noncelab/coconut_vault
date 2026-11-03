@@ -3,6 +3,7 @@ import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/multisig_signer_bsms_export_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/enums/wallet_app.dart';
 import 'package:coconut_vault/widgets/tooltip/custom_tooltip.dart';
 import 'package:coconut_vault/widgets/qr_with_copy_text_screen.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +11,9 @@ import 'package:provider/provider.dart';
 
 class SignerBsmsQrScreen extends StatefulWidget {
   final int id;
+  final WalletApp app;
 
-  const SignerBsmsQrScreen({super.key, required this.id});
+  const SignerBsmsQrScreen({super.key, required this.id, this.app = WalletApp.coconut});
 
   @override
   State<SignerBsmsQrScreen> createState() => _SignerBsmsQrScreenState();
@@ -30,9 +32,11 @@ class _SignerBsmsQrScreenState extends State<SignerBsmsQrScreen> {
             children: [
               QrWithCopyTextScreen(
                 title: viewModel.name,
-                qrData: viewModel.qrData,
+                qrData: viewModel.displayQrData,
+                qrViewDataHandler: viewModel.qrViewDataHandler,
+                textData: viewModel.exportText,
                 tooltipDescription: _buildDescription(),
-                textRichText: _getCopyTextRichText(),
+                textRichText: viewModel.usesBsmsText ? _getCopyTextRichText() : null,
               ),
               Visibility(
                 visible: viewModel.isLoading,
@@ -56,20 +60,10 @@ class _SignerBsmsQrScreenState extends State<SignerBsmsQrScreen> {
       richText: RichText(
         text: TextSpan(
           style: CoconutTypography.body2_14.setColor(CoconutColors.black),
-          children: _getTooltipRichText(),
+          children: [TextSpan(text: _viewModel.guideText)],
         ),
       ),
     );
-  }
-
-  List<TextSpan> _getTooltipRichText() {
-    final basicStyle = CoconutTypography.body2_14.setColor(CoconutColors.black);
-
-    return [
-      TextSpan(text: t.signer_bsms_screen.guide1_1, style: basicStyle),
-      const TextSpan(text: ' '),
-      TextSpan(text: t.signer_bsms_screen.guide1_2, style: basicStyle),
-    ];
   }
 
   RichText _getCopyTextRichText() {
@@ -99,7 +93,11 @@ class _SignerBsmsQrScreenState extends State<SignerBsmsQrScreen> {
   @override
   void initState() {
     super.initState();
-    _viewModel = MultisigSignerBsmsExportViewModel(Provider.of<WalletProvider>(context, listen: false), widget.id);
+    _viewModel = MultisigSignerBsmsExportViewModel(
+      Provider.of<WalletProvider>(context, listen: false),
+      widget.id,
+      app: widget.app,
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_viewModel.errorMessage.isNotEmpty) {
         showDialog(

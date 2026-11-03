@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 5.4.0+1
+version: 5.4.0+72
 app_versions:
   ios_fullRegtest: 5.4.0+0
   ios_fullMainnet: 3.4.0+0
@@ -107,6 +107,13 @@ dev_dependencies:
   flutter_driver:
     sdk: flutter
   flutter_launcher_icons: ^0.14.4
+
+# TODO: 디자인 시스템 배포 후 제거
+dependency_overrides:
+  coconut_design_system:
+    git:
+      url: https://github.com/noncelab/coconut_design_system.git
+      ref: fix/popup-korean-keep-all
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

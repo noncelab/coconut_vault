@@ -1115,6 +1115,10 @@ multi_sig_setting_screen:
 select_export_type_screen:
   title: "보기 전용 앱으로 내보내기"
 signer_bsms_screen:
+  coconut_guide: "다른 코코넛 볼트의 다중 서명 지갑 만들기 → 키 정보 가져오기 화면에서 아래 QR을 스캔해 주세요. 이 키의 BSMS 공개 정보를 등록하며, 니모닉이나 개인키는 포함하지 않아요."
+  nunchuk_guide: "넌척 하단 내비게이션 바의 Keys → 키 추가(+) → Generic Airgap → Continue → Scan QR을 누른 뒤, 아래 QR 코드를 스캔해 주세요."
+  sparrow_guide: "스패로우에서 Multi Signature · Native Segwit 지갑을 만들고, 키스토어의 xPub / Watch Only Wallet → Scan에서 이 QR을 스캔해 주세요. 이 키의 공개키와 파생 정보를 등록하며, 니모닉·개인키는 포함하지 않아요."
+  bluewallet_guide: "블루월렛에서 Native Segwit 다중 서명 지갑을 만들고, Vault Key의 Import → Scan에서 이 QR을 스캔해 주세요. 이 키의 공개키와 파생 정보를 등록하며, 니모닉·개인키는 포함하지 않아요."
   guide1_1: "다른 볼트에서 다중 서명 지갑을 생성 중이시군요!"
   guide1_2: "다른 볼트의 가져오기 화면에서 아래 QR 코드를 스캔해 주세요."
 sync_to_wallet_screen:
@@ -1176,7 +1180,7 @@ vault_menu_screen:
     view_address: "$name의 주소를 확인해요"
     export_xpub: "보기 전용 지갑을 월렛에 추가해요"
     sign: "월렛에서 만든 정보를 스캔하고 서명해요"
-    use_as_multisig_signer: "다른 볼트에서 이 키를 사용해 다중 서명 지갑을 구성합니다"
+    use_as_multisig_signer: "이 키를 사용해 다중 서명 지갑을 구성합니다"
 vault_settings:
   used_in_multisig: "다중 서명 지갑에서 사용 중입니다"
   of: "의 "
@@ -1296,8 +1300,8 @@ alert:
     title: "이전 화면으로 돌아가기"
     description: "입력 정보가 모두 사라져요.\n정말 이전 화면으로 가시겠어요?"
   empty_vault:
-    title: "볼트에 저장된 키가 없어요"
-    description: "키를 사용하기 위해 단일 서명 지갑을 먼저 만드시겠어요?"
+    title: "사용할 수 있는 키가 없어요"
+    description: "단일 서명 지갑을 새로 만들어 사용하시겠어요?"
   quit_creating_mutisig_wallet:
     title: "다중 서명 지갑 만들기 중단"
     description: "정말 지갑 생성을 그만하시겠어요?"
@@ -1399,7 +1403,6 @@ errors:
   psbt_parsing_error: "psbt 파싱 실패: $error"
   not_related_multisig_wallet_error: "이 지갑을 키로 사용한 다중 서명 지갑이 아닙니다"
   vault_not_found_error: "서명할 수 있는 지갑이 없어요"
-  extended_public_key_not_found_error: "직접 사용하려는 지갑을 선택해 다중 서명하기 기능을 사용해주세요"
   user_cancelled_auth: "사용자가 기기 인증을 취소했습니다."
   unexpected_error_title: "오류 발생"
   sign_failed: "서명 실패"

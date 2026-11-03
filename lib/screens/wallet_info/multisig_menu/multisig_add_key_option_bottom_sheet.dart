@@ -1,15 +1,14 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
-import 'package:coconut_vault/model/multisig/multisig_signer.dart';
+import 'package:coconut_vault/model/multisig/external_signer_context.dart';
 import 'package:coconut_vault/screens/wallet_info/wallet_info_layout.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:flutter/material.dart';
 
 class MultisigAddKeyOptionBottomSheet extends StatelessWidget {
-  final MultisigSigner signer;
-  final int? multisigVaultIdOfExternalSigner;
-  const MultisigAddKeyOptionBottomSheet({super.key, required this.signer, this.multisigVaultIdOfExternalSigner});
+  final ExternalSignerContext externalSignerContext;
+  const MultisigAddKeyOptionBottomSheet({super.key, required this.externalSignerContext});
 
   @override
   Widget build(BuildContext context) {
@@ -35,11 +34,7 @@ class MultisigAddKeyOptionBottomSheet extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(
                     context,
-                    AddKeyArgs(
-                      externalSigner: signer,
-                      multisigVaultIdOfExternalSigner: multisigVaultIdOfExternalSigner,
-                      nextRoute: AppRoutes.mnemonicImport,
-                    ),
+                    AddKeyArgs(externalSignerContext: externalSignerContext, nextRoute: AppRoutes.mnemonicImport),
                   );
                 },
                 child: Container(
@@ -59,11 +54,7 @@ class MultisigAddKeyOptionBottomSheet extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(
                     context,
-                    AddKeyArgs(
-                      externalSigner: signer,
-                      multisigVaultIdOfExternalSigner: multisigVaultIdOfExternalSigner,
-                      nextRoute: AppRoutes.seedQrImport,
-                    ),
+                    AddKeyArgs(externalSignerContext: externalSignerContext, nextRoute: AppRoutes.seedQrImport),
                   );
                 },
                 child: Container(

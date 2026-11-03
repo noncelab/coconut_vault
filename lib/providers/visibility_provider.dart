@@ -14,7 +14,6 @@ import 'package:intl/intl.dart';
 class VisibilityProvider extends ChangeNotifier {
   late bool _isSigningOnlyMode;
   late bool _hasSeenGuide;
-  late int _walletCount;
   late bool _isPassphraseUseEnabled;
   late bool _isAccountEditEnabled;
   late AppLanguage _language;
@@ -36,12 +35,6 @@ class VisibilityProvider extends ChangeNotifier {
   VisibilityProvider({required bool isSigningOnlyMode}) {
     final prefs = SharedPrefsRepository();
     _isSigningOnlyMode = isSigningOnlyMode;
-    if (_isSigningOnlyMode) {
-      SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, 0);
-      _walletCount = 0;
-    } else {
-      _walletCount = prefs.getInt(SharedPrefsKeys.vaultListLength) ?? 0;
-    }
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
 
     _isPassphraseUseEnabled =
@@ -53,14 +46,6 @@ class VisibilityProvider extends ChangeNotifier {
     _isBtcUnit = prefs.getBool(SharedPrefsKeys.kIsBtcUnit) ?? true;
     _initializeNumberFormatFromLocale(prefs);
     _initializeLanguage();
-  }
-
-  Future<void> saveWalletCount(int count) async {
-    _walletCount = count;
-    if (!_isSigningOnlyMode) {
-      await SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, count);
-    }
-    notifyListeners();
   }
 
   Future<void> setHasSeenGuide() async {
@@ -198,16 +183,10 @@ class VisibilityProvider extends ChangeNotifier {
     if (isSigningOnlyMode) {
       await setPassphraseUseEnabled(true);
       await setChangeAccountEnabled(true);
-      await SharedPrefsRepository().deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
     } else {
       await setPassphraseUseEnabled(false);
       await setChangeAccountEnabled(false);
-      await SharedPrefsRepository().setInt(SharedPrefsKeys.vaultListLength, _walletCount);
     }
     _isSigningOnlyMode = isSigningOnlyMode;
-  }
-
-  void reloadRelatedToVault() {
-    _walletCount = SharedPrefsRepository().getInt(SharedPrefsKeys.vaultListLength) ?? 0;
   }
 }

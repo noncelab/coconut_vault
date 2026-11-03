@@ -15,7 +15,6 @@ import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/providers/app_lifecycle_state_provider.dart';
 import 'package:coconut_vault/providers/preference_provider.dart';
-import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/repository/wallet_linker.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/utils/logger.dart';
@@ -24,8 +23,7 @@ import 'package:flutter/foundation.dart';
 const int kMaxFavoriteWallets = 5;
 
 /// Orchestrates wallet-related use cases across repository (persistence),
-/// lifecycle gating (TEE operations), user preferences (ordering, favorites),
-/// and visibility tracking (wallet count).
+/// lifecycle gating (TEE operations), and user preferences (ordering, favorites).
 ///
 /// Owns the [WalletRepository] and exposes [vaultSnapshot] so a UI adapter
 /// (e.g. `WalletProvider`) can sync its own observable state after each call.
@@ -35,19 +33,16 @@ class WalletService {
   final WalletQueryService _query;
   final PreferenceProvider _pref;
   final AppLifecycleStateProvider _lifecycle;
-  final VisibilityProvider _visibility;
 
   WalletService({
     required WalletRepository repo,
     required WalletQueryService query,
     required PreferenceProvider pref,
     required AppLifecycleStateProvider lifecycle,
-    required VisibilityProvider visibility,
   }) : _repo = repo,
        _query = query,
        _pref = pref,
-       _lifecycle = lifecycle,
-       _visibility = visibility;
+       _lifecycle = lifecycle;
 
   /// Current authoritative snapshot from the repository.
   /// Adapters should re-read this after each mutating call to stay in sync.
@@ -215,7 +210,6 @@ class WalletService {
 
     await _pref.removeVaultOrder(id);
     await _pref.removeFavoriteVaultId(id);
-    await _visibility.saveWalletCount(vaultSnapshot.length);
     return true;
   }
 
@@ -225,7 +219,6 @@ class WalletService {
   /// `WalletStorageCleaner.clearAll()`을 직접 호출하세요.
   Future<void> reset() async {
     await _repo.resetAll();
-    await _visibility.saveWalletCount(0);
   }
 
   // ---- load ----
@@ -235,7 +228,6 @@ class WalletService {
     final jsonList = await _repo.loadVaultListJsonArrayString();
     if (jsonList == null) {
       await _syncVaultPreferencesWithIds(const {});
-      await _visibility.saveWalletCount(0);
       return;
     }
 
@@ -243,12 +235,9 @@ class WalletService {
     final actualIds = jsonList.map((raw) => (raw as Map<String, dynamic>)['id'] as int).toSet();
     await _syncVaultPreferencesWithIds(actualIds);
 
-    var count = 0;
     await _repo.loadAndEmitEachWallet(jsonList, (wallet) {
-      count++;
       onWallet(wallet);
     });
-    await _visibility.saveWalletCount(count);
   }
 
   /// [actualIds] 기준으로 SharedPrefs의 vaultOrder와 favoriteVaultIds를 정리합니다.
@@ -346,12 +335,11 @@ class WalletService {
 
   // ---- internal ----
 
-  /// 지갑 추가 직후 preferences / favorites / visibility 동기화
+  /// 지갑 추가 직후 preferences / favorites 동기화
   Future<void> _syncAfterAdd(int newWalletId) async {
     final ids = vaultSnapshot.map((e) => e.id).toList();
     await _pref.setVaultOrder(ids);
     await _addToFavoritesIfAvailable(newWalletId);
-    await _visibility.saveWalletCount(vaultSnapshot.length);
   }
 
   /// 즐겨찾기된 지갑이 [kMaxFavoriteWallets] 개 미만이면 추가

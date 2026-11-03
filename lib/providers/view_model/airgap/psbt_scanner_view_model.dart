@@ -4,7 +4,6 @@ import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
-import 'package:coconut_vault/model/exception/wallet_not_identifiable_from_psbt_exception.dart';
 import 'package:coconut_vault/model/exception/needs_multisig_setup_exception.dart';
 import 'package:coconut_vault/model/exception/vault_can_not_sign_exception.dart';
 import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
@@ -31,7 +30,6 @@ class PsbtScannerViewModel {
     return switch (error) {
       VaultNotFoundException(:final message) => message,
       VaultSigningNotAllowedException(:final message) => message,
-      WalletNotIdentifiableFromPsbtException(:final message) => message,
       NeedsMultisigSetupException(:final message) => message,
       _ => t.errors.invalid_qr,
     };
@@ -65,7 +63,7 @@ class PsbtScannerViewModel {
     if (!canSign) {
       if (parsedPsbt.addressType!.isMultisignature && vault.vaultType == WalletType.singleSignature) {
         final mfp = (vault.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
-        if (parsedPsbt.extendedPublicKeyList.map((e) => e.masterFingerprint).contains(mfp)) {
+        if (_extractPsbtSignerFingerprints(parsedPsbt).contains(mfp)) {
           throw NeedsMultisigSetupException(singleSigWalletName: vault.name);
         }
       }
@@ -84,20 +82,41 @@ class PsbtScannerViewModel {
     }
   }
 
-  Future<VaultListItemBase?> _findMatchingVault(Psbt parsedPsbt, String psbtBase64) async {
+  VaultListItemBase? _findMatchingVault(Psbt parsedPsbt) {
     if (parsedPsbt.addressType?.isSingleSignature ?? true) {
-      return _findSingleSignatureVault(parsedPsbt, psbtBase64);
+      return _findSingleSignatureVault(parsedPsbt);
     }
 
     if (parsedPsbt.addressType!.isTaproot) {
       return _findTaprootVault(parsedPsbt);
     }
 
-    return _findMultisigVault(parsedPsbt, psbtBase64);
+    return _findMultisigVault(parsedPsbt);
   }
 
-  Future<VaultListItemBase?> _findSingleSignatureVault(Psbt parsedPsbt, String psbtBase64) async {
-    final psbtMfp = parsedPsbt.extendedPublicKeyList.first.masterFingerprint;
+  /// PSBT에 담긴 서명자의 master fingerprint 집합을 반환한다.
+  /// 글로벌 xpub(PSBT_GLOBAL_XPUB)이 있으면 그것을 사용하고, 없으면(예: BlueWallet)
+  /// input의 BIP32_DERIVATION에서 추출한다.
+  Set<String> _extractPsbtSignerFingerprints(Psbt parsedPsbt) {
+    if (parsedPsbt.extendedPublicKeyList.isNotEmpty) {
+      return parsedPsbt.extendedPublicKeyList.map((e) => e.masterFingerprint).toSet();
+    }
+    final mfpSet = <String>{};
+    for (final input in parsedPsbt.inputs) {
+      final derivations = input.bip32Derivation;
+      if (derivations == null) continue;
+      for (final d in derivations) {
+        mfpSet.add(d.masterFingerprint);
+      }
+    }
+    return mfpSet;
+  }
+
+  VaultListItemBase? _findSingleSignatureVault(Psbt parsedPsbt) {
+    final psbtMfpSet = _extractPsbtSignerFingerprints(parsedPsbt);
+    if (psbtMfpSet.isEmpty) {
+      return null;
+    }
     var foundMatchingMfp = false;
 
     for (final vault in _walletProvider.vaultList) {
@@ -106,14 +125,13 @@ class PsbtScannerViewModel {
       }
 
       final singleSigVault = vault.coconutVault as SingleSignatureVault;
-      if (singleSigVault.keyStore.masterFingerprint != psbtMfp) {
+      if (!psbtMfpSet.contains(singleSigVault.keyStore.masterFingerprint)) {
         continue;
       }
 
       foundMatchingMfp = true;
 
-      final canSign = await vault.canSign(psbtBase64);
-      if (canSign) {
+      if (parsedPsbt.matchesVault(singleSigVault)) {
         return vault;
       }
     }
@@ -139,13 +157,9 @@ class PsbtScannerViewModel {
     return null;
   }
 
-  Future<VaultListItemBase?> _findMultisigVault(Psbt parsedPsbt, String psbtBase64) async {
-    if (parsedPsbt.extendedPublicKeyList.isEmpty) {
-      throw WalletNotIdentifiableFromPsbtException();
-    }
-
+  VaultListItemBase? _findMultisigVault(Psbt parsedPsbt) {
+    final psbtMfpSet = _extractPsbtSignerFingerprints(parsedPsbt);
     String? sameMfpSingleSigWalletName;
-    final psbtMfpSet = parsedPsbt.extendedPublicKeyList.map((e) => e.masterFingerprint).toSet();
 
     for (final vault in _walletProvider.vaultList) {
       if (vault.vaultType == WalletType.singleSignature) {
@@ -157,12 +171,7 @@ class PsbtScannerViewModel {
         continue;
       }
 
-      if (!_hasSameMfpSet(vault, psbtMfpSet)) {
-        continue;
-      }
-
-      final canSign = await vault.canSign(psbtBase64);
-      if (canSign) {
+      if (parsedPsbt.matchesVault(vault.coconutVault)) {
         return vault;
       }
     }
@@ -181,18 +190,11 @@ class PsbtScannerViewModel {
     return psbtMfpSet.contains(walletMfp) ? vault.name : null;
   }
 
-  bool _hasSameMfpSet(VaultListItemBase vault, Set<String> psbtMfpSet) {
-    final multisigVault = vault.coconutVault as MultisignatureVault;
-    final walletMfpSet = multisigVault.keyStoreList.map((keyStore) => keyStore.masterFingerprint).toSet();
-
-    return psbtMfpSet.length == walletMfpSet.length && psbtMfpSet.every(walletMfpSet.contains);
-  }
-
   Future<void> setMatchingVault(String psbtBase64) async {
     await _ensureVaultsLoaded();
 
     final parsedPsbt = Psbt.parse(psbtBase64);
-    final matchingVault = await _findMatchingVault(parsedPsbt, psbtBase64);
+    final matchingVault = _findMatchingVault(parsedPsbt);
 
     if (matchingVault == null) {
       throw VaultNotFoundException();
