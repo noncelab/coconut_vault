@@ -30,6 +30,7 @@ const allDependencies = <Package>[
   _cbor,
   _characters,
   _checked_yaml,
+  _cli_config,
   _cli_util,
   _clock,
   _coconut_design_system,
@@ -481,13 +482,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   dependencies: [],
 );
 
-/// asn1lib 1.5.8
+/// asn1lib 1.6.5
 const _asn1lib = Package(
   name: 'asn1lib',
   description: 'An ASN1 parser library for Dart. Encodes / decodes from ASN1 Objects to BER bytes',
   homepage: 'https://github.com/wstrange/asn1lib',
   authors: [],
-  version: '1.5.8',
+  version: '1.6.5',
   license: '''http://opensource.org/licenses/BSD-3-Clause
 Copyright (c) 2015, Warren Strange
 All rights reserved.
@@ -1101,14 +1102,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   dependencies: [PackageRef('built_collection'), PackageRef('collection'), PackageRef('fixnum'), PackageRef('meta')],
 );
 
-/// cbor 6.3.5
+/// cbor 6.3.7
 const _cbor = Package(
   name: 'cbor',
   description: 'A CBOR library for Dart. An RFC8949 compliant encoding/decoding CBOR implementation.',
   homepage: 'https://github.com/shamblett/cbor',
   repository: 'https://github.com/shamblett/cbor',
   authors: [],
-  version: '6.3.5',
+  version: '6.3.7',
   license: '''The MIT License (MIT)
 
 Copyright (c) 2016 Steve Hamblett
@@ -1139,6 +1140,7 @@ SOFTWARE.''',
     PackageRef('convert'),
     PackageRef('ieee754'),
     PackageRef('meta'),
+    PackageRef('characters'),
   ],
 );
 
@@ -1218,6 +1220,45 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   isMarkdown: false,
   isSdk: false,
   dependencies: [PackageRef('json_annotation'), PackageRef('source_span'), PackageRef('yaml')],
+);
+
+/// cli_config 0.2.0
+const _cli_config = Package(
+  name: 'cli_config',
+  description: 'A library to take config values from configuration files, CLI arguments, and environment variables.',
+  repository: 'https://github.com/dart-lang/tools/tree/main/pkgs/cli_config',
+  authors: [],
+  version: '0.2.0',
+  license: '''Copyright 2023, the Dart project authors.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+      copyright notice, this list of conditions and the following
+      disclaimer in the documentation and/or other materials provided
+      with the distribution.
+    * Neither the name of Google LLC nor the names of its
+      contributors may be used to endorse or promote products derived
+      from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
+  isMarkdown: false,
+  isSdk: false,
+  dependencies: [PackageRef('args'), PackageRef('yaml')],
 );
 
 /// cli_util 0.4.2
@@ -1472,7 +1513,7 @@ const _clock = Package(
   dependencies: [],
 );
 
-/// coconut_design_system 0.10.0
+/// coconut_design_system 0.11.4
 const _coconut_design_system = Package(
   name: 'coconut_design_system',
   description:
@@ -1480,7 +1521,7 @@ const _coconut_design_system = Package(
   homepage: 'https://www.noncelab.com',
   repository: 'https://github.com/noncelab/coconut_design_system',
   authors: [],
-  version: '0.10.0',
+  version: '0.11.4',
   license: '''MIT License
 
 Copyright 2025 Nonce Lab
@@ -1489,34 +1530,20 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
----
-
-### **"Commons Clause" License Condition v1.0**
-
-The Software is provided to you by the Licensor under the License, as defined below, subject to the following condition.
-
-Without limiting other conditions in the License, the grant of rights under the License will not include, and the License does not grant to you, the right to **Sell** the Software.
-
-For purposes of the foregoing, **"Sell"** means practicing any or all of the rights granted to you under the License to provide to third parties, for a fee or other consideration (including without limitation fees for hosting or consulting/support services related to the Software), a product or service whose value derives, entirely or substantially, from the functionality of the Software. Any license notice or attribution required by the License must also include this **Commons Clause License Condition** notice.
-
-Software: All files associated with Coconut Design System.  
-License: MIT  
-Licensor: Nonce Lab''',
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.''',
   isMarkdown: false,
   isSdk: false,
   dependencies: [PackageRef('flutter'), PackageRef('provider'), PackageRef('flutter_svg'), PackageRef('lottie')],
 );
 
-/// coconut_lib 1.1.1
+/// coconut_lib 1.1.5
 const _coconut_lib = Package(
   name: 'coconut_lib',
   description:
       'The coconut_lib is a development tool for mobile air gap Bitcoin wallets. It is written in Dart. Coconut Vault and Coconut Wallet were created using this library.',
   repository: 'https://github.com/noncelab/coconut_lib.git',
   authors: [],
-  version: '1.1.1',
+  version: '1.1.5',
   license: '''MIT License
 
 Copyright 2025 Nonce Lab
@@ -1752,13 +1779,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   dependencies: [PackageRef('typed_data')],
 );
 
-/// coverage 1.11.1
+/// coverage 1.13.1
 const _coverage = Package(
   name: 'coverage',
   description: 'Coverage data manipulation and formatting',
   repository: 'https://github.com/dart-lang/tools/tree/main/pkgs/coverage',
   authors: [],
-  version: '1.11.1',
+  version: '1.13.1',
   license: '''Copyright 2014, the Dart project authors. 
 
 Redistribution and use in source and binary forms, with or without
@@ -1790,6 +1817,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   isSdk: false,
   dependencies: [
     PackageRef('args'),
+    PackageRef('cli_config'),
     PackageRef('glob'),
     PackageRef('logging'),
     PackageRef('meta'),
@@ -2373,14 +2401,14 @@ Exhibit B - "Incompatible With Secondary Licenses" Notice
   dependencies: [PackageRef('args'), PackageRef('ffi'), PackageRef('meta'), PackageRef('xml')],
 );
 
-/// decimal 3.0.2
+/// decimal 3.2.4
 const _decimal = Package(
   name: 'decimal',
   description: '''The decimal package allows you to deal with decimal numbers without losing precision.
 ''',
   repository: 'https://github.com/a14n/dart-decimal',
   authors: [],
-  version: '3.0.2',
+  version: '3.2.4',
   license: '''Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -3692,13 +3720,13 @@ SOFTWARE.''',
   ],
 );
 
-/// flutter_plugin_android_lifecycle 2.0.24
+/// flutter_plugin_android_lifecycle 2.0.23
 const _flutter_plugin_android_lifecycle = Package(
   name: 'flutter_plugin_android_lifecycle',
   description: 'Flutter plugin for accessing an Android Lifecycle within other plugins.',
   repository: 'https://github.com/flutter/packages/tree/main/packages/flutter_plugin_android_lifecycle',
   authors: [],
-  version: '2.0.24',
+  version: '2.0.23',
   license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -4030,13 +4058,13 @@ SOFTWARE.''',
   ],
 );
 
-/// fluttertoast 8.2.12
+/// fluttertoast 8.2.14
 const _fluttertoast = Package(
   name: 'fluttertoast',
   description: 'Toast Library for Flutter, Easily create toast messages in single line of code',
   homepage: 'https://github.com/PonnamKarthik/FlutterToast',
   authors: [],
-  version: '8.2.12',
+  version: '8.2.14',
   license: '''MIT License
 
 Copyright (c) 2020 Karthik Ponnam
@@ -4839,13 +4867,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   ],
 );
 
-/// local_auth_android 1.0.46
+/// local_auth_android 1.0.52
 const _local_auth_android = Package(
   name: 'local_auth_android',
   description: 'Android implementation of the local_auth plugin.',
   repository: 'https://github.com/flutter/packages/tree/main/packages/local_auth/local_auth_android',
   authors: [],
-  version: '1.0.46',
+  version: '1.0.52',
   license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -4881,13 +4909,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   ],
 );
 
-/// local_auth_darwin 1.4.3
+/// local_auth_darwin 1.6.0
 const _local_auth_darwin = Package(
   name: 'local_auth_darwin',
   description: 'iOS implementation of the local_auth plugin.',
   repository: 'https://github.com/flutter/packages/tree/main/packages/local_auth/local_auth_darwin',
   authors: [],
-  version: '1.4.3',
+  version: '1.6.0',
   license: '''Copyright 2013 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -7030,14 +7058,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   dependencies: [PackageRef('meta')],
 );
 
-/// qr_code_scanner_plus 2.1.2
+/// qr_code_scanner_plus 2.0.14
 const _qr_code_scanner_plus = Package(
   name: 'qr_code_scanner_plus',
-  description: 'QR code scanner that can be embedded inside flutter. It uses zxing in Android and AVFoundation in iOS.',
+  description:
+      'QR code scanner that can be embedded inside flutter. It uses zxing in Android and MTBBarcode scanner in iOS.',
   homepage: 'https://vespr.xyz',
   repository: 'https://github.com/vespr-wallet/qr_code_scanner_plus',
   authors: [],
-  version: '2.1.2',
+  version: '2.0.14',
   license: '''Copyright 2018 Julius Canute
 
 Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -7872,14 +7901,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   dependencies: [PackageRef('flutter')],
 );
 
-/// slang 4.8.1
+/// slang 4.11.1
 const _slang = Package(
   name: 'slang',
   description:
       'Localization / Internationalization (i18n) solution. Use JSON, YAML, CSV, or ARB files to create typesafe translations via source generation.',
   repository: 'https://github.com/slang-i18n/slang',
   authors: [],
-  version: '4.8.1',
+  version: '4.11.1',
   license: '''MIT License
 
 Copyright (c) 2020-2025 Tien Do Nam
@@ -7912,13 +7941,13 @@ SOFTWARE.''',
   ],
 );
 
-/// slang_flutter 4.8.0
+/// slang_flutter 4.11.0
 const _slang_flutter = Package(
   name: 'slang_flutter',
   description: 'Flutter support for slang. This library provides helpful Flutter API.',
   repository: 'https://github.com/slang-i18n/slang',
   authors: [],
-  version: '4.8.0',
+  version: '4.11.0',
   license: '''MIT License
 
 Copyright (c) 2020-2025 Tien Do Nam
@@ -9566,13 +9595,13 @@ freely, subject to the following restrictions:
   dependencies: [],
 );
 
-/// vibration 3.1.3
+/// vibration 3.1.4
 const _vibration = Package(
   name: 'vibration',
   description: 'A plugin for handling Vibration API on iOS, Android, web and OpenHarmony.',
   homepage: 'https://github.com/benjamindean/flutter_vibration',
   authors: [],
-  version: '3.1.3',
+  version: '3.1.4',
   license: '''BSD 2-Clause License
 
 Copyright (c) 2018, Benjamin Dean
@@ -9607,13 +9636,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   ],
 );
 
-/// vibration_platform_interface 0.1.0
+/// vibration_platform_interface 0.1.1
 const _vibration_platform_interface = Package(
   name: 'vibration_platform_interface',
   description: 'A common platform interface for the vibration plugin.',
   homepage: 'https://github.com/benjamindean/flutter_vibration',
   authors: [],
-  version: '0.1.0',
+  version: '0.1.1',
   license: '''BSD 2-Clause License
 
 Copyright (c) 2018, Benjamin Dean
