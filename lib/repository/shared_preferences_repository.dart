@@ -16,6 +16,12 @@ class SharedPrefsRepository {
   Future<void> init() async {
     // init in main.dart
     _sharedPrefs = await SharedPreferences.getInstance();
+    await _removeDeprecatedKeys();
+  }
+
+  /// 더 이상 사용하지 않는 레거시 키를 정리합니다.
+  Future<void> _removeDeprecatedKeys() async {
+    await _sharedPrefs.remove(SharedPrefsKeys.kDeprecatedVaultListLength);
   }
 
   /// Common--------------------------------------------------------------------
@@ -53,6 +59,13 @@ class SharedPrefsRepository {
 
   Future<bool> setString(String key, String value) async {
     return _sharedPrefs.setString(key, value);
+  }
+
+  /// 공개 vault 목록(`SharedPrefsKeys.kVaultListField`)에 지갑이 하나 이상 저장되어 있는지 반환합니다.
+  /// 서명전용모드는 공개 목록을 디스크에 저장하지 않으므로 항상 false를 반환합니다.
+  bool hasPublicVaultList() {
+    final jsonArrayString = getString(SharedPrefsKeys.kVaultListField);
+    return jsonArrayString.isNotEmpty && jsonArrayString != '[]';
   }
 
   double? getDouble(String key) {

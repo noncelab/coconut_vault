@@ -39,54 +39,64 @@ aos-lite-regtest:
 aos-lite-regtest-run:
 	fvm flutter run --flavor liteRegtest -t lib/main_lite.dart
 
+aos-release:
+	./android/scripts/build_android_release.sh
+
 # lite 빌드 트리쉐이킹 검증 (lite에 포함되면 안 되는 코드가 없는지 확인)
 verify-lite-treeshake:
 	./tool/verify_lite_treeshake.sh
 
 # fastlane
 pre-deploy: 
-	fastlane pre_deploy
+	bundle exec fastlane pre_deploy
 
-# FASTLANE_USER(Apple ID) 미설정 시 프롬프트 후 export (하위 fastlane 프로세스에 전달)
-ASK_APPLE_ID = FASTLANE_USER="$${FASTLANE_USER:-}"; \
-	if [ -z "$$FASTLANE_USER" ]; then printf "Apple ID Username: "; IFS= read -r FASTLANE_USER; fi; \
-	if [ -z "$$FASTLANE_USER" ]; then echo "Apple ID username cannot be empty." >&2; exit 1; fi; \
-	export FASTLANE_USER;
-
-fastlane-mainnet:
-	@$(ASK_APPLE_ID) \
-	cd android && caffeinate -dimsu fastlane release_android_mainnet && cd .. && cd ios && caffeinate -dimsu fastlane release_ios_mainnet skip_prep:true
-
-fastlane-regtest:
-	@$(ASK_APPLE_ID) \
-	cd android && caffeinate -dimsu fastlane release_android_regtest && cd .. && cd ios && caffeinate -dimsu fastlane release_ios_regtest skip_prep:true
-
-fastlane-lite-mainnet:
-	@$(ASK_APPLE_ID) \
-	cd android && caffeinate -dimsu fastlane release_android_lite_mainnet && cd .. && cd ios && caffeinate -dimsu fastlane release_ios_lite_mainnet skip_prep:true
-
-# Production draft/App Store preparation (manual review submission remains required)
 ifeq ($(SKIP_PREP),true)
-PRODUCTION_PREP_COMMAND := true
+PREP_COMMAND := true
 else
-PRODUCTION_PREP_COMMAND := $(MAKE) pre-deploy
+PREP_COMMAND := $(MAKE) pre-deploy
 endif
 
+
+-include ios/fastlane/.env
+export APP_STORE_CONNECT_API_KEY_KEY_ID APP_STORE_CONNECT_API_KEY_ISSUER_ID APP_STORE_CONNECT_API_KEY_KEY_FILEPATH
+
+REQUIRE_ASC_API_KEY = \
+	for var in APP_STORE_CONNECT_API_KEY_KEY_ID APP_STORE_CONNECT_API_KEY_ISSUER_ID APP_STORE_CONNECT_API_KEY_KEY_FILEPATH; do \
+		if [ -z "$$(printenv $$var)" ]; then echo "$$var must be set in ios/fastlane/.env." >&2; exit 1; fi; \
+	done;
+
+fastlane-mainnet:
+	@$(REQUIRE_ASC_API_KEY) \
+	$(PREP_COMMAND) && \
+	cd android && caffeinate -dimsu bundle exec fastlane release_android_mainnet && cd .. && cd ios && caffeinate -dimsu bundle exec fastlane release_ios_mainnet skip_prep:true
+
+fastlane-regtest:
+	@$(REQUIRE_ASC_API_KEY) \
+	$(PREP_COMMAND) && \
+	cd android && caffeinate -dimsu bundle exec fastlane release_android_regtest && cd .. && cd ios && caffeinate -dimsu bundle exec fastlane release_ios_regtest skip_prep:true
+
+fastlane-lite-mainnet:
+	@$(REQUIRE_ASC_API_KEY) \
+	$(PREP_COMMAND) && \
+	cd android && caffeinate -dimsu bundle exec fastlane release_android_lite_mainnet && cd .. && cd ios && caffeinate -dimsu bundle exec fastlane release_ios_lite_mainnet skip_prep:true
+
+# Production draft/App Store preparation (manual review submission remains required)
+
 fastlane-production-mainnet:
-	@$(ASK_APPLE_ID) \
-	$(PRODUCTION_PREP_COMMAND) && \
+	@$(REQUIRE_ASC_API_KEY) \
+	$(PREP_COMMAND) && \
 	(cd android/fastlane_production && caffeinate -dimsu bundle exec fastlane prepare_android_mainnet_production) && \
 	(cd ios/fastlane_production && caffeinate -dimsu bundle exec fastlane prepare_ios_mainnet_production skip_prep:true)
 
 fastlane-production-regtest:
-	@$(ASK_APPLE_ID) \
-	$(PRODUCTION_PREP_COMMAND) && \
+	@$(REQUIRE_ASC_API_KEY) \
+	$(PREP_COMMAND) && \
 	(cd android/fastlane_production && caffeinate -dimsu bundle exec fastlane prepare_android_regtest_production) && \
 	(cd ios/fastlane_production && caffeinate -dimsu bundle exec fastlane prepare_ios_regtest_production skip_prep:true)
 
 fastlane-production-lite-mainnet:
-	@$(ASK_APPLE_ID) \
-	$(PRODUCTION_PREP_COMMAND) && \
+	@$(REQUIRE_ASC_API_KEY) \
+	$(PREP_COMMAND) && \
 	(cd android/fastlane_production && caffeinate -dimsu bundle exec fastlane prepare_android_lite_mainnet_production) && \
 	(cd ios/fastlane_production && caffeinate -dimsu bundle exec fastlane prepare_ios_lite_mainnet_production skip_prep:true)
 

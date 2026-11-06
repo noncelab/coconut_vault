@@ -19,6 +19,7 @@ class SharedPrefsKeys {
   static const String kChangeAccountEnabled = "CHANGE_ACCOUNT_ENABLED";
   static const String kIsBtcUnit = "IS_BTC_UNIT";
   static const String kLanguage = "LANGUAGE";
+  static const String kNumberFormatPreset = "NUMBER_FORMAT_PRESET";
 
   static const String kVaultMode = "VAULT_MODE"; // 볼트 모드 (Secure Storage Mode, Signing-Only Mode)
   static const String kVaultModeTransitionMarker = "VAULT_MODE_TRANSITION_MARKER"; // 모드 전환 중 마커
@@ -32,7 +33,6 @@ class SharedPrefsKeys {
   static const String isPinEnabled = "IS_PIN_ENABLED";
 
   // 볼트 목록
-  static const String vaultListLength = "VAULT_LIST_LENGTH";
   static const String kVaultListField = "VAULT_LIST";
   static const String kNextIdField = "nextId";
   static const String kVaultOrder = "VAULT_ORDER"; // 볼트 순서
@@ -42,4 +42,9 @@ class SharedPrefsKeys {
   static const String kUnlockAvailableAt = "LOCKOUT_END_TIME";
   static const String kPinInputTurn = "TOTAL_PIN_ATTEMPT";
   static const String kPinInputCurrentAttemptCount = "PIN_ATTEMPT";
+
+  // ---------- Deprecated ----------
+  /// 볼트 개수를 별도로 저장하던 레거시 키. `kVaultListField` 존재 여부로 대체되었으며
+  /// 앱 시작 시 잔여 값 정리용으로만 유지합니다.
+  static const String kDeprecatedVaultListLength = "VAULT_LIST_LENGTH";
 }

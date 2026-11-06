@@ -15,7 +15,12 @@ class ScriptPathSeedInfo {
 
   ScriptPathSeedInfo({required this.key, required this.role, required this.seedInfos});
 
-  static String generateKey(Policy policy) => hashString(policy.toMiniscript());
+  static String generateKey(Policy policy) {
+    if (policy is InheritancePolicy) {
+      return hashString('inheritance:${policy.beneficiaryKeyStore.extendedPublicKey.serialize()}:${policy.locktime}');
+    }
+    throw UnsupportedError('Unsupported policy type for script path key.');
+  }
 
   factory ScriptPathSeedInfo.fromJson(Map<String, dynamic> json) => _$ScriptPathSeedInfoFromJson(json);
 

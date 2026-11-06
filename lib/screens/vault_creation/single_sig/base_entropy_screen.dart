@@ -1,6 +1,7 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
+import 'package:coconut_vault/providers/wallet_creation/wallet_creation_provider.dart';
 import 'package:coconut_vault/widgets/entropy_base/entropy_common_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +40,10 @@ abstract class BaseMnemonicEntropyScreenState<T extends BaseMnemonicEntropyScree
   void initState() {
     super.initState();
     _totalStep = Provider.of<VisibilityProvider>(context, listen: false).isPassphraseUseEnabled ? 2 : 1;
+    // 가져오기 화면들과 동일하게 이전 생성 흐름(멀티시그 정족수 등)의 잔여 상태를 비운다
+    if (!widget.isTaproot) {
+      Provider.of<WalletCreationProvider>(context, listen: false).resetAll();
+    }
   }
 
   @override

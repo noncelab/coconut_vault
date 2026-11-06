@@ -163,7 +163,6 @@ class WalletStorageCleaner {
   }
 
   static Future<void> _deleteSharedPrefsMeta(SharedPrefsRepository sp) async {
-    await sp.deleteSharedPrefsWithKey(SharedPrefsKeys.vaultListLength);
     await sp.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultListField);
     await sp.deleteSharedPrefsWithKey(SharedPrefsKeys.kNextIdField);
     await sp.deleteSharedPrefsWithKey(SharedPrefsKeys.kVaultOrder);

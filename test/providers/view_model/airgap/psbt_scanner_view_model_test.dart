@@ -155,28 +155,95 @@ void main() {
       expect(signProvider.vaultListItem, isNull);
     });
 
-    test('일치하는 멀티시그 vault가 서명할 수 없으면 VaultNotFoundException을 던진다', () async {
-      final vault = _createP2wshVault();
-      final psbtBase64 = _createP2wshPsbt(vault).serialize();
-      final vaultItem = _CannotSignMultisigVaultListItem(id: 8, name: 'cannot sign multisig vault', vault: vault);
-      final signProvider = SignProvider();
-      final viewModel = PsbtScannerViewModel(_FakeWalletProvider([vaultItem]), signProvider);
-
-      expect(() => viewModel.setMatchingVault(psbtBase64), throwsA(isA<VaultNotFoundException>()));
-      expect(signProvider.vaultListItem, isNull);
-    });
-
-    test('일치하는 단일 서명 vault가 서명할 수 없으면 VaultSigningNotAllowedException을 던진다', () async {
-      final vault = _createP2wpkhVault(passphrase: 'cannot-sign');
-      final psbtBase64 = _createP2wpkhPsbt(vault).serialize();
-      final vaultItem = _CannotSignSingleSigVaultListItem(id: 9, name: 'cannot sign single sig vault', vault: vault);
+    test('MFP는 같지만 다른 계정의 단일 서명 vault이면 VaultSigningNotAllowedException을 던진다', () async {
+      const mnemonic = 'machine crack daughter fish credit glare raven fever tunnel delay fish record';
+      final psbtVault = _createP2wpkhVault(passphrase: 'cannot-sign');
+      // 같은 시드(동일 MFP)의 다른 계정 vault. PSBT의 서명 정책과는 일치하지 않는다.
+      final otherAccountVault = SingleSignatureVault.fromMnemonic(
+        utf8.encode(mnemonic),
+        passphrase: utf8.encode('cannot-sign'),
+        accountIndex: 1,
+      );
+      final psbtBase64 = _createP2wpkhPsbt(psbtVault).serialize();
+      final vaultItem = _createSingleSigVaultListItem(id: 9, name: 'other account vault', vault: otherAccountVault);
       final signProvider = SignProvider();
       final viewModel = PsbtScannerViewModel(_FakeWalletProvider([vaultItem]), signProvider);
 
       expect(() => viewModel.setMatchingVault(psbtBase64), throwsA(isA<VaultSigningNotAllowedException>()));
       expect(signProvider.vaultListItem, isNull);
     });
+
+    test('글로벌 xpub이 없는 단일 서명 PSBT도 input의 BIP32_DERIVATION으로 vault를 식별한다', () async {
+      final vault = _createP2wpkhVault(passphrase: 'bluewallet-singlesig');
+      final psbt = Psbt.parse(_createP2wpkhPsbt(vault).serialize());
+      _removeGlobalXpubs(psbt);
+      final psbtBase64 = psbt.serialize();
+      final vaultItem = _createSingleSigVaultListItem(id: 12, name: 'matching vault', vault: vault);
+      final signProvider = SignProvider();
+      final viewModel = PsbtScannerViewModel(_FakeWalletProvider([vaultItem]), signProvider);
+
+      await viewModel.setMatchingVault(psbtBase64);
+
+      expect(signProvider.vaultListItem, same(vaultItem));
+    });
+
+    test('글로벌 xpub이 없는 멀티시그 PSBT도 input의 BIP32_DERIVATION으로 vault를 식별한다 (BlueWallet)', () async {
+      final vault = _createP2wshVault();
+      final psbt = Psbt.parse(_createP2wshPsbt(vault).serialize());
+      _removeGlobalXpubs(psbt);
+      final psbtBase64 = psbt.serialize();
+      final vaultItem = _createMultisigVaultListItem(id: 13, name: 'matching multisig vault', vault: vault);
+      final signProvider = SignProvider();
+      final viewModel = PsbtScannerViewModel(_FakeWalletProvider([vaultItem]), signProvider);
+
+      await viewModel.setMatchingVault(psbtBase64);
+
+      expect(signProvider.vaultListItem, same(vaultItem));
+    });
+
+    test('signer 순서가 다른 wallet에서 생성된 PSBT도 vault에 매칭된다 (descriptor 문자열 차이 허용)', () async {
+      // coconut_wallet이 vault와 다른 signer 순서로 descriptor를 저장했을 때,
+      // PSBT의 identifier(sha256(wallet.descriptor))가 vault의 descriptor hash와 달라도
+      // validateMultisignaturePolicy가 정책을 검증하므로 매칭되어야 한다.
+      final vault = _createP2wshVault(passphrases: ['A', 'B']);
+      // signer 순서를 뒤집은 wallet으로 PSBT 생성 (coconut_wallet이 다른 순서로 저장한 상황 시뮬레이션)
+      final reversedKeyStores = vault.keyStoreList.reversed.toList();
+      final reversedWallet = MultisignatureVault.fromKeyStoreList(
+        reversedKeyStores,
+        vault.requiredSignature,
+        addressType: AddressType.p2wsh,
+      );
+      final utxos = [
+        Utxo(Codec.encodeHex(Hash.sha256('signer-order-test-0')), 0, 100000, "m/48'/1'/0'/2'/0/0"),
+        Utxo(Codec.encodeHex(Hash.sha256('signer-order-test-1')), 0, 110000, "m/48'/1'/0'/2'/0/1"),
+      ];
+      final tx = Transaction.forSinglePayment(
+        utxos,
+        vault.getAddress(1),
+        '${vault.derivationPath}/1/1',
+        15000,
+        3,
+        vault,
+      );
+      final psbt = Psbt.fromTransaction(tx, reversedWallet);
+      final psbtBase64 = psbt.serialize();
+
+      // identifier가 다른 것을 확인
+      expect(psbt.identifier, isNot(Codec.encodeHex(Hash.sha256(vault.descriptor))));
+
+      final vaultItem = _createMultisigVaultListItem(id: 14, name: 'matching multisig vault', vault: vault);
+      final signProvider = SignProvider();
+      final viewModel = PsbtScannerViewModel(_FakeWalletProvider([vaultItem]), signProvider);
+
+      await viewModel.setMatchingVault(psbtBase64);
+
+      expect(signProvider.vaultListItem, same(vaultItem));
+    });
   });
+}
+
+void _removeGlobalXpubs(Psbt psbt) {
+  (psbt.psbtMap['global'] as Map).removeWhere((key, _) => (key as String).startsWith('01'));
 }
 
 SingleSignatureVault _createP2wpkhVault({required String passphrase}) {
@@ -274,38 +341,6 @@ List<MultisigSigner> _createMultisigSigners(MultisignatureVault vault) {
   return vault.keyStoreList.indexed.map((entry) {
     return MultisigSigner(id: entry.$1, name: 'signer ${entry.$1}', keyStore: entry.$2);
   }).toList();
-}
-
-class _CannotSignMultisigVaultListItem extends MultisigVaultListItem {
-  _CannotSignMultisigVaultListItem({required int id, required String name, required MultisignatureVault vault})
-    : super(
-        id: id,
-        name: name,
-        colorIndex: 0,
-        iconIndex: 0,
-        signers: _createMultisigSigners(vault),
-        requiredSignatureCount: 2,
-        createdAt: DateTime(2026),
-      );
-
-  @override
-  Future<bool> canSign(String psbt) async => false;
-}
-
-class _CannotSignSingleSigVaultListItem extends SingleSigVaultListItem {
-  _CannotSignSingleSigVaultListItem({required int id, required String name, required SingleSignatureVault vault})
-    : super(
-        id: id,
-        name: name,
-        colorIndex: 0,
-        iconIndex: 0,
-        descriptor: vault.descriptor,
-        signerBsmsByAddressType: {AddressType.p2wpkh: ''},
-        createdAt: DateTime(2026),
-      );
-
-  @override
-  Future<bool> canSign(String psbt) async => false;
 }
 
 class _FakeWalletProvider implements WalletProvider {

@@ -1,3 +1,4 @@
+import 'package:coconut_vault/config/number_format_config.dart';
 import 'package:coconut_vault/extensions/int_extensions.dart';
 import 'package:coconut_vault/utils/unit_utils.dart';
 
@@ -39,6 +40,9 @@ class BalanceFormatUtil {
       return '0';
     }
 
-    return decimalPartGrouped.isNotEmpty ? '$integerPartFormatted.$decimalPartGrouped' : integerPartFormatted;
+    final decimalSeparator = NumberFormatConfig.instance.decimalSeparator;
+    return decimalPartGrouped.isNotEmpty
+        ? '$integerPartFormatted$decimalSeparator$decimalPartGrouped'
+        : integerPartFormatted;
   }
 }

@@ -6,6 +6,7 @@ import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/multisig/external_signer_context.dart';
 import 'package:coconut_vault/model/multisig/multisig_signer.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
@@ -28,8 +29,7 @@ import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
 class MnemonicImportScreen extends StatefulWidget {
-  final MultisigSigner? externalSigner;
-  final int? multisigVaultIdOfExternalSigner;
+  final ExternalSignerContext? externalSignerContext;
   final bool isEmbedded;
   final bool isTaprootCreationChild;
   final bool requirePassphraseConfirmation;
@@ -38,13 +38,12 @@ class MnemonicImportScreen extends StatefulWidget {
   final void Function(Uint8List secret, Uint8List? passphrase)? onMnemonicConfirmationRequested;
 
   /// 가져올 지갑이 이미 정해져 있으면 패스프레이즈 후보가 그 지갑을 만드는지 판정한다.
-  /// 주어지면 정규화 방식 선택 UI 없이 맞는 후보를 고른다. [externalSigner]가 있으면 MFP로 판정한다.
+  /// 주어지면 정규화 방식 선택 UI 없이 맞는 후보를 고른다. [externalSignerContext]가 있으면 MFP로 판정한다.
   final ImportPassphraseMatcher? passphraseMatcher;
 
   const MnemonicImportScreen({
     super.key,
-    this.externalSigner,
-    this.multisigVaultIdOfExternalSigner,
+    this.externalSignerContext,
     this.isEmbedded = false,
     this.isTaprootCreationChild = false,
     this.requirePassphraseConfirmation = false,
@@ -630,7 +629,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
   Future<void> _handleNextButton() async {
     try {
       final secret = _buildMnemonicSecret();
-      final externalSigner = widget.externalSigner;
+      final externalSignerContext = widget.externalSignerContext;
+      final externalSigner = externalSignerContext?.signer;
       final resolution = await resolveImportPassphrase(
         context,
         secret: secret,
@@ -682,9 +682,8 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
       }
 
       _walletCreationProvider.setSecretAndPassphrase(secret, passphrase);
-      if (externalSigner != null) {
-        _walletCreationProvider.setExternalSigner(externalSigner);
-        _walletCreationProvider.setMultisigVaultIdOfExternalSigner(widget.multisigVaultIdOfExternalSigner);
+      if (externalSignerContext != null) {
+        _walletCreationProvider.setExternalSignerContext(externalSignerContext);
       }
 
       if (mounted) {
