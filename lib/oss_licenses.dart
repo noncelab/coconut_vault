@@ -1536,14 +1536,14 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   dependencies: [PackageRef('flutter'), PackageRef('provider'), PackageRef('flutter_svg'), PackageRef('lottie')],
 );
 
-/// coconut_lib 1.1.5
+/// coconut_lib 1.1.6
 const _coconut_lib = Package(
   name: 'coconut_lib',
   description:
       'The coconut_lib is a development tool for mobile air gap Bitcoin wallets. It is written in Dart. Coconut Vault and Coconut Wallet were created using this library.',
   repository: 'https://github.com/noncelab/coconut_lib.git',
   authors: [],
-  version: '1.1.5',
+  version: '1.1.6',
   license: '''MIT License
 
 Copyright 2025 Nonce Lab
