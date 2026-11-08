@@ -1392,6 +1392,7 @@ errors:
   data_loading_error: "데이터를 불러오는 중 오류가 발생했습니다"
   data_not_found_error: "데이터가 없습니다"
   cannot_sign_error: "서명할 수 없는 트랜잭션이에요"
+  payjoin_single_sig_only: "Payjoin 서명은 아직 단일 서명 지갑에서만 할 수 있어요."
   invalid_sign_error: "잘못된 서명 정보에요. 다시 시도해 주세요."
   scan_error: "[스캔 실패] $error"
   sign_error: "[서명 실패]: $error"

@@ -1391,6 +1391,7 @@ errors:
   data_loading_error: "Error occurred while loading data"
   data_not_found_error: "Data not found"
   cannot_sign_error: "Cannot sign this transaction"
+  payjoin_single_sig_only: "Payjoin signing works with single-signature wallets only for now."
   invalid_sign_error: "Invalid signing info. Please try again."
   scan_error: "[Scan Failed] $error"
   sign_error: "[Sign Failed]: $error"

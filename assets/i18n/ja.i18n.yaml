@@ -1392,6 +1392,8 @@ errors:
   data_loading_error: "データ読み込み中にエラーが発生しました"
   data_not_found_error: "データが見つかりません"
   cannot_sign_error: "このトランザクションに署名できません"
+  # TODO: translate
+  payjoin_single_sig_only: "Payjoin signing works with single-signature wallets only for now."
   invalid_sign_error: "無効な署名情報。再度お試しください。"
   scan_error: "[スキャン失敗] $error"
   sign_error: "[署名失敗]: $error"
