@@ -84,6 +84,8 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                           ),
                         ),
                         SendAmountHeader(
+                          title: _payjoinTitle(viewModel),
+                          note: viewModel.isPayjoin ? t.psbt_confirmation_screen.payjoin.net_note : null,
                           amountText: _currentUnit.displayBitcoinAmount(viewModel.sendingAmount),
                           unitText: _currentUnit.symbol,
                           satoshiAmount: viewModel.sendingAmount ?? 0,
@@ -95,6 +97,13 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: _buildTransactionFlowCard(viewModel),
                         ),
+                        if (viewModel.isPayjoin) ...[
+                          CoconutLayout.spacing_500h,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: _buildForeignInputsCard(viewModel),
+                          ),
+                        ],
                         CoconutLayout.spacing_500h,
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -114,6 +123,7 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                         if (viewModel.hasWarning) ...[
                           const SizedBox(height: 20),
                           Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 16),
                             padding: CoconutPadding.widgetContainer,
                             decoration: BoxDecoration(
                               borderRadius: CoconutBorder.defaultRadius,
@@ -121,7 +131,12 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
                             ),
                             child: MediaQuery(
                               data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-                              child: Text(t.psbt_confirmation_screen.warning, textAlign: TextAlign.center),
+                              child: Text(
+                                viewModel.isPayjoin
+                                    ? t.psbt_confirmation_screen.payjoin.warning
+                                    : t.psbt_confirmation_screen.warning,
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ),
                         ],
@@ -183,6 +198,42 @@ class _PsbtConfirmationScreenState extends State<PsbtConfirmationScreen> {
       changeOutputAmounts: changeOutputAmounts,
       fee: viewModel.estimatedFee,
       currentUnit: _currentUnit,
+    );
+  }
+
+  String? _payjoinTitle(PsbtConfirmationViewModel viewModel) {
+    final net = viewModel.payjoinNetAmount;
+    if (net == null) return null;
+    return net > 0 ? t.psbt_confirmation_screen.payjoin.received : t.psbt_confirmation_screen.payjoin.sent;
+  }
+
+  Widget _buildForeignInputsCard(PsbtConfirmationViewModel viewModel) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        borderRadius: CoconutBorder.defaultRadius,
+        color: CoconutColors.black.withValues(alpha: 0.03),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(t.psbt_confirmation_screen.payjoin.foreign_inputs_title, style: CoconutTypography.body2_14_Bold),
+          for (final input in viewModel.foreignInputs) ...[
+            CoconutLayout.spacing_200h,
+            Text(
+              t.psbt_confirmation_screen.payjoin.foreign_input(index: input.index),
+              style: CoconutTypography.body2_14.setColor(CoconutColors.gray900),
+            ),
+            Text(
+              input.outpoint,
+              style: CoconutTypography.body3_12_Number.setColor(CoconutColors.gray700),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ],
+      ),
     );
   }
 

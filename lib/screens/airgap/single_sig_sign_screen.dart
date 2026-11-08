@@ -369,7 +369,11 @@ class _SingleSigSignScreenState extends State<SingleSigSignScreen> {
               ),
               const Divider(color: CoconutColors.borderLightGray, height: 1),
               InformationItemCard(
-                label: t.send_amount,
+                label: switch (_viewModel.payjoinNetAmount) {
+                  null => t.send_amount,
+                  > 0 => t.psbt_confirmation_screen.payjoin.received,
+                  _ => t.psbt_confirmation_screen.payjoin.sent,
+                },
                 value: [_currentUnit.displayBitcoinAmount(_viewModel.sendingAmount, withUnit: true)],
                 isNumber: true,
                 onPressed: _toggleUnit,

@@ -42,6 +42,7 @@ class SingleSigSignViewModel extends ChangeNotifier {
   String get firstRecipientAddress => _signProvider.recipientAddress ?? _signProvider.recipientAmounts!.keys.first;
   int get recipientCount => _signProvider.recipientAddress != null ? 1 : _signProvider.recipientAmounts!.length;
   int get sendingAmount => _signProvider.sendingAmount!;
+  int? get payjoinNetAmount => _signProvider.payjoinNetAmount;
   bool get hasPassphrase => _hasPassphrase;
   int get walletId => _signProvider.walletId!;
   bool get isSigningOnlyMode => _isSigningOnlyMode;

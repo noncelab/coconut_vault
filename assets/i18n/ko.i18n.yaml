@@ -309,6 +309,13 @@ psbt_confirmation_screen:
   output_detail_title: "출력 상세 보기"
   flow_input_title: "입력 $index"
   flow_output_title: "출력 $index"  
+  payjoin:
+    received: "받을 수량"
+    sent: "보낼 수량"
+    net_note: "이 트랜잭션으로 이 지갑에서 늘거나 줄어드는 수량이에요. 상대방이 넣은 입력의 금액은 볼트에서 확인할 수 없어서 수수료는 표시하지 않아요."
+    warning: "Payjoin 트랜잭션이에요. 일부 입력은 상대방이 넣었고 이미 서명되어 있어요. 이 볼트는 자기 입력에만 서명해요. 위 수량이 예상과 같은지 확인해 주세요."
+    foreign_inputs_title: "상대방이 넣은 입력"
+    foreign_input: "입력 $index, 이미 서명됨"
 psbt_scanner_screen:
   guide: "월렛에서 만든 보내기 정보 또는 외부 볼트에서 다중 서명 중인 정보를 스캔해 주세요."
   guide_import_psbt_0: "외부 볼트에서 "

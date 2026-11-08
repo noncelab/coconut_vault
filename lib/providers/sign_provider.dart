@@ -12,6 +12,7 @@ class SignProvider {
   Psbt? _psbt;
   String? _recipientAddress;
   int? _sendingAmount;
+  int? _payjoinNetAmount;
 
   // for batch tx
   Map<String, double>? _recipientAmounts;
@@ -32,6 +33,10 @@ class SignProvider {
       _recipientAmounts == null ? null : UnmodifiableMapView(_recipientAmounts!);
 
   int? get sendingAmount => _sendingAmount;
+
+  /// For a payjoin, the change in this vault's balance (positive when it
+  /// receives). Null for any other transaction.
+  int? get payjoinNetAmount => _payjoinNetAmount;
 
   String? get signedPsbtBase64 => _signedPsbtBase64;
   String? get signedRawTxHexString => _signedRawTxHexString;
@@ -64,6 +69,11 @@ class SignProvider {
   // 2. psbt_confirmation
   void saveSendingAmount(int amount) {
     _sendingAmount = amount;
+  }
+
+  // 2. psbt_confirmation
+  void savePayjoinNetAmount(int? amount) {
+    _payjoinNetAmount = amount;
   }
 
   // 2. psbt_confirmation
@@ -113,6 +123,7 @@ class SignProvider {
         _vaultListItem =
             _psbt =
                 _recipientAddress =
-                    _recipientAmounts = _sendingAmount = _signedPsbtBase64 = _signedRawTxHexString = null;
+                    _recipientAmounts =
+                        _sendingAmount = _payjoinNetAmount = _signedPsbtBase64 = _signedRawTxHexString = null;
   }
 }
