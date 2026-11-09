@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/constants/app_routes.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/extensions/psbt_extensions.dart';
 import 'package:coconut_vault/extensions/int_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -12,6 +13,9 @@ import 'package:coconut_vault/utils/unit_utils.dart';
 import 'package:flutter/foundation.dart';
 
 typedef PsbtConfirmationOutput = ({int vout, String address, int amount, bool isChange});
+
+/// An input the other party of a payjoin added and already signed.
+typedef PsbtConfirmationForeignInput = ({int index, String outpoint});
 
 class PsbtConfirmationViewModel extends ChangeNotifier {
   late final SignProvider _signProvider;
@@ -24,8 +28,8 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
   int? _sendingAmount;
   List<int?> _inputs = [];
   List<PsbtConfirmationOutput> _outputs = [];
-  // 현재 사용하지 않지만 관련 UI가 존재
-  final bool _hasWarning = false;
+  List<PsbtConfirmationForeignInput> _foreignInputs = [];
+  int? _payjoinNetAmount;
 
   PsbtConfirmationViewModel(this._signProvider, this._visibilityProvider) {
     _unsignedPsbtBase64 = _signProvider.unsignedPsbtBase64!;
@@ -46,12 +50,29 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
   bool get isSendingToMyAddress => _isSendingToMyAddress;
   List<String> get recipientAddress => UnmodifiableListView(_recipientAddresses);
   int? get sendingAmount => _sendingAmount;
-  int? get estimatedFee => _psbt?.fee;
-  bool get hasWarning => _hasWarning;
+
+  /// The fee, except for a payjoin: it would be computed from the other
+  /// party's input amounts, which this vault cannot verify (BIP 143 commits a
+  /// signature only to the amount of the input it signs).
+  int? get estimatedFee => isPayjoin ? null : _psbt?.fee;
+  bool get hasWarning => isPayjoin;
+
+  /// Input amounts in transaction order; null for an input the other party
+  /// added, whose amount is unverified.
   List<int?> get inputs => _inputs;
   List<PsbtConfirmationOutput> get outputs => _outputs;
+  List<PsbtConfirmationForeignInput> get foreignInputs => UnmodifiableListView(_foreignInputs);
+  bool get isPayjoin => _foreignInputs.isNotEmpty;
 
-  int? get totalAmount => _psbt != null ? (_sendingAmount ?? _psbt!.sendingAmount(_wallet)) + _psbt!.fee : null;
+  /// For a payjoin, the change in this vault's balance: positive when it
+  /// receives. Computed from this vault's own inputs and outputs only.
+  int? get payjoinNetAmount => _payjoinNetAmount;
+
+  int? get totalAmount {
+    if (_psbt == null) return null;
+    if (isPayjoin) return _payjoinNetAmount!.abs();
+    return (_sendingAmount ?? _psbt!.sendingAmount(_wallet)) + _psbt!.fee;
+  }
 
   WalletBase get _wallet => _signProvider.vaultListItem!.coconutVault;
 
@@ -63,6 +84,16 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
       for (final (vout, output) in _psbt!.outputs.indexed)
         (vout: vout, address: output.outAddress, amount: output.outAmount!, isChange: output.isChange(_wallet)),
     ];
+
+    final wallet = _wallet;
+    if (wallet is SingleSignatureVault) {
+      final foreignIndexes = _psbt!.foreignInputIndexes(wallet.keyStore.masterFingerprint);
+      if (foreignIndexes.isNotEmpty) {
+        _setPayjoinTxInfo(foreignIndexes);
+        notifyListeners();
+        return;
+      }
+    }
 
     List<PsbtOutput> outputs = _psbt!.outputs;
 
@@ -144,6 +175,41 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _setPayjoinTxInfo(List<int> foreignIndexes) {
+    final psbt = _psbt!;
+    final txInputs = psbt.unsignedTransaction!.inputs;
+    _foreignInputs = [
+      for (final index in foreignIndexes)
+        (index: index, outpoint: '${txInputs[index].transactionHash}:${txInputs[index].index}'),
+    ];
+    for (final index in foreignIndexes) {
+      _inputs[index] = null;
+    }
+
+    final net = psbt.netAmount(_wallet);
+    _payjoinNetAmount = net;
+    _sendingAmount = net.abs();
+
+    // Sending: the outputs that are not ours. Receiving: our own outputs,
+    // where the funds arrive.
+    final isReceiving = net > 0;
+    var shownOutputs = psbt.outputs.where((output) => output.isOwnedBy(_wallet) == isReceiving).toList();
+    if (shownOutputs.isEmpty) shownOutputs = psbt.outputs;
+    final recipients = {
+      for (final output in shownOutputs) output.outAddress: UnitUtil.convertSatoshiToBitcoin(output.outAmount!),
+    };
+    _recipientAddresses.addAll(recipients.keys);
+
+    _signProvider.savePsbt(psbt);
+    _signProvider.saveSendingAmount(_sendingAmount!);
+    _signProvider.savePayjoinNetAmount(net);
+    if (recipients.length == 1) {
+      _signProvider.saveRecipientAddress(recipients.keys.single);
+    } else {
+      _signProvider.saveRecipientAmounts(recipients);
+    }
+  }
+
   ///예외: 사용자가 배치 트랜잭션에 '남의 주소 또는 내 Receive 주소 1개'와 '본인 change 주소 1개'를 입력하고, 이 트랜잭션의 잔액이 없는 희박한 상황에서는 배치 트랜잭션임을 구분하지 못함
   bool _isBatchTransaction(
     List<PsbtOutput> outputToMyReceivingAddress,
@@ -181,5 +247,6 @@ class PsbtConfirmationViewModel extends ChangeNotifier {
     _signProvider.resetRecipientAddress();
     _signProvider.resetRecipientAmounts();
     _signProvider.resetSendingAmount();
+    _signProvider.savePayjoinNetAmount(null);
   }
 }

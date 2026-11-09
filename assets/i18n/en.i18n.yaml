@@ -308,6 +308,13 @@ psbt_confirmation_screen:
   output_detail_title: "Output Details"
   flow_input_title: "Input $index"
   flow_output_title: "Output $index"
+  payjoin:
+    received: "Received"
+    sent: "Sent"
+    net_note: "Net change to this wallet. The fee is not shown because this vault cannot check the amounts of the other party's inputs."
+    warning: "Payjoin transaction. Some inputs were added by the other party and are already signed. This vault signs only its own inputs. Check that the amount above is what you expect."
+    foreign_inputs_title: "Added by the other party"
+    foreign_input: "Input $index, already signed"
 psbt_scanner_screen:
   guide: "Please scan sending info created in wallet or multisig info from external vault."
   guide_import_psbt_0: "Please scan the QR code created via "
@@ -1391,6 +1398,7 @@ errors:
   data_loading_error: "Error occurred while loading data"
   data_not_found_error: "Data not found"
   cannot_sign_error: "Cannot sign this transaction"
+  payjoin_single_sig_only: "Payjoin signing works with single-signature wallets only for now."
   invalid_sign_error: "Invalid signing info. Please try again."
   scan_error: "[Scan Failed] $error"
   sign_error: "[Sign Failed]: $error"

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/extensions/psbt_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/exception/needs_multisig_setup_exception.dart';
@@ -61,6 +62,7 @@ class PsbtScannerViewModel {
     final vault = _walletProvider.getVaultById(vaultId);
     final canSign = hasDerivationPath ? await vault.canSign(psbtBase64Encoded) : true;
     if (!canSign) {
+      _rejectPayjoinForUnsupportedVaults(parsedPsbt, [vault]);
       if (parsedPsbt.addressType!.isMultisignature && vault.vaultType == WalletType.singleSignature) {
         final mfp = (vault.coconutVault as SingleSignatureVault).keyStore.masterFingerprint;
         if (_extractPsbtSignerFingerprints(parsedPsbt).contains(mfp)) {
@@ -87,6 +89,8 @@ class PsbtScannerViewModel {
       return _findSingleSignatureVault(parsedPsbt);
     }
 
+    _rejectPayjoinForUnsupportedVaults(parsedPsbt, _walletProvider.vaultList);
+
     if (parsedPsbt.addressType!.isTaproot) {
       return _findTaprootVault(parsedPsbt);
     }
@@ -97,11 +101,14 @@ class PsbtScannerViewModel {
   /// PSBT에 담긴 서명자의 master fingerprint 집합을 반환한다.
   /// 글로벌 xpub(PSBT_GLOBAL_XPUB)이 있으면 그것을 사용하고, 없으면(예: BlueWallet)
   /// input의 BIP32_DERIVATION에서 추출한다.
+  /// A payjoin PSBT may carry the other party's global xpubs, so its input
+  /// derivations are read as well.
   Set<String> _extractPsbtSignerFingerprints(Psbt parsedPsbt) {
-    if (parsedPsbt.extendedPublicKeyList.isNotEmpty) {
-      return parsedPsbt.extendedPublicKeyList.map((e) => e.masterFingerprint).toSet();
+    final globalMfps = parsedPsbt.extendedPublicKeyList.map((e) => e.masterFingerprint).toSet();
+    if (globalMfps.isNotEmpty && !parsedPsbt.hasFinalizedInputs) {
+      return globalMfps;
     }
-    final mfpSet = <String>{};
+    final mfpSet = <String>{...globalMfps};
     for (final input in parsedPsbt.inputs) {
       final derivations = input.bip32Derivation;
       if (derivations == null) continue;
@@ -131,7 +138,7 @@ class PsbtScannerViewModel {
 
       foundMatchingMfp = true;
 
-      if (parsedPsbt.matchesVault(singleSigVault)) {
+      if (parsedPsbt.matchesVault(singleSigVault, allowFinalizedForeignInputs: parsedPsbt.hasFinalizedInputs)) {
         return vault;
       }
     }
@@ -141,6 +148,29 @@ class PsbtScannerViewModel {
     }
 
     return null;
+  }
+
+  /// Payjoin signing is enabled for single-signature vaults only. When a
+  /// multisig or taproot vault would sign this PSBT if its finalized foreign
+  /// inputs were accepted, say so rather than report that no vault matches.
+  void _rejectPayjoinForUnsupportedVaults(Psbt parsedPsbt, Iterable<VaultListItemBase> vaults) {
+    if (!parsedPsbt.hasFinalizedInputs) {
+      return;
+    }
+    for (final vault in vaults) {
+      if (vault.vaultType == WalletType.singleSignature) {
+        continue;
+      }
+      bool matches;
+      try {
+        matches = parsedPsbt.matchesVault(vault.coconutVault, allowFinalizedForeignInputs: true);
+      } catch (_) {
+        matches = false;
+      }
+      if (matches) {
+        throw VaultSigningNotAllowedException(message: t.errors.payjoin_single_sig_only);
+      }
+    }
   }
 
   VaultListItemBase? _findTaprootVault(Psbt parsedPsbt) {

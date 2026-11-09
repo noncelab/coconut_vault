@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/extensions/psbt_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 
 class SignIsolates {
@@ -16,7 +17,10 @@ class SignIsolates {
     try {
       keyStore = KeyStore.fromSeed(seed, AddressType.p2wpkh, accountIndex: accountIndex);
       final coconutVault = SingleSignatureVault.fromKeyStore(keyStore, accountIndex: accountIndex);
-      return coconutVault.addSignatureToPsbt(psbtBase64);
+      return coconutVault.addSignatureToPsbt(
+        psbtBase64,
+        allowFinalizedForeignInputs: Psbt.parse(psbtBase64).hasFinalizedInputs,
+      );
     } finally {
       keyStore?.wipeSeed();
       seed.wipe();
@@ -90,7 +94,11 @@ class SignIsolates {
     WalletIsolates.setNetworkType();
     final psbtBase64 = dataList[1] as String;
     try {
-      return Psbt.parse(psbtBase64).matchesVault(dataList[0] as SingleSignatureVault);
+      final psbt = Psbt.parse(psbtBase64);
+      return psbt.matchesVault(
+        dataList[0] as SingleSignatureVault,
+        allowFinalizedForeignInputs: psbt.hasFinalizedInputs,
+      );
     } catch (_) {
       return false;
     }

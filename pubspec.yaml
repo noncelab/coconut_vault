@@ -114,6 +114,11 @@ dependency_overrides:
     git:
       url: https://github.com/noncelab/coconut_design_system.git
       ref: fix/popup-korean-keep-all
+  # Signing PSBTs that carry a payjoin counterparty's finalized inputs.
+  coconut_lib:
+    git:
+      url: https://github.com/DanGould/coconut_lib.git
+      ref: 95d2cc7c97d6a15364633675340c85b5bf34c81b # branch payjoin
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
