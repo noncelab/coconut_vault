@@ -10,6 +10,7 @@ class DateSelectorBottomSheet {
   static void show({
     required BuildContext context,
     required DateTime today,
+    DateTime? firstDate,
     required DateTime? initialDateTime,
     required ValueChanged<DateTime> onDateTimeSelected,
   }) {
@@ -63,7 +64,7 @@ class DateSelectorBottomSheet {
                                   debugPrint(date.toIso8601String());
                                   selectedDate = date;
                                 },
-                                firstDate: today,
+                                firstDate: firstDate ?? today,
                                 lastDate: DateTime(today.year + 100, today.month, today.day),
                                 showTimeSelector: true,
                                 selectedTime: selectedTime,

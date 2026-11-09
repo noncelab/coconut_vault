@@ -54,7 +54,7 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
           final viewModel = providerContext.watch<WalletToSyncViewModel>();
           return QrWithCopyTextScreen(
             title: t.sync_to_wallet_screen.title(name: _name),
-            tooltipDescription: _buildGuideTooltip(),
+            tooltipDescription: _buildGuideTooltip(viewModel.requiredWalletVersion),
             derivationPathSection:
                 viewModel.derivationPath.isNotEmpty ? _buildDerivationPathSection(providerContext) : null,
             qrData: viewModel.qrData.type == QrType.single ? viewModel.qrData.data : null,
@@ -71,13 +71,17 @@ class _SyncToWalletScreenState extends State<SyncToWalletScreen> {
 
   // MARK: - UI Sections
 
-  Widget _buildGuideTooltip() {
+  Widget _buildGuideTooltip(String? requiredWalletVersion) {
     return CustomTooltip.buildInfoTooltip(
       context,
       richText: RichText(
         text: TextSpan(
           style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
-          children: _getGuideTextSpan(),
+          children: [
+            ..._getGuideTextSpan(),
+            if (requiredWalletVersion != null)
+              TextSpan(text: '\n${t.taproot.common.requires_wallet_version(version: requiredWalletVersion)}'),
+          ],
         ),
       ),
     );

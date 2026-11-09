@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/enums/wallet_export_format_enum.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
@@ -29,6 +30,12 @@ class WalletToSyncViewModel extends ChangeNotifier {
   late UrType urType;
 
   int get currentAccountIndex => _currentAccountIndex;
+
+  String? get requiredWalletVersion {
+    final vault = _walletProvider.getVaultById(_vaultId);
+    if (vault is! TaprootVaultListItem || vault.beneficiaries.isEmpty) return null;
+    return kMinWalletVersionForInheritance;
+  }
 
   WalletToSyncViewModel(this._vaultId, this._walletProvider) {
     _initVaultData();

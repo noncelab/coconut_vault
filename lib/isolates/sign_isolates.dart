@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/core/wallet/taproot_validator.dart';
 import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
 
 class SignIsolates {
@@ -119,7 +120,7 @@ class SignIsolates {
     try {
       final parsedPsbt = Psbt.parse(psbtBase64);
       final taprootVault = dataList[0] as TaprootVault;
-      return parsedPsbt.matchesVault(taprootVault);
+      return TaprootValidator.matchesTaprootVault(parsedPsbt, taprootVault);
     } catch (_) {
       return false;
     }

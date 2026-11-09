@@ -5,6 +5,7 @@ import 'package:coconut_vault/providers/view_model/vault_creation/vault_name_and
 import 'package:coconut_vault/screens/vault_creation/taproot/parent_creation_step_widgets.dart';
 import 'package:coconut_vault/widgets/indicator/timeline_step_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:coconut_vault/utils/text_utils.dart';
 
 class ParentCreationCompletionSteps {
   ParentCreationCompletionSteps._();
@@ -68,8 +69,8 @@ class ParentCreationCompletionSteps {
     return [TextSpan(text: complete.title_1), TextSpan(text: complete.title_2)];
   }
 
-  static Widget exportQrBody({required String qrData}) {
-    return ParentWalletSyncQr(qrData: qrData);
+  static Widget exportQrBody({required String qrData, required String? requiredWalletVersion}) {
+    return ParentWalletSyncQr(qrData: qrData, requiredWalletVersion: requiredWalletVersion);
   }
 
   static String _parentWalletDescription({
@@ -82,15 +83,19 @@ class ParentCreationCompletionSteps {
       final masterFingerprints = <String>[
         masterFingerprint,
         externalMasterFingerprint,
-      ].where((masterFingerprint) => masterFingerprint.isNotEmpty);
+      ].where((masterFingerprint) => masterFingerprint.isNotEmpty).map(TextUtils.formatMasterFingerprint);
       return '${t.multisig_wallet} | MFP: ${masterFingerprints.join(', ')}';
     }
 
-    return t.taproot.parent_creation_screen.singlesig_wallet_with_mfp(mfp: masterFingerprint);
+    return t.taproot.parent_creation_screen.singlesig_wallet_with_mfp(
+      mfp: TextUtils.formatMasterFingerprint(masterFingerprint),
+    );
   }
 
   static String _childWalletDescription(TaprootVaultCreationTimelineInfo? timelineInfo) {
     final masterFingerprint = timelineInfo?.childMasterFingerprint ?? '';
-    return t.taproot.parent_creation_screen.taproot_wallet_with_mfp(mfp: masterFingerprint);
+    return t.taproot.parent_creation_screen.taproot_wallet_with_mfp(
+      mfp: TextUtils.formatMasterFingerprint(masterFingerprint),
+    );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/constants/build_config.dart';
 import 'package:coconut_vault/core/wallet/taproot_validator.dart';
 import 'package:coconut_vault/extensions/uint8list_extensions.dart';
 import 'package:coconut_vault/isolates/wallet_isolates/wallet_isolates.dart';
@@ -7,6 +8,7 @@ import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.d
 import 'package:coconut_vault/model/taproot/seed_source.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/vault_name_and_icon_setup_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/utils/logger.dart';
 import 'package:flutter/foundation.dart';
 
 enum ParentWalletType { none, singleSig, multisig }
@@ -44,6 +46,7 @@ class ParentCreationViewModel extends ChangeNotifier {
   static const int _childKeyImportOptionProgressStepCount = 1;
   static const int _childCurrentVaultSelectionProgressStepCount = 1;
   static const int _childWalletCreateOptionProgressStepCount = 1;
+  static final DateTime timelockFirstDate = DateTime(2026, 1, 1);
 
   final WalletProvider _walletProvider;
   ParentWalletType _selectedWalletType = ParentWalletType.none;
@@ -57,6 +60,9 @@ class ParentCreationViewModel extends ChangeNotifier {
   int? _selectedExistingVaultId;
   int? _selectedChildExistingVaultId;
   DateTime? _selectedTimelockDateTime;
+  bool _isLegacyInheritanceSelected = false;
+  ({String address, String derivationPath})? _legacyFirstAddress;
+  int _legacyFirstAddressRequestId = 0;
   Uint8List _parentSecret = Uint8List(0);
   Uint8List _parentPassphrase = Uint8List(0);
   Uint8List _childSecret = Uint8List(0);
@@ -81,6 +87,10 @@ class ParentCreationViewModel extends ChangeNotifier {
   int? get selectedExistingVaultId => _selectedExistingVaultId;
   int? get selectedChildExistingVaultId => _selectedChildExistingVaultId;
   DateTime? get selectedTimelockDateTime => _selectedTimelockDateTime;
+  String? get legacyInheritanceVersion => kLastLegacyInheritanceVersion;
+  String? get requiredWalletVersion => kMinWalletVersionForInheritance;
+  bool get isLegacyInheritanceSelected => _isLegacyInheritanceSelected;
+  ({String address, String derivationPath})? get legacyFirstAddress => _legacyFirstAddress;
   String? get parentWalletQrData => _parentWalletQrData;
   String? get parentMasterFingerprint => _parentMasterFingerprint;
   String? get externalParentSignerBsms => _externalParentSignerBsms;
@@ -248,11 +258,49 @@ class ParentCreationViewModel extends ChangeNotifier {
   void setTimelockDateTime(DateTime dateTime) {
     _selectedTimelockDateTime = dateTime;
     notifyListeners();
+    _updateLegacyFirstAddress();
   }
 
   void resetTimelockDateTime() {
     _selectedTimelockDateTime = null;
+    _clearLegacyFirstAddress();
     notifyListeners();
+  }
+
+  void setLegacyInheritanceSelected(bool isSelected) {
+    _isLegacyInheritanceSelected = isSelected;
+    notifyListeners();
+    _updateLegacyFirstAddress();
+  }
+
+  Future<void> _updateLegacyFirstAddress() async {
+    _clearLegacyFirstAddress();
+    if (!_isLegacyInheritanceSelected || _selectedTimelockDateTime == null) {
+      notifyListeners();
+      return;
+    }
+
+    final requestId = _legacyFirstAddressRequestId;
+    TaprootWalletCreateDto? walletCreateDto;
+    try {
+      walletCreateDto = createWalletCreateDto(name: '', iconIndex: 0, colorIndex: 0)..id = 0;
+      final result = await compute(WalletIsolates.createTaprootVault, walletCreateDto.toJson());
+      if (requestId != _legacyFirstAddressRequestId) return;
+      _legacyFirstAddress = (
+        address: result.vault.coconutVault.getAddress(0),
+        derivationPath: '${result.vault.derivationPath}/0/0',
+      );
+      notifyListeners();
+    } catch (e) {
+      Logger.error('Failed to derive legacy inheritance first address: $e');
+    } finally {
+      walletCreateDto?.wipe();
+    }
+  }
+
+  void _clearLegacyFirstAddress() {
+    _legacyFirstAddressRequestId++;
+    _legacyFirstAddress = null;
   }
 
   void setParentWalletSecret(Uint8List secret, {Uint8List? passphrase}) {
@@ -452,11 +500,13 @@ class ParentCreationViewModel extends ChangeNotifier {
             passphrase: Uint8List.fromList(_childPassphrase),
           ),
           lockTime: timelockDateTime.millisecondsSinceEpoch ~/ Duration.millisecondsPerSecond,
+          form: _inheritanceLeafForm,
         )
       else
         InheritanceLeaf(
           descriptor: childWalletDescriptor,
           lockTime: timelockDateTime.millisecondsSinceEpoch ~/ Duration.millisecondsPerSecond,
+          form: _inheritanceLeafForm,
         ),
     ];
 
@@ -471,10 +521,15 @@ class ParentCreationViewModel extends ChangeNotifier {
     );
   }
 
+  InheritanceLeafForm get _inheritanceLeafForm =>
+      _isLegacyInheritanceSelected ? InheritanceLeafForm.legacy : InheritanceLeafForm.current;
+
   void resetAllWalletData() {
     resetParentWalletData();
     resetChildWallet();
     _selectedTimelockDateTime = null;
+    _isLegacyInheritanceSelected = false;
+    _clearLegacyFirstAddress();
   }
 
   @override

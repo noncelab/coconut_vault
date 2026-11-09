@@ -17,6 +17,18 @@ const String? kLastUnnormalizedPassphraseVersion =
         ? '3.2.0'
         : ((_appFlavor == 'fullRegtest' || _appFlavor == 'liteRegtest') ? '5.2.0' : null);
 
+/// 이전 방식 상속 지갑을 만들던 마지막 앱 버전
+const String? kLastLegacyInheritanceVersion =
+    _appFlavor == 'fullMainnet' ? '3.3.0' : (_appFlavor == 'fullRegtest' ? '5.3.0' : null);
+
+/// after_drop 상속 지갑 표기를 읽는 최소 코코넛 월렛 버전
+const String? kMinWalletVersionForInheritance =
+    _appFlavor == 'fullMainnet' ? '1.1.0' : (_appFlavor == 'fullRegtest' ? '4.1.0' : null);
+
+/// after_drop 상속 지갑 표기를 읽는 최소 코코넛 볼트 버전
+const String? kMinVaultVersionForInheritance =
+    _appFlavor == 'fullMainnet' ? '3.4.0' : (_appFlavor == 'fullRegtest' ? '5.4.0' : null);
+
 /// 컴파일 타임 앱 flavor로 글로벌 [NetworkType]을 설정합니다.
 ///
 /// flavor 이름이 `fullMainnet`/`liteMainnet`처럼 camelCase 조합이므로

@@ -290,10 +290,8 @@ class ChildWalletQrSection extends StatelessWidget {
             const SizedBox(height: 200),
           CoconutLayout.spacing_500h,
           InfoBox(
-            infoList: [
-              MapEntry(t.wallet_type, t.taproot.child_creation_screen.step4.taproot_single_sig_wallet),
-              MapEntry(t.mfp, viewModel.masterFingerprint ?? '00000000'),
-            ],
+            infoList: [MapEntry(t.wallet_type, t.taproot.child_creation_screen.step4.taproot_single_sig_wallet)],
+            masterFingerprint: viewModel.masterFingerprint ?? '00000000',
           ),
         ],
       ),

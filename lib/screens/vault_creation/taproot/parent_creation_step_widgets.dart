@@ -10,6 +10,7 @@ import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/widgets/button/assignable_pill_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
+import 'package:coconut_vault/widgets/card/taproot/taproot_first_address_section.dart';
 import 'package:coconut_vault/widgets/text/character_fade_in_text.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
@@ -250,9 +251,10 @@ class ParentMultisigParentExportQr extends StatelessWidget {
 }
 
 class ParentWalletSyncQr extends StatelessWidget {
-  const ParentWalletSyncQr({super.key, required this.qrData});
+  const ParentWalletSyncQr({super.key, required this.qrData, required this.requiredWalletVersion});
 
   final String qrData;
+  final String? requiredWalletVersion;
 
   @override
   Widget build(BuildContext context) {
@@ -272,6 +274,14 @@ class ParentWalletSyncQr extends StatelessWidget {
           ),
         CoconutLayout.spacing_600h,
         AdaptiveQrImage(qrData: qrData),
+        if (requiredWalletVersion != null) ...[
+          CoconutLayout.spacing_300h,
+          Text(
+            t.taproot.common.requires_wallet_version(version: requiredWalletVersion!),
+            style: CoconutTypography.body3_12.setColor(CoconutColors.gray500),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ],
     );
   }
@@ -283,12 +293,22 @@ class ParentTimelockSetupBody extends StatelessWidget {
     required this.selectedDateTime,
     required this.onDatePressed,
     required this.language,
+    required this.legacyInheritanceVersion,
+    required this.isLegacyInheritanceSelected,
+    required this.onLegacyInheritanceChanged,
+    required this.legacyFirstAddress,
+    required this.onFirstAddressPressed,
   });
 
   final DateTime? selectedDateTime;
   final VoidCallback onDatePressed;
 
   final AppLanguage language;
+  final String? legacyInheritanceVersion;
+  final bool isLegacyInheritanceSelected;
+  final ValueChanged<bool> onLegacyInheritanceChanged;
+  final ({String address, String derivationPath})? legacyFirstAddress;
+  final VoidCallback onFirstAddressPressed;
 
   static List<TextSpan> titleList() {
     return [
@@ -332,6 +352,45 @@ class ParentTimelockSetupBody extends StatelessWidget {
           selectedDateTime: selectedDateTime,
           text: dateTimeText(selectedDateTime),
           onPressed: onDatePressed,
+        ),
+        if (legacyInheritanceVersion != null) ...[
+          CoconutLayout.spacing_600h,
+          _buildLegacyInheritanceToggle(legacyInheritanceVersion!),
+        ],
+        if (isLegacyInheritanceSelected && legacyFirstAddress != null) ...[
+          CoconutLayout.spacing_600h,
+          TaprootFirstAddressSection(
+            address: legacyFirstAddress!.address,
+            derivationPath: legacyFirstAddress!.derivationPath,
+            description: t.taproot.common.first_address_description,
+            onPressed: onFirstAddressPressed,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildLegacyInheritanceToggle(String version) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(t.taproot.common.legacy_wallet_title(version: version), style: CoconutTypography.body2_14),
+              Text(
+                t.taproot.common.legacy_wallet_description,
+                style: CoconutTypography.body3_12.setColor(CoconutColors.gray400),
+              ),
+            ],
+          ),
+        ),
+        CoconutLayout.spacing_100w,
+        CoconutSwitch(
+          isOn: isLegacyInheritanceSelected,
+          activeTrackColor: CoconutColors.black,
+          scale: 0.8,
+          onChanged: onLegacyInheritanceChanged,
         ),
       ],
     );

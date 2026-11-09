@@ -15,6 +15,7 @@ import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
+import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/security_self_check_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/child_creation_overlays.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/parent_creation_completion_steps.dart';
@@ -27,6 +28,7 @@ import 'package:coconut_vault/screens/vault_creation/taproot/taproot_scanner_scr
 import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/mnemonic_view_screen.dart';
 import 'package:coconut_vault/utils/date_format_util.dart';
+import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/box/info_box.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
 import 'package:coconut_vault/widgets/coconut_loading_overlay.dart';
@@ -374,6 +376,29 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       ParentCreationStep.childVerifiedMnemonicConfirmation ||
       ParentCreationStep.vaultNameAndIconSetup => true,
       _ => false,
+    };
+  }
+
+  String _getAppBarTitle(ParentCreationStep step) {
+    return switch (step) {
+      ParentCreationStep.childWalletSetup ||
+      ParentCreationStep.childWalletScan ||
+      ParentCreationStep.childKeyPreparation ||
+      ParentCreationStep.childKeyImportOption ||
+      ParentCreationStep.childCurrentVaultSelection ||
+      ParentCreationStep.childWalletCreationOption ||
+      ParentCreationStep.childSecuritySelfCheck ||
+      ParentCreationStep.childMnemonicEntry ||
+      ParentCreationStep.childMnemonicConfirmation ||
+      ParentCreationStep.childMnemonicGeneratedReview ||
+      ParentCreationStep.childMnemonicVerify ||
+      ParentCreationStep.childVerifiedMnemonicConfirmation ||
+      ParentCreationStep.childWalletImported => t.taproot.parent_creation_screen.child_wallet_title,
+      ParentCreationStep.timelockSetup ||
+      ParentCreationStep.vaultNameAndIconSetup ||
+      ParentCreationStep.timeline ||
+      ParentCreationStep.exportQr => t.taproot.parent_creation_screen.inheritance_wallet_title,
+      _ => t.taproot.parent_creation_screen.title,
     };
   }
 
@@ -805,10 +830,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       ),
       CoconutLayout.spacing_600h,
       InfoBox(
-        infoList: [
-          MapEntry(t.taproot.common.wallet_type, t.taproot.common.taproot_single_sig_wallet),
-          MapEntry(t.taproot.common.mfp, childWalletMasterFingerprint),
-        ],
+        infoList: [MapEntry(t.taproot.common.wallet_type, t.taproot.common.taproot_single_sig_wallet)],
+        masterFingerprint: childWalletMasterFingerprint,
       ),
     ];
   }
@@ -853,7 +876,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     }
 
     final qrData = _viewModel.getWalletSyncString(addedWalletId);
-    return ParentCreationCompletionSteps.exportQrBody(qrData: qrData);
+    return ParentCreationCompletionSteps.exportQrBody(
+      qrData: qrData,
+      requiredWalletVersion: _viewModel.requiredWalletVersion,
+    );
   }
 
   VoidCallback? get _onNextPressed {
@@ -1669,10 +1695,40 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   }
 
   Widget _buildTimelockSetupBody(DateTime today) {
-    return ParentTimelockSetupBody(
-      selectedDateTime: _viewModel.selectedTimelockDateTime,
-      onDatePressed: () => _showDatePicker(today),
-      language: _language,
+    return Consumer<ParentCreationViewModel>(
+      builder: (context, viewModel, child) {
+        return ParentTimelockSetupBody(
+          selectedDateTime: viewModel.selectedTimelockDateTime,
+          onDatePressed: () => _showDatePicker(today),
+          language: _language,
+          legacyInheritanceVersion: viewModel.legacyInheritanceVersion,
+          isLegacyInheritanceSelected: viewModel.isLegacyInheritanceSelected,
+          onLegacyInheritanceChanged: (isSelected) {
+            setState(() {
+              viewModel.setLegacyInheritanceSelected(isSelected);
+            });
+          },
+          legacyFirstAddress: viewModel.legacyFirstAddress,
+          onFirstAddressPressed: _showLegacyFirstAddressQr,
+        );
+      },
+    );
+  }
+
+  void _showLegacyFirstAddressQr() {
+    final firstAddress = _viewModel.legacyFirstAddress;
+    if (firstAddress == null) return;
+
+    MyBottomSheet.showBottomSheet_90(
+      context: context,
+      child: QrcodeBottomSheet(
+        qrData: firstAddress.address,
+        title: t.taproot.common.first_address,
+        qrcodeTopWidget: Text(
+          firstAddress.derivationPath,
+          style: CoconutTypography.body2_14.setColor(CoconutColors.gray800),
+        ),
+      ),
     );
   }
 
@@ -1680,6 +1736,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     ParentCreationOverlays.showTimelockDatePicker(
       context: context,
       today: today,
+      firstDate: ParentCreationViewModel.timelockFirstDate,
       initialDateTime: _viewModel.selectedTimelockDateTime,
       onDateTimeSelected: (selectedDateTime) {
         setState(() {
@@ -2087,7 +2144,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         child: Scaffold(
           backgroundColor: CoconutColors.white,
           appBar: CoconutAppBar.build(
-            title: t.taproot.parent_creation_screen.title,
+            title: _getAppBarTitle(_currentStepType),
             context: context,
             isBottom: _isTimelineStep || _isExportQrStep,
             height: 56,

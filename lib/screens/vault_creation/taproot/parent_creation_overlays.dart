@@ -172,12 +172,14 @@ class ParentCreationOverlays {
   static void showTimelockDatePicker({
     required BuildContext context,
     required DateTime today,
+    DateTime? firstDate,
     required DateTime? initialDateTime,
     required ValueChanged<DateTime> onDateTimeSelected,
   }) {
     TaprootCreationOverlays.showTimelockDatePicker(
       context: context,
       today: today,
+      firstDate: firstDate,
       initialDateTime: initialDateTime,
       onDateTimeSelected: onDateTimeSelected,
     );

@@ -4,6 +4,7 @@ import 'package:coconut_vault/repository/model/wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/repository/migration/v1_to_v2.dart';
 import 'package:coconut_vault/repository/migration/v2_to_v3.dart';
+import 'package:coconut_vault/repository/migration/v3_to_v4.dart';
 
 class DataSchemaMigrationRunner {
   static Future<void> persistCurrentVaultDataSchemaVersion(SharedPrefsRepository sharedPrefs, int version) async {
@@ -38,6 +39,14 @@ class DataSchemaMigrationRunner {
         savePrivacyInfo,
       );
       currentVersion = 3;
+    }
+
+    if (currentVersion < 4 && to >= 4) {
+      if (readPrivacyInfo == null) {
+        throw ArgumentError('Taproot descriptor migration requires a privacy info reader.');
+      }
+      await migrateV3toV4(currentVaultJsonList, readPrivacyInfo, savePrivacyInfo);
+      currentVersion = 4;
     }
 
     if (currentVersion != to) {

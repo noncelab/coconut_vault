@@ -20,6 +20,7 @@ import 'package:coconut_vault/model/taproot/taproot_seed_key_identifier.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/repository/migration/data_schema_migration_runner.dart';
+import 'package:coconut_vault/repository/migration/v3_to_v4.dart';
 import 'package:coconut_vault/repository/model/multisig_wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/model/single_sig_wallet_privacy_info.dart';
 import 'package:coconut_vault/repository/model/taproot_wallet_privacy_info.dart';
@@ -49,7 +50,7 @@ class _ModeTransitionBackupEntry {
 
 /// 지갑의 public 정보는 shared prefs, 비밀 정보는 secure storage에 저장하는 역할을 하는 클래스입니다.
 class WalletRepository {
-  static const int currentVaultDataSchemaVersion = 3;
+  static const int currentVaultDataSchemaVersion = 4;
   static String vaultTypeField = VaultListItemBase.vaultTypeField;
 
   final SecureStorageRepositoryContract _storageService;
@@ -119,7 +120,10 @@ class WalletRepository {
       assert(!_isSigningOnlyMode, 'migration must not run in signing-only mode');
       Logger.log('✅ 마이그레이션 시작: $savedVaultDataSchemaVersion to $currentVaultDataSchemaVersion');
       printLongString('--> jsonArrayString: $jsonArrayString');
-      final migrationStrategy = SecureStorageStrategy();
+      final migrationStrategy = SecureStorageStrategy(
+        storageService: _storageService,
+        secureZoneRepository: _secureZoneRepository,
+      );
       await DataSchemaMigrationRunner.runDataSchemaMigrations(
         previousVaultDataSchemaVersion,
         currentVaultDataSchemaVersion,
@@ -131,9 +135,19 @@ class WalletRepository {
       jsonArrayString = _sharedPrefs.getString(SharedPrefsKeys.kVaultListField);
     }
 
-    final jsonList = _decodeWalletListJson(jsonArrayString);
+    final jsonList = await _repairPublicVaultList(_decodeWalletListJson(jsonArrayString));
+    await _repairTaprootInheritanceLeaves(jsonList);
+    return jsonList;
+  }
 
-    return _repairPublicVaultList(jsonList);
+  /// 저장된 스키마 버전과 무관한 옛 상속 leaf 표기 복구
+  Future<void> _repairTaprootInheritanceLeaves(List<dynamic> jsonList) async {
+    if (_isSigningOnlyMode) return;
+    final strategy = SecureStorageStrategy(
+      storageService: _storageService,
+      secureZoneRepository: _secureZoneRepository,
+    );
+    await migrateTaprootLegacyInheritanceLeaves(jsonList, _getPrivacyInfo, strategy.writePrivacyInfo);
   }
 
   List<dynamic> _decodeWalletListJson(String jsonString) {

@@ -585,6 +585,12 @@ taproot:
     wallet_type: "Wallet type"
     taproot_single_sig_wallet: "Taproot Single Signature Wallet"
     mfp: "MFP"
+    legacy_wallet_title: "Wallet created in Coconut Vault $version or earlier"
+    legacy_wallet_description: "Recreate an earlier inheritance wallet with the same addresses"
+    first_address: "First address"
+    first_address_description: "Check that it matches the address you deposited to before"
+    requires_wallet_version: "Can be imported in Coconut Wallet $version or later"
+    requires_vault_version: "Can be imported in Coconut Vault $version or later"
   sync_qr_screen:
     title: "Export to another vault"
     description: "Share this wallet so it can be used on other vaults."
@@ -602,6 +608,8 @@ taproot:
     prepared_creation_description: "I'll import a wallet that has already been created"
   parent_creation_screen:
     title: "Create Parent Wallet"
+    child_wallet_title: "Create Child Wallet"
+    inheritance_wallet_title: "Create Inheritance Wallet"
     creation_intro_title_1: "Let's set up inheritance condition"
     creation_intro_title_2: "for your wallet"
     step_1:
@@ -1411,6 +1419,8 @@ exceptions:
     title: "Wallet Unavailable"
     description: "The saved wallet can no longer be used. Please delete the wallet and restore it using the backed-up mnemonic."
   needs_multisig_setup: "Please add a multisig wallet first in order to sign with $name."
+  taproot_inheritance_needs_legacy_wallet: "This transaction belongs to a wallet created in Coconut Vault $version or earlier with the same keys as $name. Turn on 'Wallet created in Coconut Vault $version or earlier' and create the wallet again."
+  taproot_inheritance_needs_wallet_update: "This transaction was created by a Coconut Wallet version that does not match $name. Update Coconut Wallet to $version or later and create the transaction again."
   account_change_failed:
     title: "Failed to change account"
   taproot:

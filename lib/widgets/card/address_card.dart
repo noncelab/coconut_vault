@@ -7,7 +7,16 @@ class AddressCard extends StatelessWidget {
 
   final String address;
   final String derivationPath;
-  const AddressCard({super.key, required this.onPressed, required this.address, required this.derivationPath});
+  final EdgeInsets margin;
+  final EdgeInsets padding;
+  const AddressCard({
+    super.key,
+    required this.onPressed,
+    required this.address,
+    required this.derivationPath,
+    this.margin = const EdgeInsets.only(bottom: 8, left: 16, right: 16),
+    this.padding = CoconutPadding.widgetContainer,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +29,8 @@ class AddressCard extends StatelessWidget {
       child: Container(
         constraints: const BoxConstraints(minHeight: 72),
         decoration: BoxDecoration(borderRadius: CoconutBorder.defaultRadius, color: CoconutColors.gray150),
-        padding: CoconutPadding.widgetContainer,
-        margin: const EdgeInsets.only(bottom: 8, left: 16, right: 16),
+        padding: padding,
+        margin: margin,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [

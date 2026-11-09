@@ -121,12 +121,14 @@ class TaprootCreationOverlays {
   static void showTimelockDatePicker({
     required BuildContext context,
     required DateTime today,
+    DateTime? firstDate,
     required DateTime? initialDateTime,
     required ValueChanged<DateTime> onDateTimeSelected,
   }) {
     DateSelectorBottomSheet.show(
       context: context,
       today: today,
+      firstDate: firstDate,
       initialDateTime: initialDateTime,
       onDateTimeSelected: onDateTimeSelected,
     );

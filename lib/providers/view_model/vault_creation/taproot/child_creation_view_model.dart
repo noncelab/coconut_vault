@@ -288,7 +288,13 @@ class ChildCreationViewModel extends ChangeNotifier {
     final bMfp = inheritancePolicy.beneficiaryKeyStore.masterFingerprint.toUpperCase();
 
     if (bMfp == myMfp) {
-      return [InheritanceLeaf(secret: mySeedSource, lockTime: inheritancePolicy.locktime)];
+      return [
+        InheritanceLeaf(
+          secret: mySeedSource,
+          lockTime: inheritancePolicy.locktime,
+          form: inheritanceLeafFormOf(inheritancePolicy),
+        ),
+      ];
     } else {
       throw StateError('InheritancePolicy was not made from my seed source');
       // InheritanceLeaf(

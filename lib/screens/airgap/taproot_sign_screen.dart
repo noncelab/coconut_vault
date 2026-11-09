@@ -18,6 +18,7 @@ import 'package:coconut_vault/screens/common/pin_check_screen.dart';
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/passphrase_check_screen.dart';
 import 'package:coconut_vault/screens/airgap/psbt_qr_code_screen.dart';
 import 'package:coconut_vault/utils/alert_util.dart';
+import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/providers/view_model/airgap/taproot/taproot_musig2_sign_session.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/assignable_pill_button.dart';
@@ -316,7 +317,7 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
               // TAPROOT: 내부 서명 가능 여부 = 이 지갑에 해당 participant의 seed가 저장되어 있는지
               final isInnerWallet = signer.isSeedStored;
               // TAPROOT: 이름 대신 masterFingerprint 노출 (외부 signer 이름 개념 없음)
-              final mfp = signer.masterFingerprint;
+              final mfp = TextUtils.formatMasterFingerprint(signer.masterFingerprint);
               final isSignerApproved = _viewModel.signersApproved[index];
 
               final iconPath =

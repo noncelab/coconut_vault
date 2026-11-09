@@ -587,6 +587,12 @@ taproot:
     wallet_type: "ウォレット種類"
     taproot_single_sig_wallet: "Taprootシングルシグウォレット"
     mfp: "MFP"
+    legacy_wallet_title: "Coconut Vault $version 以前で作成したウォレット"
+    legacy_wallet_description: "以前の相続ウォレットを同じアドレスで作り直します"
+    first_address: "最初のアドレス"
+    first_address_description: "以前入金したアドレスと同じか確認してください"
+    requires_wallet_version: "Coconut Wallet $version 以降で読み込めます"
+    requires_vault_version: "Coconut Vault $version 以降で読み込めます"
   sync_qr_screen:
     title: "別の保管庫へのエクスポート"
     description: "他のボルトでこのウォレットを使用できるように共有します。"
@@ -604,6 +610,8 @@ taproot:
     prepared_creation_description: "すでに作成済みのウォレットを取り込みます"
   parent_creation_screen:
     title: "親ウォレットを作成"
+    child_wallet_title: "子ウォレットを作成"
+    inheritance_wallet_title: "相続ウォレットを作成"
     creation_intro_title_1: "相続条件を一緒に"
     creation_intro_title_2: "ウォレットに準備しましょう"
     step_1:
@@ -1412,6 +1420,8 @@ exceptions:
     title: "ウォレット使用不可"
     description: "保存されているウォレットはこれ以上使用できません。ウォレットを削除し、バックアップしておいたニーモニックで再度復元してください。"
   needs_multisig_setup: "$name で署名するには、まずマルチシグウォレットを追加してください。"
+  taproot_inheritance_needs_legacy_wallet: "このトランザクションは、$name と同じ鍵で Coconut Vault $version 以前に作成したウォレットのものです。「Coconut Vault $version 以前で作成したウォレット」をオンにして、ウォレットを作り直してください。"
+  taproot_inheritance_needs_wallet_update: "このトランザクションは、$name と合わない Coconut Wallet で作成されました。Coconut Wallet を $version 以降に更新してから、トランザクションを作り直してください。"
   account_change_failed:
     title: "アカウント変更失敗"
   taproot:

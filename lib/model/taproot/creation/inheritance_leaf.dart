@@ -1,7 +1,13 @@
+import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/taproot/seed_source.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'inheritance_leaf.g.dart';
+
+enum InheritanceLeafForm { current, legacy }
+
+InheritanceLeafForm inheritanceLeafFormOf(InheritancePolicy policy) =>
+    policy is LegacyInheritancePolicy ? InheritanceLeafForm.legacy : InheritanceLeafForm.current;
 
 @JsonSerializable(explicitToJson: true)
 class InheritanceLeaf {
@@ -14,7 +20,10 @@ class InheritanceLeaf {
   @JsonKey(name: "lockTime")
   final int lockTime;
 
-  InheritanceLeaf({this.secret, this.descriptor, required this.lockTime})
+  @JsonKey(name: "form")
+  final InheritanceLeafForm form;
+
+  InheritanceLeaf({this.secret, this.descriptor, required this.lockTime, this.form = InheritanceLeafForm.current})
     : assert((secret != null) ^ (descriptor != null), 'Exactly one of secret or descriptor must be provided');
 
   factory InheritanceLeaf.fromJson(Map<String, dynamic> json) => _$InheritanceLeafFromJson(json);

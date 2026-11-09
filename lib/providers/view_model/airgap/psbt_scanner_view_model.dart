@@ -1,10 +1,12 @@
 import 'dart:convert';
 
 import 'package:coconut_lib/coconut_lib.dart';
+import 'package:coconut_vault/core/wallet/taproot_validator.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/exception/needs_multisig_setup_exception.dart';
+import 'package:coconut_vault/model/exception/taproot_inheritance_form_mismatch_exception.dart';
 import 'package:coconut_vault/model/exception/vault_can_not_sign_exception.dart';
 import 'package:coconut_vault/model/exception/vault_not_found_exception.dart';
 import 'package:coconut_vault/providers/sign_provider.dart';
@@ -31,6 +33,7 @@ class PsbtScannerViewModel {
       VaultNotFoundException(:final message) => message,
       VaultSigningNotAllowedException(:final message) => message,
       NeedsMultisigSetupException(:final message) => message,
+      TaprootInheritanceFormMismatchException(:final message) => message,
       _ => t.errors.invalid_qr,
     };
   }
@@ -66,6 +69,10 @@ class PsbtScannerViewModel {
         if (_extractPsbtSignerFingerprints(parsedPsbt).contains(mfp)) {
           throw NeedsMultisigSetupException(singleSigWalletName: vault.name);
         }
+      }
+
+      if (vault.vaultType == WalletType.taproot) {
+        _throwIfInheritanceFormMismatch(parsedPsbt, vault);
       }
 
       throw VaultSigningNotAllowedException();
@@ -149,12 +156,25 @@ class PsbtScannerViewModel {
         continue;
       }
 
-      if (parsedPsbt.matchesVault(vault.coconutVault)) {
+      if (TaprootValidator.matchesTaprootVault(parsedPsbt, vault.coconutVault as TaprootVault)) {
         return vault;
       }
     }
 
+    for (final vault in _walletProvider.vaultList) {
+      if (vault.vaultType == WalletType.taproot) {
+        _throwIfInheritanceFormMismatch(parsedPsbt, vault);
+      }
+    }
+
     return null;
+  }
+
+  void _throwIfInheritanceFormMismatch(Psbt parsedPsbt, VaultListItemBase vault) {
+    final mismatch = TaprootValidator.findInheritanceFormMismatch(parsedPsbt, vault.coconutVault as TaprootVault);
+    if (mismatch != null) {
+      throw TaprootInheritanceFormMismatchException(mismatch: mismatch, walletName: vault.name);
+    }
   }
 
   VaultListItemBase? _findMultisigVault(Psbt parsedPsbt) {

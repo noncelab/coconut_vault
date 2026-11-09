@@ -1,6 +1,7 @@
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/exception/network_mismatch_exception.dart';
+import 'package:coconut_vault/model/exception/taproot_inheritance_form_mismatch_exception.dart';
 
 class TaprootValidator {
   TaprootValidator._();
@@ -108,6 +109,45 @@ class TaprootValidator {
     }
     final childXpub = childVault.keyStoreList.first.extendedPublicKey.serialize();
     return _beneficiaryExtendedPublicKeysFromVault(inheritanceVault).contains(childXpub);
+  }
+
+  /// 5. descriptor 표기 해시(코코넛 식별자)를 빼고 PSBT와 지갑의 키·스크립트 일치 확인
+  static bool matchesTaprootVault(Psbt psbt, TaprootVault vault) {
+    final isFromCoconut = psbt.isFromCoconut;
+    psbt.isFromCoconut = false;
+    try {
+      return psbt.matchesVault(vault);
+    } finally {
+      psbt.isFromCoconut = isFromCoconut;
+    }
+  }
+
+  /// 6. 상속 방식만 다른 같은 지갑의 PSBT인지 확인
+  static TaprootInheritanceFormMismatch? findInheritanceFormMismatch(Psbt psbt, TaprootVault vault) {
+    final inheritancePolicies = vault.policyList.whereType<InheritancePolicy>();
+    if (inheritancePolicies.isEmpty) return null;
+
+    try {
+      final counterpartVault = TaprootVault.fromKeyStoreList(
+        vault.keyStoreList,
+        vault.policyList.map(_counterpartInheritancePolicy).toList(),
+      );
+      if (!matchesTaprootVault(psbt, counterpartVault)) return null;
+    } catch (_) {
+      return null;
+    }
+
+    return inheritancePolicies.first is LegacyInheritancePolicy
+        ? TaprootInheritanceFormMismatch.needsWalletUpdate
+        : TaprootInheritanceFormMismatch.needsLegacyWallet;
+  }
+
+  static Policy _counterpartInheritancePolicy(Policy policy) {
+    return switch (policy) {
+      LegacyInheritancePolicy() => InheritancePolicy(policy.beneficiaryKeyStore, policy.locktime),
+      InheritancePolicy() => policy.toLegacy(),
+      _ => policy,
+    };
   }
 
   static TaprootVault parseTaprootDescriptor(String descriptor) {
