@@ -6,20 +6,27 @@ import Darwin
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
+    // UIScene 라이프사이클에서는 storyboard 창이 없으므로 엔진을 직접 만들고 SceneDelegate가 창에 붙인다.
+    private(set) lazy var flutterEngine = FlutterEngine(name: "coconut-vault")
+    private var osChannel: FlutterMethodChannel?
+    private var teeChannel: FlutterMethodChannel?
+
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-#if DEBUG
-        print("🔧 DEBUG mode. makeSecure() is not applied.")
-#else
-        self.window?.makeSecure()
-#endif
-        
-        let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
-        let osChannel = FlutterMethodChannel(name: "onl.coconut.vault/os", binaryMessenger: controller.binaryMessenger)
-        let teeChannel = FlutterMethodChannel(name: "onl.coconut.vault/secure_module", binaryMessenger: controller.binaryMessenger)
-        
+        guard flutterEngine.run() else {
+            return false
+        }
+        GeneratedPluginRegistrant.register(with: flutterEngine)
+        configurePlatformChannels(messenger: flutterEngine.binaryMessenger)
+        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
+
+    private func configurePlatformChannels(messenger: FlutterBinaryMessenger) {
+        let osChannel = FlutterMethodChannel(name: "onl.coconut.vault/os", binaryMessenger: messenger)
+        let teeChannel = FlutterMethodChannel(name: "onl.coconut.vault/secure_module", binaryMessenger: messenger)
+
         osChannel.setMethodCallHandler { call, result in
             switch call.method {
             case "isDeviceSecure":
@@ -30,11 +37,10 @@ import Darwin
                 result(FlutterMethodNotImplemented)
             }
         }
-        
+
         installTEEHandler(teeChannel)
-        
-        GeneratedPluginRegistrant.register(with: self)
-        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+        self.osChannel = osChannel
+        self.teeChannel = teeChannel
     }
 }
 
@@ -45,7 +51,8 @@ extension UIWindow {
         field.isSecureTextEntry = true
         self.addSubview(field)
         self.layer.superlayer?.addSublayer(field.layer)
-        field.layer.sublayers?.last!.addSublayer(self.layer)
+        guard let secureLayer = field.layer.sublayers?.last else { return }
+        secureLayer.addSublayer(self.layer)
         field.leftView = view
         field.leftViewMode = .always
     }
