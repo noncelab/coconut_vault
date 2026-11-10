@@ -1,10 +1,13 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/extensions/widget_animation_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
+import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/child_creation_view_model.dart';
 import 'package:coconut_vault/providers/visibility_provider.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
+import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/widgets/box/info_box.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
@@ -143,6 +146,9 @@ class ChildCreationOptionStep extends StatelessWidget {
 class ChildImportSummaryStep extends StatelessWidget {
   const ChildImportSummaryStep({super.key, required this.viewModel});
 
+  static const Duration mismatchContentDelay = Duration(milliseconds: 400);
+  static const Duration contentFadeInDuration = Duration(milliseconds: 400);
+
   final ChildCreationViewModel viewModel;
 
   @override
@@ -166,6 +172,18 @@ class ChildImportSummaryStep extends StatelessWidget {
           ),
           CoconutLayout.spacing_800h,
         ],
+        _buildCards(scannedVaultItem).fadeInAnimation(
+          duration: contentFadeInDuration,
+          delay: viewModel.isBeneficiaryMatch ? Duration.zero : mismatchContentDelay,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCards(TaprootVaultListItem scannedVaultItem) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: TaprootVaultItemCard(vaultItem: scannedVaultItem, showTaprootWalletInfo: false),
@@ -232,7 +250,7 @@ class ChildCreationTimelineStep extends StatelessWidget {
         TimelineStepItem(
           title: t.taproot.child_creation_screen.step7.timeline.created_wallet,
           description: t.taproot.child_creation_screen.step7.timeline.singlesig_description(
-            mfp: viewModel.masterFingerprint!,
+            mfp: TextUtils.formatMasterFingerprint(viewModel.masterFingerprint!),
           ),
           status: TimelineStepStatus.current,
         ),
@@ -290,10 +308,8 @@ class ChildWalletQrSection extends StatelessWidget {
             const SizedBox(height: 200),
           CoconutLayout.spacing_500h,
           InfoBox(
-            infoList: [
-              MapEntry(t.wallet_type, t.taproot.child_creation_screen.step4.taproot_single_sig_wallet),
-              MapEntry(t.mfp, viewModel.masterFingerprint ?? '00000000'),
-            ],
+            infoList: [MapEntry(t.wallet_type, t.taproot.child_creation_screen.step4.taproot_single_sig_wallet)],
+            masterFingerprint: viewModel.masterFingerprint ?? '00000000',
           ),
         ],
       ),

@@ -22,7 +22,7 @@ class TaprootSyncQrScreen extends StatelessWidget {
         builder: (context, viewModel, child) {
           return QrWithCopyTextScreen(
             title: t.taproot.sync_qr_screen.title,
-            tooltipDescription: _buildQrDescription(context),
+            tooltipDescription: _buildQrDescription(context, viewModel.requiredVaultVersion),
             qrData: viewModel.qrData,
           );
         },
@@ -30,7 +30,7 @@ class TaprootSyncQrScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildQrDescription(BuildContext context) {
+  Widget _buildQrDescription(BuildContext context, String? requiredVaultVersion) {
     final isEnglishWordOrder = Provider.of<VisibilityProvider>(context, listen: false).isEnglishWordOrder;
 
     return CustomTooltip.buildInfoTooltip(
@@ -38,7 +38,11 @@ class TaprootSyncQrScreen extends StatelessWidget {
       richText: RichText(
         text: TextSpan(
           style: CoconutTypography.body2_14.copyWith(height: 1.3, color: CoconutColors.black),
-          children: _getCoconutGuide(isEnglishWordOrder),
+          children: [
+            ..._getCoconutGuide(isEnglishWordOrder),
+            if (requiredVaultVersion != null)
+              TextSpan(text: '\n${t.taproot.common.requires_vault_version(version: requiredVaultVersion)}'),
+          ],
         ),
       ),
     );

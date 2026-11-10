@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 class TaprootCreationBody extends StatefulWidget {
   static const Duration defaultBottomButtonFadeOutDelay = Duration(milliseconds: 100);
+  static const double completionTimeScale = 0.7;
 
   final FutureOr<void> Function()? onBottomButtonPressed;
   final FutureOr<void> Function()? onBeforeBottomButtonFadeOut;
@@ -25,6 +26,7 @@ class TaprootCreationBody extends StatefulWidget {
   final bool runBottomButtonActionWithoutTransition;
   final bool keepHeaderVisibleDuringTransition;
   final bool animateHeader;
+  final double headerTimeScale;
 
   const TaprootCreationBody({
     super.key,
@@ -43,6 +45,7 @@ class TaprootCreationBody extends StatefulWidget {
     this.runBottomButtonActionWithoutTransition = false,
     this.keepHeaderVisibleDuringTransition = false,
     this.animateHeader = true,
+    this.headerTimeScale = 1,
   });
 
   @override
@@ -203,7 +206,7 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
     }
 
     final lines = _displayedTitleLines.length;
-    final headerDuration = _headerInitialDelay + (_headerLineFadeInDuration * lines);
+    final headerDuration = (_headerInitialDelay + (_headerLineFadeInDuration * lines)) * widget.headerTimeScale;
     return headerDuration > _contentFadeInDuration ? headerDuration : _contentFadeInDuration;
   }
 
@@ -371,8 +374,8 @@ class _TaprootCreationBodyState extends State<TaprootCreationBody> {
       key: ValueKey('taproot-creation-header-text-in-$index-$titleKey-$_displayedIsError'),
       textStyle: textStyle,
       textAlign: TextAlign.center,
-      duration: _headerLineFadeInDuration,
-      delay: _headerInitialDelay + (_headerLineFadeInDuration * index),
+      duration: _headerLineFadeInDuration * widget.headerTimeScale,
+      delay: (_headerInitialDelay + (_headerLineFadeInDuration * index)) * widget.headerTimeScale,
       slideDirection: CoconutCharacterFadeSlideDirection.slideDown,
     );
   }

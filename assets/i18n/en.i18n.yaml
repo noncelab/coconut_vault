@@ -570,7 +570,7 @@ taproot:
   child_wallet: "Child Wallet"
   common:
     create_new_wallet_title: "How would you like to create the wallet?"
-    existing_mnemonic_title: "Use an existing mnemonic?"
+    existing_mnemonic_title: "Choose how to use your mnemonic"
     prepare_key_option1_title: "Create with\nnew mnemonic"
     prepare_key_option1_desc: "Create a new mnemonic\nfor the inheritance wallet"
     prepare_key_option2_title: "Import existing\nmnemonic"
@@ -585,6 +585,12 @@ taproot:
     wallet_type: "Wallet type"
     taproot_single_sig_wallet: "Taproot Single Signature Wallet"
     mfp: "MFP"
+    legacy_wallet_title: "Wallet created in Coconut Vault $version or earlier"
+    legacy_wallet_description: "Bring back the wallet you made in that version as it was"
+    first_address: "First address"
+    first_address_description: "Check that it matches the address you deposited to before"
+    requires_wallet_version: "Can be imported in Coconut Wallet $version or later"
+    requires_vault_version: "Can be imported in Coconut Vault $version or later"
   sync_qr_screen:
     title: "Export to another vault"
     description: "Share this wallet so it can be used on other vaults."
@@ -602,6 +608,8 @@ taproot:
     prepared_creation_description: "I'll import a wallet that has already been created"
   parent_creation_screen:
     title: "Create Parent Wallet"
+    child_wallet_title: "Create Child Wallet"
+    inheritance_wallet_title: "Create Inheritance Wallet"
     creation_intro_title_1: "Let's set up inheritance condition"
     creation_intro_title_2: "for your wallet"
     step_1:
@@ -624,8 +632,8 @@ taproot:
       multisig_start_with_another_vault_description_2: "must be prepared together on each Vault"
       multisig_how_to_prepare_key_title_1: "How will you prepare the keys"
       multisig_how_to_prepare_key_title_2: "for the multisig parent wallet?"
-      multisig_qr_title_1: "Show the prepared parent wallet info"
-      multisig_qr_title_2: "so another Vault can use it"
+      multisig_qr_title_1: "Scan this QR in the Vault"
+      multisig_qr_title_2: "holding the other parent wallet"
       multisig_list_title_1: "Tap a parent wallet button below"
       multisig_list_title_2: "to scan an additional parent wallet"
       multisig_list_description_1: "Tap my wallet"
@@ -635,8 +643,7 @@ taproot:
       device_auth_dialog_description: "Authenticate this device to access the mnemonic stored in the secure area."
       same_parent_wallet_dialog_title: "Parent wallet already added"
       same_parent_wallet_dialog_description: "This is the same wallet as parent wallet 1. Scan again?"
-      multisig_scanner_title_1: "Scan the parent wallet from another Vault"
-      multisig_scanner_title_2: "Import prepared parent wallets in order"
+      multisig_scanner_title_1: "Scan the parent wallet\nfrom another Vault"
       multisig_internal_key_prepared_title_1: "The multisig parent wallet"
       multisig_internal_key_prepared_title_2: "is ready"
     step_2:
@@ -652,8 +659,8 @@ taproot:
       import_scanner_title_2: "prepared on another Vault"
       imported_script_path_title: "Child wallet imported"
       created_script_path_title: "Child wallet created"
-      imported_script_path_description_1: "This wallet will be available"
-      imported_script_path_description_2: "once the set time has passed"
+      imported_script_path_description_1: "This is the wallet that will inherit"
+      imported_script_path_description_2: "You'll set when it can be used next"
       create_dialog_title: "Create it on this Vault?"
       create_dialog_description: "You must safely transfer the generated mnemonic, and we recommend not using it for other purposes"
       create_script_path_how_to_prepare_title_1: "How will you prepare"
@@ -682,9 +689,9 @@ taproot:
         maybe_later: "I'll do it later"
         export_wallet_info: "Export wallet info"
       complete:
-        title_1: "Your inheritance wallet"
-        title_2: "is ready"
-        description: "You can export wallet info\nfor another Vault or watch-only app"
+        title_1: "Scan this QR in Coconut Wallet"
+        title_2: "or another Vault"
+        title_3: "to back up your wallet info"
     created_parent_wallet: "Parent wallet has been created"
     set_child_wallet: "Child wallet has been set"
     set_child_period: "Child wallet usage time has been set"
@@ -705,7 +712,6 @@ taproot:
       option2_desc: "Create a Taproot wallet\nwith an existing mnemonic"
     step3:
       title_new: "How do you want to create it?"
-      title_existing: "Which mnemonic to use?"
       single_sig_select_from_vault_title_1: "Select a mnemonic"
       single_sig_select_from_vault_title_2: "stored in the vault"
       single_sig_select_from_vault_dialog_title: "Create a Taproot child wallet\nwith this mnemonic?"
@@ -1411,6 +1417,8 @@ exceptions:
     title: "Wallet Unavailable"
     description: "The saved wallet can no longer be used. Please delete the wallet and restore it using the backed-up mnemonic."
   needs_multisig_setup: "Please add a multisig wallet first in order to sign with $name."
+  taproot_inheritance_needs_legacy_wallet: "This transaction belongs to a wallet created in Coconut Vault $version or earlier with the same keys as $name. Turn on 'Wallet created in Coconut Vault $version or earlier' and create the wallet again."
+  taproot_inheritance_needs_wallet_update: "This transaction was created by a Coconut Wallet version that does not match $name. Update Coconut Wallet to $version or later and create the transaction again."
   account_change_failed:
     title: "Failed to change account"
   taproot:

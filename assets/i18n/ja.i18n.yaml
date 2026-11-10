@@ -572,7 +572,7 @@ taproot:
   child_wallet: "子ウォレット"
   common:
     create_new_wallet_title: "ウォレットをどのように作成しますか？"
-    existing_mnemonic_title: "既存のニーモニックを使用しますか？"
+    existing_mnemonic_title: "ニーモニックの使用方法を選んでください"
     prepare_key_option1_title: "新しいニーモニックで\n作成"
     prepare_key_option1_desc: "相続ウォレット専用の\n新しいニーモニックを作成します"
     prepare_key_option2_title: "既存のニーモニックで\n作成"
@@ -587,6 +587,12 @@ taproot:
     wallet_type: "ウォレット種類"
     taproot_single_sig_wallet: "Taprootシングルシグウォレット"
     mfp: "MFP"
+    legacy_wallet_title: "Coconut Vault $version 以前で作成したウォレット"
+    legacy_wallet_description: "そのバージョンで作成したウォレットをそのまま復元します"
+    first_address: "最初のアドレス"
+    first_address_description: "以前入金したアドレスと同じか確認してください"
+    requires_wallet_version: "Coconut Wallet $version 以降で読み込めます"
+    requires_vault_version: "Coconut Vault $version 以降で読み込めます"
   sync_qr_screen:
     title: "別の保管庫へのエクスポート"
     description: "他のボルトでこのウォレットを使用できるように共有します。"
@@ -604,6 +610,8 @@ taproot:
     prepared_creation_description: "すでに作成済みのウォレットを取り込みます"
   parent_creation_screen:
     title: "親ウォレットを作成"
+    child_wallet_title: "子ウォレットを作成"
+    inheritance_wallet_title: "相続ウォレットを作成"
     creation_intro_title_1: "相続条件を一緒に"
     creation_intro_title_2: "ウォレットに準備しましょう"
     step_1:
@@ -626,8 +634,8 @@ taproot:
       multisig_start_with_another_vault_description_2: "各Vaultで一緒に準備する必要があります"
       multisig_how_to_prepare_key_title_1: "マルチシグ親ウォレットで使う"
       multisig_how_to_prepare_key_title_2: "キーをどう準備しますか？"
-      multisig_qr_title_1: "別のVaultで使えるように"
-      multisig_qr_title_2: "準備済みの親ウォレット情報を表示します"
+      multisig_qr_title_1: "もう一方の親ウォレットがあるVaultで"
+      multisig_qr_title_2: "このQRをスキャンしてください"
       multisig_list_title_1: "下の親ウォレットボタンを押して"
       multisig_list_title_2: "追加の親ウォレットをスキャンしてください"
       multisig_list_description_1: "自分のウォレットを押すと"
@@ -637,8 +645,7 @@ taproot:
       device_auth_dialog_description: "セキュア領域に保存されたニーモニックにアクセスするため、デバイス認証を行います。"
       same_parent_wallet_dialog_title: "すでに追加された親ウォレット"
       same_parent_wallet_dialog_description: "親ウォレット1と同じウォレットです。もう一度スキャンしますか？"
-      multisig_scanner_title_1: "別のVaultで作成した親ウォレットをスキャンしてください"
-      multisig_scanner_title_2: "準備済みの親ウォレットを順番に接続します"
+      multisig_scanner_title_1: "別のVaultで作成した\n親ウォレットをスキャンしてください"
       multisig_internal_key_prepared_title_1: "マルチシグ親ウォレットの"
       multisig_internal_key_prepared_title_2: "準備ができました"
     step_2:
@@ -654,8 +661,8 @@ taproot:
       import_scanner_title_2: "子ウォレット情報をスキャンしてください"
       imported_script_path_title: "子ウォレットを取り込みました"
       created_script_path_title: "子ウォレットを作成しました"
-      imported_script_path_description_1: "決められた時点以降"
-      imported_script_path_description_2: "使用するウォレットとして接続されます"
+      imported_script_path_description_1: "このウォレットが相続を受けるウォレットです"
+      imported_script_path_description_2: "使用開始時点は次のステップで決めます"
       create_dialog_title: "このVaultで作成しますか？"
       create_dialog_description: "生成されたニーモニックは安全に渡す必要があり、他の用途に使わないことをおすすめします"
       create_script_path_how_to_prepare_title_1: "子ウォレットを"
@@ -684,9 +691,9 @@ taproot:
         maybe_later: "あとで行います"
         export_wallet_info: "ウォレット情報を書き出す"
       complete:
-        title_1: "Taproot相続ウォレットの"
-        title_2: "準備ができました"
-        description: "別のVaultやウォッチ専用アプリで\n使えるようにウォレット情報を書き出せます"
+        title_1: "Coconut Walletや別のVaultで"
+        title_2: "このQRをスキャンして"
+        title_3: "ウォレット情報をバックアップしてください"
     created_parent_wallet: "親ウォレットを作成しました"
     set_child_wallet: "子ウォレットが設定されました"
     set_child_period: "子ウォレットの使用開始時期が設定されました"
@@ -707,7 +714,6 @@ taproot:
       option2_desc: "保存しているニーモニックで\nTaprootウォレットを作成します"
     step3:
       title_new: "ウォレットをどのように作成しますか？"
-      title_existing: "どの既存のニーモニックを使用しますか？"
       single_sig_select_from_vault_title_1: "現在ボルトに保管されている"
       single_sig_select_from_vault_title_2: "ニーモニックを選択してください"
       single_sig_select_from_vault_dialog_title: "このニーモニックで\nTaproot子ウォレットを作成しますか？"
@@ -1412,6 +1418,8 @@ exceptions:
     title: "ウォレット使用不可"
     description: "保存されているウォレットはこれ以上使用できません。ウォレットを削除し、バックアップしておいたニーモニックで再度復元してください。"
   needs_multisig_setup: "$name で署名するには、まずマルチシグウォレットを追加してください。"
+  taproot_inheritance_needs_legacy_wallet: "このトランザクションは、$name と同じ鍵で Coconut Vault $version 以前に作成したウォレットのものです。「Coconut Vault $version 以前で作成したウォレット」をオンにして、ウォレットを作り直してください。"
+  taproot_inheritance_needs_wallet_update: "このトランザクションは、$name と合わない Coconut Wallet で作成されました。Coconut Wallet を $version 以降に更新してから、トランザクションを作り直してください。"
   account_change_failed:
     title: "アカウント変更失敗"
   taproot:

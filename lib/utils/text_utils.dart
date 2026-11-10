@@ -10,4 +10,9 @@ class TextUtils {
 
     return '${name.substring(0, 15)}...${name.substring(name.length - 10)}';
   }
+
+  static String formatMasterFingerprint(String masterFingerprint) {
+    if (masterFingerprint.length != 8) return masterFingerprint;
+    return '${masterFingerprint.substring(0, 4)} ${masterFingerprint.substring(4)}';
+  }
 }

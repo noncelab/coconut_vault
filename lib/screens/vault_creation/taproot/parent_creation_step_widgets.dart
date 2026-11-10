@@ -1,15 +1,18 @@
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/enums/wallet_enums.dart';
+import 'package:coconut_vault/extensions/widget_animation_extensions.dart';
 import 'package:coconut_vault/constants/app_language.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/parent_creation_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
 import 'package:coconut_vault/utils/date_format_util.dart';
+import 'package:coconut_vault/utils/text_utils.dart';
 import 'package:coconut_vault/widgets/adaptive_qr_image.dart';
 import 'package:coconut_vault/widgets/button/assignable_pill_button.dart';
 import 'package:coconut_vault/widgets/button/shrink_animation_button.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
+import 'package:coconut_vault/widgets/card/taproot/taproot_first_address_section.dart';
 import 'package:coconut_vault/widgets/text/character_fade_in_text.dart';
 import 'package:coconut_vault/widgets/vault_row_item.dart';
 import 'package:flutter/material.dart';
@@ -197,7 +200,9 @@ class ParentMultisigParentList extends StatelessWidget {
 
   String _parentWalletText({required int index, String? masterFingerprint}) {
     final masterFingerprintSuffix =
-        masterFingerprint == null || masterFingerprint.isEmpty ? '' : ' - $masterFingerprint';
+        masterFingerprint == null || masterFingerprint.isEmpty
+            ? ''
+            : ' - ${TextUtils.formatMasterFingerprint(masterFingerprint)}';
     return t.taproot.parent_creation_screen.step_1.parent_wallet(
       index: index,
       masterFingerprintSuffix: masterFingerprintSuffix,
@@ -250,30 +255,30 @@ class ParentMultisigParentExportQr extends StatelessWidget {
 }
 
 class ParentWalletSyncQr extends StatelessWidget {
-  const ParentWalletSyncQr({super.key, required this.qrData});
+  const ParentWalletSyncQr({super.key, required this.qrData, required this.requiredWalletVersion});
+
+  static const Duration contentDelay = Duration(milliseconds: 1610);
+  static const Duration contentFadeInDuration = Duration(milliseconds: 280);
 
   final String qrData;
+  final String? requiredWalletVersion;
 
   @override
   Widget build(BuildContext context) {
-    final complete = t.taproot.parent_creation_screen.step_4.complete;
-    final descriptionLines = complete.description.split('\n');
     return Column(
       children: [
-        for (int index = 0; index < descriptionLines.length; index++)
-          MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.0)),
-            child: CharacterFadeInText(
-              text: descriptionLines[index],
-              animationKey: 'taproot-parent-creation-body-export-qr-description-$index',
-              duration: index == 0 ? const Duration(milliseconds: 400) : const Duration(milliseconds: 700),
-              delay: index == 0 ? const Duration(milliseconds: 800) : const Duration(milliseconds: 1500),
-            ),
-          ),
         CoconutLayout.spacing_600h,
         AdaptiveQrImage(qrData: qrData),
+        if (requiredWalletVersion != null) ...[
+          CoconutLayout.spacing_300h,
+          Text(
+            t.taproot.common.requires_wallet_version(version: requiredWalletVersion!),
+            style: CoconutTypography.body3_12.setColor(CoconutColors.gray500),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ],
-    );
+    ).fadeInAnimation(duration: contentFadeInDuration, delay: contentDelay);
   }
 }
 
@@ -283,12 +288,25 @@ class ParentTimelockSetupBody extends StatelessWidget {
     required this.selectedDateTime,
     required this.onDatePressed,
     required this.language,
+    required this.legacyInheritanceVersion,
+    required this.isLegacyInheritanceSelected,
+    required this.onLegacyInheritanceChanged,
+    required this.legacyFirstAddress,
+    required this.onFirstAddressPressed,
   });
 
   final DateTime? selectedDateTime;
   final VoidCallback onDatePressed;
 
   final AppLanguage language;
+  final String? legacyInheritanceVersion;
+  final bool isLegacyInheritanceSelected;
+  final ValueChanged<bool> onLegacyInheritanceChanged;
+  final ({String address, String derivationPath})? legacyFirstAddress;
+  final VoidCallback onFirstAddressPressed;
+
+  static const Duration contentDelay = Duration(milliseconds: 3100);
+  static const Duration contentFadeInDuration = Duration(milliseconds: 400);
 
   static List<TextSpan> titleList() {
     return [
@@ -327,11 +345,54 @@ class ParentTimelockSetupBody extends StatelessWidget {
             delay: const Duration(milliseconds: 2400),
           ),
         ),
-        CoconutLayout.spacing_600h,
-        ParentTimelockDateButton(
-          selectedDateTime: selectedDateTime,
-          text: dateTimeText(selectedDateTime),
-          onPressed: onDatePressed,
+        Column(
+          children: [
+            CoconutLayout.spacing_600h,
+            ParentTimelockDateButton(
+              selectedDateTime: selectedDateTime,
+              text: dateTimeText(selectedDateTime),
+              onPressed: onDatePressed,
+            ),
+            if (legacyInheritanceVersion != null) ...[
+              CoconutLayout.spacing_600h,
+              _buildLegacyInheritanceToggle(legacyInheritanceVersion!),
+            ],
+            if (isLegacyInheritanceSelected && legacyFirstAddress != null) ...[
+              CoconutLayout.spacing_600h,
+              TaprootFirstAddressSection(
+                address: legacyFirstAddress!.address,
+                derivationPath: legacyFirstAddress!.derivationPath,
+                description: t.taproot.common.first_address_description,
+                onPressed: onFirstAddressPressed,
+              ),
+            ],
+          ],
+        ).fadeInAnimation(duration: contentFadeInDuration, delay: contentDelay),
+      ],
+    );
+  }
+
+  Widget _buildLegacyInheritanceToggle(String version) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(t.taproot.common.legacy_wallet_title(version: version), style: CoconutTypography.body2_14),
+              Text(
+                t.taproot.common.legacy_wallet_description,
+                style: CoconutTypography.body3_12.setColor(CoconutColors.gray400),
+              ),
+            ],
+          ),
+        ),
+        CoconutLayout.spacing_100w,
+        CoconutSwitch(
+          isOn: isLegacyInheritanceSelected,
+          activeTrackColor: CoconutColors.black,
+          scale: 0.8,
+          onChanged: onLegacyInheritanceChanged,
         ),
       ],
     );
@@ -355,10 +416,16 @@ class ParentTimelockDateButton extends StatelessWidget {
     final hasSelectedDateTime = selectedDateTime != null;
     return ShrinkAnimationButton(
       onPressed: onPressed,
-      border: Border.all(width: 1, color: CoconutColors.black.withValues(alpha: 0.15)),
+      border: Border.all(color: Colors.transparent, width: 0),
+      borderWidth: 0,
       borderRadius: 12,
-      defaultColor: hasSelectedDateTime ? CoconutColors.black.withValues(alpha: 0.15) : CoconutColors.white,
-      child: Padding(
+      defaultColor: CoconutColors.white,
+      pressedColor: CoconutColors.gray150,
+      child: Container(
+        foregroundDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: hasSelectedDateTime ? CoconutColors.gray400 : CoconutColors.gray200),
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(
           children: [

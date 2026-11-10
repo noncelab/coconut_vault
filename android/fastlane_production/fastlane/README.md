@@ -21,7 +21,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane android prepare_android_mainnet_production
 ```
 
-Build Android MAINNET and create an unsubmitted production draft with localized release notes
+Build Android MAINNET and create unsubmitted production and internal drafts with localized release notes
 
 ### android prepare_android_regtest_production
 
@@ -29,7 +29,7 @@ Build Android MAINNET and create an unsubmitted production draft with localized 
 [bundle exec] fastlane android prepare_android_regtest_production
 ```
 
-Build Android REGTEST and create an unsubmitted production draft with localized release notes
+Build Android REGTEST and create unsubmitted production and internal drafts with localized release notes
 
 ### android prepare_android_lite_mainnet_production
 
@@ -37,7 +37,7 @@ Build Android REGTEST and create an unsubmitted production draft with localized 
 [bundle exec] fastlane android prepare_android_lite_mainnet_production
 ```
 
-Build Android LITE MAINNET and create an unsubmitted production draft with localized release notes
+Build Android LITE MAINNET and create unsubmitted production and internal drafts with localized release notes
 
 ----
 

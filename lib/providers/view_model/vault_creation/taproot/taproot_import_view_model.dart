@@ -136,6 +136,15 @@ class TaprootImportViewModel extends ChangeNotifier {
        _addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate = addWalletIdWithUnacknowledgedOlderToAfterBackupUpdate;
 
   TaprootVaultListItem? get scannedVaultItem => _scannedVaultItem;
+  ({String address, String derivationPath})? get scannedFirstAddress {
+    final scannedVaultItem = _scannedVaultItem;
+    if (scannedVaultItem == null) return null;
+    return (
+      address: scannedVaultItem.coconutVault.getAddress(0),
+      derivationPath: '${scannedVaultItem.derivationPath}/0/0',
+    );
+  }
+
   TaprootVaultListItem? get scannedExtraVaultItem => _scannedExtraVaultItem;
   TaprootImportRole get selectedRole => _selectedRole;
   ImportMode get currentImportMode => _currentImportMode;
@@ -329,7 +338,13 @@ class TaprootImportViewModel extends ChangeNotifier {
       final beneficiaryExtendedPublicKey = policy.beneficiaryKeyStore.extendedPublicKey.serialize();
       final beneficiarySeed = _matchedSeedFor(TaprootImportRole.beneficiary, beneficiaryExtendedPublicKey);
       if (beneficiarySeed != null) {
-        inheritanceLeaves.add(InheritanceLeaf(secret: beneficiarySeed.toSeedSource(), lockTime: policy.locktime));
+        inheritanceLeaves.add(
+          InheritanceLeaf(
+            secret: beneficiarySeed.toSeedSource(),
+            lockTime: policy.locktime,
+            form: inheritanceLeafFormOf(policy),
+          ),
+        );
         continue;
       }
 
@@ -337,6 +352,7 @@ class TaprootImportViewModel extends ChangeNotifier {
         InheritanceLeaf(
           descriptor: TaprootVault.fromKeyStoreList([policy.beneficiaryKeyStore], []).descriptor,
           lockTime: policy.locktime,
+          form: inheritanceLeafFormOf(policy),
         ),
       );
     }

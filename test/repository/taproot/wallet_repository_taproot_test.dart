@@ -17,8 +17,11 @@ import 'package:coconut_vault/repository/shared_preferences_repository.dart';
 import 'package:coconut_vault/repository/wallet_persistence_strategy/wallet_persistence_strategy.dart';
 import 'package:coconut_vault/repository/wallet_repository.dart';
 import 'package:coconut_vault/services/secure_zone/secure_zone_payload_codec.dart';
+import 'package:coconut_vault/utils/hash_util.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../helpers/legacy_inheritance_fixtures.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -1395,6 +1398,63 @@ void main() {
     });
   });
 
+  group('볼트 3.3.0 상속 지갑 불러오기', () {
+    setUp(() async {
+      SharedPreferences.setMockInitialValues({});
+      await SharedPrefsRepository().init();
+      NetworkType.setNetworkType(NetworkType.testnet);
+    });
+
+    for (final savedSchemaVersion in [3, 4]) {
+      test(
+        'Stored v3.3.0 privacy info, saved schema $savedSchemaVersion / opens the vault list with the same addresses and stored beneficiary',
+        () async {
+          final fixture = legacyInheritanceFixtures.firstWhere(
+            (fixture) => fixture.parentMnemonics.length == 1 && fixture.locktime == 1780012800,
+          );
+          final storage = _FakeSecureStorageRepository();
+          final secureZone = _FakeSecureZoneRepository();
+          final repository = WalletRepository(storageService: storage, secureZoneRepository: secureZone);
+          final added = await repository.addTaprootWallet(
+            TaprootWalletCreateDto(
+              null,
+              'vault 3.3.0 inheritance wallet',
+              1,
+              2,
+              [_seedSource(fixture.parentMnemonics.single, '')],
+              null,
+              [InheritanceLeaf(secret: _seedSource(legacyChildMnemonic, ''), lockTime: fixture.locktime)],
+            ),
+          );
+          final privacyKey = storage.values.keys.singleWhere((key) => key.contains('privacy'));
+          final privacyJson = jsonDecode(storage.values[privacyKey]!) as Map<String, dynamic>;
+          privacyJson['descriptor'] = fixture.storedDescriptor;
+          (privacyJson['scriptPathSeedInfos'] as List).single['key'] = hashString(fixture.storedMiniscript);
+          storage.values[privacyKey] = jsonEncode(privacyJson);
+          await SharedPrefsRepository().setInt(SharedPrefsKeys.kDataSchemeVersion, savedSchemaVersion);
+
+          final reloadedRepository = WalletRepository(storageService: storage, secureZoneRepository: secureZone);
+          final jsonList = await reloadedRepository.loadVaultListJsonArrayString();
+          final loaded = <TaprootVaultListItem>[];
+          await reloadedRepository.loadAndEmitEachWallet(
+            jsonList!,
+            (wallet) => loaded.add(wallet as TaprootVaultListItem),
+          );
+
+          expect(loaded.single.id, added.id);
+          expect(loaded.single.descriptor, contains('after_drop(${fixture.locktime})'));
+          expect(loaded.single.coconutVault.getAddress(0), fixture.receive0);
+          expect(loaded.single.coconutVault.getAddress(1), fixture.receive1);
+          expect(loaded.single.coconutVault.getAddress(0, isChange: true), fixture.change0);
+          expect(loaded.single.owners.single.isSeedStored, isTrue);
+          expect(loaded.single.beneficiaries.single.isSeedStored, isTrue);
+          expect(loaded.single.beneficiaries.single.lockTime, fixture.locktime);
+          expect(SharedPrefsRepository().getInt(SharedPrefsKeys.kDataSchemeVersion), 4);
+        },
+      );
+    }
+  });
+
   // coconut_lib toMiniscript()에 의존하므로 라이브러리 업데이트 이후 변경되지 않았는지 확인
   group('ScriptKey 불변 확인', () {
     setUp(() async {
@@ -1445,13 +1505,15 @@ void main() {
       final scriptKeyC = ScriptPathSeedInfo.generateKey(differentPolicy);
       expect(
         recreatedPolicyA.toMiniscript(),
-        "and_v(v:pk([70C4E9DE/86'/1'/0']tpubDCp2emt17Ng6ujD8BC6ScL4vfwhN3nAJQ8kCqLjRQHxcFhWt6YK5Ws6UcKD6HgLCZuwU8DryKo7h2gpieLa7Q9YF1AqfL9XiF7349nHaLi8/<0;1>/*),after(500000000))",
+        "and_v(v:after(500000000),pk([70C4E9DE/86'/1'/0']tpubDCp2emt17Ng6ujD8BC6ScL4vfwhN3nAJQ8kCqLjRQHxcFhWt6YK5Ws6UcKD6HgLCZuwU8DryKo7h2gpieLa7Q9YF1AqfL9XiF7349nHaLi8/<0;1>/*))",
       );
-      expect(scriptKeyA, 'fae98e49125d72c19b4c253a67e995d53f2f24913c2021d8c9a14193f01048b8');
+      final beneficiaryXpub = beneficiaryKeyStore.extendedPublicKey.serialize();
+      expect(scriptKeyA, hashString('inheritance:$beneficiaryXpub:$lockTime'));
       expect(scriptKeyA, scriptKeyB);
+      expect(ScriptPathSeedInfo.generateKey(recreatedPolicyA.toLegacy()), scriptKeyA);
       expect(scriptKeyA, added.beneficiaries.single.scriptKey);
       expect(scriptKeyA, storedScriptPathSeedInfo.key);
-      expect(scriptKeyC, '8dafb551ca93f97220759b05be372db4efee4de71a11a9b7af3c6b362634e31a');
+      expect(scriptKeyC, hashString('inheritance:$beneficiaryXpub:${lockTime + 1}'));
       expect(secureZone.encryptedPlaintexts.keys, contains(expectedStorageKey));
     });
   });

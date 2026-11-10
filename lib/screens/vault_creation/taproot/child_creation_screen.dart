@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app_routes_params.dart';
+import 'package:coconut_vault/extensions/widget_animation_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/model/taproot/taproot_wallet_sync_data.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_overlays.dart';
+import 'package:coconut_vault/widgets/animation/delayed_fade_in.dart';
 import 'package:coconut_vault/widgets/indicator/top_progress_bar.dart';
 import 'package:coconut_vault/utils/logger.dart';
 import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_provider.dart';
@@ -68,6 +70,9 @@ enum ChildCreationStep {
 class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent> {
   static const int _initialStepCount = 2;
   static const int _progressInitialStepCount = 1;
+  static const Duration _titleInitialDelay = Duration(milliseconds: 200);
+  static const Duration _titleLineDuration = Duration(milliseconds: 700);
+  static const Duration _contentFadeInDuration = Duration(milliseconds: 400);
 
   int _currentStep = 1;
   final List<ChildCreationStep> _stepHistory = [ChildCreationStep.intro, ChildCreationStep.childPreparation];
@@ -79,9 +84,9 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
   bool _isProcessing = false;
   bool _isSavingVault = false;
   bool _currentVaultMnemonicAuthRequested = false;
-  bool _isTitleAnimationCompleted = false;
+  bool _isContentAnimationCompleted = false;
   bool _isTimelineAnimationCompleted = false;
-  Timer? _titleAnimationTimer;
+  Timer? _contentAnimationTimer;
 
   @override
   void initState() {
@@ -89,14 +94,14 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<ChildCreationViewModel>().resetChildWalletData();
-        _scheduleTitleAnimationCompletion();
+        _scheduleContentAnimationCompletion();
       }
     });
   }
 
   @override
   void dispose() {
-    _titleAnimationTimer?.cancel();
+    _contentAnimationTimer?.cancel();
     super.dispose();
   }
 
@@ -127,7 +132,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       ChildCreationStep.childCreationOption =>
         viewModel.keyPreparationType == ChildKeyPreparationType.create
             ? [TextSpan(text: t.taproot.child_creation_screen.step3.title_new)]
-            : [TextSpan(text: t.taproot.child_creation_screen.step3.title_existing)],
+            : [TextSpan(text: t.taproot.common.existing_mnemonic_title)],
       ChildCreationStep.currentVaultSelection => [
         TextSpan(text: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_title_1),
         TextSpan(text: t.taproot.child_creation_screen.step3.single_sig_select_from_vault_title_2),
@@ -217,7 +222,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
   bool _showBottomButton(ChildCreationViewModel viewModel) {
     return _currentStepAction(viewModel) != null &&
-        (_currentStep <= _initialStepCount || _isTitleAnimationCompleted || _isSummaryStep) &&
+        _isContentAnimationCompleted &&
         (!_isTimelineStep || _isTimelineAnimationCompleted);
   }
 
@@ -248,39 +253,66 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         .clamp(0, _progressTotalStep(viewModel));
   }
 
-  Duration get _titleAnimationDuration {
-    const headerInitialDelay = Duration(milliseconds: 200);
-    const headerLineFadeInDuration = Duration(milliseconds: 700);
-    return headerInitialDelay + (headerLineFadeInDuration * _titleLines().length);
+  bool get _isHeaderVisible => !(_isSummaryStep && !context.read<ChildCreationViewModel>().isBeneficiaryMatch);
+
+  Duration? get _contentDelay {
+    if (_isProgressPaused) {
+      return null;
+    }
+    if (!_isHeaderVisible) {
+      return ChildImportSummaryStep.mismatchContentDelay;
+    }
+    final lastLineIndex = _titleLines().lastIndexWhere((line) => line.toPlainText().isNotEmpty);
+    final titleEnd = _titleInitialDelay + _titleLineDuration * (lastLineIndex + 1);
+    return _isTimelineStep ? titleEnd * TaprootCreationBody.completionTimeScale : titleEnd;
   }
 
-  void _scheduleTitleAnimationCompletion() {
-    _titleAnimationTimer?.cancel();
+  Widget _buildStepBody(ChildCreationViewModel viewModel) {
+    final body = Column(children: _getBodyList(_currentStepType, viewModel));
+    final contentDelay = _contentDelay;
+    if (contentDelay == null || !_isHeaderVisible) {
+      return body;
+    }
+    if (_isTimelineStep) {
+      return DelayedFadeIn(
+        delay: contentDelay,
+        duration: _contentFadeInDuration * TaprootCreationBody.completionTimeScale,
+        child: body,
+      );
+    }
+    return body.fadeInAnimation(
+      key: ValueKey('taproot-child-creation-content-$_currentStep-${_currentStepType.name}'),
+      duration: _contentFadeInDuration,
+      delay: contentDelay,
+    );
+  }
+
+  void _scheduleContentAnimationCompletion() {
+    _contentAnimationTimer?.cancel();
 
     if (!mounted) {
       return;
     }
 
-    if (_currentStep <= _initialStepCount ||
-        _isProgressPaused ||
-        _titleLines().every((line) => line.toPlainText().isEmpty)) {
+    final contentDelay = _contentDelay;
+    if (contentDelay == null) {
       setState(() {
-        _isTitleAnimationCompleted = true;
+        _isContentAnimationCompleted = true;
       });
       return;
     }
 
     setState(() {
-      _isTitleAnimationCompleted = false;
+      _isContentAnimationCompleted = false;
     });
 
-    _titleAnimationTimer = Timer(_titleAnimationDuration, () {
+    _contentAnimationTimer = Timer(contentDelay + _contentFadeInDuration, () {
       if (!mounted) {
         return;
       }
 
       setState(() {
-        _isTitleAnimationCompleted = true;
+        _isContentAnimationCompleted = true;
       });
     });
   }
@@ -330,7 +362,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
     setState(() {
       _currentStep += 1;
     });
-    _scheduleTitleAnimationCompletion();
+    _scheduleContentAnimationCompletion();
   }
 
   Widget _buildChildPreparationStep(ChildCreationViewModel viewModel) {
@@ -550,7 +582,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       _stepHistory.add(step);
       _currentStep += 1;
     });
-    _scheduleTitleAnimationCompletion();
+    _scheduleContentAnimationCompletion();
     return addedStep;
   }
 
@@ -637,7 +669,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       _stepHistory.add(ChildCreationStep.timeline);
       _currentStep += 1;
     });
-    _scheduleTitleAnimationCompletion();
+    _scheduleContentAnimationCompletion();
   }
 
   void _handleTimelineAnimationCompleted() {
@@ -748,7 +780,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
         viewModel.setExistingKeyImportType(ChildExistingKeyImportType.none);
       }
     });
-    _scheduleTitleAnimationCompletion();
+    _scheduleContentAnimationCompletion();
   }
 
   void _navigateToHome(ChildCreationViewModel viewModel) {
@@ -793,7 +825,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
 
         _isProcessing = false;
       });
-      _scheduleTitleAnimationCompletion();
+      _scheduleContentAnimationCompletion();
 
       if (_currentStep == 1) {
         viewModel.setKeyPreparationType(ChildKeyPreparationType.none);
@@ -821,7 +853,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       }
       _isProcessing = false;
     });
-    _scheduleTitleAnimationCompletion();
+    _scheduleContentAnimationCompletion();
   }
 
   void _removeStepsAfter(int step) {
@@ -854,7 +886,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       viewModel.setExistingKeyImportType(ChildExistingKeyImportType.seedQrScan);
       _stepHistory[_currentStep - 1] = ChildCreationStep.seedQrImport;
     });
-    _scheduleTitleAnimationCompletion();
+    _scheduleContentAnimationCompletion();
   }
 
   void _switchToMnemonicImport(ChildCreationViewModel viewModel) {
@@ -866,7 +898,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
       viewModel.setExistingKeyImportType(ChildExistingKeyImportType.mnemonicInput);
       _stepHistory[_currentStep - 1] = ChildCreationStep.mnemonicImport;
     });
-    _scheduleTitleAnimationCompletion();
+    _scheduleContentAnimationCompletion();
   }
 
   Future<void> _onCurrentVaultSelected(ChildCreationViewModel viewModel) async {
@@ -957,6 +989,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
                       TaprootCreationBody(
                         key: ValueKey(_currentStep),
                         titleLines: _titleLines(),
+                        headerTimeScale: _isTimelineStep ? TaprootCreationBody.completionTimeScale : 1,
                         showBottomButton: _showBottomButton(viewModel),
                         bottomButtonText:
                             _isSummaryStep && !viewModel.isBeneficiaryMatch
@@ -971,7 +1004,7 @@ class _ChildCreationScreenContentState extends State<_ChildCreationScreenContent
                         child:
                             _isProgressPaused
                                 ? _getBodyList(_currentStepType, viewModel).first
-                                : Column(children: _getBodyList(_currentStepType, viewModel)),
+                                : _buildStepBody(viewModel),
                       ),
                       TopProgressBar(
                         visible: !_isProgressPaused,

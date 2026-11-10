@@ -16,7 +16,7 @@ class TaprootInheritanceIsolates {
 
     for (final leaf in inheritanceleaves) {
       if (leaf.descriptor != null) {
-        policies.add(InheritancePolicy.fromDescriptorAndLocktime(leaf.descriptor!, leaf.lockTime));
+        policies.add(_buildInheritancePolicy(leaf.descriptor!, leaf));
       } else {
         final processed = processInheritanceLeafWithSeed(leaf);
         policies.add(processed.policy);
@@ -36,7 +36,7 @@ class TaprootInheritanceIsolates {
     final secret = leaf.secret!;
     final (seedInfo, keyStore) = WalletIsolates.createSeedInfo(secret);
     final leafVault = TaprootVault.fromKeyStoreList([keyStore], []);
-    final inheritancePolicy = InheritancePolicy.fromDescriptorAndLocktime(leafVault.descriptor, leaf.lockTime);
+    final inheritancePolicy = _buildInheritancePolicy(leafVault.descriptor, leaf);
     Logger.log('--> inheritance policy miniscript: ${inheritancePolicy.toMiniscript()}');
     final scriptKey = ScriptPathSeedInfo.generateKey(inheritancePolicy);
     final save = WalletIsolates.createSeedInfoForSave(secret, seedInfo.extendedPublicKey);
@@ -49,5 +49,15 @@ class TaprootInheritanceIsolates {
       seedInfo: ScriptPathSeedInfo(key: scriptKey, role: ScriptPathRole.beneficiary, seedInfos: [seedInfo]),
       save: save,
     );
+  }
+
+  static InheritancePolicy _buildInheritancePolicy(String beneficiaryDescriptor, InheritanceLeaf leaf) {
+    return switch (leaf.form) {
+      InheritanceLeafForm.current => InheritancePolicy.fromDescriptorAndLocktime(beneficiaryDescriptor, leaf.lockTime),
+      InheritanceLeafForm.legacy => LegacyInheritancePolicy.fromDescriptorAndLocktime(
+        beneficiaryDescriptor,
+        leaf.lockTime,
+      ),
+    };
   }
 }

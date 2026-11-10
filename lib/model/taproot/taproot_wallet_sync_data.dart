@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:coconut_lib/coconut_lib.dart';
 import 'package:coconut_vault/model/common/vault_list_item_base.dart';
 import 'package:coconut_vault/model/taproot/taproot_vault_list_item.dart';
-import 'package:coconut_vault/utils/migration/taproot_older_to_after_migration.dart';
+import 'package:coconut_vault/utils/migration/taproot_legacy_inheritance_migration.dart';
 
 class TaprootWalletSyncData {
   final String name;
@@ -31,14 +31,14 @@ class TaprootWalletSyncData {
     }
 
     final descriptor = _readString(decoded, TaprootVaultListItem.fieldDescriptor);
-    final descriptorMigration = TaprootOlderToAfterMigration.migrateDescriptor(descriptor);
+    final descriptorMigration = TaprootLegacyInheritanceMigration.migrateDescriptor(descriptor);
     final scriptPathSeedInfos =
         decoded.containsKey(TaprootVaultListItem.fieldScriptPathSeedInfos)
             ? _readMapList(decoded, TaprootVaultListItem.fieldScriptPathSeedInfos)
                 .map(TaprootWalletSyncScriptPathData.fromJson)
                 .map(
                   (seedInfo) => seedInfo.copyWith(
-                    miniscript: TaprootOlderToAfterMigration.migrateMiniscript(seedInfo.miniscript),
+                    miniscript: TaprootLegacyInheritanceMigration.migrateMiniscript(seedInfo.miniscript),
                   ),
                 )
                 .toList()
@@ -56,8 +56,7 @@ class TaprootWalletSyncData {
               ? _readStringList(decoded, TaprootVaultListItem.fieldKeyPathSeedInfos)
               : [],
       scriptPathSeedInfos: scriptPathSeedInfos,
-      wasMigratedFromOlderToAfter:
-          descriptorMigration.hasChanges || scriptPathSeedInfos.any((seedInfo) => seedInfo.wasMigratedFromOlderToAfter),
+      wasMigratedFromOlderToAfter: descriptorMigration.hasOlder,
     );
   }
 
@@ -118,19 +117,13 @@ class TaprootWalletSyncData {
 class TaprootWalletSyncScriptPathData {
   final String miniscript;
   final List<String> extendedPublicKeys;
-  final bool wasMigratedFromOlderToAfter;
 
-  TaprootWalletSyncScriptPathData({
-    required this.miniscript,
-    required this.extendedPublicKeys,
-    this.wasMigratedFromOlderToAfter = false,
-  });
+  TaprootWalletSyncScriptPathData({required this.miniscript, required this.extendedPublicKeys});
 
   TaprootWalletSyncScriptPathData copyWith({String? miniscript}) {
     return TaprootWalletSyncScriptPathData(
       miniscript: miniscript ?? this.miniscript,
       extendedPublicKeys: extendedPublicKeys,
-      wasMigratedFromOlderToAfter: wasMigratedFromOlderToAfter || miniscript != null && miniscript != this.miniscript,
     );
   }
 

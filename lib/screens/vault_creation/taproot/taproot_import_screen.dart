@@ -4,19 +4,25 @@ import 'dart:typed_data';
 
 import 'package:coconut_design_system/coconut_design_system.dart';
 import 'package:coconut_vault/app_routes_params.dart';
+import 'package:coconut_vault/extensions/widget_animation_extensions.dart';
 import 'package:coconut_vault/localization/strings.g.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/taproot/taproot_import_view_model.dart';
 import 'package:coconut_vault/providers/view_model/vault_creation/vault_name_and_icon_setup_view_model.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
 import 'package:coconut_vault/screens/common/menu_grid.dart';
+import 'package:coconut_vault/screens/common/qrcode_bottom_sheet.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/import_passphrase_resolver.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/mnemonic_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/single_sig/seed_qr_import_screen.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_body.dart';
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_scanner_screen.dart';
 import 'package:coconut_vault/utils/date_format_util.dart';
+import 'package:coconut_vault/utils/text_utils.dart';
+import 'package:coconut_vault/widgets/animation/delayed_fade_in.dart';
+import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
+import 'package:coconut_vault/widgets/card/taproot/taproot_first_address_section.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_participant_card.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_setup_summary_card.dart';
 import 'package:coconut_vault/widgets/card/taproot/taproot_vault_item_card.dart';
@@ -38,6 +44,11 @@ enum TaprootImportStep { intro, scanner, importedWallet, roleSelection, importWa
 
 class _TaprootImportScreenState extends State<TaprootImportScreen> {
   static const int _initialStepCount = 1;
+  static const Duration _titleInitialDelay = Duration(milliseconds: 200);
+  static const Duration _titleLineDuration = Duration(milliseconds: 700);
+  static const Duration _descriptionDelay = Duration(milliseconds: 1700);
+  static const Duration _descriptionDuration = Duration(milliseconds: 700);
+  static const Duration _contentFadeInDuration = Duration(milliseconds: 400);
 
   late final TaprootImportViewModel _viewModel;
   final List<TaprootImportStep> _stepHistory = [TaprootImportStep.intro];
@@ -47,6 +58,9 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   TaprootVaultCreationTimelineInfo? _timelineInfo;
   bool _isProcessingImport = false;
   bool _isTimelineAnimationCompleted = false;
+  bool _isContentAnimationCompleted = false;
+  Timer? _contentAnimationTimer;
+  String? _contentAnimationStepKey;
 
   TaprootImportStep get _currentStepType => _stepHistory[_currentStep - 1];
 
@@ -63,7 +77,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   }
 
   bool get _showBottomButton {
-    if (_isProcessingImport) {
+    if (_isProcessingImport || !_isContentAnimationCompleted) {
       return false;
     }
 
@@ -120,6 +134,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
 
   @override
   void dispose() {
+    _contentAnimationTimer?.cancel();
     _viewModel.removeListener(_handleViewModelChanged);
     _viewModel.dispose();
     super.dispose();
@@ -127,6 +142,48 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
 
   void _handleViewModelChanged() {
     setState(() {});
+  }
+
+  String get _contentAnimationKey => '$_currentStep-${_currentStepType.name}';
+
+  Duration get _contentDelay {
+    final lastLineIndex = _titleLines().lastIndexWhere((line) => line.toPlainText().isNotEmpty);
+    final titleEnd = _titleInitialDelay + _titleLineDuration * (lastLineIndex + 1);
+    if (_isTimelineStep) {
+      return titleEnd * TaprootCreationBody.completionTimeScale;
+    }
+    if (_currentStepType != TaprootImportStep.roleSelection) {
+      return titleEnd;
+    }
+    final descriptionEnd = _descriptionDelay + _descriptionDuration;
+    return descriptionEnd > titleEnd ? descriptionEnd : titleEnd;
+  }
+
+  Widget _fadeInContent(Widget child) {
+    return child.fadeInAnimation(
+      key: ValueKey('taproot-import-content-$_contentAnimationKey'),
+      duration: _contentFadeInDuration,
+      delay: _contentDelay,
+    );
+  }
+
+  void _scheduleContentAnimationCompletion() {
+    final stepKey = _contentAnimationKey;
+    if (_contentAnimationStepKey == stepKey) {
+      return;
+    }
+
+    _contentAnimationStepKey = stepKey;
+    _contentAnimationTimer?.cancel();
+    _isContentAnimationCompleted = false;
+    _contentAnimationTimer = Timer(_contentDelay + _contentFadeInDuration, () {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isContentAnimationCompleted = true;
+      });
+    });
   }
 
   List<TextSpan> _titleLines() {
@@ -162,13 +219,15 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   List<Widget> _getBodyList(TaprootImportStep step) {
     return switch (step) {
       TaprootImportStep.intro => [
-        Padding(
-          padding: const EdgeInsets.only(left: 64, top: 36, right: 64),
-          child: Image.asset('assets/png/hand-bitcoin.png'),
+        _fadeInContent(
+          Padding(
+            padding: const EdgeInsets.only(left: 64, top: 36, right: 64),
+            child: Image.asset('assets/png/hand-bitcoin.png'),
+          ),
         ),
       ],
       TaprootImportStep.scanner => [_buildScannerStep()],
-      TaprootImportStep.importedWallet => [_buildVaultSummaryCards()],
+      TaprootImportStep.importedWallet => [_fadeInContent(_buildVaultSummaryCards(showFirstAddress: true))],
       TaprootImportStep.roleSelection => _buildRoleSelectionBody(),
       TaprootImportStep.importWallet => [
         Consumer<TaprootImportViewModel>(
@@ -307,8 +366,9 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
     _addStep(TaprootImportStep.importedWallet);
   }
 
-  Widget _buildVaultSummaryCards({bool showSelectedRoleState = false}) {
+  Widget _buildVaultSummaryCards({bool showSelectedRoleState = false, bool showFirstAddress = false}) {
     final scannedVaultItem = _viewModel.scannedVaultItem;
+    final firstAddress = _viewModel.scannedFirstAddress;
     if (scannedVaultItem == null) {
       return const SizedBox.shrink();
     }
@@ -333,7 +393,32 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
               ],
             ),
           ),
+          if (showFirstAddress && firstAddress != null) ...[
+            CoconutLayout.spacing_600h,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: TaprootFirstAddressSection(
+                address: firstAddress.address,
+                derivationPath: firstAddress.derivationPath,
+                onPressed: () => _showFirstAddressQr(firstAddress),
+              ),
+            ),
+          ],
         ],
+      ),
+    );
+  }
+
+  void _showFirstAddressQr(({String address, String derivationPath}) firstAddress) {
+    MyBottomSheet.showBottomSheet_90(
+      context: context,
+      child: QrcodeBottomSheet(
+        qrData: firstAddress.address,
+        title: t.taproot.common.first_address,
+        qrcodeTopWidget: Text(
+          firstAddress.derivationPath,
+          style: CoconutTypography.body2_14.setColor(CoconutColors.gray800),
+        ),
       ),
     );
   }
@@ -386,35 +471,37 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
         child: CharacterFadeInText(
           text: t.taproot.taproot_import_screen.step4.description,
           animationKey: 'taproot-import-body-role-description',
-          duration: const Duration(milliseconds: 700),
-          delay: const Duration(milliseconds: 1700),
+          duration: _descriptionDuration,
+          delay: _descriptionDelay,
           textAlign: TextAlign.center,
         ),
       ),
       CoconutLayout.spacing_800h,
-      Consumer<TaprootImportViewModel>(
-        builder: (context, viewModel, child) {
-          return MenuGrid(
-            children: [
-              SelectableOptionCard(
-                title: t.taproot.taproot_import_screen.step4.signer,
-                bottomAssetPath: 'assets/png/single-key.png',
-                isSelected: viewModel.selectedRole == TaprootImportRole.signer,
-                onTap: () => viewModel.setRole(TaprootImportRole.signer),
-                imageScale: 5.5,
-                height: 130,
-              ),
-              SelectableOptionCard(
-                title: t.taproot.taproot_import_screen.step4.beneficiary,
-                bottomAssetPath: 'assets/png/bitcoin-on-hand.png',
-                isSelected: viewModel.selectedRole == TaprootImportRole.beneficiary,
-                onTap: () => viewModel.setRole(TaprootImportRole.beneficiary),
-                imageScale: 3.5,
-                height: 130,
-              ),
-            ],
-          );
-        },
+      _fadeInContent(
+        Consumer<TaprootImportViewModel>(
+          builder: (context, viewModel, child) {
+            return MenuGrid(
+              children: [
+                SelectableOptionCard(
+                  title: t.taproot.taproot_import_screen.step4.signer,
+                  bottomAssetPath: 'assets/png/single-key.png',
+                  isSelected: viewModel.selectedRole == TaprootImportRole.signer,
+                  onTap: () => viewModel.setRole(TaprootImportRole.signer),
+                  imageScale: 5.5,
+                  height: 130,
+                ),
+                SelectableOptionCard(
+                  title: t.taproot.taproot_import_screen.step4.beneficiary,
+                  bottomAssetPath: 'assets/png/bitcoin-on-hand.png',
+                  isSelected: viewModel.selectedRole == TaprootImportRole.beneficiary,
+                  onTap: () => viewModel.setRole(TaprootImportRole.beneficiary),
+                  imageScale: 3.5,
+                  height: 130,
+                ),
+              ],
+            );
+          },
+        ),
       ),
     ];
   }
@@ -473,7 +560,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [_buildSummaryHeader(), _buildVaultSummaryCards(showSelectedRoleState: true)],
+      children: [_buildSummaryHeader(), _fadeInContent(_buildVaultSummaryCards(showSelectedRoleState: true))],
     );
   }
 
@@ -684,7 +771,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
             : timeline.multi_parent_wallet_with_name(name: scannedVaultItem.name);
     final hasMatchedExtraImport = _viewModel.hasExtraImport && _viewModel.isExtraImportMatched;
 
-    return TimelineStepIndicator(
+    final indicator = TimelineStepIndicator(
       onCompleted: _handleTimelineAnimationCompleted,
       enableTapToSkip: true,
       timelineStepItemList: [
@@ -724,6 +811,11 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
         ),
       ],
     );
+    return DelayedFadeIn(
+      delay: _contentDelay,
+      duration: _contentFadeInDuration * TaprootCreationBody.completionTimeScale,
+      child: indicator,
+    );
   }
 
   void _handleTimelineAnimationCompleted() {
@@ -740,14 +832,18 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
     final masterFingerprint = _timelineInfo?.parentMasterFingerprint ?? '';
     return masterFingerprint.isEmpty
         ? ''
-        : t.taproot.taproot_import_screen.timeline.taproot_wallet_with_mfp(mfp: masterFingerprint);
+        : t.taproot.taproot_import_screen.timeline.taproot_wallet_with_mfp(
+          mfp: TextUtils.formatMasterFingerprint(masterFingerprint),
+        );
   }
 
   String _timelineBeneficiaryWalletDescription() {
     final masterFingerprint = _timelineInfo?.childMasterFingerprint ?? '';
     return masterFingerprint.isEmpty
         ? ''
-        : t.taproot.taproot_import_screen.timeline.taproot_wallet_with_mfp(mfp: masterFingerprint);
+        : t.taproot.taproot_import_screen.timeline.taproot_wallet_with_mfp(
+          mfp: TextUtils.formatMasterFingerprint(masterFingerprint),
+        );
   }
 
   String get _activationDateTimeText {
@@ -889,6 +985,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _scheduleContentAnimationCompletion();
     final showBottomButton = _showBottomButton;
 
     return ChangeNotifierProvider.value(
@@ -939,6 +1036,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
                       scrollChild: !_isProgressPaused && _shouldScrollChild(_currentStepType),
                       runBottomButtonActionWithoutTransition: _runBottomButtonActionWithoutTransition,
                       keepHeaderVisibleDuringTransition: _isTimelineStep,
+                      headerTimeScale: _isTimelineStep ? TaprootCreationBody.completionTimeScale : 1,
                       child:
                           _isProgressPaused
                               ? _getBodyList(_currentStepType).first
