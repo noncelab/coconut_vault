@@ -66,7 +66,7 @@ class ParentCreationCompletionSteps {
 
   static List<TextSpan> exportQrTitleList() {
     final complete = t.taproot.parent_creation_screen.step_4.complete;
-    return [TextSpan(text: complete.title_1), TextSpan(text: complete.title_2)];
+    return [TextSpan(text: complete.title_1), TextSpan(text: complete.title_2), TextSpan(text: complete.title_3)];
   }
 
   static Widget exportQrBody({required String qrData, required String? requiredWalletVersion}) {

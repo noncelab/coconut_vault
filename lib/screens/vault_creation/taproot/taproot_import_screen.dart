@@ -18,6 +18,7 @@ import 'package:coconut_vault/screens/vault_creation/taproot/taproot_creation_bo
 import 'package:coconut_vault/screens/vault_creation/taproot/taproot_scanner_screen.dart';
 import 'package:coconut_vault/utils/date_format_util.dart';
 import 'package:coconut_vault/utils/text_utils.dart';
+import 'package:coconut_vault/widgets/animation/delayed_fade_in.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
 import 'package:coconut_vault/widgets/button/fixed_bottom_tween_button.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
@@ -146,8 +147,11 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
   String get _contentAnimationKey => '$_currentStep-${_currentStepType.name}';
 
   Duration get _contentDelay {
-    final titleLineCount = _titleLines().where((line) => line.toPlainText().isNotEmpty).length;
-    final titleEnd = _titleInitialDelay + _titleLineDuration * titleLineCount;
+    final lastLineIndex = _titleLines().lastIndexWhere((line) => line.toPlainText().isNotEmpty);
+    final titleEnd = _titleInitialDelay + _titleLineDuration * (lastLineIndex + 1);
+    if (_isTimelineStep) {
+      return titleEnd * TaprootCreationBody.completionTimeScale;
+    }
     if (_currentStepType != TaprootImportStep.roleSelection) {
       return titleEnd;
     }
@@ -767,7 +771,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
             : timeline.multi_parent_wallet_with_name(name: scannedVaultItem.name);
     final hasMatchedExtraImport = _viewModel.hasExtraImport && _viewModel.isExtraImportMatched;
 
-    return TimelineStepIndicator(
+    final indicator = TimelineStepIndicator(
       onCompleted: _handleTimelineAnimationCompleted,
       enableTapToSkip: true,
       timelineStepItemList: [
@@ -806,6 +810,11 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
           pastFutureTitle: timeline.inheritance_wallet_activated,
         ),
       ],
+    );
+    return DelayedFadeIn(
+      delay: _contentDelay,
+      duration: _contentFadeInDuration * TaprootCreationBody.completionTimeScale,
+      child: indicator,
     );
   }
 
@@ -1027,6 +1036,7 @@ class _TaprootImportScreenState extends State<TaprootImportScreen> {
                       scrollChild: !_isProgressPaused && _shouldScrollChild(_currentStepType),
                       runBottomButtonActionWithoutTransition: _runBottomButtonActionWithoutTransition,
                       keepHeaderVisibleDuringTransition: _isTimelineStep,
+                      headerTimeScale: _isTimelineStep ? TaprootCreationBody.completionTimeScale : 1,
                       child:
                           _isProgressPaused
                               ? _getBodyList(_currentStepType).first

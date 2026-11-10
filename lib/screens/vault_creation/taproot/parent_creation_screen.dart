@@ -29,6 +29,7 @@ import 'package:coconut_vault/screens/vault_creation/vault_name_and_icon_setup_s
 import 'package:coconut_vault/screens/wallet_info/single_sig_menu/mnemonic_view_screen.dart';
 import 'package:coconut_vault/utils/date_format_util.dart';
 import 'package:coconut_vault/widgets/bottom_sheet.dart';
+import 'package:coconut_vault/widgets/animation/delayed_fade_in.dart';
 import 'package:coconut_vault/widgets/box/info_box.dart';
 import 'package:coconut_vault/widgets/card/selectable_option_card.dart';
 import 'package:coconut_vault/widgets/coconut_loading_overlay.dart';
@@ -86,6 +87,10 @@ enum KeyPreparationTarget { parent, child }
 
 class _ParentCreationScreenState extends State<ParentCreationScreen> {
   static const int _initialStepCount = 2;
+  static const Duration _titleInitialDelay = Duration(milliseconds: 200);
+  static const Duration _titleLineDuration = Duration(milliseconds: 700);
+  static const Duration _contentFadeInDuration = Duration(milliseconds: 400);
+  static const Duration _bodyDescriptionEnd = Duration(milliseconds: 3100);
   static const int _progressInitialStepCount = 1;
   static const Color _parentWalletActiveColor = CoconutColors.purple;
 
@@ -113,8 +118,8 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
   DateTime? _timelineTimelockDateTime;
   TaprootVaultCreationTimelineInfo? _timelineInfo;
   GlobalKey<MnemonicViewScreenState>? _currentVaultMnemonicViewKey;
-  Timer? _titleAnimationTimer;
-  bool _isTitleAnimationCompleted = false;
+  Timer? _contentAnimationTimer;
+  bool _isContentAnimationCompleted = false;
   bool _isTimelineAnimationCompleted = false;
   bool _isDuplicateChildWalletDialogVisible = false;
   bool _isCheckingDuplicateWallet = false;
@@ -129,12 +134,12 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
     _language = context.read<VisibilityProvider>().appLanguage;
     _viewModel = ParentCreationViewModel(context.read<WalletProvider>());
     _viewModel.addListener(_handleViewModelChanged);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scheduleTitleAnimationCompletion());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scheduleContentAnimationCompletion());
   }
 
   @override
   void dispose() {
-    _titleAnimationTimer?.cancel();
+    _contentAnimationTimer?.cancel();
     _viewModel.removeListener(_handleViewModelChanged);
     _viewModel.dispose();
     super.dispose();
@@ -459,7 +464,12 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
             ),
       ),
       CoconutLayout.spacing_900h,
-      Padding(padding: const EdgeInsets.symmetric(horizontal: 64), child: Image.asset('assets/png/hanging-phone.png')),
+      _fadeInContent(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 64),
+          child: Image.asset('assets/png/hanging-phone.png'),
+        ),
+      ),
     ];
   }
 
@@ -829,9 +839,11 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         ),
       ),
       CoconutLayout.spacing_600h,
-      InfoBox(
-        infoList: [MapEntry(t.taproot.common.wallet_type, t.taproot.common.taproot_single_sig_wallet)],
-        masterFingerprint: childWalletMasterFingerprint,
+      _fadeInContent(
+        InfoBox(
+          infoList: [MapEntry(t.taproot.common.wallet_type, t.taproot.common.taproot_single_sig_wallet)],
+          masterFingerprint: childWalletMasterFingerprint,
+        ),
       ),
     ];
   }
@@ -860,12 +872,16 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       throw StateError('_timelineTimelockDateTime is null');
     }
 
-    return ParentCreationCompletionSteps.timelineIndicator(
-      parentWalletType: _viewModel.selectedWalletType,
-      timelineInfo: _timelineInfo,
-      timelockDateTimeText: DateFormatUtil.formatLocalizedDateTime(_timelineTimelockDateTime!, _language),
-      timelockEpochTime: _timelineTimelockDateTime!.millisecondsSinceEpoch ~/ Duration.millisecondsPerSecond,
-      onCompleted: _handleTimelineAnimationCompleted,
+    return DelayedFadeIn(
+      delay: _titleEnd * TaprootCreationBody.completionTimeScale,
+      duration: _contentFadeInDuration * TaprootCreationBody.completionTimeScale,
+      child: ParentCreationCompletionSteps.timelineIndicator(
+        parentWalletType: _viewModel.selectedWalletType,
+        timelineInfo: _timelineInfo,
+        timelockDateTimeText: DateFormatUtil.formatLocalizedDateTime(_timelineTimelockDateTime!, _language),
+        timelockEpochTime: _timelineTimelockDateTime!.millisecondsSinceEpoch ~/ Duration.millisecondsPerSecond,
+        onCompleted: _handleTimelineAnimationCompleted,
+      ),
     );
   }
 
@@ -892,7 +908,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
 
   bool get _showBottomButton {
     return _onNextPressed != null &&
-        (_currentStep <= _initialStepCount || _isTitleAnimationCompleted) &&
+        _isContentAnimationCompleted &&
         (!_isTimelineStep || _isTimelineAnimationCompleted);
   }
 
@@ -965,39 +981,77 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
         .clamp(0, _progressTotalStep);
   }
 
-  Duration get _titleAnimationDuration {
-    const headerInitialDelay = Duration(milliseconds: 200);
-    const headerLineFadeInDuration = Duration(milliseconds: 700);
-    return headerInitialDelay + (headerLineFadeInDuration * _titleLines().length);
+  Duration get _titleEnd {
+    final lastLineIndex = _titleLines().lastIndexWhere((line) => line.toPlainText().isNotEmpty);
+    return _titleInitialDelay + _titleLineDuration * (lastLineIndex + 1);
   }
 
-  void _scheduleTitleAnimationCompletion() {
-    _titleAnimationTimer?.cancel();
+  Duration? _contentDelay(ParentCreationStep step) {
+    if (_isEmbeddedStep(step)) {
+      return null;
+    }
+    return switch (step) {
+      ParentCreationStep.multisigStartGuide || ParentCreationStep.childWalletImported => _bodyDescriptionEnd,
+      ParentCreationStep.timelockSetup => ParentTimelockSetupBody.contentDelay,
+      ParentCreationStep.exportQr => ParentWalletSyncQr.contentDelay,
+      ParentCreationStep.timeline => _titleEnd * TaprootCreationBody.completionTimeScale,
+      _ => _titleEnd,
+    };
+  }
+
+  bool _hasBodyDescription(ParentCreationStep step) {
+    return switch (step) {
+      ParentCreationStep.multisigStartGuide ||
+      ParentCreationStep.childWalletImported ||
+      ParentCreationStep.timelockSetup ||
+      ParentCreationStep.timeline ||
+      ParentCreationStep.exportQr => true,
+      _ => false,
+    };
+  }
+
+  Widget _fadeInContent(Widget child) {
+    return child.fadeInAnimation(
+      key: ValueKey('taproot-parent-creation-content-$_currentStep-${_currentStepType.name}'),
+      duration: _contentFadeInDuration,
+      delay: _contentDelay(_currentStepType) ?? Duration.zero,
+    );
+  }
+
+  Widget _buildStepBody(ParentCreationStep step) {
+    final body = Column(children: _getBodyList(step));
+    if (_contentDelay(step) == null || _hasBodyDescription(step)) {
+      return body;
+    }
+    return _fadeInContent(body);
+  }
+
+  void _scheduleContentAnimationCompletion() {
+    _contentAnimationTimer?.cancel();
 
     if (!mounted) {
       return;
     }
 
-    if (_currentStep <= _initialStepCount ||
-        _isProgressPaused ||
-        _titleLines().every((line) => line.toPlainText().isEmpty)) {
+    final contentDelay = _contentDelay(_currentStepType);
+    if (contentDelay == null) {
       setState(() {
-        _isTitleAnimationCompleted = true;
+        _isContentAnimationCompleted = true;
       });
       return;
     }
 
     setState(() {
-      _isTitleAnimationCompleted = false;
+      _isContentAnimationCompleted = false;
     });
 
-    _titleAnimationTimer = Timer(_titleAnimationDuration, () {
+    _contentAnimationTimer = Timer(contentDelay + _contentFadeInDuration, () {
       if (!mounted) {
         return;
       }
 
       setState(() {
-        _isTitleAnimationCompleted = true;
+        _isContentAnimationCompleted = true;
       });
     });
   }
@@ -1020,7 +1074,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       setState(() {
         _currentStep = existingIndex + 1;
       });
-      _scheduleTitleAnimationCompletion();
+      _scheduleContentAnimationCompletion();
       return;
     }
 
@@ -1099,7 +1153,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _stepHistory.add(step);
       _currentStep = addedStep;
     });
-    _scheduleTitleAnimationCompletion();
+    _scheduleContentAnimationCompletion();
     return addedStep;
   }
 
@@ -1915,7 +1969,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _mnemonicVerifyStep = null;
       _verifiedMnemonicConfirmationStep = null;
     });
-    _scheduleTitleAnimationCompletion();
+    _scheduleContentAnimationCompletion();
     return true;
   }
 
@@ -1945,7 +1999,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _mnemonicVerifyStep = null;
       _verifiedMnemonicConfirmationStep = null;
     });
-    _scheduleTitleAnimationCompletion();
+    _scheduleContentAnimationCompletion();
     return true;
   }
 
@@ -1996,7 +2050,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _viewModel.resetChildKeyPreparationType();
     });
     _resetSelectionForBackNavigation();
-    _scheduleTitleAnimationCompletion();
+    _scheduleContentAnimationCompletion();
   }
 
   void _returnToChildWalletSetupStep() {
@@ -2017,7 +2071,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _viewModel.resetChildKeyPreparationType();
       _viewModel.resetChildNewKeyCreationType();
     });
-    _scheduleTitleAnimationCompletion();
+    _scheduleContentAnimationCompletion();
   }
 
   void _returnToPreviousStep() {
@@ -2041,7 +2095,7 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
       _currentStep -= 1;
     });
     _resetSelectionForBackNavigation(previousStep: previousStep, previousStepType: previousStepType);
-    _scheduleTitleAnimationCompletion();
+    _scheduleContentAnimationCompletion();
   }
 
   void _resetSelectionForBackNavigation({int? previousStep, ParentCreationStep? previousStepType}) {
@@ -2179,15 +2233,12 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
                   fixedBottomSubWidget: _getFixedBottomSubWidget(_currentStepType),
                   runBottomButtonActionWithoutTransition: _runBottomButtonActionWithoutTransition,
                   keepHeaderVisibleDuringTransition: _isTimelineStep,
-                  animateHeader: !_isExportQrStep,
+                  headerTimeScale: _isTimelineStep || _isExportQrStep ? TaprootCreationBody.completionTimeScale : 1,
                   showBottomButton: _showBottomButton,
                   ignoreChildHorizontalPadding: _shouldIgnoreBodyHorizontalPadding(_currentStepType),
                   showHeader: _showHeader,
                   scrollChild: !_isProgressPaused && _shouldScrollChild(_currentStepType),
-                  child:
-                      _isProgressPaused
-                          ? _getBodyList(_currentStepType).first
-                          : Column(children: _getBodyList(_currentStepType)),
+                  child: _isProgressPaused ? _getBodyList(_currentStepType).first : _buildStepBody(_currentStepType),
                 ),
                 TopProgressBar(visible: !_isProgressPaused, total: _progressTotalStep, current: _progressCurrentStep),
                 if (_isCheckingDuplicateWallet)

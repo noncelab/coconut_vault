@@ -19,6 +19,8 @@ class TimelineStepIndicator extends StatefulWidget {
   State<TimelineStepIndicator> createState() => _TimelineStepIndicatorState();
 }
 
+const double _animationTimeScale = 0.7;
+
 class _TimelineStepIndicatorState extends State<TimelineStepIndicator> {
   int? _currentIndex;
   int? _animatingConnectorIndex;
@@ -265,7 +267,7 @@ class _TimelineStepTile extends StatelessWidget {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: AnimatedDefaultTextStyle(
-                    duration: const Duration(milliseconds: 220),
+                    duration: const Duration(milliseconds: 154),
                     curve: Curves.easeOutCubic,
                     style: _titleStyle,
                     child: Text(item.title),
@@ -274,7 +276,7 @@ class _TimelineStepTile extends StatelessWidget {
               ),
               CoconutLayout.spacing_100h,
               AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 220),
+                duration: const Duration(milliseconds: 154),
                 curve: Curves.easeOutCubic,
                 style: _descriptionStyle,
                 child: Text(item.description),
@@ -322,7 +324,7 @@ class _TimelineNode extends StatelessWidget {
       width: currentNodeOuterSize,
       height: currentNodeOuterSize,
       child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 220),
+        duration: const Duration(milliseconds: 154),
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeInCubic,
         transitionBuilder: (child, animation) {
@@ -438,7 +440,7 @@ class _TimelineCurrentLottieState extends State<_TimelineCurrentLottie> with Sin
       fit: BoxFit.contain,
       onLoaded: (composition) {
         _controller
-          ..duration = composition.duration
+          ..duration = composition.duration * _animationTimeScale
           ..forward(from: 0);
       },
     );
@@ -467,7 +469,7 @@ class _TimelineConnector extends StatelessWidget {
 
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0, end: isAnimating || isCompleted ? 1 : 0),
-      duration: isAnimating ? const Duration(milliseconds: 650) : Duration.zero,
+      duration: isAnimating ? const Duration(milliseconds: 455) : Duration.zero,
       curve: Curves.easeInOut,
       onEnd: isAnimating ? onAnimationCompleted : null,
       builder: (context, progress, child) {

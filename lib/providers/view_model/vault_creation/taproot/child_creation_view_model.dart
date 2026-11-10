@@ -11,6 +11,7 @@ import 'package:coconut_vault/providers/wallet_creation/taproot_wallet_creation_
 import 'package:coconut_vault/model/taproot/creation/taproot_wallet_create_dto.dart';
 import 'package:coconut_vault/model/taproot/taproot_wallet_sync_data.dart';
 import 'package:coconut_vault/providers/wallet_provider.dart';
+import 'package:coconut_vault/utils/text_utils.dart';
 
 enum ChildKeyPreparationType { none, create, import }
 
@@ -127,7 +128,8 @@ class ChildCreationViewModel extends ChangeNotifier {
     }
   }
 
-  String get scannedParentMfps => _scannedVaultItem?.owners.map((o) => o.masterFingerprint).join(', ') ?? '';
+  String get scannedParentMfps =>
+      _scannedVaultItem?.owners.map((o) => TextUtils.formatMasterFingerprint(o.masterFingerprint)).join(', ') ?? '';
 
   String getFormattedLockTime(AppLanguage language) {
     if (_scannedVaultItem == null || _masterFingerprint == null) return '';
