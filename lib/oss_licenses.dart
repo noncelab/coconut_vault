@@ -1536,14 +1536,14 @@ THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR I
   dependencies: [PackageRef('flutter'), PackageRef('provider'), PackageRef('flutter_svg'), PackageRef('lottie')],
 );
 
-/// coconut_lib 1.1.5
+/// coconut_lib 1.1.6
 const _coconut_lib = Package(
   name: 'coconut_lib',
   description:
       'The coconut_lib is a development tool for mobile air gap Bitcoin wallets. It is written in Dart. Coconut Vault and Coconut Wallet were created using this library.',
   repository: 'https://github.com/noncelab/coconut_lib.git',
   authors: [],
-  version: '1.1.5',
+  version: '1.1.6',
   license: '''MIT License
 
 Copyright 2025 Nonce Lab
@@ -2754,13 +2754,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   ],
 );
 
-/// fake_async 1.3.2
+/// fake_async 1.3.3
 const _fake_async = Package(
   name: 'fake_async',
   description: 'Fake asynchronous events such as timers and microtasks for deterministic testing.',
   repository: 'https://github.com/dart-lang/test/tree/master/pkgs/fake_async',
   authors: [],
-  version: '1.3.2',
+  version: '1.3.3',
   license: '''Apache License
                            Version 2.0, January 2004
                         http://www.apache.org/licenses/
@@ -3299,13 +3299,13 @@ const _flat_buffers = Package(
   dependencies: [],
 );
 
-/// flutter 3.29.1
+/// flutter 3.35.7
 const _flutter = Package(
   name: 'flutter',
   description: 'A framework for writing Flutter applications',
   homepage: 'https://flutter.dev',
   authors: [],
-  version: '3.29.1',
+  version: '3.35.7',
   license: '''Copyright 2014 The Flutter Authors. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -4423,14 +4423,14 @@ THE SOFTWARE.''',
   dependencies: [PackageRef('archive'), PackageRef('meta'), PackageRef('xml')],
 );
 
-/// intl 0.19.0
+/// intl 0.20.2
 const _intl = Package(
   name: 'intl',
   description:
       'Contains code to deal with internationalized/localized messages, date and number formatting and parsing, bi-directional text, and other internationalization issues.',
   repository: 'https://github.com/dart-lang/i18n/tree/main/pkgs/intl',
   authors: [],
-  version: '0.19.0',
+  version: '0.20.2',
   license: '''Copyright 2013, the Dart project authors.
 
 Redistribution and use in source and binary forms, with or without
@@ -4631,13 +4631,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   ],
 );
 
-/// leak_tracker 10.0.8
+/// leak_tracker 11.0.2
 const _leak_tracker = Package(
   name: 'leak_tracker',
   description: 'A framework for memory leak tracking for Dart and Flutter applications.',
   repository: 'https://github.com/dart-lang/leak_tracker/tree/main/pkgs/leak_tracker',
   authors: [],
-  version: '10.0.8',
+  version: '11.0.2',
   license: '''Copyright 2022, the Dart project authors.
 
 Redistribution and use in source and binary forms, with or without
@@ -4670,13 +4670,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   dependencies: [],
 );
 
-/// leak_tracker_flutter_testing 3.0.9
+/// leak_tracker_flutter_testing 3.0.10
 const _leak_tracker_flutter_testing = Package(
   name: 'leak_tracker_flutter_testing',
   description: 'An internal package to test leak tracking with Flutter.',
   repository: 'https://github.com/dart-lang/leak_tracker/tree/main/pkgs/leak_tracker_flutter_testing',
   authors: [],
-  version: '3.0.9',
+  version: '3.0.10',
   license: '''Copyright 2022, the Dart project authors.
 
 Redistribution and use in source and binary forms, with or without
@@ -4709,13 +4709,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   dependencies: [],
 );
 
-/// leak_tracker_testing 3.0.1
+/// leak_tracker_testing 3.0.2
 const _leak_tracker_testing = Package(
   name: 'leak_tracker_testing',
   description: 'Leak tracking code intended for usage in tests.',
   repository: 'https://github.com/dart-lang/leak_tracker/tree/main/pkgs/leak_tracker_testing',
   authors: [],
-  version: '3.0.1',
+  version: '3.0.2',
   license: '''Copyright 2022, the Dart project authors.
 
 Redistribution and use in source and binary forms, with or without
@@ -8587,13 +8587,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   dependencies: [],
 );
 
-/// test 1.25.15
+/// test 1.26.2
 const _test = Package(
   name: 'test',
   description: 'A full featured library for writing and running Dart tests across platforms.',
   repository: 'https://github.com/dart-lang/test/tree/master/pkgs/test',
   authors: [],
-  version: '1.25.15',
+  version: '1.26.2',
   license: '''Copyright 2014, the Dart project authors. 
 
 Redistribution and use in source and binary forms, with or without
@@ -8653,13 +8653,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   ],
 );
 
-/// test_api 0.7.4
+/// test_api 0.7.6
 const _test_api = Package(
   name: 'test_api',
   description: 'The user facing API for structuring Dart tests and checking expectations.',
   repository: 'https://github.com/dart-lang/test/tree/master/pkgs/test_api',
   authors: [],
-  version: '0.7.4',
+  version: '0.7.6',
   license: '''Copyright 2018, the Dart project authors. 
 
 Redistribution and use in source and binary forms, with or without
@@ -8702,13 +8702,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   ],
 );
 
-/// test_core 0.6.8
+/// test_core 0.6.11
 const _test_core = Package(
   name: 'test_core',
   description: 'A basic library for writing tests and running them on the VM.',
   repository: 'https://github.com/dart-lang/test/tree/master/pkgs/test_core',
   authors: [],
-  version: '0.6.8',
+  version: '0.6.11',
   license: '''Copyright 2018, the Dart project authors. 
 
 Redistribution and use in source and binary forms, with or without
@@ -9537,13 +9537,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
   ],
 );
 
-/// vector_math 2.1.4
+/// vector_math 2.2.0
 const _vector_math = Package(
   name: 'vector_math',
   description: 'A Vector Math library for 2D and 3D applications.',
   repository: 'https://github.com/google/vector_math.dart',
   authors: [],
-  version: '2.1.4',
+  version: '2.2.0',
   license: '''Copyright 2015, Google Inc. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
