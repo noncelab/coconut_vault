@@ -18,11 +18,11 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # of the product and file versions while build-number is used as the build suffix.
 version: 5.4.0+73
 app_versions:
-  ios_fullRegtest: 5.4.0+2
-  ios_fullMainnet: 3.4.0+0
+  ios_fullRegtest: 5.4.0+6
+  ios_fullMainnet: 3.4.0+2
   ios_liteMainnet: 1.1.0+0
-  aos_fullRegtest: 5.4.0+76
-  aos_fullMainnet: 3.4.0+34
+  aos_fullRegtest: 5.4.0+78
+  aos_fullMainnet: 3.4.0+36
   aos_liteMainnet: 1.1.0+3
   
 environment:
@@ -108,12 +108,6 @@ dev_dependencies:
     sdk: flutter
   flutter_launcher_icons: ^0.14.4
 
-# TODO: 디자인 시스템 배포 후 제거
-dependency_overrides:
-  coconut_design_system:
-    git:
-      url: https://github.com/noncelab/coconut_design_system.git
-      ref: fix/popup-korean-keep-all
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
