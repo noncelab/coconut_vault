@@ -26,6 +26,7 @@ class ErrorTooltip extends StatelessWidget {
           tooltipState: CoconutTooltipState.error,
           icon: SvgPicture.asset(
             'assets/svg/triangle-warning.svg',
+            width: 16,
             colorFilter: const ColorFilter.mode(CoconutColors.hotPink, BlendMode.srcIn),
           ),
         ),
