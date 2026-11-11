@@ -222,7 +222,7 @@ jail_break_detection_screen:
 bluetooth_permission_dialog:
   title: "Bluetooth Permission"
   description: "Coconut Vault suspends app use when the device is connected to a network or has Bluetooth turned on, to reduce the risk of key information being exposed through external communication. Bluetooth access permission is required to check whether Bluetooth is turned on."
-  request_button: "Request Permission"
+  request_button: "Continue"
 ios_bluetooth_auth_notification_screen:
   allow_permission: "Please allow Bluetooth access to check your connection status."
   guide1: "Bluetooth permission is required to verify that your device is not connected to other devices"

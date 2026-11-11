@@ -222,7 +222,7 @@ jail_break_detection_screen:
 bluetooth_permission_dialog:
   title: "블루투스 권한 안내"
   description: "코코넛 볼트는 기기가 네트워크에 연결되어 있거나 블루투스가 켜져 있는 경우, 외부 통신으로 인한 키 정보 노출 위험을 줄이기 위해 앱 사용을 중단합니다. 블루투스가 켜져 있는지 확인하려면 블루투스 접근 권한이 필요합니다."
-  request_button: "권한 요청하기"
+  request_button: "계속"
 ios_bluetooth_auth_notification_screen:
   allow_permission: "블루투스 상태 확인을 위해\n블루투스 권한을 허용해 주세요"
   guide1: "다른 기기와 연결되지 않았는지 확인하기 위해 블루투스 권한이 필요합니다"

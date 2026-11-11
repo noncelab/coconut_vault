@@ -223,7 +223,7 @@ jail_break_detection_screen:
 bluetooth_permission_dialog:
   title: "Bluetooth 権限について"
   description: "Coconut Vault は、デバイスがネットワークに接続されている場合や Bluetooth がオンになっている場合、外部通信による鍵情報の漏洩リスクを減らすためにアプリの使用を停止します。Bluetooth がオンになっているかを確認するために、Bluetooth へのアクセス許可が必要です。"
-  request_button: "権限をリクエスト"
+  request_button: "続ける"
 ios_bluetooth_auth_notification_screen:
   allow_permission: "接続状況を確認するために、Bluetooth へのアクセスを許可してください。"
   guide1: "他のデバイスに接続されていないことを確認するために、Bluetooth の許可が必要です。"
