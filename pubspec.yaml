@@ -21,7 +21,7 @@ app_versions:
   ios_fullRegtest: 5.4.0+6
   ios_fullMainnet: 3.4.0+2
   ios_liteMainnet: 1.1.0+0
-  aos_fullRegtest: 5.4.0+78
+  aos_fullRegtest: 5.4.0+79
   aos_fullMainnet: 3.4.0+36
   aos_liteMainnet: 1.1.0+3
   
