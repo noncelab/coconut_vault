@@ -80,6 +80,34 @@ fastlane-lite-mainnet:
 	$(PREP_COMMAND) && \
 	cd android && caffeinate -dimsu bundle exec fastlane release_android_lite_mainnet && cd .. && cd ios && caffeinate -dimsu bundle exec fastlane release_ios_lite_mainnet skip_prep:true
 
+# Single-platform uploads
+fastlane-mainnet-android:
+	@$(PREP_COMMAND) && \
+	cd android && caffeinate -dimsu bundle exec fastlane release_android_mainnet
+
+fastlane-mainnet-ios:
+	@$(REQUIRE_ASC_API_KEY) \
+	$(PREP_COMMAND) && \
+	cd ios && caffeinate -dimsu bundle exec fastlane release_ios_mainnet
+
+fastlane-regtest-android:
+	@$(PREP_COMMAND) && \
+	cd android && caffeinate -dimsu bundle exec fastlane release_android_regtest
+
+fastlane-regtest-ios:
+	@$(REQUIRE_ASC_API_KEY) \
+	$(PREP_COMMAND) && \
+	cd ios && caffeinate -dimsu bundle exec fastlane release_ios_regtest
+
+fastlane-lite-mainnet-android:
+	@$(PREP_COMMAND) && \
+	cd android && caffeinate -dimsu bundle exec fastlane release_android_lite_mainnet
+
+fastlane-lite-mainnet-ios:
+	@$(REQUIRE_ASC_API_KEY) \
+	$(PREP_COMMAND) && \
+	cd ios && caffeinate -dimsu bundle exec fastlane release_ios_lite_mainnet
+
 # Production draft/App Store preparation (manual review submission remains required)
 
 fastlane-production-mainnet:
