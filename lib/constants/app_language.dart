@@ -8,10 +8,11 @@ enum AppLanguage {
   en,
   ja,
   es,
-  de;
+  de,
+  th;
 
   /// UI에 표시할 언어 목록
-  static List<AppLanguage> get displayValues => [ko, en, ja];
+  static List<AppLanguage> get displayValues => [ko, en, ja, th];
 
   /// UI에 표시할 언어 이름
   String get displayName {
@@ -26,10 +27,12 @@ enum AppLanguage {
         return t.language.spanish;
       case AppLanguage.de:
         return t.language.german;
+      case AppLanguage.th:
+        return t.language.thai;
     }
   }
 
-  /// 앱 내부 언어 코드 (예: ko, en, ja, es, de)
+  /// 앱 내부 언어 코드 (예: ko, en, ja, es, de, th)
   String get code => name;
 
   /// slang 라이브러리에서 사용하는 AppLocale 객체로 변환합니다.
@@ -38,5 +41,6 @@ enum AppLanguage {
   static AppLanguage fromCode(String code) => values.firstWhere((e) => e.code == code, orElse: () => en);
 
   /// 영어와 같은 어순(SVO)을 사용하는 언어인지 여부
-  bool get hasEnglishWordOrder => this == AppLanguage.en || this == AppLanguage.es || this == AppLanguage.de;
+  bool get hasEnglishWordOrder =>
+      this == AppLanguage.en || this == AppLanguage.es || this == AppLanguage.de || this == AppLanguage.th;
 }

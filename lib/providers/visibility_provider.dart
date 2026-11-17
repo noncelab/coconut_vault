@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:coconut_vault/config/number_format_config.dart';
 import 'package:coconut_vault/constants/app_language.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
@@ -32,7 +30,10 @@ class VisibilityProvider extends ChangeNotifier {
   String get decimalSeparator => _numberFormatPreset.decimalSeparator;
   String get groupingSeparator => _numberFormatPreset.groupingSeparator;
 
-  VisibilityProvider({required bool isSigningOnlyMode}) {
+  VisibilityProvider({
+    required bool isSigningOnlyMode,
+    Future<AppLocale> Function(AppLocale) setLocale = LocaleSettings.setLocale,
+  }) {
     final prefs = SharedPrefsRepository();
     _isSigningOnlyMode = isSigningOnlyMode;
     _hasSeenGuide = prefs.getBool(SharedPrefsKeys.hasShownStartGuide) == true;
@@ -45,7 +46,7 @@ class VisibilityProvider extends ChangeNotifier {
     _language = _initializeLanguageFromOS(prefs);
     _isBtcUnit = prefs.getBool(SharedPrefsKeys.kIsBtcUnit) ?? true;
     _initializeNumberFormatFromLocale(prefs);
-    _initializeLanguage();
+    _initializeLanguage(setLocale);
   }
 
   Future<void> setHasSeenGuide() async {
@@ -75,8 +76,15 @@ class VisibilityProvider extends ChangeNotifier {
 
     // OS 언어 감지 (Flutter의 표준 방식 사용)
     try {
-      final String languageCode = PlatformDispatcher.instance.locale.languageCode.toLowerCase();
-      return _toSupportedAppLanguage(languageCode);
+      final languageCode = WidgetsBinding.instance.platformDispatcher.locale.languageCode.toLowerCase();
+      final language = _toSupportedAppLanguage(languageCode);
+      // 이전 버전은 자동 감지한 언어를 저장하지 않아, 기존 태국어 기기의 영어를 보존해야 합니다.
+      if (language == AppLanguage.th &&
+          (prefs.isContainsKey(SharedPrefsKeys.kNumberFormatPreset) ||
+              prefs.isContainsKey(SharedPrefsKeys.hasShownStartGuide))) {
+        return AppLanguage.en;
+      }
+      return language;
     } catch (e) {
       Logger.error('OS language detection failed: $e');
     }
@@ -94,22 +102,25 @@ class VisibilityProvider extends ChangeNotifier {
     return AppLanguage.en;
   }
 
-  void _initializeLanguage() {
-    // Set locale asynchronously to avoid blocking UI, with error handling.
-    LocaleSettings.setLocale(_language.appLocale).catchError((error) {
+  Future<void> _initializeLanguage(Future<AppLocale> Function(AppLocale) setLocale) async {
+    try {
+      await setLocale(_language.appLocale);
+    } catch (error) {
       Logger.error('Locale initialization for ${_language.code} failed: $error');
       // Fallback to English if the initial locale setting fails.
       try {
-        LocaleSettings.setLocaleSync(AppLocale.en);
+        await setLocale(AppLocale.en);
         _language = AppLanguage.en;
-        // The onError handler must return a value of the future's type.
-        return AppLocale.en;
       } catch (fallbackError) {
         Logger.error('Fallback to English locale failed: $fallbackError');
         // Re-throw if even the fallback fails, to be caught by the framework.
         rethrow;
       }
-    });
+    }
+    final prefs = SharedPrefsRepository();
+    if (_language == AppLanguage.th && !prefs.isContainsKey(SharedPrefsKeys.kLanguage)) {
+      await prefs.setString(SharedPrefsKeys.kLanguage, _language.code);
+    }
   }
 
   /// OS locale을 기반으로 숫자 포맷 preset을 초기화합니다.
@@ -120,7 +131,7 @@ class VisibilityProvider extends ChangeNotifier {
     if (prefs.isContainsKey(SharedPrefsKeys.kNumberFormatPreset)) {
       preset = NumberFormatPreset.fromCode(prefs.getString(SharedPrefsKeys.kNumberFormatPreset));
     } else {
-      final locale = PlatformDispatcher.instance.locale;
+      final locale = WidgetsBinding.instance.platformDispatcher.locale;
       final localeName = Intl.canonicalizedLocale(locale.toLanguageTag());
       preset = NumberFormatPreset.fromLocale(localeName);
       prefs.setString(SharedPrefsKeys.kNumberFormatPreset, preset.name);

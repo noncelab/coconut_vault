@@ -192,6 +192,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
         context: context,
         builder:
             (context) => CoconutPopup(
+              rightButtonText: t.OK,
               languageCode: context.read<VisibilityProvider>().appLanguage.code,
               title: t.exceptions.seed_invalidated.title,
               description: e.message,
@@ -357,6 +358,7 @@ class _MultisigSignScreenState extends State<MultisigSignScreen> {
                   context: context,
                   builder: (BuildContext context) {
                     return CoconutPopup(
+                      rightButtonText: t.OK,
                       languageCode: context.read<VisibilityProvider>().appLanguage.code,
                       title: t.multisig_sign_screen.dialog.signature_update.title,
                       description: t.multisig_sign_screen.dialog.signature_update.description,
