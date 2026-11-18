@@ -10,6 +10,8 @@ const GITHUB_URL_COCONUT_LIBRARY = 'https://github.com/noncelab/coconut_lib';
 /// Terms of service, Policy
 const TERMS_OF_SERVICE_URL = "https://www.noncelab.com/coconut/tos";
 const PRIVACY_POLICY_URL = "https://www.noncelab.com/coconut/privacy";
+const TERMS_OF_SERVICE_URL_EN = "https://www.coconut.onl/en/tos";
+const PRIVACY_POLICY_URL_EN = "https://www.coconut.onl/en/privacy";
 
 /// Email To Address
 const CONTACT_EMAIL_ADDRESS = 'hello@noncelab.com';
@@ -21,3 +23,4 @@ const DISCORD_COCONUT = 'https://discord.gg/YHxGQRxa7R';
 const X_POW = 'https://x.com/POWbitcoiner';
 
 const COCONUT_TUTORIAL_URL = 'https://tutorial.coconut.onl/';
+const COCONUT_TUTORIAL_URL_EN = 'https://tutorial.coconut.onl/en/';

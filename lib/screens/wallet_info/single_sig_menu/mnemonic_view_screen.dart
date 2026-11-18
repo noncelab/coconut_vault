@@ -208,6 +208,7 @@ class MnemonicViewScreenState extends State<MnemonicViewScreen> with TickerProvi
         context: context,
         builder:
             (context) => CoconutPopup(
+              rightButtonText: t.OK,
               languageCode: context.read<VisibilityProvider>().appLanguage.code,
               title: t.alert.auth_canceled_when_decrypt.title,
               description: t.alert.auth_canceled_when_decrypt.description_view_mnemonic,
@@ -227,6 +228,7 @@ class MnemonicViewScreenState extends State<MnemonicViewScreen> with TickerProvi
         context: context,
         builder:
             (context) => CoconutPopup(
+              rightButtonText: t.OK,
               languageCode: context.read<VisibilityProvider>().appLanguage.code,
               title: t.mnemonic_view_screen.alert.failed_get_secret.title,
               description: message,

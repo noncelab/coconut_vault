@@ -1437,6 +1437,7 @@ tooltip:
   mfp: "지갑의 고유 값이에요.\n마스터 핑거프린트(MFP)라고도 해요."
 
 language:
+  thai: "ไทย"
   korean: "한국어"
   english: "English"
   japanese: "日本語"

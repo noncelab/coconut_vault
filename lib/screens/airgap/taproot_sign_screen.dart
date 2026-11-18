@@ -476,6 +476,7 @@ class _TaprootSignScreenState extends State<TaprootSignScreen> {
         context: context,
         builder:
             (context) => CoconutPopup(
+              rightButtonText: t.OK,
               languageCode: context.read<VisibilityProvider>().appLanguage.code,
               title: t.exceptions.seed_invalidated.title,
               description: e.message,

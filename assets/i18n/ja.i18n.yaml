@@ -1437,6 +1437,7 @@ tooltip:
   mfp: "ウォレットの固有値。\nマスターフィンガープリント(MFP)とも呼ばれます。"
 
 language:
+  thai: "ไทย"
   korean: "한국어"
   english: "English"
   japanese: "日本語"

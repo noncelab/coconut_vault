@@ -218,6 +218,7 @@ class _SeedQrImportScreenState extends State<SeedQrImportScreen> {
               context: context,
               builder: (context) {
                 return CoconutPopup(
+                  rightButtonText: t.OK,
                   languageCode: context.read<VisibilityProvider>().appLanguage.code,
                   title: t.seed_qr_import_screen.error_title,
                   description: '${t.seed_qr_import_screen.error_message}: $e',
