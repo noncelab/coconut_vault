@@ -80,6 +80,26 @@ void main() {
       );
     }
 
+    testWidgets('${locale.name}: tutorial modal shows the correct page address', (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await LocaleSettings.setLocale(locale);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: withThaiFontFallback(ThemeData()),
+          home: const TutorialScreen(screenStatus: TutorialScreenStatus.modal),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final expectedAddress = locale == AppLocale.th ? 'tutorial.coconut.onl/en' : 'tutorial.coconut.onl';
+      expect(find.textContaining(expectedAddress), findsOneWidget);
+      if (locale == AppLocale.th) expect(find.text('tutorial.coconut.onl'), findsNothing);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+    }, skip: locale == AppLocale.th && !hasThaiTestFont);
+
     testWidgets('${locale.name}: tutorial opens the English page only for Thai', (tester) async {
       await LocaleSettings.setLocale(locale);
       final connectivity = ConnectivityProvider(hasSeenGuide: false);

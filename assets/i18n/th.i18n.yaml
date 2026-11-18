@@ -257,7 +257,7 @@ tutorial_screen:
   title1: "หากดูวิธีใช้งาน\nจะใช้ได้ง่ายขึ้น"
   title2: "ต้องการความช่วยเหลือไหม?"
   subtitle: "ลองใช้ไปพร้อมกับวิธีใช้งาน"
-  content: "กรุณาป้อนในแถบที่อยู่ของเบราว์เซอร์\ntutorial.coconut.onl"
+  content: "กรุณาป้อนในแถบที่อยู่ของเบราว์เซอร์\ntutorial.coconut.onl/en"
 vault_mode_selection_screen:
   select_mode: "เลือกโหมด"
   change_mode: "เปลี่ยนโหมด"
