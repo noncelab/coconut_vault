@@ -84,6 +84,10 @@ class VisibilityProvider extends ChangeNotifier {
               prefs.isContainsKey(SharedPrefsKeys.hasShownStartGuide))) {
         return AppLanguage.en;
       }
+      if (language == AppLanguage.th) {
+        // 숫자 포맷이 기존 설치 흔적으로 저장되기 전에 새 태국어 선택을 보존합니다.
+        prefs.setString(SharedPrefsKeys.kLanguage, language.code);
+      }
       return language;
     } catch (e) {
       Logger.error('OS language detection failed: $e');
@@ -116,10 +120,6 @@ class VisibilityProvider extends ChangeNotifier {
         // Re-throw if even the fallback fails, to be caught by the framework.
         rethrow;
       }
-    }
-    final prefs = SharedPrefsRepository();
-    if (_language == AppLanguage.th && !prefs.isContainsKey(SharedPrefsKeys.kLanguage)) {
-      await prefs.setString(SharedPrefsKeys.kLanguage, _language.code);
     }
   }
 

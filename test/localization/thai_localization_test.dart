@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:coconut_vault/config/number_format_config.dart';
 import 'package:coconut_vault/constants/app_language.dart';
 import 'package:coconut_vault/constants/shared_preferences_keys.dart';
@@ -9,6 +11,9 @@ import 'package:coconut_vault/utils/date_format_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// Test-only access to the store already installed with shared_preferences.
+// ignore: depend_on_referenced_packages
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 
 void main() {
   final binding = TestWidgetsFlutterBinding.ensureInitialized();
@@ -68,6 +73,49 @@ void main() {
 
   for (final signingOnly in [false, true]) {
     group(signingOnly ? 'Lite / signing-only' : 'Full / secure storage', () {
+      test('new Thai installation requests its language write before number format', () async {
+        final originalStore = SharedPreferencesStorePlatform.instance;
+        addTearDown(() {
+          SharedPreferences.resetStatic();
+          SharedPreferencesStorePlatform.instance = originalStore;
+        });
+        SharedPreferences.setMockInitialValues({});
+        final store = _RecordingPreferencesStore();
+        SharedPreferencesStorePlatform.instance = store;
+        await SharedPrefsRepository().init();
+        final provider = VisibilityProvider(isSigningOnlyMode: signingOnly, setLocale: (locale) async => locale);
+        addTearDown(provider.dispose);
+
+        expect(store.writes, [
+          'flutter.${SharedPrefsKeys.kLanguage}=th',
+          'flutter.${SharedPrefsKeys.kNumberFormatPreset}=dotDecimal',
+        ]);
+      });
+
+      test('new Thai installation persists Thai before locale loading completes', () async {
+        SharedPreferences.setMockInitialValues({});
+        await SharedPrefsRepository().init();
+        final loading = Completer<AppLocale>();
+        final requestedLocales = <AppLocale>[];
+        final provider = VisibilityProvider(
+          isSigningOnlyMode: signingOnly,
+          setLocale: (locale) {
+            requestedLocales.add(locale);
+            return loading.future;
+          },
+        );
+        addTearDown(() async {
+          loading.complete(AppLocale.th);
+          await Future<void>.delayed(Duration.zero);
+          provider.dispose();
+        });
+
+        expect(loading.isCompleted, isFalse);
+        expect(requestedLocales, [AppLocale.th]);
+        expect(provider.appLanguage, AppLanguage.th);
+        expect(SharedPrefsRepository().getString(SharedPrefsKeys.kLanguage), 'th');
+      });
+
       test('new Thai installation persists Thai across restart with the same preferences', () async {
         final provider = await initialize(signingOnly, {});
         expect(provider.appLanguage.code, 'th');
@@ -137,7 +185,7 @@ void main() {
         });
       }
 
-      test('failed Thai locale initialization falls back to English without persisting it', () async {
+      test('failed Thai locale initialization retains Thai for retry on restart', () async {
         final requestedLocales = <AppLocale>[];
         final provider = await initialize(
           signingOnly,
@@ -151,8 +199,22 @@ void main() {
         expect(requestedLocales, [AppLocale.th, AppLocale.en]);
         expect(provider.appLanguage, AppLanguage.en);
         expect(LocaleSettings.currentLocale, AppLocale.en);
-        expect(SharedPrefsRepository().isContainsKey(SharedPrefsKeys.kLanguage), isFalse);
+        expect(SharedPrefsRepository().getString(SharedPrefsKeys.kLanguage), 'th');
         provider.dispose();
+
+        final restarted = VisibilityProvider(
+          isSigningOnlyMode: signingOnly,
+          setLocale: (locale) {
+            requestedLocales.add(locale);
+            return LocaleSettings.setLocale(locale);
+          },
+        );
+        await Future<void>.delayed(Duration.zero);
+        expect(requestedLocales, [AppLocale.th, AppLocale.en, AppLocale.th]);
+        expect(restarted.appLanguage, AppLanguage.th);
+        expect(LocaleSettings.currentLocale, AppLocale.th);
+        expect(SharedPrefsRepository().getString(SharedPrefsKeys.kLanguage), 'th');
+        restarted.dispose();
       });
 
       testWidgets('switching to Thai survives restart and preserves number format and unit', (tester) async {
@@ -180,5 +242,17 @@ void main() {
         restarted.dispose();
       });
     });
+  }
+}
+
+class _RecordingPreferencesStore extends InMemorySharedPreferencesStore {
+  _RecordingPreferencesStore() : super.empty();
+
+  final writes = <String>[];
+
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) {
+    writes.add('$key=$value');
+    return super.setValue(valueType, key, value);
   }
 }
