@@ -1436,6 +1436,7 @@ tooltip:
   mfp: "Unique value of wallet.\nAlso called Master Fingerprint (MFP)."
 
 language:
+  thai: "ไทย"
   korean: "한국어"
   english: "English"
   japanese: "日本語"

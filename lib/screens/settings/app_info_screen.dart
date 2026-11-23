@@ -407,7 +407,8 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                   MyBottomSheet.showBottomSheet_90(
                     context: context,
                     child: QrcodeBottomSheet(
-                      qrData: TERMS_OF_SERVICE_URL,
+                      qrData:
+                          LocaleSettings.currentLocale == AppLocale.th ? TERMS_OF_SERVICE_URL_EN : TERMS_OF_SERVICE_URL,
                       title: t.app_info_screen.terms_of_service,
                       fromAppInfo: true,
                     ),
@@ -422,7 +423,7 @@ class _AppInfoScreenState extends State<AppInfoScreen> {
                   MyBottomSheet.showBottomSheet_90(
                     context: context,
                     child: QrcodeBottomSheet(
-                      qrData: PRIVACY_POLICY_URL,
+                      qrData: LocaleSettings.currentLocale == AppLocale.th ? PRIVACY_POLICY_URL_EN : PRIVACY_POLICY_URL,
                       title: t.app_info_screen.privacy_policy,
                       fromAppInfo: true,
                     ),

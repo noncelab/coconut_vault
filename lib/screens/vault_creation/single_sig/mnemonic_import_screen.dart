@@ -706,6 +706,7 @@ class _MnemonicImportScreenState extends State<MnemonicImportScreen> {
         context: context,
         builder:
             (context) => CoconutPopup(
+              rightButtonText: t.OK,
               languageCode: context.read<VisibilityProvider>().appLanguage.code,
               title: t.errors.creation_error,
               description: e.toString(),

@@ -88,7 +88,13 @@ class _TutorialScreenState extends State<TutorialScreen> {
                         builder: (context, networkOn, _) {
                           return FixedBottomButton(
                             isActive: networkOn,
-                            onButtonClicked: () => launchURL(COCONUT_TUTORIAL_URL, defaultMode: false),
+                            onButtonClicked:
+                                () => launchURL(
+                                  LocaleSettings.currentLocale == AppLocale.th
+                                      ? COCONUT_TUTORIAL_URL_EN
+                                      : COCONUT_TUTORIAL_URL,
+                                  defaultMode: false,
+                                ),
                             text: t.view_tutorial,
                             subWidget: CoconutButton(
                               onPressed: () {
