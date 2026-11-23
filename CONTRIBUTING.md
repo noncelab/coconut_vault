@@ -96,6 +96,8 @@ release-x.y 배포가 완료되면 GitHub TAG를 추가합니다. 예를 들어 
 When modifying text strings, edit `**.i18n.yaml` and run the following command to regenerate the localization files:</br>
 문구 변경 시 `**.i18n.yaml` 파일을 수정한 후 아래 명령어를 실행하면 `lib/localization/`의 `strings_**.g.dart`, `strings.g.dart` 파일이 업데이트됩니다.
 
+Supported app languages are Korean (`ko`), English (`en`), Japanese (`ja`), and Thai (`th`), shared by Vault and Vault Lite. Slang discovers locales from filenames and loads translations lazily.
+
 ```bash
 flutter pub run slang
 ```

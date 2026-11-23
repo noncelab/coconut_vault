@@ -61,27 +61,7 @@ Future<void> bootstrapApp({required bool isLiteBuild, required Widget app}) asyn
   // bluetooth
   await FlutterBluePlus.setOptions(showPowerAlert: false);
 
-  // 리졸버 설정
-  // 아래 경고를 위한 조치
-  // flutter: Resolver for <lang = kr> not specified!
-  // Please configure it via LocaleSettings.setPluralResolver. A fallback is used now.
-  LocaleSettings.setPluralResolver(
-    language: AppLanguage.ko.name,
-    cardinalResolver: (n, {zero, one, two, few, many, other}) {
-      if (n == 0) return zero ?? other ?? '';
-      if (n == 1) return one ?? other ?? '';
-      return other ?? '';
-    },
-  );
-
-  LocaleSettings.setPluralResolver(
-    language: AppLanguage.en.name,
-    cardinalResolver: (n, {zero, one, two, few, many, other}) {
-      if (n == 0) return zero ?? other ?? '';
-      if (n == 1) return one ?? other ?? '';
-      return other ?? '';
-    },
-  );
+  await setupPluralResolvers();
 
   // iOS secure storage 옵션 변경에 따른 삭제
   if (!isLiteBuild && Platform.isIOS) {
@@ -110,4 +90,34 @@ Future<void> _migrateSharedPreferences(SharedPrefsRepository prefs) async {
       prefs.getString(SharedPrefsKeys.kVaultMode).isEmpty) {
     await prefs.setString(SharedPrefsKeys.kVaultMode, VaultMode.secureStorage.name);
   }
+}
+
+Future<void> setupPluralResolvers() async {
+  // 리졸버 설정
+  // 아래 경고를 위한 조치
+  // flutter: Resolver for <lang = kr> not specified!
+  // Please configure it via LocaleSettings.setPluralResolver. A fallback is used now.
+  await LocaleSettings.setPluralResolver(
+    language: AppLanguage.ko.name,
+    cardinalResolver: (n, {zero, one, two, few, many, other}) {
+      if (n == 0) return zero ?? other ?? '';
+      if (n == 1) return one ?? other ?? '';
+      return other ?? '';
+    },
+  );
+
+  await LocaleSettings.setPluralResolver(
+    language: AppLanguage.en.name,
+    cardinalResolver: (n, {zero, one, two, few, many, other}) {
+      if (n == 0) return zero ?? other ?? '';
+      if (n == 1) return one ?? other ?? '';
+      return other ?? '';
+    },
+  );
+
+  // 태국어는 수량에 따른 복수형 구분이 없고 slang 기본 규칙에도 없습니다.
+  await LocaleSettings.setPluralResolver(
+    language: AppLanguage.th.code,
+    cardinalResolver: (n, {zero, one, two, few, many, other}) => other ?? '',
+  );
 }

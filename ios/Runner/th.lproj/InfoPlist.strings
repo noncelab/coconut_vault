@@ -1,0 +1,7 @@
+/* Build Phases의 마지막 Run Script가 flavor별 앱 이름과 권한 문구를 생성합니다. */
+CFBundleDisplayName = "Coconut Vault";
+NSBluetoothAlwaysUsageDescription = "แอปนี้ตรวจสอบว่าเปิด Bluetooth อยู่หรือไม่เพื่อเพิ่มความปลอดภัย และจะจำกัดการใช้งานเมื่อเปิด Bluetooth เพื่อป้องกันการเชื่อมต่อกับอุปกรณ์ที่ไม่ได้รับอนุญาตซึ่งอาจทำให้ข้อมูลสำคัญรั่วไหล";
+NSBluetoothPeripheralUsageDescription = "แอปนี้ตรวจสอบว่าเปิด Bluetooth อยู่หรือไม่เพื่อเพิ่มความปลอดภัย และจะจำกัดการใช้งานเมื่อเปิด Bluetooth เพื่อป้องกันการเชื่อมต่อกับอุปกรณ์ที่ไม่ได้รับอนุญาตซึ่งอาจทำให้ข้อมูลสำคัญรั่วไหล";
+NSCameraUsageDescription = "จำเป็นต้องใช้กล้องเพื่อสแกนรหัส QR";
+NSFaceIDUsageDescription = "ใช้ Face ID เพื่อปลดล็อกและเข้าถึงฟีเจอร์ด้านความปลอดภัย";
+NSLocalNetworkUsageDescription = "การดีบักต้องเข้าถึงเครือข่ายภายในเพื่อเชื่อมต่อกับบริการ Dart VM";

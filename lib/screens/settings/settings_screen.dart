@@ -516,6 +516,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return t.language.english;
       case AppLanguage.ja:
         return t.language.japanese;
+      case AppLanguage.th:
+        return t.language.thai;
       default: // AppLanguage enum covers all supported cases, but a default is good practice.
         return t.language.english; // Or handle other languages if added in the future.
     }

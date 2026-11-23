@@ -1,0 +1,1455 @@
+# flutter pub run slang
+
+# t.glossary
+# t.error.pcs_error1(count: kMaxNumberOfAttempts - attempt);
+
+# common
+coconut_vault: "Coconut Vault"
+coconut: "Coconut"
+vault: "Vault"
+btc: "BTC"
+sats: "sats"
+bitcoin_en: "Bitcoin"
+bitcoin_kr: "บิตคอยน์"
+bitcoin: "บิตคอยน์"
+satoshi: "Satoshi"
+unit: "หน่วย"
+hour: "ชั่วโมง"
+minute: "นาที"
+second: "วินาที"
+am: "AM"
+pm: "PM"
+locale_datetime: "${day}/${month}/${year} ${hour}:${minute} ${dayPeriod}"
+settings: "การตั้งค่า"
+OK: "ตกลง"
+confirm: "ยืนยัน"
+complete: "เสร็จสิ้น"
+cancel: "ยกเลิก"
+retry: "ลองอีกครั้ง"
+reset_failed: "รีเซ็ตไม่สำเร็จ"
+close: "ปิด"
+abort: "ออก"
+abort_sign: "ออกจากการลงนาม"
+scan_qr: "สแกน QR"
+export_qr: "ส่งออก QR"
+next: "ถัดไป"
+save: "บันทึก"
+select: "เลือก"
+tap: "แตะ"
+warning: "ข้อควรระวัง"
+security: "ความปลอดภัย"
+yes: "ใช่"
+no: "ไม่"
+memo: "บันทึก"
+stop: "หยุด"
+start: "เริ่ม"
+quit: "ออก"
+import: "นำเข้า"
+testnet: "เครือข่ายทดสอบ"
+license: "สัญญาอนุญาต"
+name: "ชื่อ"
+skip: "ข้าม"
+restore: "กู้คืน"
+change: "เงินทอน"
+receiving: "รับ"
+email_subject: "[Coconut Vault] สอบถามการใช้งาน"
+delete_vault: "ลบกระเป๋าเงิน"
+delete_vault_description: "การลบกระเป๋าจะรีเซ็ตข้อมูลทั้งหมด\nต้องการลบจริงหรือไม่?"
+verify_security: "กำลังตรวจสอบความปลอดภัย..."
+go_to_settings: "ไปที่การตั้งค่า"
+
+sign_completion: "ลงนามแล้ว"
+sign: "ลงนาม"
+add_sign: "เพิ่มลายเซ็น"
+signed_tx: "ธุรกรรมที่ลงนามแล้ว"
+sign_completed: "ลงนามแล้ว"
+stop_sign: "ออกจากการลงนาม"
+
+checklist: "รายการตรวจสอบความปลอดภัย"
+mnemonic_wordlist: "รายการคำในวลีกู้คืน"
+tool: "เครื่องมือ"
+tutorial: "วิธีใช้งาน"
+single_sig_wallet: "กระเป๋าลายเซ็นเดียว"
+multisig_wallet: "กระเป๋าหลายลายเซ็น"
+extended_public_key: "คีย์สาธารณะแบบขยาย"
+app_info : "ข้อมูลแอป"
+inquiry_details: "รายละเอียดคำถาม"
+license_details: "ข้อมูลสัญญาอนุญาต"
+external_wallet: "กระเป๋าภายนอก"
+recipient: "ที่อยู่ผู้รับ"
+send_amount: "จำนวนที่จะส่ง"
+estimated_fee: "ค่าธรรมเนียมโดยประมาณ"
+fee: "ค่าธรรมเนียม"
+total_amount: "ยอดรวมที่ใช้"
+key_list: "รายการคีย์"
+
+view_mnemonic: "ดูวลีกู้คืน"
+verify_passphrase: "ตรวจสอบพาสเฟรส"
+view_app_info: "ดูข้อมูลแอป"
+view_all: "ดูทั้งหมด"
+view_address: "ดูที่อยู่"
+view_tutorial: "ดูวิธีใช้งาน"
+delete_all: "ล้างทั้งหมด"
+delete_one: "ลบหนึ่งรายการ"
+
+name_wallet: "กระเป๋า $name"
+one_sign_guide: "กรุณากดปุ่มเพื่อลงนาม"
+bitcoin_text: "$bitcoin BTC"
+sign_required_amount:
+  one: "ต้องใช้ $n ลายเซ็น"
+  other: "ต้องใช้ $n ลายเซ็น"
+
+wallet_delete_failed: "ไม่มีกระเป๋าให้ลบ"
+wallet_delete_failed_description: "ไม่มีกระเป๋าที่บันทึกไว้ จึงไม่จำเป็นต้องลบ"
+
+name_text_count: "($count / 20)"
+wallet_subtitle: "คีย์ที่ $index ของ $name"
+
+forgot_password: "ลืมรหัสผ่าน?"
+scan_qr_url_link: "กรุณาสแกนรหัส QR ด้วยอุปกรณ์ที่เชื่อมต่อเครือข่าย หรือเปิด URL ด้านบน"
+scan_qr_email_link: "กรุณาสแกนรหัส QR ด้วยอุปกรณ์ที่เชื่อมต่อเครือข่าย หรือส่งอีเมลไปยังที่อยู่ด้านบน"
+developer_option: "ตัวเลือกสำหรับนักพัฒนา"
+
+extra_count: "และอีก $count รายการ"
+
+edit: "แก้ไข"
+
+descriptor: "ตัวอธิบายกระเป๋า"
+precautions: "ข้อควรระวัง"
+
+wallet_type: "ประเภทกระเป๋า"
+mfp: "MFP"
+
+rescan: "สแกนอีกครั้ง"
+
+watch_only_options:
+  title: "เลือกแอปแบบดูอย่างเดียว"
+  coconut_wallet: "Coconut Wallet"
+  sparrow: "Sparrow"
+  nunchuk: "Nunchuk"
+  bluewallet: "BlueWallet"
+
+# 연결 상태
+connectivity_state:
+  connected: "เชื่อมต่อแล้ว"
+  disconnected: "ปิดอยู่"
+  enabled: "เปิดอยู่"
+  disabled: "ปิดอยู่"
+  active: "เปิดใช้งาน"
+  inactive: "ปิดใช้งาน"
+  unknown: "ตรวจสอบไม่ได้"
+
+vault_home_screen:
+  view_all_wallets: "ดูกระเป๋าทั้งหมด"
+  view_details: "ดูรายละเอียด"
+  wallet_count: "$count รายการ"
+  action_items:
+    sign: "ลงนาม"
+    view_address: "ดูที่อยู่"
+    export_wallet: "ส่งออกไปยัง\nแอปแบบดูอย่างเดียว"
+    import_multisig_wallet: "นำเข้ากระเป๋า\nหลายลายเซ็น"
+    mnemonic_wordlist: "รายการคำในวลีกู้คืน"
+  toast:
+    wallet_added_but_not_favorite: "เพิ่มกระเป๋าแล้ว กรุณาดูที่ดูกระเป๋าทั้งหมด"
+  secure_zone_checking: "กำลังตรวจสอบการเข้าถึงพื้นที่ปลอดภัย"
+  secure_zone_check_failed: "ตรวจสอบข้อมูลปลอดภัยไม่สำเร็จ"
+  taproot_older_to_after_backup_update_notice:
+    title: "อัปเดตข้อมูลสำรอง"
+    description: "ข้อมูลสำรองของกระเป๋ามรดกมีการเปลี่ยนแปลงบางส่วน\nโปรดอัปเดต Coconut Wallet เป็นเวอร์ชันล่าสุดด้วย\nการเปลี่ยนแปลงจะมีผลอัตโนมัติเมื่ออัปเดต Wallet\nจากนั้นกรุณาสำรองข้อมูลการตั้งค่าอีกครั้ง"
+  taproot_older_to_after_backup_update_notice_action: "ดูรายละเอียด"
+
+vault_list_screen:
+  primary_wallet: "กระเป๋าหลัก"
+  settings:
+    primary_wallet: "ตั้งเป็นกระเป๋าหลัก"
+    primary_wallet_disabled_description: "ใช้เป็นกระเป๋าเริ่มต้นเมื่อรับ•ส่งจากหน้าหลัก"
+    primary_wallet_abled_description: "หากตั้งกระเป๋าอื่นเป็นกระเป๋าหลัก การตั้งค่านี้จะปิดโดยอัตโนมัติ"
+  edit:
+    wallet_list: "แก้ไขรายการกระเป๋า"
+    star_description: "ได้สูงสุด 5 กระเป๋า เพื่อเลือกกระเป๋าที่แสดงบนหน้าหลัก"
+    order_description: "เพื่อเปลี่ยนลำดับกระเป๋า"
+    delete_description: "ลบกระเป๋าได้โดยปัดไปทางซ้าย"
+    finish: "เสร็จสิ้นการแก้ไข"
+    unsaved_changes_confirm_exit: "มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก\nยังต้องการออกหรือไม่?"
+  alert:
+    save_failed:
+      title: "บันทึกไม่สำเร็จ"
+      timing_delete: "เกิดข้อผิดพลาดขณะลบกระเป๋า"
+      timing_order: "เกิดข้อผิดพลาดขณะเปลี่ยนลำดับกระเป๋า"
+      timing_favorite: "เกิดข้อผิดพลาดขณะเปลี่ยนรายการโปรด"
+
+select_vault_bottom_sheet:
+  select_wallet: "เลือกกระเป๋าเงิน"
+
+# lib
+vault_list_tab:
+  add_wallet: "ลองเพิ่มกระเป๋า!"
+  top_right_icon: "เพิ่มได้ด้วยปุ่ม + ที่มุมขวาบน"
+  btn_add: "เพิ่มเลย"
+
+# lib/screens
+app_unavailable_notification_screen:
+  restart_app: "หากต้องการใช้ Vault\nต้องเริ่มแอปใหม่"
+  step1: "โปรดปิดแอปให้สนิท"
+  step2: "โปรดตรวจสอบสถานะการเชื่อมต่อ"
+  step3: "โปรดเปิดแอปอีกครั้ง"
+  vault_reset:
+    reset_completed: "ลบข้อมูลทั้งหมดแล้ว"
+    step_1: "ลบข้อมูลที่บันทึกไว้ทั้งหมดแล้ว"
+    step_2: "เพื่อความปลอดภัย โปรดปิดแอปให้สนิท"
+    step_3: "หลังปิดแอป การปิดเครื่องจะปลอดภัยยิ่งขึ้น"
+
+device_password_detection_screen:
+  device_password_required: "หากต้องการใช้ Vault\nต้องตั้งรหัสผ่านอุปกรณ์"
+  device_password_setting_guide: "เพื่อเพิ่มความปลอดภัย ให้ใช้รหัสผ่านที่มีทั้งตัวอักษรและตัวเลข\n\nโปรดเปิดใช้ชีวมิติเพื่อการใช้งานที่สะดวกและปลอดภัย"
+  device_password_changed_question: "คุณได้ลบรหัสผ่านอุปกรณ์\nแล้วตั้งใหม่หรือไม่?"
+  device_password_changed_guide: "หากลบรหัสผ่านอุปกรณ์ ข้อมูลที่บันทึกไว้ทั้งหมดจะใช้งานไม่ได้"
+  delete_data_to_use: "ต้องลบข้อมูลทั้งหมดเพื่อใช้ Vault อีกครั้ง"
+  go_to_settings: "ไปที่การตั้งค่า"
+  delete_data: "ลบข้อมูล"
+  ios_settings_dialog_title: "ไปที่หน้าการตั้งค่า"
+  ios_settings_dialog_description: "นโยบายของ iOS ไม่อนุญาตให้เปิดหน้าหลักของการตั้งค่าโดยตรง เมื่อหน้าการตั้งค่าเปิดขึ้น กรุณากลับไปหน้าหลักของการตั้งค่าแล้วตั้งรหัสผ่าน"
+
+jail_break_detection_screen:
+  title: "ตรวจพบประวัติการเจลเบรก / รูท"
+  description: "อุปกรณ์นี้ถูกปลดข้อจำกัดด้านความปลอดภัย\nหรือเคยผ่านการเจลเบรก / รูทมาก่อน"
+  description2: "บนอุปกรณ์เช่นนี้ การปกป้องข้อมูลที่ละเอียดอ่อน\nเช่น คีย์เข้ารหัสและข้อมูลกระเป๋าอย่างปลอดภัยอาจทำได้ยาก"
+  jail_break_guide_title: "การเจลเบรก/รูทคืออะไร?"
+  jail_break_guide_description: "การเจลเบรก(iOS) หรือรูท(Android) คือการปลดข้อจำกัดด้านความปลอดภัยของระบบปฏิบัติการ เพื่อเข้าถึงส่วนต่างๆ ของระบบได้อย่างอิสระ\nแม้ผู้ใช้จะได้สิทธิ์ควบคุมมากขึ้น แต่ก็เพิ่มความเสี่ยงจากมัลแวร์หรือการเข้าถึงโดยไม่ได้รับอนุญาตด้วย"
+  continue_anyway: "ยังต้องการดำเนินการต่อ"
+  delete_data: "ลบข้อมูล"
+
+bluetooth_permission_dialog:
+  title: "สิทธิ์การเข้าถึง Bluetooth"
+  description: "Coconut Vault จะหยุดให้ใช้งานแอปเมื่ออุปกรณ์เชื่อมต่อเครือข่ายหรือเปิด Bluetooth เพื่อลดความเสี่ยงที่ข้อมูลคีย์จะรั่วไหลผ่านการสื่อสารภายนอก ต้องอนุญาตสิทธิ์การเข้าถึง Bluetooth เพื่อตรวจสอบว่าเปิดอยู่หรือไม่"
+  request_button: "ดำเนินการต่อ"
+ios_bluetooth_auth_notification_screen:
+  allow_permission: "โปรดอนุญาตการเข้าถึง Bluetooth\nเพื่อตรวจสอบสถานะ Bluetooth"
+  guide1: "ต้องใช้สิทธิ์การเข้าถึง Bluetooth เพื่อตรวจสอบว่าอุปกรณ์ไม่ได้เชื่อมต่อกับอุปกรณ์อื่น"
+  guide2: "กรุณาไปที่การตั้งค่าและอนุญาตการเข้าถึง Bluetooth ให้แอป Vault"
+pin_check_screen:
+  enter_password: "กรุณาป้อนรหัสผ่าน"
+  warning: "⚠︎ Vault จะถูกรีเซ็ตหากป้อนผิดครบทั้ง 3 ครั้ง"
+  dialog:
+    restart:
+      title: "เริ่มใหม่"
+      description: "ต้องการเริ่ม Vault ใหม่หรือไม่?"
+pin_setting_screen:
+  set_password: "เพื่อใช้งาน Vault อย่างปลอดภัย\nจะตั้งรหัสผ่านก่อน"
+  enter_again: "จะตรวจสอบอีกครั้ง"
+  new_password: "กรุณาป้อนรหัสผ่านใหม่"
+  keep_in_mind: "โปรดตั้งรหัสผ่านที่คุณจำได้แน่นอน"
+  character_password_input: "ใช้รหัสผ่านแบบตัวอักษร"
+  number_password_input: "ใช้รหัสผ่านแบบตัวเลข"
+security_self_check_screen:
+  check1: "ฉันรับผิดชอบคีย์ส่วนตัวของตนเอง"
+  check2: "ฉันจะไม่จับภาพหน้าจอหรือถ่ายภาพวลีกู้คืน"
+  check3: "ฉันจะไม่เก็บวลีกู้คืนในสภาพแวดล้อมที่เชื่อมต่อเครือข่าย"
+  check4: "ฉันจะตรวจสอบลำดับและการสะกดคำในวลีกู้คืน"
+  check5: "ฉันจะตรวจสอบอีกครั้งว่าพาสเฟรสไม่มีอักขระที่ไม่ตั้งใจใส่"
+  check6: "ฉันจะดูวลีกู้คืนและพาสเฟรสในที่ปลอดภัยซึ่งไม่มีผู้อื่นอยู่"
+  check7: "ฉันจะไม่เก็บวลีกู้คืนกับพาสเฟรสไว้ด้วยกัน"
+  check8: "ฉันทดสอบด้วยการส่งจำนวนน้อยก่อนใช้งานกระเป๋า"
+  check9: "ฉันจะตรวจสอบรายการข้างต้นเป็นระยะ และเก็บวลีกู้คืนอย่างปลอดภัย"
+  check10: "ฉันอ่านและเข้าใจทุกข้อข้างต้นแล้ว และรับผิดชอบในการดูแลคีย์ส่วนตัวและวลีกู้คืนของตนเองทั้งหมด"
+  guidance: "คุณต้องเก็บรักษาวลีกู้คืนให้ปลอดภัยด้วยตนเอง กรุณาอ่านแล้วแตะทีละข้อเพื่อทำรายการตรวจสอบให้ครบ"
+tutorial_screen:
+  title1: "หากดูวิธีใช้งาน\nจะใช้ได้ง่ายขึ้น"
+  title2: "ต้องการความช่วยเหลือไหม?"
+  subtitle: "ลองใช้ไปพร้อมกับวิธีใช้งาน"
+  content: "กรุณาป้อนในแถบที่อยู่ของเบราว์เซอร์\ntutorial.coconut.onl/en"
+vault_mode_selection_screen:
+  select_mode: "เลือกโหมด"
+  change_mode: "เปลี่ยนโหมด"
+  current_using: "กำลังใช้งาน"
+  secure_storage_mode: "โหมดจัดเก็บอย่างปลอดภัย"
+  secure_storage_mode_description: "จัดเก็บคีย์อย่างปลอดภัย\nลงนามได้ทันทีหลังยืนยันตัวตนด้วยรหัสผ่าน"
+  signing_only_mode: "โหมดลงนามอย่างเดียว"
+  signing_only_mode_description: "ไม่จัดเก็บคีย์ใน Vault\nต้องป้อนคีย์เพื่อลงนามทุกครั้งที่เปิดแอป"
+  start: "เริ่ม"
+  change: "เปลี่ยน"
+  mode_change_complete: "เปลี่ยนโหมดแล้ว"
+  mode_changed_description_secrue_storage: "เปลี่ยนเป็นโหมดจัดเก็บอย่างปลอดภัยแล้ว\nหากลบรหัสผ่านอุปกรณ์ จะไม่สามารถใช้ซีดได้ โปรดสำรองวลีกู้คืนไว้เพื่อกู้คืนได้อย่างปลอดภัย"
+  mode_changed_description_signing_only: "เปลี่ยนเป็นโหมดลงนามอย่างเดียวแล้ว\nหลังลงนาม โปรดกดปุ่มลบกระเป๋าเพื่อลบซีดอย่างปลอดภัย"
+  secure_storage_mode_warning_title: "ข้อควรระวังเมื่อเปลี่ยนเป็น\nโหมดจัดเก็บอย่างปลอดภัย"
+  secure_storage_mode_warning_descriptions:
+    - "หากลบรหัสผ่านโทรศัพท์ จะใช้กระเป๋าที่บันทึกไว้ไม่ได้ โปรดสำรองวลีกู้คืนแยกไว้ต่างหาก"
+    - "หากมีกระเป๋าที่เพิ่มไว้แล้ว การบันทึกข้อมูลลงอุปกรณ์อาจใช้เวลา"
+    - "พาสเฟรสจะไม่ถูกบันทึก โปรดเก็บไว้แยกต่างหากอย่างปลอดภัย"
+  secure_storage_mode_precautions_when_first_setting:
+    - "หากลบรหัสผ่านโทรศัพท์ จะใช้กระเป๋าที่บันทึกไว้ไม่ได้ โปรดสำรองวลีกู้คืนแยกไว้ต่างหาก"
+  signing_only_mode_warning_title: "ข้อควรระวังเมื่อเปลี่ยนเป็น\nโหมดลงนามอย่างเดียว"
+  signing_only_mode_warning_descriptions:
+    - "ข้อมูลกระเป๋าที่บันทึกไว้ทั้งหมดจะถูกรีเซ็ต โปรดสำรองข้อมูลให้เสร็จก่อนเปลี่ยนโหมด"
+    - "หลังยืนยันรหัสผ่านในขั้นตอนถัดไป Vault จะเริ่มรีเซ็ต"
+  device_password_setting_guide_understood: "เข้าใจแล้ว"
+  secure_use_guide_title: "ต้องตั้งรหัสผ่าน"
+  secure_use_guide_description: "เพื่อความปลอดภัย\nโปรดตั้งรหัสผ่านอุปกรณ์"
+  mode_change_failed_title: "เปลี่ยนโหมดไม่สำเร็จ"
+  secure_storage_mode_conversion_failed: "เปลี่ยนเป็นโหมดจัดเก็บอย่างปลอดภัยไม่สำเร็จ"
+  signing_only_mode_conversion_failed: "เปลี่ยนเป็นโหมดลงนามอย่างเดียวไม่สำเร็จ"
+  converting_to_secure_storage_mode_aos: "กำลังจัดเก็บซีดอย่างปลอดภัย โปรดยืนยันตัวตนเมื่อมีคำขอ"
+  converting_to_secure_storage_mode_ios: "กำลังจัดเก็บซีดอย่างปลอดภัย ต้องยืนยันตัวตนสำหรับกระเป๋าลายเซ็นเดียวแต่ละใบ"
+
+
+multisig:
+  nth_key: "คีย์ที่ $index"
+  nth_key_with_name: "คีย์ที่ $index - $name"
+  select_nth_key: "เลือกคีย์ที่ $index"
+
+# lib/screens/airgap
+psbt_confirmation_screen:
+  title: "ตรวจสอบข้อมูลที่สแกน"
+  guide: "โปรดตรวจสอบอีกครั้งว่าข้อมูลที่สแกนจาก Wallet ถูกต้อง"
+  self_sending: "ธุรกรรมนี้ส่งไปยังกระเป๋าของคุณเอง"
+  warning: "⚠️ นี่อาจไม่ใช่ psbt ที่สร้างจากกระเป๋านี้ หรืออาจเป็นธุรกรรมที่ไม่มียอดคงเหลือ"
+  total_cost:
+    total: "รวม $n"
+    sentence: " ที่ต้องใช้"
+  output_detail_title: "ดูรายละเอียดเอาต์พุต"
+  flow_input_title: "อินพุต $index"
+  flow_output_title: "เอาต์พุต $index"
+psbt_scanner_screen:
+  guide: "กรุณาสแกนข้อมูลการส่งที่สร้างใน Wallet หรือข้อมูลที่อยู่ระหว่างลงนามหลายลายเซ็นใน Vault ภายนอก"
+  guide_import_psbt_0: "กรุณาสแกนรหัส QR ที่สร้างใน Vault ภายนอกโดยใช้ "
+  guide_import_psbt_1: "ส่งออก QR"
+  guide_single_sig_same_name: "กรุณาสแกนข้อมูลการส่งที่สร้างใน Wallet ชื่อกระเป๋าต้องตรงกัน"
+  tooltip:
+    scan_QR_code: "กรุณาสแกนรหัส QR บนหน้าจอ $name"
+    click_button: "กดปุ่ม"
+    press_button: "กดปุ่ม"
+    confirm_sign_info: "ตรวจสอบข้อมูลการลงนาม"
+    seed_signer_text1: "Approve PSBT "
+    jade_text1: "เครื่องหมาย ✓ "
+    coldcard_text1: "หลังตรวจสอบข้อมูลการลงนาม "
+    coldcard_text2: "ENTER "
+    coldcard_text3: "QR "
+    coldcard_text4: "บนหน้าจอ PSBT Signed "
+    coldcard_text5: "QR "
+    keystone_text1: "เลื่อนปุ่มไปทางขวา"
+    keystone_text2: "ป้อนรหัสผ่าน"
+    krux_text1: "แตะหน้าจอเพื่อตรวจสอบข้อมูลการลงนาม"
+    krux_text2: "Sign to QR code "
+    krux_text3: "เลือก "
+    press_the_en: "กดปุ่ม "
+    click_en: "แตะ "
+    button_en: ""
+    auto_text: "กรุณาสแกนรหัส QR ของธุรกรรมที่อยู่ระหว่างลงนามหลายลายเซ็น"
+signed_transaction_qr_screen:
+  guide_multisig: "ลงนามหลายลายเซ็นเสร็จแล้ว กรุณาใช้ Wallet ที่สร้างธุรกรรมสแกนรหัส QR ด้านล่าง"
+  guide_single_sig: "ลงนามข้อมูลการส่งที่สร้างจาก 'กระเป๋า $name' ใน Wallet แล้ว กรุณาใช้ Wallet สแกนรหัส QR ด้านล่าง"
+single_sig_sign_screen:
+  text: "ธุรกรรมนี้ลงนามแล้ว"
+  creating_qr_code: "กำลังสร้างรหัส QR"
+signer_qr_bottom_sheet:
+  title: "ส่งออกไปยัง $name"
+  at_hww: " ด้วย $hwwType"
+  scan_the_qr: "กรุณาสแกนรหัส QR ด้านล่าง"
+  vault_text1: "ใน Vault ที่เก็บคีย์หมายเลข "
+  vault_text2: "ลงนาม "
+  vault_text3: "กรุณาสแกนรหัส QR ด้านล่าง"
+  vault_text4: "ใน Vault ที่เก็บคีย์นี้"
+  vault_text5: " หรือบนหน้าลงนามหลายลายเซ็น กรุณากดปุ่ม "
+  vault_text6: " ด้านล่างเพื่อสแกน"
+  seedsigner_text0: "เมื่อโหลดซีด $mfp แล้ว\n"
+  seedsigner_text1: "Scan PSBT "
+  seedsigner_text2: "เมื่อ SeedSigner สแกนเสร็จ กรุณากดปุ่ม "
+  seedsigner_text3: "ถัดไป "
+  seedsigner_text4: "ด้านล่าง"
+  seedsigner_text5: "เมื่อโหลดซีดแล้ว\n"
+  jade_text0: "เมื่อเปิดใช้งานกระเป๋า $mfp แล้ว\n"
+  jade_text1: "Scan QR "
+  jade_text2: "เมื่อ Jade สแกนเสร็จ กรุณากดปุ่ม "
+  jade_text3: "ถัดไป "
+  jade_text4: "ด้านล่าง"
+  jade_text5: "เมื่อเปิดใช้งานกระเป๋าแล้ว\n"
+  coldcard_text0: "บนหน้าหลักของ Coldcard\n"
+  coldcard_text1: "Ready to Sign "
+  coldcard_text2: "เมื่อ Coldcard สแกนเสร็จ กรุณากดปุ่ม "
+  coldcard_text3: "ถัดไป "
+  coldcard_text4: "ด้านล่าง"
+  keystone_text0: "บนหน้าหลักของ Keystone\n"
+  keystone_text1: "Scan "
+  keystone_text2: "เมื่อ Keystone สแกนเสร็จ กรุณากดปุ่ม "
+  keystone_text3: "ถัดไป "
+  keystone_text4: "ด้านล่าง"
+  krux_text0: "บนหน้าหลักของ Krux\n"
+  krux_text1: "Sign "
+  krux_text2: "PSBT "
+  krux_text3: "Load from Camera "
+  krux_text4: "เมื่อ Krux สแกนเสร็จ กรุณากดปุ่ม "
+  krux_text5: "ถัดไป "
+  krux_text6: "ด้านล่าง"
+  select: "เลือก "
+  low_density_qr: "QR แบบเรียบง่าย"
+  high_density_qr: "QR แบบซับซ้อน"
+  view_bbqr: "ดู BBQR"
+  view_ur: "ดู UR"
+  add_to_hww:
+    title: "เพิ่มกระเป๋าใน $name"
+    keystone_text0: "ที่มุมซ้ายบนของหน้าหลัก "
+    keystone_text1: "ไอคอนกระเป๋า "
+    keystone_text2: "แตะ"
+    keystone_text3: "Add Multisig Wallet "
+    keystone_text4: "Via Camera "
+    keystone_text5: "สแกนรหัส QR ด้านล่างแล้วเพิ่มกระเป๋าให้เสร็จ"
+    keystone_text6: "Wallet Profile "
+    keystone_text7: " บนหน้าจอ เลือกที่เพิ่มไว้ "
+    keystone_text8: "$name "
+    keystone_text9: "Set as Current Wallet "
+    keystone_text0_en: "บนหน้าหลัก แตะ "
+    keystone_text1_en: "ไอคอนกระเป๋า "
+    keystone_text2_en: "ที่มุมซ้ายบน"
+    keystone_text3_en: "Add Multisig Wallet"
+    keystone_text4_en: "Via Camera"
+    keystone_text5_en: "สแกนรหัส QR ด้านล่างแล้วเพิ่มกระเป๋าให้เสร็จ"
+    keystone_text6_en: "ใน "
+    keystone_text7_en: "Wallet Profile "
+    keystone_text8_en: "เลือกกระเป๋าที่เพิ่มไว้ $noInput"
+    keystone_text9_en: "$name"
+    keystone_text10_en: "Set as Current Wallet"
+    krux_text0: "เมื่อโหลดซีด MFP เป็นหลายลายเซ็น / Native Segwit แล้ว\n"
+    krux_text1: "Wallet "
+    krux_text2: "Wallet Descriptor - Yes "
+    krux_text3: "เมื่อ Krux สแกนข้อมูลเสร็จแล้ว "
+    krux_text4: "Yes "
+    krux_text5: "< Back "
+    krux_text0_en: "เมื่อโหลดซีด $mfp แบบหลายลายเซ็น / Native Segwit แล้ว\n"
+    krux_text1_en: "Wallet"
+    krux_text2_en: "Wallet Descriptor - Yes "
+    krux_text3_en: "ใช้ Krux สแกนรหัส QR ด้านล่าง"
+    krux_text4_en: "Yes"
+    krux_text5_en: "< Back"
+    vault_text0: "ใน Coconut Vault บนอุปกรณ์อื่น\n"
+    vault_text1: "ปุ่มเพิ่มกระเป๋าที่ด้านบนของหน้าหลัก "
+    vault_text2: "กระเป๋าหลายลายเซ็น "
+    vault_text3: "ฉันมีข้อมูลสำรองของกระเป๋า "
+    vault_text4: "สแกนรหัส QR ด้านล่างแล้วเพิ่มกระเป๋าให้เสร็จ"
+    vault_text0_en: "ใน Coconut Vault บนอุปกรณ์อื่น\n"
+    vault_text1_en: "ปุ่มเพิ่มกระเป๋าที่ด้านบนของหน้าหลัก"
+    vault_text2_en: "กระเป๋าหลายลายเซ็น"
+    vault_text3_en: "ฉันมีข้อมูลสำรองของกระเป๋า"
+    vault_text4_en: "สแกนรหัส QR ด้านล่างแล้วเพิ่มกระเป๋าให้เสร็จ"
+unit_bottom_sheet:
+  basic_unit: "หน่วยเริ่มต้น"
+  header_text: "1 BTC = 100,000,000 sats"
+
+coconut_qr_scanner:
+  reading_extra_data: "อ่านเกือบครบแล้ว\nกรุณาสแกนข้อมูลที่เหลือต่อ"
+  camera_error:
+    title: "ใช้กล้องไม่ได้"
+    need_camera_permission: "กรุณาอนุญาตการเข้าถึงกล้องในการตั้งค่า"
+
+# lib/screens/setting
+app_info_screen:
+  powered_by_noncelab: "พัฒนาโดย NonceLab"
+  category1_ask: "มีคำถามไหม?"
+  ask_to_discord: "ติดต่อผ่าน Discord"
+  ask_to_x: "ติดต่อผ่าน X"
+  ask_to_email: "ติดต่อทางอีเมล"
+  category2_opensource: "Coconut Vault เป็นโอเพนซอร์ส"
+  mit_license: "MIT License"
+  coconut_lib: "coconut_lib"
+  coconut_wallet: "coconut_wallet"
+  coconut_vault: "coconut_vault"
+  github: "Github"
+  contribution: "ร่วมพัฒนาโอเพนซอร์ส"
+  tos_and_policy: "ข้อกำหนดและนโยบาย"
+  terms_of_service: "ข้อกำหนดการใช้งาน"
+  privacy_policy: "นโยบายความเป็นส่วนตัว"
+  license: "สัญญาอนุญาตโอเพนซอร์ส"
+  version_and_date: "CoconutVault ver. $version (เผยแพร่เมื่อ $releasedAt)"
+  inquiry: "รายละเอียดคำถาม"
+
+read_file_view_screen:
+  mit_license: "MIT LICENSE"
+  contribution: "ร่วมพัฒนาโอเพนซอร์ส"
+
+license_screen:
+  text1: "Coconut Vault ใช้สัญญาอนุญาต MIT โดย NonceLab Inc. ประเทศเกาหลีใต้เป็นเจ้าของลิขสิทธิ์ อ่านสัญญาอนุญาต MIT ฉบับเต็มได้ที่ "
+  text2: "\n\nลิขสิทธิ์ซอฟต์แวร์ของบุคคลที่สามที่รวมอยู่ในแอปนี้แสดงไว้ด้านล่าง หากมีคำถาม กรุณาติดต่อ "
+  text3: "."
+mnemonic_word_list_screen:
+  search_mnemonic_word: "ลองค้นหาด้วยตัวอักษรอังกฤษหรือตัวเลข"
+  result: "ผลการค้นหา '$text'"
+  such_no_result: "ไม่พบผลการค้นหา"
+settings_screen:
+  use_biometric: "ใช้การยืนยันตัวตนด้วยชีวมิติ"
+  change_password: "เปลี่ยนรหัสผ่าน"
+  set_password: "ตั้งรหัสผ่าน"
+  advanced_user: "ผู้ใช้ขั้นสูง"
+  use_passphrase: "ใช้พาสเฟรส"
+  change_account: "เปลี่ยนหมายเลขบัญชี"
+  change_account_description: "เปลี่ยน account ใน m/84’/0’/account’"
+  information: "ข้อมูล"
+  toast:
+    no_enrolled_biometrics: "ไม่ได้ตั้งค่าชีวมิติบนอุปกรณ์นี้"
+  dialog:
+    need_biometrics_setting_title: "อนุญาตชีวมิติ"
+    need_biometrics_setting_desc: "โปรดตรวจสอบการตั้งค่าชีวมิติ"
+    btn_move_to_setting: "ไปที่การตั้งค่า"
+    use_passphrase_title: "ใช้พาสเฟรส"
+    use_passphrase_description: "การใช้พาสเฟรส\nเท่ากับการสร้างกระเป๋าใหม่\nหากใช้ไม่ถูกต้อง\nคุณอาจสูญเสียบิตคอยน์\nไปตลอดกาล"
+    use_passphrase_btn: "เข้าใจแล้ว"
+    change_account_title: "เปลี่ยนหมายเลขบัญชี"
+    disable_change_account_title: "ปิดการเปลี่ยนหมายเลขบัญชี"
+    change_account_description: "การเปลี่ยนหมายเลขบัญชี\nจะแสดงกระเป๋าคนละใบ\nหากลืมหมายเลขบัญชี\nคุณอาจค้นหาบิตคอยน์ได้ยาก"
+    disable_change_account_description: "หากปิดการเปลี่ยนหมายเลขบัญชี\nหมายเลขบัญชีที่เลือกอยู่\nจะถูกบันทึกเป็นหมายเลขสุดท้าย\n\nต้องการดำเนินการต่อหรือไม่?"
+    change_account_btn: "เข้าใจแล้ว"
+    disable_change_account_btn: "ยืนยัน"
+
+# lib/screens/start_guide
+lite_onboarding_screen:
+  skip: "ข้าม"
+  start: "เริ่มต้น"
+  image_placeholder: "กำลังเตรียมรูปภาพ"
+  page_1:
+    label: "โหลด"
+    title: "กรุณาโหลดกระเป๋าเพื่อลงนาม"
+    description: "โหลดข้อมูลกระเป๋าเพื่อเตรียมลงนาม"
+  page_2:
+    label: "ลงนาม"
+    title: "กรุณาตรวจสอบแล้วลงนาม"
+    description: "ตรวจสอบรายละเอียดธุรกรรมแล้วลงนาม"
+  page_3:
+    label: "ลบ"
+    title: "กรุณาลบเมื่อลงนามเสร็จ"
+    description: "ลบข้อมูลกระเป๋าที่โหลดมาได้ทุกเมื่อ"
+welcome_screen:
+  screen_1_title: "กรุณาเริ่มในสภาพแวดล้อมที่ปลอดภัย"
+  screen_1_description: "เพื่อความปลอดภัย\nต้องปิดการเชื่อมต่อไร้สายทั้งหมด"
+  screen_1_button: "ตรวจสอบสภาพแวดล้อม"
+  screen_2_title: "รายการตรวจสอบความปลอดภัย"
+  screen_2_description: "ต้องปิดการเชื่อมต่อทั้งหมด\nก่อนเริ่มใช้ Coconut Vault"
+  screen_2_button: "ถัดไป"
+  screen_3_title: "สภาพแวดล้อมปลอดภัยพร้อมแล้ว"
+  screen_3_description: "จากนี้จะเริ่มใช้\nCoconut Vault"
+  screen_3_button: "เริ่มต้น"
+  setting_guide: "ดูวิธีตั้งค่า ⓘ"
+  bluetooth_manual_check: "ฉันตรวจสอบด้วยตนเองแล้วว่า Bluetooth ปิดอยู่"
+  bottom_sheet_title: "วิธีตั้งค่า"
+  recommendation: "แนะนำให้ใช้โทรศัพท์ที่ไม่ได้ใช้บริการเครือข่ายมือถือสำหรับแอป Coconut Vault โดยเฉพาะ"
+  airplane_mode_on:
+    title: "เปิดโหมดเครื่องบิน"
+    description_ios: "มุมขวาบนของหน้าจอ → ปัดลง → ศูนย์ควบคุม → แตะไอคอนโหมดเครื่องบิน"
+    description_android: "ปัดลงจากด้านบนของหน้าจอ → แผงการตั้งค่าด่วน → แตะไอคอนโหมดเครื่องบินเพื่อเปิด\\n※ เครือข่าย, Bluetooth และเครือข่ายมือถือจะถูกตัดทั้งหมด"
+  wifi_off:
+    title: "ปิดเครือข่าย(Wi-Fi)"
+    description_ios: "ศูนย์ควบคุม → แตะไอคอน Wi-Fi"
+    description_android: "แผงการตั้งค่าด่วน → แตะไอคอน Wi-Fi เพื่อปิด"
+  mobile_data_off:
+    title: "ปิดเครือข่ายมือถือ(LTE / 5G)"
+    description_ios: "การตั้งค่า → เซลลูลาร์ → ปิดสวิตช์ข้อมูลเซลลูลาร์\\n"
+    description_android: "แผงการตั้งค่าด่วน → แตะไอคอนเครือข่ายมือถือเพื่อปิด\\n"
+  bluetooth_off:
+    title: "ปิด Bluetooth"
+    description_ios: "การตั้งค่า → บลูทูธ → ปิดสวิตช์บลูทูธ"
+    description_android: "แผงการตั้งค่าด่วน → แตะไอคอน Bluetooth เพื่อปิด"
+    additional:
+      title: "ⓘ ข้อควรระวังในการตั้งค่า Bluetooth บน iOS"
+      highlight:
+       - "ไม่แยกความแตกต่าง"
+       - "ปิด Bluetooth"
+       - "ตัดการเชื่อมต่อ"
+      description: "ตามนโยบายระบบ iOS จะไม่แยกความแตกต่างระหว่างสถานะปิด Bluetooth กับการตัดการเชื่อมต่อ เพื่อความปลอดภัย แนะนำให้ปิด Bluetooth โดยสมบูรณ์ในแอปการตั้งค่า"
+      control_center_off:
+        title: "ตัดการเชื่อมต่อ"
+        description: "เป็นการปิด Bluetooth จากศูนย์ควบคุม ซึ่งปิดกั้นการเชื่อมต่ออุปกรณ์ใหม่ แต่การเชื่อมต่อเดิมอาจยังคงอยู่"
+      absolutely_off:
+        title: "ปิด Bluetooth (แนะนำ)"
+        description: "เป็นการปิด Bluetooth โดยสมบูรณ์ในแอปการตั้งค่า การเชื่อมต่อภายนอกทั้งหมดจะถูกตัด"
+  developer_mode_off: "ปิดโหมดนักพัฒนา"
+  developer_mode_description: "1. การตั้งค่า → ระบบ → ตัวเลือกสำหรับนักพัฒนา\n2. ปิดสวิตช์"
+  network: "เครือข่าย"
+  bluetooth: "Bluetooth"
+  developer_option: "ตัวเลือกสำหรับนักพัฒนา"
+
+# lib/screens/vault_creation
+taproot:
+  taproot_inheritance_wallet: "กระเป๋ามรดก Taproot"
+  parent_wallet: "กระเป๋าแม่"
+  child_wallet: "กระเป๋าลูก"
+  common:
+    prepare_key_option1_title: "สร้างด้วย\nวลีกู้คืนใหม่"
+    prepare_key_option1_desc: "สร้างวลีกู้คืนใหม่\nสำหรับกระเป๋ามรดกโดยเฉพาะ"
+    prepare_key_option2_title: "สร้างด้วย\nวลีกู้คืนเดิม"
+    prepare_key_option2_desc: "ใช้วลีกู้คืนที่เก็บไว้\nสร้างกระเป๋าแม่ Taproot"
+    create_new_wallet_title: "ต้องการสร้างกระเป๋าด้วยวิธีใด?"
+    existing_mnemonic_title: "กรุณาเลือกวิธีใช้วลีกู้คืน"
+    new_option1: "โยนเหรียญ"
+    new_option2: "ทอยลูกเต๋า"
+    new_option3: "สร้างอัตโนมัติ"
+    existing_option1: "เลือกจาก\nVault นี้"
+    existing_option1_toast: "ไม่มีกระเป๋าลายเซ็นเดียวที่นำเข้าได้"
+    existing_option2: "ป้อนวลีกู้คืน"
+    existing_option3: "สแกน Seed QR"
+    wallet_type: "ประเภทกระเป๋า"
+    taproot_single_sig_wallet: "กระเป๋าลายเซ็นเดียว Taproot"
+    mfp: "MFP"
+    legacy_wallet_title: "กระเป๋าที่สร้างใน Coconut Vault $version หรือเก่ากว่า"
+    legacy_wallet_description: "โหลดกระเป๋าที่สร้างในเวอร์ชันนั้นกลับมาตามเดิม"
+    first_address: "ที่อยู่แรก"
+    first_address_description: "โปรดตรวจสอบว่าตรงกับที่อยู่ที่เคยรับเงินไว้"
+    requires_wallet_version: "นำเข้าได้ใน Coconut Wallet $version ขึ้นไป"
+    requires_vault_version: "นำเข้าได้ใน Coconut Vault $version ขึ้นไป"
+  sync_qr_screen:
+    title: "ส่งออกไปยัง Vault อื่น"
+    description: "แชร์กระเป๋านี้เพื่อให้ใช้ใน Vault อื่นได้"
+    coconut_vault: " Coconut Vault"
+    guide:
+      coconut: " ไอคอนเพิ่มกระเป๋าบนหน้าหลัก"
+      inheritance: "กระเป๋ามรดก Taproot → ฉันมีกระเป๋ามรดกแล้ว"
+      common: "กรุณาสแกนรหัส QR ด้านล่าง"
+  taproot_creation_option:
+    parent_creation_title: "ฉันเป็นพ่อ/แม่"
+    parent_creation_description: "ฉันจะตั้งเงื่อนไขมรดกให้กระเป๋าที่จะใช้"
+    child_creation_title: "ฉันเป็นลูก"
+    child_creation_description: "ฉันจะเตรียมกระเป๋าที่ใช้ได้หลังเวลาที่กำหนด"
+    prepared_creation_title: "ฉันมีกระเป๋ามรดกแล้ว"
+    prepared_creation_description: "ฉันจะนำเข้ากระเป๋าที่สร้างไว้แล้ว"
+  parent_creation_screen:
+    title: "สร้างกระเป๋าแม่"
+    child_wallet_title: "สร้างกระเป๋าลูก"
+    inheritance_wallet_title: "สร้างกระเป๋ามรดก"
+    creation_intro_title_1: "สำหรับกระเป๋าที่คุณจะใช้"
+    creation_intro_title_2: "จะเตรียมเงื่อนไขมรดกไว้ด้วย"
+    step_1:
+      title_1: "กระเป๋าแม่"
+      title_2: "จะใช้กี่คีย์?"
+      single_sig_wallet: "กระเป๋าลายเซ็นเดียว"
+      wallet_usable_with_single_key: "ใช้กระเป๋าตามปกติได้ด้วยคีย์เดียว"
+      single_sig_how_to_prepare_key_title_1: "สำหรับกระเป๋าแม่ลายเซ็นเดียว"
+      single_sig_how_to_prepare_key_title_2: "จะเตรียมคีย์อย่างไร?"
+      single_sig_select_from_vault_title_1: "กรุณาเลือกวลีกู้คืน"
+      single_sig_select_from_vault_title_2: "ที่เก็บไว้ใน Vault นี้"
+      single_sig_select_from_vault_dialog_title: "ใช้วลีกู้คืนนี้\nสร้างกระเป๋าแม่ Taproot หรือไม่?"
+      single_sig_select_from_vault_dialog_description: "กระเป๋าเดิมจะคงอยู่ และจะสร้างกระเป๋าแม่ Taproot ใหม่จากวลีกู้คืนเดียวกัน"
+      single_sig_select_from_vault_dialog_action: "ดำเนินการต่อ"
+      multisig_wallet: "กระเป๋าหลายลายเซ็น"
+      wallet_usable_after_signed_all: "ต้องให้กระเป๋าแม่ทั้งสองใบลงนามจึงจะใช้ได้"
+      multisig_start_with_another_vault_title_1: "โปรดเริ่มสร้างกระเป๋าแม่"
+      multisig_start_with_another_vault_title_2: "บน Vault อีกเครื่องด้วย"
+      multisig_start_with_another_vault_description_1: "กระเป๋าแม่หลายลายเซ็น"
+      multisig_start_with_another_vault_description_2: "ต้องเตรียมร่วมกันบน Vault แต่ละเครื่อง"
+      multisig_how_to_prepare_key_title_1: "สำหรับกระเป๋าแม่หลายลายเซ็น"
+      multisig_how_to_prepare_key_title_2: "จะเตรียมคีย์อย่างไร?"
+      multisig_qr_title_1: "ใน Vault ที่เก็บกระเป๋าแม่อีกใบ"
+      multisig_qr_title_2: "โปรดสแกน QR นี้"
+      multisig_list_title_1: "กรุณากดปุ่มกระเป๋าแม่ด้านล่าง"
+      multisig_list_title_2: "เพื่อสแกนกระเป๋าแม่เพิ่ม"
+      multisig_list_description_1: "แตะกระเป๋าของฉัน"
+      multisig_list_description_2: "เพื่อดูรหัส QR"
+      parent_wallet: "กระเป๋าแม่ $index$masterFingerprintSuffix"
+      device_auth_dialog_title: "ยืนยันตัวตนบนอุปกรณ์"
+      device_auth_dialog_description: "ยืนยันตัวตนบนอุปกรณ์เพื่อเข้าถึงวลีกู้คืนที่เก็บในพื้นที่ปลอดภัยของอุปกรณ์"
+      same_parent_wallet_dialog_title: "เพิ่มกระเป๋าแม่นี้แล้ว"
+      same_parent_wallet_dialog_description: "นี่คือกระเป๋าเดียวกับกระเป๋าแม่ 1 ต้องการสแกนใหม่หรือไม่?"
+      multisig_scanner_title_1: "กรุณาสแกนกระเป๋าแม่\nที่สร้างใน Vault อีกเครื่อง"
+      multisig_internal_key_prepared_title_1: "กระเป๋าแม่หลายลายเซ็น"
+      multisig_internal_key_prepared_title_2: "พร้อมแล้ว"
+    step_2:
+      return_dialog_title: "รีเซ็ตกระเป๋าแม่"
+      return_dialog_description: "กระเป๋าแม่ที่เพิ่งสร้างจะถูกรีเซ็ต ต้องการดำเนินการต่อจริงหรือไม่?"
+      creation_script_path_intro_title_1: "กรุณาเพิ่มกระเป๋าลูก"
+      creation_script_path_intro_title_2: "สำหรับรับมรดก"
+      creation_script_path_import: "นำเข้า"
+      creation_script_path_import_description: "เชื่อมต่อกับกระเป๋าลูก\nที่สร้างใน Vault อีกเครื่อง"
+      creation_script_path_create: "สร้างกระเป๋าลูก"
+      creation_script_path_create_description: "สร้างใน Vault นี้ แล้วส่งต่อภายหลังได้"
+      import_scanner_title_1: "กรุณาสแกนข้อมูลกระเป๋าลูก"
+      import_scanner_title_2: "ที่เตรียมไว้ใน Vault อีกเครื่อง"
+      imported_script_path_title: "นำเข้ากระเป๋าลูกแล้ว"
+      created_script_path_title: "สร้างกระเป๋าลูกแล้ว"
+      imported_script_path_description_1: "นี่คือกระเป๋าที่จะรับมรดก"
+      imported_script_path_description_2: "กำหนดเวลาที่เริ่มใช้ได้ในขั้นตอนถัดไป"
+      create_dialog_title: "สร้างใน Vault นี้หรือไม่?"
+      create_dialog_description: "ต้องส่งต่อวลีกู้คืนที่สร้างขึ้นอย่างปลอดภัย และแนะนำให้ไม่ใช้เพื่อจุดประสงค์อื่น"
+      create_script_path_how_to_prepare_title_1: "กระเป๋าลูก"
+      create_script_path_how_to_prepare_title_2: "จะเตรียมด้วยวิธีใด?"
+      import_again: "นำเข้าอีกครั้ง"
+      same_child_wallet_as_parent_dialog_title: "เป็นกระเป๋าเดียวกับกระเป๋าแม่"
+      same_child_wallet_as_parent_dialog_description_scan: "ใช้เป็นกระเป๋าลูกไม่ได้ โปรดสแกนกระเป๋าอื่น"
+      same_child_wallet_as_parent_dialog_description_select: "ใช้เป็นกระเป๋าลูกไม่ได้ โปรดเลือกกระเป๋าอื่น"
+      same_child_wallet_as_parent_dialog_description_enter: "ใช้เป็นกระเป๋าลูกไม่ได้ โปรดป้อนข้อมูลกระเป๋าอื่น"
+      child_wallet_reset_dialog_title: "รีเซ็ตกระเป๋าลูก"
+      child_wallet_reset_dialog_description: "กระเป๋าลูกที่เพิ่งเพิ่มจะถูกรีเซ็ต ต้องการดำเนินการต่อจริงหรือไม่?"
+    step_3:
+      set_timelock_title_1: "กระเป๋าลูก"
+      set_timelock_title_2: "ควรเริ่มใช้ได้เมื่อใด?"
+      set_timelock_description_1: "หลังเวลาที่กำหนด จะใช้กระเป๋าลูก"
+      set_timelock_description_2: "ส่งบิตคอยน์ได้ด้วย"
+    step_4:
+      title_1: "กระเป๋ามรดก Taproot"
+      title_2: "พร้อมแล้ว"
+      timeline:
+        created_parent_wallet: "สร้างกระเป๋าแม่แล้ว"
+        set_child_wallet: "ตั้งค่ากระเป๋าลูกแล้ว"
+        set_child_wallet_timelock: "กำหนดเวลาเริ่มใช้กระเป๋าลูกแล้ว"
+        active_child_wallet: "กระเป๋าลูกจะเริ่มใช้ได้"
+        time_after: "หลัง $date"
+        maybe_later: "ไว้ภายหลัง"
+        export_wallet_info: "ส่งออกข้อมูลกระเป๋า"
+      complete:
+        title_1: "กรุณาใช้ Coconut Wallet หรือ Vault อื่น"
+        title_2: "สแกน QR นี้"
+        title_3: "เพื่อสำรองข้อมูลกระเป๋า"
+    created_parent_wallet: "สร้างกระเป๋าแม่แล้ว"
+    set_child_wallet: "ตั้งค่ากระเป๋าลูกแล้ว"
+    set_child_period: "กำหนดเวลาเริ่มใช้กระเป๋าลูกแล้ว"
+    avtive_child_wallet: "กระเป๋าลูกจะเริ่มใช้ได้"
+    singlesig_wallet_with_mfp: "กระเป๋าลายเซ็นเดียว | MFP: $mfp"
+    taproot_wallet_with_mfp: "กระเป๋า Taproot | MFP: $mfp"
+  child_creation_screen:
+    title: "สร้างกระเป๋าลูก"
+    step1:
+      title1: "จะเตรียมกระเป๋าที่ใช้ได้"
+      title2: "หลังเวลาที่กำหนด"
+    step2:
+      title1: "กระเป๋าลูก"
+      title2: "จะเตรียมด้วยวิธีใด?"
+      option1_title: "สร้างด้วย\nวลีกู้คืนใหม่"
+      option1_desc: "สร้างวลีกู้คืนใหม่\nสำหรับกระเป๋ามรดกโดยเฉพาะ"
+      option2_title: "สร้างด้วย\nวลีกู้คืนเดิม"
+      option2_desc: "ใช้วลีกู้คืนที่เก็บไว้\nสร้างกระเป๋า Taproot"
+    step3:
+      title_new: "ต้องการสร้างกระเป๋าด้วยวิธีใด?"
+      single_sig_select_from_vault_title_1: "กรุณาเลือกวลีกู้คืน"
+      single_sig_select_from_vault_title_2: "ที่เก็บไว้ใน Vault นี้"
+      single_sig_select_from_vault_dialog_title: "ใช้วลีกู้คืนนี้\nสร้างกระเป๋าลูก Taproot หรือไม่?"
+      single_sig_select_from_vault_dialog_description: "กระเป๋าเดิมจะคงอยู่ และจะสร้างกระเป๋าลูก Taproot ใหม่จากวลีกู้คืนเดียวกัน"
+      single_sig_select_from_vault_dialog_action: "ดำเนินการต่อ"
+      new_option1: "โยนเหรียญ"
+      new_option2: "ทอยลูกเต๋า"
+      new_option3: "สร้างอัตโนมัติ"
+      existing_option1: "เลือกจาก\nVault นี้"
+      existing_option2: "ป้อนวลีกู้คืน"
+      existing_option3: "สแกน Seed QR"
+      device_auth_dialog_title: "ยืนยันตัวตนบนอุปกรณ์"
+      device_auth_dialog_description: "ยืนยันตัวตนบนอุปกรณ์เพื่อเข้าถึงวลีกู้คืนที่เก็บในพื้นที่ปลอดภัยของอุปกรณ์"
+    step4:
+      taproot_single_sig_wallet: "กระเป๋าลายเซ็นเดียว Taproot"
+      taproot_multisig_wallet: "กระเป๋าหลายลายเซ็น Taproot"
+      title1: "กระเป๋าลูกพร้อมแล้ว"
+      title2: "เพื่อใช้กับกระเป๋าแม่"
+      title3: "โปรดส่งออกข้อมูลกระเป๋า"
+      return_dialog_title: "กลับไปขั้นตอนก่อนหน้า"
+      return_dialog_description: "กระเป๋าลูกที่เพิ่งสร้างจะถูกรีเซ็ต ต้องการดำเนินการต่อจริงหรือไม่?"
+    step5:
+      title1: "สแกนเพื่อนำเข้า"
+      title2: "กระเป๋ามรดก"
+    step6:
+      title1: "ตรงกับกระเป๋าในเงื่อนไขมรดก"
+      title2: "ไม่ตรงกับกระเป๋ามรดก"
+    step7:
+      title1: "กระเป๋ามรดก Taproot"
+      title2: "พร้อมแล้ว"
+      timeline:
+        created_wallet: "สร้างกระเป๋าแล้ว"
+        exported_to_parent: "ส่งออกไปยังกระเป๋าแม่แล้ว"
+        imported_inheritance_info: "นำเข้าข้อมูลกระเป๋ามรดกแล้ว"
+        active_inheritance_wallet: "เงื่อนไขมรดกจะเริ่มมีผล"
+        singlesig_description: "กระเป๋าลายเซ็นเดียว | MFP: $mfp"
+        taproot_description: "กระเป๋า Taproot | MFP: $mfp"
+        single_sig_wallet: "กระเป๋าแม่ลายเซ็นเดียว"
+        multisig_wallet: "กระเป๋าแม่หลายลายเซ็น"
+        time_after: "หลัง $date"
+
+  setup_summary_card:
+    signer_configuration: "การกำหนดผู้ลงนาม"
+    inheritance_condition: "เงื่อนไขมรดก"
+  participant_card:
+    me: "ฉัน"
+    signer: "ผู้ลงนาม"
+    co_signer: "ผู้ร่วมลงนาม"
+    beneficiary: "ผู้ลงนามตามเงื่อนไข"
+    locktime_after: "หลัง ${dateTime}"
+  taproot_import_screen:
+    title: "นำเข้ากระเป๋ามรดก"
+    step1:
+      title1: "ข้อมูลกระเป๋ามรดกที่เตรียมไว้"
+      title2: "จะถูกนำเข้า"
+    step2:
+      title1: "กรุณาสแกนกระเป๋ามรดก"
+      invalid_wallet_sync_data: "ข้อมูลกระเป๋ามรดกไม่ถูกต้อง"
+    step3:
+      title1: "นำเข้ากระเป๋ามรดกแล้ว"
+    step4:
+      title1: "สำหรับกระเป๋านี้"
+      title2: "กรุณาเลือกบทบาทของคุณ"
+      description: "ต้องเชื่อมต่อกระเป๋าที่ตรงกับบทบาทของคุณจึงจะใช้ได้"
+      signer: "ผู้ลงนาม"
+      beneficiary: "ผู้รับมรดก"
+    step6:
+      title_match_inheritance_wallet: "ตรงกับกระเป๋ามรดก"
+      description_signer: "กรุณาเลือกการ์ดเพื่อเพิ่มคีย์กระเป๋าแม่"
+      description_beneficiary: "กรุณาเลือกการ์ดเพื่อเพิ่มคีย์กระเป๋าลูก"
+      title_doesnt_match_inheritance_wallet: "ไม่ตรงกับกระเป๋ามรดก"
+      enter_again: "ป้อนอีกครั้ง"
+      return_dialog_title: "กลับไปหน้าก่อนหน้า"
+      return_dialog_parent_role: "แม่"
+      return_dialog_child_role: "ลูก"
+      return_dialog_description: "ข้อมูลกระเป๋า$role จะถูกลบ ต้องการย้อนกลับจริงหรือไม่?"
+      parent_wallet: "กระเป๋าแม่"
+    step7:
+      title1: "กระเป๋ามรดก Taproot"
+      title2: "พร้อมแล้ว"
+    timeline:
+      inheritance_wallet_imported: "นำเข้ากระเป๋ามรดกแล้ว"
+      set_child_wallet: "ตั้งค่ากระเป๋าลูกแล้ว"
+      set_child_wallet_timelock: "กำหนดเวลาเริ่มใช้กระเป๋าลูกแล้ว"
+      active_child_wallet: "กระเป๋าลูกจะเริ่มใช้ได้"
+      time_after: "หลัง $date"
+      maybe_later: "ไว้ภายหลัง"
+      export_wallet_info: "ส่งออกข้อมูลกระเป๋า"
+      single_parent_wallet_with_name: "$name | กระเป๋าแม่ลายเซ็นเดียว"
+      multi_parent_wallet_with_name: "$name | กระเป๋าแม่หลายลายเซ็น"
+      signer_wallet_added: "เพิ่มกระเป๋าผู้ลงนามแล้ว"
+      taproot_wallet_with_mfp: "กระเป๋า Taproot | MFP: $mfp"
+      inheritance_wallet_added: "เพิ่มกระเป๋าผู้รับมรดกแล้ว"
+      inheritance_wallet_restored: "กู้คืนกระเป๋ามรดกแล้ว"
+      inheritance_wallet_activation: "เงื่อนไขมรดกจะเริ่มมีผล"
+      inheritance_wallet_activated: "เงื่อนไขมรดกมีผลแล้ว"
+      active_after: "หลัง ${dateTime}"
+mnemonic_coin_flip_screen:
+  title: "สร้างวลีกู้คืน"
+  guide: "กรุณาโยนเหรียญแล้วเลือกด้านที่ออก"
+  words_passphrase: " คำ, พาสเฟรส "
+  use: "ใช้"
+  do_not: "ไม่ใช้"
+  enter_passphrase: "กรุณาป้อนพาสเฟรส"
+  coin_head: "หัว"
+  coin_tail: "ก้อย"
+mnemonic_dice_roll_screen:
+  title: "สร้างวลีกู้คืน"
+  guide1: "กรุณาทอยลูกเต๋าแล้ว\nเลือกหน้าที่ออกตามลำดับ🎲"
+  guide2: "รวบรวมค่าสุ่มได้เพียงพอแล้ว!\nไม่ต้องทอยลูกเต๋าเพิ่มแล้ว🎲"
+  words_passphrase: " คำ, พาสเฟรส "
+  use: "ใช้"
+  do_not: "ไม่ใช้"
+  enter_passphrase: "กรุณาป้อนพาสเฟรส"
+mnemonic_confirm_screen:
+  title: "ตรวจสอบครั้งสุดท้าย"
+  description: "จะสร้างกระเป๋าด้วยข้อมูลนี้"
+  passphrase_character_total_count: " (รวม $count อักขระ)"
+  warning:
+    contains_space_character: "⚠︎ มีอักขระช่องว่าง"
+    long_passphrase: "⚠︎ พาสเฟรสยาว: โปรดเลื่อนลงจนสุดเพื่อตรวจสอบทั้งหมด"
+  btn_confirm_completed: "ตรวจสอบแล้ว"
+mnemonic_generate_screen:
+  title: "วลีกู้คืนใหม่"
+  select_word_length: "เลือกจำนวนคำ"
+  twelve: "12 คำ"
+  twenty_four: "24 คำ"
+  use_passphrase: "ต้องการใช้พาสเฟรสหรือไม่?"
+  ensure_backup: "ฉันสำรองวลีกู้คืนไว้แน่นอนแล้ว"
+  word_passphrase: " คำ, พาสเฟรส "
+  use: "ใช้"
+  do_not: "ไม่ใช้"
+  enter_passphrase: "กรุณาป้อนพาสเฟรส"
+  passphrase_not_matched: "พาสเฟรสไม่ตรงกัน"
+  memorable_passphrase_guide: "พาสเฟรสที่คุณจะจำได้ไม่ว่าจะเกิดอะไรขึ้น"
+  passphrase_confirm_guide: "ยืนยันพาสเฟรส"
+  backup_guide: "กรุณาสำรองวลีกู้คืนในที่ปลอดภัย"
+  backup_complete: "สำรองข้อมูลแล้ว"
+  warning: "โปรดเก็บพาสเฟรสที่ป้อนไว้อย่างปลอดภัย และระวังไม่ให้รั่วไหล"
+  passphrase_warning: "มีอักขระที่ป้อนในกระเป๋าฮาร์ดแวร์อื่นไม่ได้: $words"
+  passphrase_warning_space: "มีช่องว่างอยู่ด้วย"
+  passphrase_warning_normalization: "บางแอปอาจกู้คืนเป็นกระเป๋าคนละใบ"
+  regenerate: "สร้างใหม่"
+passphrase_textfield:
+  title: "กรุณาป้อนพาสเฟรส"
+  passphrase_hidden: "ซ่อนพาสเฟรส"
+  passphrase_visible: "แสดงพาสเฟรส"
+entropy_bits_bottom_sheet:
+  iancoleman_guide: "บนเว็บไซต์ Ian Coleman กรุณาเลือก "
+  options:
+    dice: "Valid entropy values → Dice [1-6] "
+    binary: "Valid entropy values → Binary [0-1] "
+  select_option: "แล้วตรวจสอบค่า"
+
+passphrase_wallet_selection:
+  title: "คุณกำลังหากระเป๋าใบใด?"
+  description: "แต่ละแอปอาจประมวลผลพาสเฟรสนี้ต่างกัน"
+  option_standard: "ใช้วิธีเดียวกับแอปกระเป๋าอื่น เช่น Sparrow (ค่าเริ่มต้น)"
+  option_legacy: "กระเป๋าที่สร้างใน Coconut Vault $version หรือเก่ากว่า"
+
+mnemonic_import_screen:
+  title: "กู้คืน"
+  enter_mnemonic_phrase: "กรุณาป้อนวลีกู้คืน"
+  put_spaces_between_words: "กรุณาเว้นวรรคระหว่างคำ"
+  use_passphrase: "ใช้พาสเฟรส"
+  enter_passphrase: "กรุณาป้อนพาสเฟรส"
+  need_advanced_mode: "⚠︎ หากต้องการใช้พาสเฟรส กรุณาไปที่การตั้งค่าและเปิด 'ใช้พาสเฟรส'"
+  open_settings: "เปิดการตั้งค่า"
+  recommended_words: "คำที่แนะนำ"
+  words_24: "24 คำ"
+  words_12: "12 คำ"
+
+mnemonic_view_screen:
+  security_guide: "กรุณาดูวลีกู้คืนในสถานที่ปลอดภัย"
+  warning_title: "วลีกู้คืนคือกุญแจของกระเป๋าเงิน"
+  warning_guide: "ใครก็ตามที่รู้คำเหล่านี้สามารถนำบิตคอยน์ของคุณไปทั้งหมดได้ โปรดตรวจสอบให้แน่ใจว่าไม่มีผู้อื่นหรือกล้องอยู่ใกล้ๆ"
+  warning_btn: "เข้าใจแล้ว"
+  alert:
+    failed_get_secret:
+      title: "เรียกดูวลีกู้คืนไม่สำเร็จ"
+
+mnemonic_verify_screen:
+  title: "ตรวจสอบวลีกู้คืน"
+  select_word: "กรุณาเลือกคำที่ ${index}"
+  not_correct: "ไม่ตรงกัน"
+select_vault_type_screen:
+  title: "เพิ่มกระเป๋าเงิน"
+  single_sig: "กระเป๋าที่เก็บวลีกู้คืนหนึ่งชุด"
+  multisig: "กระเป๋าที่ต้องใช้ลายเซ็นตามจำนวนที่กำหนด"
+  taproot: "กระเป๋าที่เตรียมเงื่อนไขมรดกไว้สำหรับเวลาที่จำเป็น"
+  empty_key: "ไม่มีคีย์ที่ใช้ได้ใน Vault นี้"
+  loading_keys: "กำลังโหลดคีย์ที่เก็บไว้ใน Vault"
+vault_creation_options_screen:
+  coin_flip: "ฉันจะสร้างเองด้วยการโยนเหรียญ"
+  dice_roll: "ฉันจะสร้างเองด้วยการทอยลูกเต๋า"
+  auto_generate: "ให้แอปสร้างให้"
+  import_mnemonic: "ฉันมีวลีกู้คืนที่ใช้อยู่แล้ว"
+  seed_qr: "ฉันมีรหัส Seed QR ที่เก็บไว้"
+seed_qr_import_screen:
+  title: "สแกนรหัส Seed QR"
+  error_title: "สแกนผิดพลาด"
+  error_message: "เกิดข้อผิดพลาดขณะสแกนรหัส Seed QR โปรดลองอีกครั้ง"
+  format_error_title: "รูปแบบไม่ถูกต้อง"
+  format_error_message: "รูปแบบรหัส Seed QR ไม่ถูกต้อง โปรดลองอีกครั้ง"
+  guide: "กรุณาสแกนรหัส Seed QR (21x21 หรือ 25x25)"
+seed_qr_confirmation_screen:
+  title: "ยืนยันวลีกู้คืน"
+  check_mnemonic: "โปรดตรวจสอบวลีกู้คืน"
+  passphrase_toggle: "ใช้พาสเฟรส"
+  passphrase_text_field_placeholder: "กรุณาป้อนพาสเฟรส"
+vault_name_icon_setup_screen:
+  title: "ตั้งชื่อ"
+  saving: "กำลังบันทึก"
+
+# lib/screens/vault_creation/multisig
+assign_signers_screen:
+  create_multisig_wallet_by_quorum: "สร้างกระเป๋า $requiredSignatureCount/$totalSignatureCount"
+  data_verifying: "กำลังตรวจสอบข้อมูล"
+  use_internal_key: "ใช้คีย์ใน Vault นี้"
+  select_key_option: "เลือกประเภทคีย์"
+  import_from_other_vault: "นำเข้าจาก Vault อื่น"
+  import_from_hww: "นำเข้าจากกระเป๋าฮาร์ดแวร์"
+  hardware_wallet_type_selection: "เลือกกระเป๋าฮาร์ดแวร์"
+
+hardware_wallet_type:
+  vault: "Coconut Vault"
+  keystone3pro: "Keystone 3 Pro"
+  keystone: "Keystone"
+  seedsigner: "SeedSigner"
+  jade: "Jade"
+  coldcard: "Coldcard"
+  krux: "Krux"
+
+multisig_creation_options_screen:
+  new_multisig: "ฉันจะสร้างกระเป๋าใหม่"
+  import_bsms: "ฉันมีข้อมูลสำรองของกระเป๋า"
+
+multisig_sign_screen:
+  loading_overlay: "กำลังสร้างข้อมูลการลงนาม"
+  dialog:
+    preparation:
+      title: "เตรียม $name"
+      description_for_vault: "หากต้องการลงนามด้วย Vault อื่น ต้องเพิ่มข้อมูล BSMS(กระเป๋าหลายลายเซ็น) ใน Vault ที่เก็บคีย์ ต้องการดู BSMS QR หรือไม่?"
+      description: "หากต้องการลงนามด้วย $hwwType ต้องเพิ่มข้อมูล BSMS(กระเป๋าหลายลายเซ็น) ใน $hwwType ที่เก็บคีย์ ต้องการดู BSMS QR หรือไม่?"
+    signature_update:
+      title: "อัปเดตลายเซ็น"
+      description: "อัปเดตลายเซ็นแล้ว"
+    signature_failed:
+      title: "ลงนามไม่สำเร็จ"
+    signature_update_failed:
+      title: "อัปเดตลายเซ็นไม่สำเร็จ"
+  creating_qr_code: "กำลังสร้างรหัส QR"
+  select_signer_hardware_wallet: "เลือกอุปกรณ์ลงนาม"
+  exception:
+    not_segwit: "ไม่รองรับรูปแบบธุรกรรมนี้ (noSegwit)"
+    invalid_sign_error: "ข้อมูลลายเซ็นไม่ถูกต้อง กรุณาลองอีกครั้ง"
+    needs_more_signature: "ธุรกรรมนี้ยังลงนามไม่ครบ"
+    no_signature: "ไม่มีข้อมูลลายเซ็น"
+
+import_confirmation_screen:
+  guide1: "โปรดตรวจสอบว่า $hwwType"
+  guide2: "ข้อมูลที่นำเข้าจาก $hwwType "
+  guide3: "ตรงกัน"
+  scan_info: "ข้อมูลที่สแกน"
+  memo: "บันทึก"
+  placeholder: "กรุณาเพิ่มบันทึกสั้นๆ เกี่ยวกับคีย์"
+  other_vault: "Vault อื่น"
+multisig_wallet_creation: "สร้างกระเป๋าหลายลายเซ็น"
+multisig_quorum_selection_screen:
+  total_key_count: "จำนวนคีย์ทั้งหมด"
+  required_signature_count: "จำนวนลายเซ็นที่ต้องใช้"
+  quorum_category:
+    loss_tolerant: "รองรับการสูญหาย"
+    balanced: "สมดุล"
+    high_security: "ความปลอดภัยสูง"
+  quorum_message:
+    loss_tolerant: "ส่งได้ด้วยคีย์เพียงคีย์เดียว\nทนต่อการสูญหายได้ดี แต่หากรั่วไหลเพียงคีย์เดียว เงินทั้งหมดจะมีความเสี่ยง"
+    balanced: "รูปแบบที่แนะนำ ทนต่อทั้งการสูญหายและการขโมยได้ดี\nใช้เพียง $m คีย์ก็ส่งได้"
+    high_security: "ต้องมี $m คีย์จึงจะส่งได้\nปลอดภัยจากการขโมย แต่จัดการได้ยาก"
+    highest_security: "ต้องมีทุกคีย์จึงจะส่งได้\nปลอดภัยจากการขโมยมากที่สุด แต่จัดการได้ยาก"
+signer_scanner_bottom_sheet:
+  title: "อัปเดตลายเซ็น"
+  guide: "เพิ่มลายเซ็นจาก Vault อื่นแล้วหรือไม่? กรุณาสแกนรหัส QR ของธุรกรรมที่เพิ่มลายเซ็นแล้วเพื่ออัปเดตข้อมูล"
+
+bsms_scanner_base:
+  paste: "นำเข้าจากคลิปบอร์ด"
+
+coordinator_bsms_config_scanner_screen:
+  guide1: "Coconut Vault รองรับ BSMS(BIP-129) ซึ่งเป็นมาตรฐานการจัดการหลายลายเซ็นอย่างปลอดภัย"
+  guide2: "กรุณาสแกนรหัส BSMS QR"
+  error_title: "รูปแบบไม่ถูกต้อง"
+  error_message: "ข้อมูล BSMS ไม่ถูกต้อง\nโปรดสแกน QR ที่ถูกต้องอีกครั้ง"
+
+bsms_scanner_screen:
+  import_bsms: "นำเข้าข้อมูลคีย์"
+  import_multisig_wallet: "นำเข้ากระเป๋าหลายลายเซ็น"
+  select: "เลือก"
+  press_button: "กดปุ่ม"
+  guide1_1: "นำเข้ากระเป๋าหลายลายเซ็นที่สร้างใน Vault อื่นได้"
+  guide1_2: "บนหน้าหลักของ Vault อีกเครื่อง,"
+  guide1_3: "กระเป๋าหลายลายเซ็น"
+  guide1_4: "ส่งออกไปยัง Vault อื่น"
+  guide1_5: "กรุณาสแกนรหัส QR ที่แสดงบนหน้าจอ"
+  coconut_vault:
+    guide2_1: "บนหน้าหลักของ Vault ที่มีคีย์ที่ต้องการใช้"
+    guide2_2: "กระเป๋า "
+    guide2_3: "ใช้เป็นคีย์หลายลายเซ็น"
+    guide2_4: " แล้วกรุณาสแกนรหัส QR ที่แสดงบนหน้าจอ"
+  keystone3pro:
+    guide2_1: "รองรับ Keystone 3 Pro"
+    guide2_2: "บนหน้าหลักของ Keystone"
+    guide2_3: "ไอคอนกระเป๋าที่มุมซ้ายบน"
+    guide2_4: "Show/Export xPub"
+    guide2_5: "Multisig Wallet"
+    guide2_6: "ตัวเลือก Native Segwit"
+    guide2_7: "สแกน QR ของ"
+  seedsigner:
+    guide2_1: "หลังเพิ่มซีด,"
+    guide2_2: "Export Xpub"
+    guide2_3: "Multisig - Native Segwit"
+    guide2_4: "BlueWallet"
+    guide2_5: "ตรวจสอบข้อความแนะนำแล้ว"
+    guide2_6: "I Understand > Export Xpub"
+  jade:
+    guide2_1: "เมื่ออยู่ในสถานะ"
+    guide2_2: "Active"
+    guide2_3: "Options"
+    guide2_4: "Wallet"
+    guide2_5: "Export Xpub"
+    guide2_6: "Wallet: Singlesig"
+    guide2_7: "Multisig"
+    guide2_8: "เปลี่ยนเป็นค่าต่อไปนี้ แล้วกลับ:"
+  cold_card:
+    guide2_1: "Settings"
+    guide2_2: "Multisig Wallets"
+    guide2_3: "Export XPUB"
+    guide2_4: "Enter"
+    guide2_5: "0 แล้ว Enter"
+    guide2_6: "QR"
+  krux:
+    guide2_1: "หลังเพิ่มวลีกู้คืน"
+    guide2_2: "Custom"
+    guide2_3: "Policy Type > Multisig"
+    guide2_4: "< Back"
+    guide2_5: "Load Wallet"
+    guide2_6: "XPUB Export"
+    guide2_7: "ZPUB - QR"
+    guide2_7_regtest: "VPUB - QR"
+
+bsms_paste_screen:
+  import_bsms: "กรุณาป้อนข้อความ BSMS"
+  back_scan: "กลับไปสแกน QR"
+  error_message: "โปรดป้อนข้อความ BSMS ที่ถูกต้อง"
+
+# lib/screens/vault_detail
+address_list_screen:
+  title: ": ที่อยู่"
+  address_index: "ที่อยู่ - $index"
+export_detail_screen:
+  title: "รายละเอียดการส่งออก"
+  info_copied: "คัดลอกรายละเอียดแล้ว"
+coordinator_bsms_qr_screen:
+  guide:
+    text1: "แชร์กระเป๋านี้เพื่อให้ใช้ใน Vault อื่นได้"
+    text2: "กระเป๋านี้ใช้มาตรฐาน(BIP-129, BSMS) เพื่อจัดการหลายลายเซ็นอย่างปลอดภัย"
+    text3: "คีย์ทั้งหมดที่ต้องใช้ในการลงนามถูกเก็บไว้อย่างปลอดภัยใน Vault นี้"
+    text4: "คีย์ **$gen** ที่ต้องใช้กับกระเป๋าหลายลายเซ็นนี้เก็บอยู่ใน Vault อื่น"
+multi_sig_memo_bottom_sheet:
+  imported_wallet_memo: "บันทึกกระเป๋าภายนอก"
+  placeholder: "กรุณาเขียนบันทึก"
+multi_sig_setting_screen:
+  edit_memo: "แก้ไขบันทึก"
+  add_memo: "เพิ่มบันทึก"
+  export_menu:
+    export_wallet: "ส่งออกกระเป๋า"
+    share_bsms: "แชร์กับ Vault อื่น"
+    share_bsms_description: "แชร์กระเป๋านี้เพื่อให้ใช้ใน Vault อื่นได้"
+    export_watch_only_wallet: "ส่งออกไปยังแอปแบบดูอย่างเดียว"
+    export_watch_only_wallet_description: "ส่งออกไปยังแอปที่ดูได้เฉพาะยอดคงเหลือ/ที่อยู่"
+    export_to_coconut_wallet: "ส่งออกไปยัง Coconut Wallet"
+    export_to_coconut_wallet_description: "ใช้ร่วมกับกระเป๋าแบบดูอย่างเดียวได้"
+    backup_wallet_data: "สำรองข้อมูลกระเป๋า"
+    backup_wallet_data_description: "ส่งออกข้อมูลสำรอง BSMS ที่ต้องใช้กู้คืนกระเป๋า เพื่อเตรียมพร้อมกรณีสูญหายหรือเปลี่ยนอุปกรณ์"
+    guide:
+      text1: "นี่คือข้อมูลสำรอง BSMS สำหรับกู้คืนกระเป๋าเมื่ออุปกรณ์สูญหายหรือถูกเปลี่ยน"
+      text2: "หลังเพิ่มกระเป๋า $name ใน Coconut Wallet ดูข้อมูลเดียวกันได้ที่ 'ดูข้อมูลสำรองกระเป๋า' บนหน้ารายละเอียดกระเป๋า"
+  tooltip:
+    one: "กระเป๋าหลายลายเซ็นที่ต้องลงนามด้วย $n คีย์\nจากทั้งหมด $total คีย์"
+    other: "กระเป๋าหลายลายเซ็นที่ต้องลงนามด้วย $n คีย์\nจากทั้งหมด $total คีย์"
+  add_key: "เพิ่มคีย์"
+  add_key_option: "ตัวเลือกการเพิ่มคีย์"
+  input_mnemonic_word: "ป้อนวลีกู้คืน"
+  scan_seed_qr: "สแกน Seed QR"
+  add_signer:
+    title: "เลือกอุปกรณ์ลงนาม"
+    coconut_vault: "Coconut Vault"
+    keystone3pro: "Keystone 3 Pro"
+    seed_signer: "SeedSigner"
+    jade: "Jade"
+    cold_card: "Coldcard"
+    krux: "Krux"
+  popup:
+    title: "เลือก $name"
+    description: "จะแนะนำตามการตั้งค่า $name ระหว่างลงนามหลายลายเซ็น"
+    button: "เข้าใจแล้ว"
+select_export_type_screen:
+  title: "ส่งออกไปยังแอปแบบดูอย่างเดียว"
+signer_bsms_screen:
+  coconut_guide: "ใน Coconut Vault อีกเครื่อง กรุณาไปที่สร้างกระเป๋าหลายลายเซ็น → นำเข้าข้อมูลคีย์ แล้วสแกน QR ด้านล่าง จะลงทะเบียนข้อมูลสาธารณะ BSMS ของคีย์นี้ โดยไม่มีวลีกู้คืนหรือคีย์ส่วนตัว"
+  nunchuk_guide: "ใน Nunchuk กรุณาเลือก Keys ที่แถบนำทางด้านล่าง → เพิ่มคีย์(+) → Generic Airgap → Continue → Scan QR แล้วสแกนรหัส QR ด้านล่าง"
+  sparrow_guide: "กรุณาสร้างกระเป๋า Multi Signature · Native Segwit ใน Sparrow แล้วสแกน QR นี้ที่ xPub / Watch Only Wallet → Scan ใน keystore จะลงทะเบียนคีย์สาธารณะและข้อมูลการสร้างคีย์นี้ โดยไม่มีวลีกู้คืน·คีย์ส่วนตัว"
+  bluewallet_guide: "กรุณาสร้างกระเป๋าหลายลายเซ็น Native Segwit ใน BlueWallet แล้วสแกน QR นี้ที่ Import → Scan ใน Vault Key จะลงทะเบียนคีย์สาธารณะและข้อมูลการสร้างคีย์นี้ โดยไม่มีวลีกู้คืน·คีย์ส่วนตัว"
+  guide1_1: "คุณกำลังสร้างกระเป๋าหลายลายเซ็นใน Vault อื่น!"
+  guide1_2: "กรุณาสแกนรหัส QR ด้านล่างจากหน้านำเข้าของ Vault อีกเครื่อง"
+sync_to_wallet_screen:
+  title: "ส่งออก $name"
+  guide:
+    multisig: "Multisig"
+    coconut: " ไอคอนเพิ่มกระเป๋าบนหน้าหลัก"
+    sparrow_singlesig:
+      guide0_1: "จากเมนู"
+      guide1_1: "Import Wallet"
+      guide2_1: "Keystone"
+      guide3_1: "หรือกดปุ่ม xPub/Watch Only Wallet แล้ว "
+    nunchuk:
+      guide1_1: "เมนูด้านล่าง"
+      guide1_2_singlesig: "Keys"
+      guide1_2_multisig: "Home"
+      guide2_1_siglesig: "กดปุ่ม + ที่มุมขวาบน"
+      guide2_1_multisig: "เพิ่มกระเป๋าเงิน"
+      guide3_1_singlesig: "Keystone"
+      guide3_1_multisig: "Recover existing wallet"
+      guide4_1_singlesig: "Continue - Scan Qr"
+      guide4_1_multisig: "Recover using QR code"
+    bluewallet:
+      guide1_1: "กด + ที่มุมขวาบนของหน้าหลัก BlueWallet"
+      guide2_1: "Import Wallet"
+      guide3_1: "Scan or import a file"
+    common: "กรุณาสแกนรหัส QR ด้านล่าง"
+wallet_info_screen:
+  taproot_older_to_after_backup_update_dialog:
+    title: "แจ้งให้อัปเดตข้อมูลสำรองกระเป๋ามรดก"
+    step1_title: "1. หากเก็บข้อมูลสำรองกระเป๋ามรดกเดิมไว้ที่อื่น กรุณาแทนที่ด้วยข้อมูลสำรองใหม่"
+    step1_description: "เลือกเมนู 'ส่งออกกระเป๋า' > ตรวจสอบและคัดลอกข้อมูลสำรองที่อัปเดตใน 'แชร์กับ Vault อื่น' > เก็บไว้ในที่ปลอดภัย"
+    step2_title: "2. โปรดอัปเดต Coconut Wallet เป็นเวอร์ชัน $version ขึ้นไป"
+    step2_description: "ข้อมูลกระเป๋ามรดกที่เพิ่มใน Coconut Wallet ต้องเป็นปัจจุบันด้วย การเปลี่ยนแปลงจะมีผลอัตโนมัติเมื่ออัปเดตแอป"
+    why_title: "Q. ทำไมจึงเปลี่ยน?"
+    why_description: "ข้อมูลสำรองสร้างขึ้นตามกฎที่ตกลงร่วมกัน (Miniscript) เวลาที่ผู้รับมรดกจะใช้บิตคอยน์ได้ควรระบุด้วย 'after' แต่เดิมระบุผิดเป็น 'older'\n\nนี่เป็นปัญหาด้านการแสดงข้อมูลสำรอง ไม่กระทบที่อยู่ สินทรัพย์ หรือเงื่อนไขมรดกที่ตั้งไว้ กระเป๋ายังใช้ได้ตามที่ตั้งไว้เดิม โดยไม่ต้องสร้างใหม่"
+    confirm: "เข้าใจแล้ว"
+
+taproot_vault_detail_screen:
+  signer: "ฉันเป็นผู้ลงนามของกระเป๋านี้ ฉันใช้กระเป๋านี้ได้ตามปกติ"
+  cosigner: "ฉันเป็นผู้ร่วมลงนามของกระเป๋านี้ ต้องลงนามร่วมกับผู้ร่วมลงนามคนอื่นจึงจะใช้สินทรัพย์ได้"
+  heir: "ฉันเป็นผู้รับมรดกของกระเป๋านี้ ฉันใช้สินทรัพย์ได้หลังเวลาที่กำหนด"
+
+vault_menu_screen:
+  export_wallet: "ส่งออกกระเป๋า"
+  view_xpub: "ดูคีย์สาธารณะแบบขยาย"
+  title:
+    view_info: "ข้อมูล $name"
+    view_address: "ดูที่อยู่"
+    export_xpub: "ส่งออกข้อมูลกระเป๋า"
+    single_sig_sign: "ลงนาม"
+    multisig_sign: "ลงนามหลายลายเซ็น"
+    use_as_multisig_signer: "ใช้เป็นคีย์หลายลายเซ็น"
+    import_bsms: "นำเข้ากระเป๋าหลายลายเซ็น"
+  description:
+    view_single_sig_info: "ดูวลีกู้คืนและข้อมูลอื่นที่บันทึกไว้"
+    view_multisig_info: "ดูข้อมูลกระเป๋าหลายลายเซ็น"
+    import_bsms: "เพิ่มข้อมูลกระเป๋าหลายลายเซ็นที่มีคีย์นี้"
+    view_address: "ดูที่อยู่ของ $name"
+    export_xpub: "เพิ่มกระเป๋าแบบดูอย่างเดียวใน Wallet"
+    sign: "สแกนข้อมูลที่สร้างใน Wallet แล้วลงนาม"
+    use_as_multisig_signer: "ใช้คีย์นี้ตั้งค่ากระเป๋าหลายลายเซ็น"
+vault_settings:
+  used_in_multisig: "ใช้อยู่ในกระเป๋าหลายลายเซ็น"
+  of: " ของ "
+  nth: "$index"
+  key: "คีย์ "
+
+verify_passphrase_screen:
+  title: "ตรวจสอบพาสเฟรส"
+  description: "กรุณาป้อนพาสเฟรสที่คุณจำได้"
+  enter_passphrase: "ป้อนพาสเฟรส"
+  start_verification: "เริ่มตรวจสอบ"
+  loading_description: "กำลังตรวจสอบ\nว่าพาสเฟรสถูกต้องหรือไม่"
+  result_title_success: "พาสเฟรสถูกต้อง!"
+  result_description_success: "กู้คืนข้อมูลกระเป๋าเดิมด้วยพาสเฟรสที่ป้อนแล้ว"
+  mfp: "MFP"
+  xpub: "คีย์สาธารณะแบบขยาย"
+  result_title_failure: "พาสเฟรสไม่ตรงกัน"
+  result_description_failure: "พาสเฟรสที่ป้อนไม่สามารถกู้คืนกระเป๋าเดิมได้"
+  saved_mfp: "MFP ที่บันทึกไว้"
+  recovered_mfp: "MFP ที่กู้คืน"
+
+passphrase_check_screen:
+  title: "ป้อนพาสเฟรส"
+  enter_passphrase: "กรุณาป้อนพาสเฟรส"
+  passphrase_error: "โปรดตรวจสอบพาสเฟรสอีกครั้ง"
+  alert:
+    failed:
+      title: "ตรวจสอบพาสเฟรสไม่สำเร็จ"
+
+multisig_signer_bsms_export_screen:
+  fail_bsms: "โหลด BSMS ไม่สำเร็จ"
+
+taproot_sign_screen:
+  exceptions:
+    mixed_path_psbt_error: "ไม่รองรับ Taproot PSBT นี้\nไม่รองรับ PSBT ที่ผสมลายเซ็น Key path และ script path"
+    update_sign_fail: "อัปเดตลายเซ็นไม่สำเร็จ"
+    format_exception:
+      invalid_psbt_format: "รูปแบบ PSBT ไม่ถูกต้อง"
+      transaction_mismatch: "ข้อมูลธุรกรรมไม่ตรงกัน"
+      different_wallet: "เป็นธุรกรรมของกระเป๋าอื่น"
+      participant_mismatch: "ข้อมูลผู้เข้าร่วม MuSig2 ไม่ตรงกัน"
+      no_signature: "ไม่มีข้อมูลลายเซ็น โปรดตรวจสอบว่ากระเป๋าแม่อีกใบลงนามเสร็จแล้ว"
+      no_other_signer_sig: "ไม่มีข้อมูลลายเซ็นจากกระเป๋าแม่อีกใบ"
+      nonce_missing: "ไม่มีข้อมูล nonce ของฉัน"
+      nonce_tampered: "ข้อมูล nonce ของฉันถูกแก้ไขดัดแปลง"
+  musig2_sign:
+    appbar_title:
+      sign_with_other_signer: "ลงนามด้วยกระเป๋าแม่อีกใบ"
+      update_sign: "อัปเดตลายเซ็น"
+    guide:
+      please_bring_key: "กรุณากดปุ่มด้านล่างเพื่อนำเข้าข้อมูลคีย์สำหรับลงนาม"
+      please_do_next: "กรุณากดปุ่มด้านล่างเพื่อไปขั้นตอนถัดไป"
+      scan_with_other_signer: "กรุณาใช้กระเป๋าแม่อีกใบสแกน QR ด้านล่างแล้วลงนาม เมื่อลงนามเสร็จ ให้กลับมาสแกน QR ที่สร้างขึ้น"
+      scan_other_signer_qr: "กรุณาสแกน QR ที่สร้างขึ้นหลังลงนามเสร็จในกระเป๋าแม่อีกใบ"
+      please_sign: "กรุณากดปุ่มด้านล่างเพื่อลงนาม"
+      scan_with_first_signer: "กรุณาใช้กระเป๋าแม่ที่เริ่มลงนามสแกน QR ด้านล่าง"
+      first_sign_completed: "ลงนามครั้งแรกเสร็จแล้ว กรุณาใช้กระเป๋าแม่อีกใบสแกน QR ด้านล่างแล้วลงนามให้เสร็จ"
+    button:
+      prepare_sign: "เตรียมลงนาม"
+      ready: "พร้อมแล้ว"
+
+bottom_sheet:
+  view_mit_license: "ดูสัญญาอนุญาต MIT ฉบับเต็ม"
+  contact_by_email: "ติดต่อทางอีเมล"
+  ask_about_license: "[Vault] สอบถามสัญญาอนุญาต"
+  mnemonic_backup: "โปรดสำรอง\nวลีกู้คืนที่สร้างขึ้น"
+  mnemonic_backup_and_confirm_passphrase: "โปรดสำรองวลีกู้คืนที่สร้างขึ้น\nและตรวจสอบพาสเฟรส"
+  account_settings:
+    title: "ตั้งหมายเลขบัญชี"
+    description: "โปรดจำหมายเลขบัญชีให้ได้"
+    placeholder: "กรุณาป้อนหมายเลขบัญชี"
+    account_error_message: "โปรดป้อนค่าในช่วง 0~2,147,483,647"
+  verify_passphrase:
+    title: "ตรวจสอบพาสเฟรส"
+    description: "ตรวจสอบพาสเฟรสเพื่อเปลี่ยนหมายเลขบัญชี"
+    placeholder: "กรุณาป้อนพาสเฟรส"
+    passphrase_error_message: "พาสเฟรสไม่ตรงกัน โปรดป้อนอีกครั้ง"
+  date_picker:
+    select_date: "เลือกวันที่"
+    time: "เวลา"
+    placeholder: "กรุณาเลือกวันที่และเวลา"
+
+permission:
+  biometric:
+    ask_to_use: "ต้องการใช้ชีวมิติเพื่อปลดล็อกหรือไม่?"
+    proceed_biometric_auth: "โปรดยืนยันตัวตนด้วยชีวมิติ"
+    required: "ต้องใช้สิทธิ์การยืนยันตัวตนด้วยชีวมิติ"
+    denied: "สิทธิ์การยืนยันตัวตนด้วยชีวมิติถูกปฏิเสธ"
+    how_to_allow: "หากต้องการปลดล็อกด้วยชีวมิติ\nโปรดอนุญาตสิทธิ์ชีวมิติใน การตั้งค่า > Coconut Vault"
+    btn_move_to_setting: "ไปที่การตั้งค่า"
+  secure_zone_authentication:
+    title: "เข้าถึงโมดูลความปลอดภัย"
+    description: "ต้องยืนยันตัวตนเพื่อเข้าถึงโมดูลความปลอดภัย"
+  android_security_folder_auth:
+    description: "‼️ หากใช้โฟลเดอร์ที่ปลอดภัย ต้องยืนยันตัวตนด้วย PIN/รูปแบบ/รหัสผ่าน"
+
+alert:
+  delete_vault:
+    title: "ลบกระเป๋าเงิน"
+    description: "หากไม่สำรองวลีกู้คืน จะไม่สามารถกู้คืนบิตคอยน์ในกระเป๋านี้ได้อีกตลอดไป ต้องการลบจริงหรือไม่?"
+  delete_vault_failed:
+    title: "ลบกระเป๋าไม่สำเร็จ"
+    description: "ลบกระเป๋าไม่สำเร็จ โปรดลองอีกครั้ง"
+  forgot_password:
+    title: "ลืมรหัสผ่าน?"
+    description1: "การรีเซ็ตรหัสผ่านจะรีเซ็ต Vault ด้วย ยังต้องการรีเซ็ตหรือไม่?"
+  exit_sign:
+    title: "ออกจากการลงนาม"
+    description: "จะออกจากการลงนามและกลับหน้าหลัก\nต้องการออกจริงหรือไม่?"
+  stop_sign:
+    title: "หยุดการลงนาม"
+    description: "ประวัติการลงนามจะหายไป\nต้องการหยุดจริงหรือไม่?"
+  reselect:
+    title: "เลือกใหม่"
+    description: "ข้อมูลที่ป้อนทั้งหมดจะหายไป\nต้องการเลือกใหม่จริงหรือไม่?"
+  back:
+    title: "กลับไปหน้าก่อนหน้า"
+    description: "ข้อมูลที่ป้อนทั้งหมดจะหายไป\nต้องการกลับไปหน้าก่อนหน้าจริงหรือไม่?"
+  empty_vault:
+    title: "ไม่มีคีย์ที่ใช้ได้"
+    description: "ต้องการสร้างกระเป๋าลายเซ็นเดียวใหม่เพื่อใช้งานหรือไม่?"
+  quit_creating_mutisig_wallet:
+    title: "หยุดสร้างกระเป๋าหลายลายเซ็น"
+    description: "ต้องการหยุดสร้างกระเป๋าจริงหรือไม่?"
+  reset_nth_key:
+    title: "รีเซ็ตคีย์ที่ $index"
+    description: "ต้องการลบข้อมูลคีย์ที่ระบุหรือไม่?"
+  stop_importing:
+    title: "หยุดนำเข้า"
+    description: "ข้อมูลที่สแกนจะหายไป\nต้องการหยุดนำเข้าจริงหรือไม่?"
+  duplicate_key:
+    title: "เพิ่มคีย์นี้แล้ว"
+    description: "โปรดนำเข้าคีย์อื่นที่ไม่ซ้ำกัน"
+  same_wallet:
+    title: "เป็นกระเป๋าใบหนึ่งที่คุณมีอยู่แล้ว"
+    description: "เป็นกระเป๋าเดียวกับ '$name'"
+  include_internal_key:
+    title: "กระเป๋าภายนอกเกินจำนวนที่กำหนด"
+    description: "โปรดใช้คีย์จาก Vault นี้อย่างน้อย 1 คีย์"
+  wallet_creation_failed:
+    title: "สร้างกระเป๋าไม่สำเร็จ"
+    description: "ข้อมูลไม่ถูกต้อง"
+  stop_generating_mnemonic:
+    title: "หยุดสร้างวลีกู้คืน"
+    description: "ต้องการหยุดสร้างวลีกู้คืนหรือไม่?"
+    reselect: "เลือกอีกครั้ง"
+    confirm: "ยืนยัน"
+  stop_importing_mnemonic:
+    title: "หยุดการกู้คืน"
+    description: "ต้องการหยุดการกู้คืนไหม?"
+  erase_all_entered_so_far: "ต้องการลบข้อมูลที่ป้อนมาจนถึงตอนนี้\nทั้งหมดจริงหรือไม่?"
+  erase_all_entered_mnemonic:
+    title: "ล้างทั้งหมด"
+    description: "ต้องการลบวลีกู้คืนที่ป้อนมาจนถึงตอนนี้\nทั้งหมดหรือไม่?"
+  finish_signing:
+    title:  "เสร็จสิ้นการลงนามธุรกรรม"
+    description: "หากปิดหน้านี้ ข้อมูลลายเซ็นจะหายไป\nต้องการออกจริงหรือไม่?"
+  secure_module_use_biometrics:
+    title: "การยืนยันตัวตนด้วยชีวมิติ"
+    description: "ชีวมิติไม่ได้ใช้ปลดล็อกแอป แต่อาจมีคำขอยืนยันตัวตนด้วยชีวมิติโดยอัตโนมัติเมื่อเข้าถึงข้อมูลในโมดูลความปลอดภัย "
+  auth_canceled_when_decrypt:
+    title: "ยกเลิกการยืนยันตัวตนบนอุปกรณ์"
+    description_view_mnemonic: "ต้องยืนยันตัวตนบนอุปกรณ์เพื่อดึงข้อมูลจากพื้นที่ปลอดภัย"
+    description_export: "ต้องเข้าถึงพื้นที่ปลอดภัยเพื่อตรวจสอบว่าพาสเฟรสของกระเป๋าที่จะส่งออกถูกต้อง ขั้นตอนนี้ช่วยป้องกันการส่งบิตคอยน์ไปผิดกระเป๋า"
+    description_passphrase_verify: "ต้องเข้าถึงพื้นที่ปลอดภัยเพื่อตรวจสอบว่าพาสเฟรสที่ป้อนถูกต้อง"
+  auth_canceled_when_encrypt:
+    title: "ยกเลิกการยืนยันตัวตนบนอุปกรณ์"
+    description: "ต้องยืนยันตัวตนบนอุปกรณ์เพื่อบันทึกข้อมูลกระเป๋าในพื้นที่ปลอดภัย"
+  bsms_network_mismatch:
+    title: "BSMS ไม่ถูกต้อง"
+    description_when_mainnet: "BSMS นี้สำหรับเครือข่ายทดสอบ"
+    description_when_testnet: "BSMS นี้สำหรับเมนเน็ต"
+
+
+toast:
+  clipboard_copied: "คัดลอกไปยังคลิปบอร์ดแล้ว"
+  back_exit: "กดปุ่มย้อนกลับอีกครั้งเพื่อออก"
+  scroll_down: "โปรดเลื่อนลงเพื่อตรวจสอบทั้งหมด"
+  data_updated: "อัปเดตข้อมูลแล้ว! โปรดซิงค์กับ Wallet เพื่อไม่ให้สับสน"
+  name_already_used: "เปลี่ยนเป็นชื่อที่ใช้อยู่แล้วไม่ได้"
+  name_already_used2: "ตั้งชื่อที่ใช้อยู่แล้วไม่ได้"
+  name_multisig_in_use: "ลบไม่ได้เพราะใช้อยู่ในกระเป๋าหลายลายเซ็น"
+  mnemonic_already_added: "เพิ่มกระเป๋านี้แล้ว"
+  mnemonic_copied: "คัดลอกวลีกู้คืนแล้ว"
+  multisig_already_added: "เพิ่มกระเป๋าหลายลายเซ็นนี้แล้ว ($name)"
+  home_vault_min_one: "ต้องมีกระเป๋าแสดงบนหน้าหลักอย่างน้อย 1 ใบ"
+  no_wallet_to_delete: "ไม่มีกระเป๋าให้ลบ"
+
+errors:
+  invalid_qr_title: "รูปแบบไม่ถูกต้อง"
+  invalid_qr: "QR ไม่ถูกต้อง\nกรุณาตรวจสอบอีกครั้ง"
+  invalid_single_sig_qr_error: "QR ไม่ถูกต้อง โปรดลองอีกครั้ง"
+  invalid_network_type_error: "ประเภทเครือข่ายของคีย์สาธารณะแบบขยายไม่ตรงกัน"
+  invalid_multisig_qr_error: "QR ไม่ถูกต้อง\nโปรดสแกนรหัส QR จาก \"ดูข้อมูลการตั้งค่ากระเป๋า\" บนหน้าข้อมูลของกระเป๋าหลายลายเซ็นที่จะนำเข้า"
+  unsupport_bsms_version_error: "ไม่รองรับ BSMS เวอร์ชันนี้ รองรับเฉพาะ BSMS 1.0"
+  unsupport_derivation_path_error: "ไม่รองรับเส้นทางการสร้างคีย์ที่กำหนดเอง"
+  duplicate_multisig_registered_error: "ลงทะเบียนกระเป๋าหลายลายเซ็นนี้แล้ว"
+  pin_incorrect_error: "รหัสผ่านไม่ถูกต้อง"
+  duplicate_pin_error: "ใช้รหัสผ่านนี้อยู่แล้ว"
+  pin_processing_error: "เกิดปัญหาระหว่างดำเนินการ"
+  pin_incorrect_with_remaining_attempts_error: "ลองได้อีก $count ครั้ง"
+  remaining_times_away_from_reset_error: "เหลือ $count ครั้งก่อนรีเซ็ต"
+  pin_max_attempts_exceeded_error: "ใช้ Vault ไม่ได้"
+  restart_vault: "เริ่ม Vault ใหม่"
+  retry_after: "ลองใหม่ได้ในอีก $time"
+  invalid_word_error: "โปรดตรวจสอบคำ $filter"
+  invalid_mnemonic_phrase: "วลีกู้คืนไม่ถูกต้อง"
+  different_wallet: "ไม่ใช่กระเป๋าเดียวกัน"
+  data_loading_error: "เกิดข้อผิดพลาดขณะโหลดข้อมูล"
+  data_not_found_error: "ไม่มีข้อมูล"
+  cannot_sign_error: "ลงนามธุรกรรมนี้ไม่ได้"
+  invalid_sign_error: "ข้อมูลลายเซ็นไม่ถูกต้อง กรุณาลองอีกครั้ง"
+  scan_error: "[สแกนไม่สำเร็จ] $error"
+  sign_error: "[ลงนามไม่สำเร็จ]: $error"
+  device_info_unavailable_error: "โหลดข้อมูลอุปกรณ์ไม่ได้ : $error"
+  camera_permission_error: "ไม่ได้รับสิทธิ์ใช้กล้อง"
+  creation_error: "สร้างไม่สำเร็จ"
+  export_error: "ส่งออกไม่สำเร็จ"
+  scan_error_title: "สแกนไม่สำเร็จ"
+  psbt_parsing_error: "แยกวิเคราะห์ psbt ไม่สำเร็จ: $error"
+  not_related_multisig_wallet_error: "ไม่ใช่กระเป๋าหลายลายเซ็นที่ใช้กระเป๋านี้เป็นคีย์"
+  vault_not_found_error: "ไม่มีกระเป๋าที่ลงนามได้"
+  user_cancelled_auth: "ผู้ใช้ยกเลิกการยืนยันตัวตนบนอุปกรณ์"
+  unexpected_error_title: "เกิดข้อผิดพลาด"
+  sign_failed: "ลงนามไม่สำเร็จ"
+
+exceptions:
+  seed_invalidated:
+    title: "ใช้กระเป๋าไม่ได้"
+    description: "ใช้กระเป๋าที่บันทึกไว้ไม่ได้อีกต่อไป โปรดลบกระเป๋าแล้วกู้คืนด้วยวลีกู้คืนที่สำรองไว้"
+  needs_multisig_setup: "โปรดเพิ่มกระเป๋าหลายลายเซ็นก่อน จึงจะลงนามด้วยกระเป๋า $name ได้"
+  taproot_inheritance_needs_legacy_wallet: "ธุรกรรมนี้ใช้คีย์เดียวกับกระเป๋า $name แต่เป็นของกระเป๋าที่สร้างใน Coconut Vault $version หรือเก่ากว่า โปรดเปิด 'กระเป๋าที่สร้างใน Coconut Vault $version หรือเก่ากว่า' แล้วสร้างกระเป๋าอีกครั้ง"
+  taproot_inheritance_needs_wallet_update: "ธุรกรรมนี้สร้างใน Coconut Wallet ที่ไม่ตรงกับกระเป๋า $name โปรดอัปเดต Coconut Wallet เป็น $version ขึ้นไปแล้วสร้างธุรกรรมอีกครั้ง"
+  account_change_failed:
+    title: "เปลี่ยนบัญชีไม่สำเร็จ"
+  taproot:
+    invalid_psbt_sign_type:
+      key_path: "ธุรกรรมนี้ลงนามด้วยกระเป๋าแม่ได้"
+      script_path: "ธุรกรรมนี้ลงนามด้วยกระเป๋าลูกได้"
+  transaction:
+    already_has_sign: "ธุรกรรมนี้มีข้อมูลลายเซ็นแล้ว"
+    already_signed: "ธุรกรรมนี้ลงนามครบแล้ว"
+    muSig2:
+      already_has_nonce_with_this: "ธุรกรรมนี้เพิ่ม nonce ด้วยกระเป๋านี้แล้ว"
+  unsupported_psbt_state: "ไม่รองรับสถานะ PSBT นี้"
+
+tooltip:
+  mfp: "เป็นค่าเฉพาะของกระเป๋า\nเรียกอีกอย่างว่ามาสเตอร์ฟิงเกอร์พรินต์(MFP)"
+
+language:
+  thai: "ไทย"
+  korean: "한국어"
+  english: "English"
+  japanese: "日本語"
+  chinese: "中文"
+  spanish: "Español"
+  french: "Français"
+  german: "Deutsch"
+  italian: "Italiano"
+  portuguese: "Português"
+  russian: "Русский"
+
+general:
+  title: "ทั่วไป"
+  language: "ภาษา"
+  number_format: "รูปแบบตัวเลข"

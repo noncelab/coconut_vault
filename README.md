@@ -39,6 +39,7 @@
 - **Signing** — Sign transactions offline; keys never leave the device
 - **Connection guard** — Detects external connectivity and immediately blocks use
 - **Risk detection** — Detects rooting (Android) and jailbreak (iOS) and warns you; you can still choose to continue
+- **Languages** — Korean, English, Japanese, and Thai in Coconut Vault and Coconut Vault Lite
 
 To practice sending bitcoin, install [Coconut Wallet](https://github.com/noncelab/coconut_wallet) on another device and follow the [tutorial](https://tutorial.coconut.onl) to complete the flow step by step.
 
