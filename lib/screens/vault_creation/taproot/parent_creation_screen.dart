@@ -502,7 +502,10 @@ class _ParentCreationScreenState extends State<ParentCreationScreen> {
             ),
             SelectableOptionCard(
               title: t.taproot.common.prepare_key_option2_title,
-              description: t.taproot.common.prepare_key_option2_desc,
+              description:
+                  target == KeyPreparationTarget.child
+                      ? t.taproot.child_creation_screen.step2.option2_desc
+                      : t.taproot.common.prepare_key_option2_desc,
               bottomAssetPath: 'assets/png/key-holder.png',
               isSelected: selectedType == ParentKeyPreparationType.import,
               onTap: () => onSelected(ParentKeyPreparationType.import),

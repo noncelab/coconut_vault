@@ -41,7 +41,7 @@ class ChildPreparationOptionStep extends StatelessWidget {
         ),
         SelectableOptionCard(
           title: t.taproot.common.prepare_key_option2_title,
-          description: t.taproot.common.prepare_key_option2_desc,
+          description: t.taproot.child_creation_screen.step2.option2_desc,
           bottomAssetPath: 'assets/png/key-holder.png',
           imageScale: 4.0,
           imageWidth: 100,
