@@ -1,0 +1,29 @@
+name: Notify Mattermost
+
+on:
+  pull_request_target:
+    types: [closed]
+    branches:
+      - develop
+      - main
+
+jobs:
+  notify:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Notify Mattermost
+        env:
+          MM_WEBHOOK: ${{ secrets.MM_WEBHOOK }}
+          REPO: ${{ github.repository }}
+          BASE: ${{ github.event.pull_request.base.ref }}
+          MERGED_BY: ${{ github.event.pull_request.merged_by.login }}
+          NUM: ${{ github.event.pull_request.number }}
+          TITLE: ${{ github.event.pull_request.title }}
+          URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          text=$(printf '✅ **PR Merged**\n\n📦 Repository: %s\n🌿 Branch: %s\n👤 Merged by: %s\n\n**#%s %s**\n%s' \
+            "$REPO" "$BASE" "$MERGED_BY" "$NUM" "$TITLE" "$URL")
+          jq -n --arg text "$text" '{text: $text}' \
+            | curl -sSf -X POST "$MM_WEBHOOK" -H 'Content-Type: application/json' -d @-
